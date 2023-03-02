@@ -1,0 +1,23 @@
+{
+  "name": "phecda-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "keywords": [],
+  "author": "",
+  "files": ["dist"],
+  "license": "MIT",
+  "dependencies": {
+    "mitt": "^3.0.0",
+    "vue": "^3.2.45"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}

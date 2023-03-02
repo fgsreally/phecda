@@ -1,0 +1,24 @@
+{
+  "name": "phecda-repo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "dev": "turbo run dev --filter phecda-*",
+    "build": "turbo run build --filter phecda-*",
+    "publish": "changeset publish"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@antfu/eslint-config": "^0.34.1",
+    "@changesets/cli": "^2.26.0",
+    "eslint": "^8.32.0",
+    "tsup": "^6.5.0",
+    "turbo": "^1.8.2",
+    "typescript": "^4.9.4",
+    "vitest": "^0.27.1"
+  }
+}

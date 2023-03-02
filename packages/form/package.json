@@ -1,0 +1,24 @@
+{
+  "name": "phecda-form",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "files": ["dist"],
+  "license": "MIT",
+  "dependencies": {
+    "@vue/shared": "^3.2.47",
+    "phecda-core": "workspace:*",
+    "vue": "^3.2.45"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}

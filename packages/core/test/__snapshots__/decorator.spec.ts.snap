@@ -1,0 +1,19 @@
+// Vitest Snapshot v1
+
+exports[`plainToClass > classToValue 1`] = `
+{
+  "fullname": "phecda111-core",
+}
+`;
+
+exports[`validate&transform > classToValue 1`] = `
+{
+  "fullname": "phecda111-core",
+}
+`;
+
+exports[`validate&transform > extend 1`] = `
+{
+  "fullname": "phecda11111-core",
+}
+`;
