@@ -1,4 +1,4 @@
-name: Test
+name: CI
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2.0.1
         with:
-          version: 6.15.1
+          version: 7.21.0
 
       - name: Set node version to ${{ matrix.node_version }}
         uses: actions/setup-node@v2
@@ -42,10 +42,11 @@ jobs:
       - name: Install
         run: nr build
 
+      - name: Test
+        run: nr test --if-present
+
       - name: Publish
         run: nr publish  
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Test
-        run: nr test --if-present
