@@ -1,7 +1,7 @@
 import type { Component, DefineComponent, ExtractPropTypes } from 'vue'
 import { defineComponent, h, ref, render, shallowRef } from 'vue'
 
-export const createModal = function (modalWrapper: Component, modelKey = 'modelValue') {
+export const createModal: <P>(w: Component, k: string) => (comp: DefineComponent<P, any, any>, props?: ExtractPropTypes<P>) => void = function (modalWrapper: Component, modelKey = 'modelValue') {
   let isMounted = false
   const isShow = ref(true)
   const content = shallowRef()
