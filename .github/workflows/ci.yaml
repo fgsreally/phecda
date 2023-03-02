@@ -37,7 +37,7 @@ jobs:
         run: npm i -g @antfu/ni
 
       - name: Install
-        run: nci
+        run: ni
 
       - name: Install
         run: nr build
