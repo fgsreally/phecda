@@ -46,7 +46,6 @@ jobs:
         run: nr test --if-present
 
       - name: Publish
-        run: nr publish  
+      - run: npm run publish  
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
