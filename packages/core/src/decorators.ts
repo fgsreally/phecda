@@ -177,13 +177,6 @@ export function Storage(target: any) {
       const { state } = instance
 
       window.addEventListener('beforeunload', () => {
-        // const storageObj: Record<string, any> = {}
-        // for (const i in state) {
-        //   // eslint-disable-next-line no-prototype-builtins
-        //   if (instance.hasOwnProperty(i))
-        //     storageObj[i] = state[i]
-        // }
-
         localStorage.setItem(`_phecda_${tag}`, JSON.stringify(state))
       })
       const lastObjStr = localStorage.getItem(`_phecda_${tag}`)
