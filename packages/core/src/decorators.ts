@@ -7,6 +7,10 @@ function init(target: any) {
   if (!target._namespace) {
     target._namespace = {
       /**
+       * 类的 @tag ,
+      */
+      __TAG__: '',
+      /**
        * @Init 事件,
        * 引入Model时就会执行
       */
@@ -163,13 +167,16 @@ export function Watcher(eventName: string) {
 
 export function Tag(tag: string) {
   return (target: any) => {
-    target.prototype._symbol = tag
+    init(target.prototype)
+    target.prototype._namespace.__TAG__ = tag
   }
 }
 
 export function Storage(target: any) {
   init(target.prototype)
-  const tag = target.prototype._symbol
+  const tag = target.prototype._namespace.__TAG__
+  if (tag === '')
+    throw new Error('miss tag')
   const uniTag = Symbol(tag)
   setModalState(target.prototype, uniTag)
   regisHandler(target.prototype, uniTag, {
