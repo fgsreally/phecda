@@ -1,7 +1,7 @@
-import type { PhecdaHandler } from './types'
+import type { Phecda, PhecdaHandler } from './types'
 
 // 一个类挂载第一个phecda装饰器时，会创建对应的，类似元数据的东西
-export function init(target: any) {
+export function init(target: Phecda) {
   if (!target._namespace) {
     target._namespace = {
       /**
@@ -30,68 +30,67 @@ export function init(target: any) {
       /**
          * 状态变量的处理器
         */
-
       __STATE_HANDLER__: new Map(),
     }
   }
 }
 
-export function regisInitEvent(target: any, key: string) {
+export function regisInitEvent(target: Phecda, key: string) {
   init(target)
   target._namespace.__INIT_EVENT__.add(key)
 }
 
-export function getInitEvent(target: any) {
+export function getInitEvent(target: Phecda) {
   init(target)
   return [...target._namespace.__INIT_EVENT__] as string[]
 }
 
-export function setModalState(target: any, key: PropertyKey) {
+export function setModalState(target: Phecda, key: PropertyKey) {
   init(target)
   target._namespace.__STATE_VAR__.add(key)
   // 绑定状态的值，均属于暴露的值
   setExposeKey(target, key)
 }
 
-export function setExposeKey(target: any, key: PropertyKey) {
+export function setExposeKey(target: Phecda, key: PropertyKey) {
   init(target)
   target._namespace.__EXPOSE_VAR__.add(key)
 }
 
-export function setIgnoreKey(target: any, key: PropertyKey) {
+export function setIgnoreKey(target: Phecda, key: PropertyKey) {
   init(target)
   target._namespace.__IGNORE_VAR__.add(key)
 }
 
-export function getModelState(target: any) {
+export function getModelState(target: Phecda) {
   init(target)
   return [...target._namespace.__STATE_VAR__] as string[]
 }
 
-export function getExposeKey(target: any) {
+export function getExposeKey(target: Phecda) {
   init(target)
   return [...target._namespace.__EXPOSE_VAR__] as string[]
 }
 
-export function getIgnoreKey(target: any) {
+export function getIgnoreKey(target: Phecda) {
   init(target)
   return [...target._namespace.__IGNORE_VAR__] as string[]
 }
 
-export function regisHandler(target: any, key: PropertyKey, handler: PhecdaHandler) {
+export function regisHandler(target: Phecda, key: PropertyKey, handler: PhecdaHandler) {
   init(target)
   if (!target._namespace.__STATE_HANDLER__.has(key))
     target._namespace.__STATE_HANDLER__.set(key, [handler])
 
   else
-    target._namespace.__STATE_HANDLER__.get(key).push(handler)
+    target._namespace.__STATE_HANDLER__.get(key)!.push(handler)
 }
 
-export function getHandler(target: any, key: PropertyKey) {
+export function getHandler(target: Phecda, key: PropertyKey) {
   return target._namespace.__STATE_HANDLER__.get(key) || []
 }
 
-export function register(instance: any) {
+export function register(instance: Phecda) {
   const stateVars = getModelState(instance) as PropertyKey[]
 
   for (const item of stateVars) {

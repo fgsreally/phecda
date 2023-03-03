@@ -1,6 +1,5 @@
 import type { EventType } from 'mitt'
 import type { Ref } from 'vue'
-import type { Phecda } from './model'
 export interface PhecdaNameSpace {
   [name: string]: Phecda
 }
@@ -15,7 +14,7 @@ export interface UsePipeOptions {
 }
 
 export interface PhecdaHandler {
-  init?: (instance: Phecda, isFirstTime: boolean) => any
+  init?: (instance: Phecda,) => any
   validate?: (instance: Phecda,) => string | void
   pipe?: (instance: Phecda,) => void
   error?: any
@@ -26,6 +25,23 @@ export interface PhecdaHandler {
   meta?: any
   beforeUnload?: (instance: Phecda) => any
   beforeLoad?: (instance: Phecda, v: any) => any
+}
+
+export interface Phecda {
+  _namespace: {
+
+    __TAG__: string
+
+    __INIT_EVENT__: Set<PropertyKey>
+
+    __EXPOSE_VAR__: Set<PropertyKey>
+
+    __IGNORE_VAR__: Set<PropertyKey>
+
+    __STATE_VAR__: Set<PropertyKey>
+
+    __STATE_HANDLER__: Map<PropertyKey, PhecdaHandler[]>
+  }
 }
 
 export type Vret<I> = {
