@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Err, Watcher, emit, useO, useV } from '../src/index'
+import { Err, Watcher, emit, useR, useV } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
     class WatchPlayer {
@@ -34,12 +34,18 @@ describe('work for vue', () => {
         return Promise.reject(param)
       }
     }
+    // work with useR
+    const ret = useR(ErrorMaker)
+    expect(() => ret.testA('A')).toThrowError('A')
+    expect(ret.testB('B')).toBe('info:Error: B')
+    expect(await ret.testC('C')).toBe('info:C')
+    expect(fn).toHaveBeenCalledTimes(2)
 
-    // only work with useV
+    // work with useV
     const { testA, testB, testC } = useV(ErrorMaker)
     expect(() => testA('A')).toThrowError('A')
     expect(testB('B')).toBe('info:Error: B')
     expect(await testC('C')).toBe('info:C')
-    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fn).toHaveBeenCalledTimes(4)
   })
 })

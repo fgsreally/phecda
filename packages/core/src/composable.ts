@@ -39,8 +39,8 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
 
 export function classToValue<M >(instance: M): ClassValue<M> {
   const data = {} as any
-  const exposeVar = getExposeKey(instance) as PropertyKey[]
-  const ignoreVars = getIgnoreKey(instance) as PropertyKey[]
+  const exposeVar = getExposeKey(instance as any) as PropertyKey[]
+  const ignoreVars = getIgnoreKey(instance as any) as PropertyKey[]
 
   for (const item of exposeVar) {
     if (ignoreVars.includes(item))

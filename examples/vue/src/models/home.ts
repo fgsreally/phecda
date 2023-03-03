@@ -27,7 +27,6 @@ export class HomeModel {
   }
 
   @Watcher('update')
-  @Watcher('test')
   on_Watch() {
     alert('update')
   }

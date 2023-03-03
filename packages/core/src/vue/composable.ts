@@ -1,8 +1,9 @@
+import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
 import { computed, getCurrentInstance, inject, onUnmounted, reactive } from 'vue'
 import { getHandler, register } from '../core'
 import { emitter } from '../emitter'
-import type { Vret } from '../types'
+import type { PhecdaEvents, Vret } from '../types'
 import { getActivePhecda, phecdaSymbol, setActivePhecda } from './phecda'
 import type { _DeepPartial } from './utils'
 import { mergeReactiveObjects, wrapError } from './utils'
@@ -92,7 +93,7 @@ export function useV<T extends new (...args: any) => any>(Model: T): Vret<Instan
   uesVMap.set(Model, proxy)
   return proxy
 }
-export function useOn(eventName: Parameters<typeof emitter['on']>[0], cb: Parameters<typeof emitter['on']>[1]) {
+export function useOn<Key extends keyof PhecdaEvents>(eventName: Key, cb: Handler<PhecdaEvents[Key]>) {
   onUnmounted(() => {
     emitter.off(eventName, cb)
   })
