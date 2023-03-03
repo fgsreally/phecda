@@ -1,3 +1,4 @@
+/* eslint-disable prefer-spread */
 /* eslint-disable no-prototype-builtins */
 import { isReactive, isRef } from 'vue'
 export type _DeepPartial<T> = { [K in keyof T]?: _DeepPartial<T[K]> }
@@ -50,4 +51,8 @@ export function wrapError(target: any, key: PropertyKey, errorHandler: Function)
       }
     }
   }
+}
+
+export function isAsyncFunc(fn: Function) {
+  return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
 }

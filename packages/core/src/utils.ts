@@ -15,7 +15,3 @@ export async function validate(
 
   return false
 }
-
-export function isAsyncFunc(fn: Function) {
-  return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
-}

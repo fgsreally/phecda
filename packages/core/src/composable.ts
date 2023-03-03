@@ -1,5 +1,5 @@
 import type { UnwrapNestedRefs } from 'vue'
-import { getExposeKey, getHandler, getIgnoreKey, getModelState } from './decorators'
+import { getExposeKey, getHandler, getIgnoreKey, getModelState } from './core'
 import type { ClassValue, UsePipeOptions } from './types'
 import { validate } from './utils'
 

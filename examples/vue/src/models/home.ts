@@ -1,8 +1,9 @@
-import { Init, PhecdaWeb, Storage, Tag, Watcher } from 'phecda-core'
+import { Init, Storage, Tag, Watcher, useOn } from 'phecda-core'
 
 @Storage
 @Tag('home')
-export class HomeModel extends PhecdaWeb {
+
+export class HomeModel {
   name = 'home'
 
   obj = {
@@ -20,12 +21,13 @@ export class HomeModel extends PhecdaWeb {
 
   @Init
   on_update() {
-    this.on('update', (e) => {
+    useOn('update', (e) => {
       this.name = `${e.value} from ${e.from}`
     })
   }
 
   @Watcher('update')
+  @Watcher('test')
   on_Watch() {
     alert('update')
   }

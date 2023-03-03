@@ -91,16 +91,6 @@ export class PhecdaWeb extends Phecda {
 //   }
 // }
 
-export function register(instance: any) {
-  const stateVars = getModelState(instance) as PropertyKey[]
-
-  for (const item of stateVars) {
-    const handlers = getHandler(instance, item)
-    for (const hanlder of handlers)
-      hanlder.init?.(instance)
-  }
-}
-
 // export class PhecdaNode extends Phecda {
 //   constructor() {
 //     super()

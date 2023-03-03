@@ -1,4 +1,3 @@
-export * from './model'
 export * from './decorators'
 export * from './types'
 export * from './composable'
