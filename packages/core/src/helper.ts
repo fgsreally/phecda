@@ -1,4 +1,3 @@
-import type { UnwrapNestedRefs } from 'vue'
 import { getExposeKey, getHandler, getIgnoreKey, getModelState } from './core'
 import type { ClassValue, UsePipeOptions } from './types'
 import { validate } from './utils'
@@ -57,7 +56,7 @@ export function to<T extends (...args: any) => any>(task: T, oldTasks?: Function
   return { to: <R extends (arg: ReturnType<T>) => any>(task: R) => to<R>(task, tasks), value: tasks }
 }
 
-export function snapShot<T extends new (...args: any) => any>(data: UnwrapNestedRefs<InstanceType<T>>) {
+export function snapShot<T extends new (...args: any) => any>(data: InstanceType<T>) {
   const snap = {} as unknown as InstanceType<T>
   for (const i in data)
     snap[i] = data[i]
