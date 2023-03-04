@@ -37,7 +37,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
   return { data, err }
 }
 
-export function classToValue<M >(instance: M): ClassValue<M> {
+export function classToValue<M>(instance: M): ClassValue<M> {
   const data = {} as any
   const exposeVar = getExposeKey(instance as any) as PropertyKey[]
   const ignoreVars = getIgnoreKey(instance as any) as PropertyKey[]
@@ -57,7 +57,7 @@ export function to<T extends (...args: any) => any>(task: T, oldTasks?: Function
   return { to: <R extends (arg: ReturnType<T>) => any>(task: R) => to<R>(task, tasks), value: tasks }
 }
 
-export function snapShot<T extends new (...args: any) => any >(data: UnwrapNestedRefs<InstanceType<T>>) {
+export function snapShot<T extends new (...args: any) => any>(data: UnwrapNestedRefs<InstanceType<T>>) {
   const snap = {} as unknown as InstanceType<T>
   for (const i in data)
     snap[i] = data[i]
@@ -72,5 +72,25 @@ export function snapShot<T extends new (...args: any) => any >(data: UnwrapNeste
       for (const i in snap)
         data[i] = snap[i]
     },
+  }
+}
+/**
+ * add phecda-decorator to a class by function
+ * @param args
+ * {_class:[Tag('example')],
+ * name:[Get()]
+ * }
+ */
+
+export function addDecoToClass<M extends new (...args: any) => any>(c: M, args: Record<string, ((target: any, key: string) => void)[]>) {
+  for (const key in args) {
+    if (key === '_class') {
+      args[key].forEach(i => i(c, key))
+    }
+    else if (key.startsWith('static_')) {
+      const staticKey = key.slice(7)
+      args[key].forEach(i => i(c, staticKey))
+    }
+    else { args[key].forEach(i => i(c.prototype, key)) }
   }
 }

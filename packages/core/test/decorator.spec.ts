@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Get, Ignore, Pipe, Rule, Watcher, classToValue, plainToClass, to, useV } from '../src/index'
-import { emit } from './../src/emitter'
+import { Get, Ignore, Pipe, Rule, classToValue, plainToClass, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
