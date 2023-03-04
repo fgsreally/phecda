@@ -1,7 +1,7 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
 import { computed, getCurrentInstance, inject, onUnmounted, reactive } from 'vue'
-import { getHandler, register } from '../core'
+import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { PhecdaEvents, Vret } from '../types'
 import { getActivePhecda, phecdaSymbol, setActivePhecda } from './phecda'

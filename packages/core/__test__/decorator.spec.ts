@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Get, Ignore, Pipe, Rule, classToValue, plainToClass, to } from '../src/index'
+import { getExposeKey } from '../src/core'
+import { Get, Ignore, Pipe, Rule, addDecoToClass, classToValue, plainToClass, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
@@ -50,5 +51,14 @@ describe('validate&transform', () => {
     expect(err[1]).toBe('name should be short')
     expect(data.name).toBe('phecda11111')
     expect(classToValue(data)).toMatchSnapshot()
+  })
+
+  it('use function to add decorator', () => {
+    class Any {
+      name: string
+    }
+
+    addDecoToClass(Any, 'name', Get)
+    expect(getExposeKey(Any.prototype as any)).toMatchSnapshot()
   })
 })

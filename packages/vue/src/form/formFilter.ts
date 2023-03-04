@@ -1,4 +1,4 @@
-import { createFilter } from 'phecda-vue'
+import { createFilter } from '../filter'
 
 export function createFormData<Schema extends object, Data extends object>(schema: Schema, initData: Data = {} as any, options: { expressionRE?: RegExp;fnRE?: RegExp; exclude?: string[] } = {}) {
   const { data, filter } = createFilter(initData, options)

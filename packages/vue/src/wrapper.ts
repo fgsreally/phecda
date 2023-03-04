@@ -1,5 +1,6 @@
 import type { Emitter, Handler } from 'mitt'
-import type { Phecda, PhecdaEvents } from './types'
+import type { Phecda } from 'phecda-core'
+import type { PhecdaEvents } from './types'
 import { emitter } from './emitter'
 
 export class P {

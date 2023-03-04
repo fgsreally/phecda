@@ -1,8 +1,7 @@
-import type { to } from './composable'
+import type { to } from './helper'
 import { init, regisHandler, setExposeKey, setIgnoreKey, setModalState } from './core'
-import { emitter } from './emitter'
 
-export function Init(target: any, key: string) {
+export function Init(target: any, key: PropertyKey) {
   setModalState(target, key)
 
   regisHandler(target, key, {
@@ -15,7 +14,7 @@ export function Init(target: any, key: string) {
 export function Rule(rule: RegExp | string | Function | number,
   info: string,
   meta?: any) {
-  return (obj: any, key: string) => {
+  return (obj: any, key: PropertyKey) => {
     setModalState(obj, key)
     regisHandler(obj, key, {
       rule,
@@ -25,11 +24,11 @@ export function Rule(rule: RegExp | string | Function | number,
   }
 }
 
-export function Ignore(target: any, key: string) {
+export function Ignore(target: any, key: PropertyKey) {
   setIgnoreKey(target, key)
 }
 
-export function Clear(target: any, key: string) {
+export function Clear(target: any, key: PropertyKey) {
   init(target)
 
   target._namespace.__INIT_EVENT__.delete(key)
@@ -48,29 +47,18 @@ export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   }
 }
 
-export function Get(target: any, key: string) {
+export function Get(target: any, key: PropertyKey) {
   setExposeKey(target, key)
 }
 
 export function Pipe(v: ReturnType<typeof to>) {
-  return (obj: any, key: string) => {
+  return (obj: any, key: PropertyKey) => {
     setModalState(obj, key)
     regisHandler(obj, key, {
       async pipe(instance: any) {
         const tasks = v.value
         for (const task of tasks)
           instance[key] = await task(instance[key])
-      },
-    })
-  }
-}
-
-export function Watcher(eventName: string) {
-  return (obj: any, key: string) => {
-    setModalState(obj, key)
-    regisHandler(obj, key, {
-      init(instance: any) {
-        emitter.on(eventName, instance[key].bind(instance))
       },
     })
   }

@@ -76,21 +76,7 @@ export function snapShot<T extends new (...args: any) => any>(data: UnwrapNested
 }
 /**
  * add phecda-decorator to a class by function
- * @param args
- * {_class:[Tag('example')],
- * name:[Get()]
- * }
  */
-
-export function addDecoToClass<M extends new (...args: any) => any>(c: M, args: Record<string, ((target: any, key: string) => void)[]>) {
-  for (const key in args) {
-    if (key === '_class') {
-      args[key].forEach(i => i(c, key))
-    }
-    else if (key.startsWith('static_')) {
-      const staticKey = key.slice(7)
-      args[key].forEach(i => i(c, staticKey))
-    }
-    else { args[key].forEach(i => i(c.prototype, key)) }
-  }
+export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler:((target: any, key: PropertyKey) => void), type: 'static' | 'class' | 'normal' = 'normal') {
+  handler(type === 'normal' ? c.prototype : c, key)
 }

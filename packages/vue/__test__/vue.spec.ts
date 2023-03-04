@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Err, Watcher, emit, useR, useV } from '../src/index'
+import { Err } from 'phecda-core'
+import { Watcher, emit, useR, useV } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
     class WatchPlayer {
