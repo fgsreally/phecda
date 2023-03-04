@@ -1,6 +1,6 @@
 {
   "name": "phecda-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -11,12 +11,10 @@
   },
   "keywords": [],
   "author": "",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
-  "dependencies": {
-    "mitt": "^3.0.0",
-    "vue": "^3.2.45"
-  },
   "devDependencies": {
     "tsup": "^6.5.0"
   }

@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
-import { createPhecda } from 'phecda-core'
+import { createPhecda } from 'phecda-vue'
 import App from './App.vue'
 import router from './router'
 import './assets/main.css'
 
-const app = createApp(App)// .use(createPhecda())
+const app = createApp(App).use(createPhecda())
 
 app.use(router)
 

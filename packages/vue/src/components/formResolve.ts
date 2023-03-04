@@ -1,10 +1,10 @@
 import { getHandler, getModelState, validate } from 'phecda-core'
 
 export function getElementPlusRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getModelState(Model)
+  const stateVars = getModelState(Model as any)
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
-    const handlers = getHandler(Model, item)
+    const handlers = getHandler(Model as any, item)
     if (handlers) {
       for (const handler of handlers) {
         const { rule, meta, info } = handler
@@ -34,10 +34,10 @@ export function getElementPlusRules<M, O extends object>(Model: M, options: O = 
 export const GetDevUIRules = getElementPlusRules
 
 export function getNaiveUIRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getModelState(Model)
+  const stateVars = getModelState(Model as any)
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
-    const handlers = getHandler(Model, item)
+    const handlers = getHandler(Model as any, item)
     if (handlers) {
       for (const handler of handlers) {
         const { rule, meta, info } = handler
@@ -67,10 +67,10 @@ export function getNaiveUIRules<M, O extends object>(Model: M, options: O = {} a
 export const getAntDRules = getNaiveUIRules
 
 export function getNutUIRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getModelState(Model)
+  const stateVars = getModelState(Model as any)
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
-    const handlers = getHandler(Model, item)
+    const handlers = getHandler(Model as any, item)
     if (handlers) {
       for (const handler of handlers) {
         const { rule, meta, info } = handler

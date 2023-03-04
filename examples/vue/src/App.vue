@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { clearStorage, useV } from 'phecda-core'
+import { clearStorage, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
 const { name, fullName } = useV(HomeModel)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useV } from 'phecda-core'
+import { useV } from 'phecda-vue'
 import { AboutModel } from '../models/about'
 import { HomeModel } from '@/models/home'
 const { name } = useV(HomeModel)

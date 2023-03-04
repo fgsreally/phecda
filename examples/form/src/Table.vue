@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createTable } from 'phecda-form'
+import { createTable } from 'phecda-vue'
 import { ElTable, ElTableColumn } from 'element-plus'
 import Test3 from './components/Test3.vue'
 
