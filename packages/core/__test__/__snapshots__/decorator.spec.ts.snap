@@ -17,3 +17,9 @@ exports[`validate&transform > extend 1`] = `
   "fullname": "phecda11111-core",
 }
 `;
+
+exports[`validate&transform > use function to add decorator 1`] = `
+[
+  "name",
+]
+`;
