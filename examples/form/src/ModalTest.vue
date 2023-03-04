@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createModal } from 'phecda-form'
+import { createModal } from 'phecda-vue'
 import { ElDialog } from 'element-plus'
 import Test from './components/Test.vue'
 import Test2 from './components/Test2.vue'

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 // import Form from "@vformore/component";
-import { Rule } from 'phecda-core'
+import { Rule } from 'phecda-vue'
 
 import * as Naive from 'naive-ui'
 import { NButton, NForm, NFormItem } from 'naive-ui'
 import { ElMessage } from 'element-plus'
 
-import { createForm, createFormData, getNaiveUIRules } from 'phecda-form'
+import { createForm, createFormData, getNaiveUIRules } from 'phecda-vue'
 
 class Pension {
   @Rule(

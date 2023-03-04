@@ -1,7 +1,7 @@
 import { HomeModel } from './home';
-import 'phecda-core'
+import 'phecda-vue'
 
-declare module 'phecda-core'{
+declare module 'phecda-vue'{
     interface PhecdaNameSpace {
         home: HomeModel;
       }

@@ -1,4 +1,4 @@
-import { Init, Storage, Tag, Watcher, useOn } from 'phecda-core'
+import { Init, Storage, Tag, Watcher, useOn } from 'phecda-vue'
 
 @Storage
 @Tag('home')

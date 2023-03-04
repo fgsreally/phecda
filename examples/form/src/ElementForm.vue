@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 // import Form from "@vformore/component";
-import { Rule } from 'phecda-core'
+import { Rule } from 'phecda-vue'
 import { ElButton, ElForm, ElFormItem, ElMessage, FormRules } from 'element-plus'
 import * as ElPlus from 'element-plus'
 
-import { createForm, createFormData, getElementPlusRules } from 'phecda-form'
+import { createForm, createFormData, getElementPlusRules } from 'phecda-vue'
 
 class Pension {
   @Rule(

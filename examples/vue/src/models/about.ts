@@ -1,4 +1,4 @@
-import { P, Tag, useV } from 'phecda-core'
+import { P, Tag, useV } from 'phecda-vue'
 import { HomeModel } from './home'
 
 @Tag('about')
