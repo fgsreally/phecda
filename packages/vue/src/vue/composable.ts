@@ -1,12 +1,12 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
-import { computed, getCurrentInstance, inject, onUnmounted, reactive } from 'vue'
+import { computed, getCurrentInstance, inject, onScopeDispose, reactive } from 'vue'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { PhecdaEvents, Vret } from '../types'
 import { getActivePhecda, phecdaSymbol, setActivePhecda } from './phecda'
 import type { _DeepPartial } from './utils'
-import { mergeReactiveObjects, wrapError } from './utils'
+import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
 // create/get origin reactive value
 export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
@@ -15,36 +15,40 @@ export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNeste
     if (cur)
       setActivePhecda(cur)
   }
-  const { uesOMap } = getActivePhecda()
-  if (!uesOMap.has(Model)) {
+  const { useOMap } = getActivePhecda()
+  if (!useOMap.has(Model)) {
     const instance = reactive(new Model())
-    uesOMap.set(Model, instance)
+    useOMap.set(Model, instance)
     register(instance)
   }
-  return uesOMap.get(Model)
+  return useOMap.get(Model)
 }
 
 export function usePatch<T extends new (...args: any) => any>(Model: T, Data: _DeepPartial<InstanceType<T>>) {
   useO(Model)
-  const { uesOMap } = getActivePhecda()
-  const target = uesOMap.get(Model)
+  const { useOMap } = getActivePhecda()
+  const target = useOMap.get(Model)
   mergeReactiveObjects(target, Data)
 }
 
 export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
   useO(Model)
-  const { uesRMap, uesOMap } = getActivePhecda()
+  const { useRMap, useOMap, fnMap } = getActivePhecda()
 
-  if (uesRMap.has(Model))
-    return uesRMap.get(Model)
-  const instance = uesOMap.get(Model)
+  if (useRMap.has(Model))
+    return useRMap.get(Model)
+  const instance = useOMap.get(Model)
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
+        if (fnMap.has(target[key]))
+          return fnMap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
-        return wrapError(target, key, errorHandler)
+        const wrapper = wrapError(target, key, errorHandler)
+        fnMap.set(target[key], wrapper)
+        return wrapper
       }
 
       return target[key]
@@ -55,46 +59,57 @@ export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNeste
     },
   })
 
-  uesRMap.set(Model, proxy)
+  useRMap.set(Model, proxy)
   return proxy
 }
 
 export function useV<T extends new (...args: any) => any>(Model: T): Vret<InstanceType<T>> {
   useO(Model)
-  const { uesVMap, uesOMap } = getActivePhecda()
+  const { useVMap, useOMap, fnMap, computedMap } = getActivePhecda()
 
-  if (uesVMap.has(Model))
-    return uesVMap.get(Model)
-
-  const instance = uesOMap.get(Model)
+  if (useVMap.has(Model))
+    return useVMap.get(Model)
+  computedMap.set(Model, {})
+  const instance = useOMap.get(Model)
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
+        if (fnMap.has(target[key]))
+          return fnMap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
-        return wrapError(target, key, errorHandler)
+        const wrapper = wrapError(target, key, errorHandler)
+        fnMap.set(target[key], wrapper)
+        return wrapper
       }
+      const cache = computedMap.get(Model)
+      if (key in cache)
+        return cache[key]()
 
-      return computed({
-        get() {
-          return target[key]
-        },
-        set(v) {
-          return target[key] = v
-        },
+      cache[key] = createSharedReactive(() => {
+        return computed({
+          get() {
+            return target[key]
+          },
+          set(v) {
+            return target[key] = v
+          },
+        })
       })
+
+      return cache[key]()
     },
     set() { // readonly
       return false
     },
   })
 
-  uesVMap.set(Model, proxy)
+  useVMap.set(Model, proxy)
   return proxy
 }
 export function useOn<Key extends keyof PhecdaEvents>(eventName: Key, cb: Handler<PhecdaEvents[Key]>) {
-  onUnmounted(() => {
+  onScopeDispose(() => {
     emitter.off(eventName, cb)
   })
   emitter.on(eventName, cb)

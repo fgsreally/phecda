@@ -35,6 +35,7 @@ const { config, data } = createFormData({
     label: '年龄',
   },
   money: {
+    _active: '{{age>40}}',
     _component: 'ElSelect',
     _formItem: { label: '退休金', prop: 'money' },
     _default: 3000,

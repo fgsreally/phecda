@@ -13,7 +13,7 @@ export function createForm<P extends { $props: any }>(
 } & P['$props']> {
   function generateChildVNode(props: any) {
     return props._children?.map((item: any) =>
-      h((compSet as any)[item._component], item),
+      item._active === false ? null : h((compSet as any)[item._component], item),
     )
   }
 
@@ -91,13 +91,15 @@ export function createForm<P extends { $props: any }>(
         return h(form as any, Object.assign({ ref: dom }, ctx.attrs), {
           default: () =>
             Object.keys(props.config).map((item) => {
-              return h(FormItem, {
-                formItem: props.config[item]._formItem,
-                config: props.config,
-                property: item,
-                data: props.data,
-              })
-            }),
+              return props.config[item as any]._active === false
+                ? null
+                : h(FormItem, {
+                  formItem: props.config[item]._formItem,
+                  config: props.config,
+                  property: item,
+                  data: props.data,
+                })
+            }), // .filter(item => !(props.config[item as any]._active === false)),
         })
       }
     },

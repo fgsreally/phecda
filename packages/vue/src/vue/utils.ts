@@ -1,6 +1,7 @@
 /* eslint-disable prefer-spread */
 /* eslint-disable no-prototype-builtins */
-import { isReactive, isRef } from 'vue'
+import type { EffectScope } from 'vue'
+import { effectScope, isReactive, isRef, onScopeDispose } from 'vue'
 export type _DeepPartial<T> = { [K in keyof T]?: _DeepPartial<T[K]> }
 
 export function isObject(o: any) {
@@ -55,4 +56,31 @@ export function wrapError(target: any, key: PropertyKey, errorHandler: Function)
 
 export function isAsyncFunc(fn: Function) {
   return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
+}
+
+export function createSharedComputed() {
+
+}
+
+export function createSharedReactive<F extends (...args: any) => any>(composable: F): () => ReturnType<F> {
+  let subscribers = 0
+  let state: ReturnType<F>
+  let scope: EffectScope
+
+  const dispose = () => {
+    if (scope && --subscribers <= 0) {
+      scope.stop();
+      (state as any) = (scope as any) = null
+    }
+  }
+
+  return () => {
+    subscribers++
+    if (!state) {
+      scope = effectScope(true)
+      state = scope.run(() => composable())
+    }
+    onScopeDispose(dispose)
+    return state
+  }
 }

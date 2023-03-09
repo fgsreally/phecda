@@ -9,26 +9,30 @@ export function createPhecda() {
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
     },
-    uesVMap: new WeakMap(),
-    uesOMap: new WeakMap(),
-    uesRMap: new WeakMap(),
+    useVMap: new WeakMap(),
+    useOMap: new WeakMap(),
+    useRMap: new WeakMap(),
+    fnMap: new WeakMap(),
+    computedMap: new WeakMap(),
   })
 
   return phecda
 }
 
 interface PhecdaInstance {
-  uesVMap: WeakMap<any, any>
-  uesOMap: WeakMap<any, any>
-  uesRMap: WeakMap<any, any>
-
+  useVMap: WeakMap<any, any>
+  useOMap: WeakMap<any, any>
+  useRMap: WeakMap<any, any>
+  fnMap: WeakMap<any, any>
+  computedMap: WeakMap<any, any>
 }
 
 let activePhecda: PhecdaInstance = {
-  uesVMap: new WeakMap(),
-  uesOMap: new WeakMap(),
-  uesRMap: new WeakMap(),
-
+  useVMap: new WeakMap(),
+  useOMap: new WeakMap(),
+  useRMap: new WeakMap(),
+  fnMap: new WeakMap(),
+  computedMap: new WeakMap(),
 }
 
 export function setActivePhecda(phecda: PhecdaInstance) {
