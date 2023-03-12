@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { effectScope, reactive, ref } from 'vue'
 import type { SchemaToObj } from './types'
 export const EXPRESS_RE = /^{{(.*)}}$/
 export const FN_RE = /^\[\[(.*)\]\]$/
@@ -15,7 +15,9 @@ export function createFilter<Data extends Record<string, any>>(
     },
     option,
   )
-  let data = ref<Data>(initState as any)
+  const scope = effectScope(true)
+
+  let data = scope.run(() => ref<Data>(initState as any))!
   let store: { [key: string]: Data } = {}
 
   function traverse(obj: any) {
@@ -80,9 +82,9 @@ export function createFilter<Data extends Record<string, any>>(
   }
 
   function dispose() {
-    // eslint-disable-next-line vue/no-ref-as-operand
     data = null as any
     store = null as any
+    scope.stop()
   }
   return { filter, data, init, setState, storeState, store, applyStore, dispose, clearStore }
 }

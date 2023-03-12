@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 1.0.2
+
+### Patch Changes
+
+- add scopeeffect to createfilter
+- 0606626: add \_active property to createFormData
+- 0606626: refactor : use effectscope to create computed data and use weakmap to cache function on model
+
 ## 1.0.1
 
 ### Patch Changes
