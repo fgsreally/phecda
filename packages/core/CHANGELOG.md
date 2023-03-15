@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.0.2
+
+### Patch Changes
+
+- b119020: add more pipe and rule to core
+
 ## 1.0.1
 
 ### Patch Changes
