@@ -1,5 +1,7 @@
 import type { App } from 'vue'
 import { markRaw } from 'vue'
+import { injectProperty } from 'phecda-core'
+import { emitter } from '../emitter'
 
 export const phecdaSymbol = Symbol('phecda')
 
@@ -8,6 +10,7 @@ export function createPhecda() {
     install(app: App) {
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
+      injectProperty('watcher', emitter)
     },
     useVMap: new WeakMap(),
     useOMap: new WeakMap(),
