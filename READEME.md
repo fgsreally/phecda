@@ -1,10 +1,6 @@
 # Phecda
 More possibilities for responsiveness 
 
-
-
-
-
 ## phecda-vue
 > work for `vue`
 
