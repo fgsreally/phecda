@@ -8,19 +8,14 @@ export interface UsePipeOptions {
 }
 
 export interface PhecdaHandler {
-  init?: (instance: Phecda,) => any
-  validate?: (instance: Phecda,) => string | void
-  pipe?: (instance: Phecda,) => void
-  error?: any
-  watch?: any
-  rule?: any
-  info?: any
-  ignore?: boolean
+  init?: (instance: any) => any
+  pipe?: (instance: any) => void
+  rule?: RegExp | string | Function | number
+  info?: string
   meta?: any
-  beforeUnload?: (instance: Phecda) => any
-  beforeLoad?: (instance: Phecda, v: any) => any
-}
+  error?: any
 
+}
 export interface Phecda {
   _namespace: {
 

@@ -10,7 +10,9 @@ export function createPhecda() {
     install(app: App) {
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
-      injectProperty('watcher', emitter)
+      injectProperty('watcher', ({ eventName, instance, key }: { eventName: string; instance: any; key: string }) => {
+        emitter.on(eventName, typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v)
+      })
     },
     useVMap: new WeakMap(),
     useOMap: new WeakMap(),

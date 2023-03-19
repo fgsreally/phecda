@@ -2,7 +2,6 @@ import { Init, Storage, Tag, Watcher, useOn } from 'phecda-vue'
 
 @Storage
 @Tag('home')
-
 export class HomeModel {
   name = 'home'
 

@@ -16,7 +16,7 @@ const { name, fullName } = useV(HomeModel)
       <HelloWorld msg="You did it!" />
 
       <nav>
-        <button @click="clearStorage(HomeModel)">
+        <button @click="clearStorage(HomeModel, true)">
           清空记录并刷新
         </button>
         <RouterLink to="/">
