@@ -21,6 +21,8 @@ declare module '@vue/runtime-core' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     Form: typeof import('./src/components/form.vue')['default']
+    Iframe: typeof import('./src/components/iframe.vue')['default']
+    IframeCanvas: typeof import('./src/components/iframeCanvas.vue')['default']
     Item: typeof import('./src/components/item.vue')['default']
     Preview: typeof import('./src/components/preview.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
