@@ -1,6 +1,6 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
-import { computed, getCurrentInstance, inject, onScopeDispose, reactive } from 'vue'
+import { computed, getCurrentInstance, inject, onBeforeUnmount, reactive } from 'vue'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { PhecdaEvents, Vret } from '../types'
@@ -97,7 +97,6 @@ export function useV<T extends new (...args: any) => any>(Model: T): Vret<Instan
           },
         })
       })
-
       return cache[key]()
     },
     set() { // readonly
@@ -108,8 +107,8 @@ export function useV<T extends new (...args: any) => any>(Model: T): Vret<Instan
   useVMap.set(Model, proxy)
   return proxy
 }
-export function useOn<Key extends keyof PhecdaEvents>(eventName: Key, cb: Handler<PhecdaEvents[Key]>) {
-  onScopeDispose(() => {
+export function useEvent<Key extends keyof PhecdaEvents>(eventName: Key, cb: Handler<PhecdaEvents[Key]>) {
+  onBeforeUnmount(() => {
     emitter.off(eventName, cb)
   })
   emitter.on(eventName, cb)

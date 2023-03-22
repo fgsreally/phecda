@@ -1,0 +1,33 @@
+{
+  "name": "component",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsup"
+  },
+  "keywords": [],
+  "author": "",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "devui-theme": "^0.0.4",
+    "element-plus": "^2.2.28",
+    "phecda-vue": "workspace:^1.0.3",
+    "tippy.js": "^6.3.7",
+    "vite": "^4.2.0",
+    "vue": "^3.2.47",
+    "vue-devui": "^1.5.2",
+    "vue-tippy": "^6.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.1.0",
+    "unplugin-auto-import": "^0.15.1",
+    "unplugin-vue-components": "^0.24.1",
+    "unplugin-vue-macros": "^1.10.1"
+  }
+}
