@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createTableData, updateItemTypeMeta } from '../src/components/form'
+import { createTableData, updateItemTypeMeta } from '../src/components/vueTypeMeta'
 
 describe('test', () => {
   it('test', () => {

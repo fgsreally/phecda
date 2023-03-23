@@ -6,6 +6,4 @@ export {}
 declare global {
   const ElInput: typeof import('element-plus/es')['ElInput']
   const ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
-  const ElNumber: typeof import('element-plus/es')['ElNumber']
-  const ElNumberInput: typeof import('element-plus/es')['ElNumberInput']
 }

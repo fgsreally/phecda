@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    CompTree: typeof import('./src/components/CompTree.vue')['default']
     DCol: typeof import('vue-devui/grid/index.es.js')['Col']
     DColumn: typeof import('vue-devui/column/index.es.js')['Column']
     DSelect: typeof import('vue-devui/select/index.es.js')['Select']
@@ -20,11 +21,13 @@ declare module '@vue/runtime-core' {
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
+    ElTree: typeof import('element-plus/es')['ElTree']
     Form: typeof import('./src/components/form.vue')['default']
-    Iframe: typeof import('./src/components/iframe.vue')['default']
+    Iframe: typeof import('./src/components/iframeCanvas.vue')['default']
     IframeCanvas: typeof import('./src/components/iframeCanvas.vue')['default']
     Item: typeof import('./src/components/item.vue')['default']
     Preview: typeof import('./src/components/preview.vue')['default']
+    PropsPane: typeof import('./src/components/PropsPane.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

@@ -2,10 +2,9 @@ export const BasicType = ['string', 'undefined', 'number', 'function']
 
 let id = 0
 export function createTableData(config: any[]) {
-  config.filter(item => !item.global).map((item) => {
+  return config.filter(item => !item.global).map((item) => {
     return handleItemTypeMeta(item)
   })
-  return config
 }
 
 function handleItemTypeMeta(item: any) {
@@ -16,12 +15,12 @@ function handleItemTypeMeta(item: any) {
   updateItemValue(item)
   if (typeof item.currentType === 'object')
     item.children = Object.values(item.currentType.schema).map(item => handleItemTypeMeta(item))
+  else item.children = []
 
   return item
 }
 
 export function updateItemTypeMeta(item: any) {
-  console.log(item)
   updateItemValue(item)
 
   if (typeof item.currentType === 'object')
@@ -42,9 +41,17 @@ export function updateItemValue(item: any) {
       item.value = null
       break
     case 'undefined':
-      delete item.value
+      item.value = undefined
       break
     default:
       item.value = {}
   }
+}
+
+export function metaToPropsValue(obj: any, meta: any[]) {
+  for (const item of meta) {
+    obj[item.name] = item.value
+    metaToPropsValue(obj[item.name], item.children)
+  }
+  return obj
 }
