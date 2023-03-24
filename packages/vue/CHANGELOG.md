@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 1.0.4
+
+### Patch Changes
+
+- 24e2f22: move all decorator to core and other pkg only need to inject property
+- Updated dependencies [24e2f22]
+  - phecda-core@1.0.3
+
 ## 1.0.3
 
 ### Patch Changes

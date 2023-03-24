@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.0.3
+
+### Patch Changes
+
+- 24e2f22: move all decorator to core and other pkg only need to inject property
+
 ## 1.0.2
 
 ### Patch Changes
