@@ -10,9 +10,20 @@ export function createPhecda() {
     install(app: App) {
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
+
+      const eventRecord = [] as [string, (event: any) => void][]
       injectProperty('watcher', ({ eventName, instance, key }: { eventName: string; instance: any; key: string }) => {
-        emitter.on(eventName, typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v)
+        const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
+        eventRecord.push([eventName, fn])
+        emitter.on(eventName, fn)
       })
+      const originUnmount = app.unmount.bind(app)
+      app.unmount = () => {
+        eventRecord.forEach(([eventName, handler]) =>
+          emitter.off(eventName, handler),
+        )
+        originUnmount()
+      }
     },
     useVMap: new WeakMap(),
     useOMap: new WeakMap(),
