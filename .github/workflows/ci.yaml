@@ -1,4 +1,4 @@
-name: CI pipe
+name: CI and Release
 
 on:
   push:
