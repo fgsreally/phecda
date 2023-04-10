@@ -23,7 +23,7 @@ export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNeste
   }
   return useOMap.get(Model)
 }
-
+// like what pinia do
 export function usePatch<T extends new (...args: any) => any>(Model: T, Data: _DeepPartial<InstanceType<T>>) {
   useO(Model)
   const { useOMap } = getActivePhecda()

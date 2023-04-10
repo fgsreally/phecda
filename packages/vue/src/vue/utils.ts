@@ -1,6 +1,6 @@
 /* eslint-disable prefer-spread */
 /* eslint-disable no-prototype-builtins */
-import type { EffectScope } from 'vue'
+import type { EffectScope, UnwrapNestedRefs } from 'vue'
 import { effectScope, isReactive, isRef, onScopeDispose } from 'vue'
 export type _DeepPartial<T> = { [K in keyof T]?: _DeepPartial<T[K]> }
 
@@ -83,4 +83,15 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
     onScopeDispose(dispose)
     return state
   }
+}
+
+export function getModelMap(symbol: string) {
+  if (!window._phecda?.[symbol])
+    return null
+
+  const ret = new Map<string, UnwrapNestedRefs<any>>()
+  window._phecda[symbol].snapshot.forEach(({ key, value }: { key: string; value: any }) => {
+    ret.set(key, value)
+  })
+  return ret
 }

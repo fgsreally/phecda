@@ -1,9 +1,18 @@
-import { Init, Storage, Tag, Watcher, useOn } from 'phecda-vue'
+import { Clear, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
+
+@Tag('base')
+export class Base {
+  name = 'base'
+  @Init
+  run() {
+    console.log('run')
+  }
+}
 
 @Storage
-@Tag('home')
-export class HomeModel {
-  name = 'home'
+// @Tag('home')
+export class HomeModel extends Base {
+  // name = 'home'
 
   obj = {
     id: 1,
@@ -20,7 +29,7 @@ export class HomeModel {
 
   @Init
   on_update() {
-    useOn('update', (e) => {
+    useEvent('update', (e) => {
       this.name = `${e.value} from ${e.from}`
     })
   }
@@ -29,4 +38,7 @@ export class HomeModel {
   on_Watch() {
     alert('update')
   }
+
+  @Clear
+  run: any
 }

@@ -15,3 +15,7 @@ export async function validate(
 
   return false
 }
+
+export function getTag<M extends new (...args: any) => any>(Model: M) {
+  return (Model as any).prototype?._namespace?.__TAG__
+}

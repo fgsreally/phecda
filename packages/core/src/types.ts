@@ -14,6 +14,7 @@ export interface PhecdaHandler {
   info?: string
   meta?: any
   error?: any
+  http?: any
 
 }
 export interface Phecda {

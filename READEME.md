@@ -1,6 +1,33 @@
 # Phecda
 More possibilities for responsiveness 
 
+## core
+### validate and transform data like `class-validator`/`class-transform`
+
+```ts
+class Parent {
+  @Rule('phecda', 'name should be phecda')
+  @Pipe(to((name: string) => `${name}1`)
+    .to(name => `${name}1`))
+    name: string
+
+  @Get
+  get fullname() {
+    return `${this.name}-core`
+  }
+
+  changeName() {
+    this.name = 'phecda-changed'
+  }
+}
+
+const { data, err } = await plainToClass(Parent, { name: 'phecda' })
+
+/**
+ * data:{name:'phecda11'}
+ * err:null
+ */
+```
 ## phecda-vue
 > work for `vue`
 
@@ -39,30 +66,3 @@ const { name, changeName, fullName } = useV(HomeModel)
 [example](./examples/form)
 
 
-## core
-### validate and transform data like `class-validator`/`class-transform`
-
-```ts
-class Parent {
-  @Rule('phecda', 'name should be phecda')
-  @Pipe(to((name: string) => `${name}1`)
-    .to(name => `${name}1`))
-    name: string
-
-  @Get
-  get fullname() {
-    return `${this.name}-core`
-  }
-
-  changeName() {
-    this.name = 'phecda-changed'
-  }
-}
-
-const { data, err } = await plainToClass(Parent, { name: 'phecda' })
-
-/**
- * data:{name:'phecda11'}
- * err:null
- */
-```

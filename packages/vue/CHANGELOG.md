@@ -1,5 +1,17 @@
 # phecda-vue
 
+## 1.1.0
+
+### Minor Changes
+
+- add symbol,then you can get model in window
+
+### Patch Changes
+
+- 5cdb2db: stop watching event before invoke app.unmount ,mainly for micro-frontend
+- Updated dependencies
+  - phecda-core@1.0.4
+
 ## 1.0.4
 
 ### Patch Changes
