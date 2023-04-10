@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Err } from 'phecda-core'
-import { Watcher, invokeAction, useR, useV } from '../src/index'
+import { createApp } from 'vue'
+import { Watcher, createPhecda, invokeAction, useR, useV } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
+    createApp({}).use(createPhecda())
     class WatchPlayer {
       name: string
       @Watcher('test')
