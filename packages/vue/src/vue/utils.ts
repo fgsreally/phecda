@@ -1,6 +1,6 @@
 /* eslint-disable prefer-spread */
 /* eslint-disable no-prototype-builtins */
-import type { EffectScope, UnwrapNestedRefs } from 'vue'
+import type { EffectScope } from 'vue'
 import { effectScope, isReactive, isRef, onScopeDispose } from 'vue'
 export type _DeepPartial<T> = { [K in keyof T]?: _DeepPartial<T[K]> }
 

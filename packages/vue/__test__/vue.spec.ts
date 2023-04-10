@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Err } from 'phecda-core'
-import { Watcher, emit, useR, useV } from '../src/index'
+import { Watcher, invokeAction, useR, useV } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
     class WatchPlayer {
@@ -14,7 +14,7 @@ describe('work for vue', () => {
 
     expect(name.value).toBeUndefined()
 
-    emit('test', 'phecda')
+    invokeAction('test', 'phecda')
     expect(name.value).toBe('phecda')
   })
   it('error handler', async () => {
