@@ -85,7 +85,7 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
   }
 }
 
-export function getModelMap(symbol: string) {
+export function getReactiveMap(symbol: string) {
   if (!window._phecda?.[symbol])
     return null
 
