@@ -84,14 +84,3 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
     return state
   }
 }
-
-export function getReactiveMap(symbol: string) {
-  if (!window._phecda?.[symbol])
-    return null
-
-  const ret = new Map<string, UnwrapNestedRefs<any>>()
-  window._phecda[symbol].snapshot.forEach(({ key, value }: { key: string; value: any }) => {
-    ret.set(key, value)
-  })
-  return ret
-}

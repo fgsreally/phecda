@@ -1,8 +1,7 @@
-import type { App } from 'vue'
+import type { App, UnwrapNestedRefs } from 'vue'
 import { markRaw } from 'vue'
 import { getTag, injectProperty } from 'phecda-core'
 import { emitter } from '../emitter'
-
 export const phecdaSymbol = Symbol('phecda')
 
 export function createPhecda(symbol?: string) {
@@ -74,4 +73,16 @@ export function setActivePhecda(phecda: PhecdaInstance) {
 
 export function getActivePhecda() {
   return activePhecda
+}
+
+// get reactive store in lib or other place outside app
+export function getReactiveMap(symbol: string) {
+  if (!window._phecda?.[symbol])
+    return null
+
+  const ret = new Map<string, UnwrapNestedRefs<any>>()
+  window._phecda[symbol].snapshot.forEach(({ key, value }: { key: string; value: any }) => {
+    ret.set(key, value)
+  })
+  return ret
 }
