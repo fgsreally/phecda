@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.0.5
+
+### Patch Changes
+
+- add window decorator
+
 ## 1.0.4
 
 ### Patch Changes

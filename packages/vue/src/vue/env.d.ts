@@ -4,6 +4,6 @@ export {}
 
 declare global {
     interface Window {
-        __PHECDA__:Record<string,any>
+        __PHECDA_VUE__:Record<string,any>
     }
 }

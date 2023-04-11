@@ -95,3 +95,10 @@ export function Storage(target: any) {
     },
   })
 }
+export function Window(target: any) {
+  if (!window.__PHECDA__)
+    window.__PHECDA__ = {}
+  const tag = target.prototype._namespace.__TAG__
+  if (tag)
+    window.__PHECDA__[tag] = target
+}

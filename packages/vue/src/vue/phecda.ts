@@ -9,11 +9,11 @@ export function createPhecda(symbol?: string) {
     install(app: App) {
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
-      if (!window._phecda)
-        window._phecda = {}
+      if (!window.__PHECDA_VUE__)
+        window.__PHECDA_VUE__ = {}
 
       if (symbol) {
-        window._phecda[symbol] = {
+        window.__PHECDA_VUE__[symbol] = {
           instance: phecda,
           snapshot: () => {
             const ret = [] as { key: string; value: any }[]
@@ -37,7 +37,7 @@ export function createPhecda(symbol?: string) {
           emitter.off(eventName, handler),
         )
         if (symbol)
-          delete window._phecda[symbol]
+          delete window.__PHECDA_VUE__[symbol]
         originUnmount()
       }
     },
@@ -77,11 +77,11 @@ export function getActivePhecda() {
 
 // get reactive store in lib or other place outside app
 export function getReactiveMap(symbol: string) {
-  if (!window._phecda?.[symbol])
+  if (!window.__PHECDA_VUE__?.[symbol])
     return null
 
   const ret = new Map<string, UnwrapNestedRefs<any>>()
-  window._phecda[symbol].snapshot.forEach(({ key, value }: { key: string; value: any }) => {
+  window.__PHECDA_VUE__[symbol].snapshot.forEach(({ key, value }: { key: string; value: any }) => {
     ret.set(key, value)
   })
   return ret

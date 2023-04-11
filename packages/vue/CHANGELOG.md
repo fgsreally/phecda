@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 1.1.1
+
+### Patch Changes
+
+- rename symbol object in createPhecda
+- Updated dependencies
+  - phecda-core@1.0.5
+
 ## 1.1.0
 
 ### Minor Changes
