@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.1.2
+
+### Patch Changes
+
+- add errorhandler to filter in vue
+
 ## 1.1.1
 
 ### Patch Changes
