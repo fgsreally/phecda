@@ -2,10 +2,10 @@ import { effectScope, reactive, ref } from 'vue'
 import type { SchemaToObj } from './types'
 export const EXPRESS_RE = /^{{(.*)}}$/
 export const FN_RE = /^\[\[(.*)\]\]$/
-
+// array won't be filtered
 export function createFilter<Data extends Record<string, any>>(
   initState: Object = {},
-  option: { expressionRE?: RegExp;fnRE?: RegExp; exclude?: string[] } = {},
+  option: { expressionRE?: RegExp; fnRE?: RegExp; exclude?: string[]; errorHandler?: (error?: Error, errorPath?: string) => any } = {},
 ) {
   const resolveOption = Object.assign(
     {
@@ -20,21 +20,24 @@ export function createFilter<Data extends Record<string, any>>(
   let data = scope.run(() => ref<Data>(initState as any))!
   let store: { [key: string]: Data } = {}
 
-  function traverse(obj: any) {
+  function traverse(obj: any, path?: string) {
     for (const i in obj) {
       if (Array.isArray(obj[i]) || resolveOption.exclude.includes(i))
         continue
+
+      const errorPath = path ? `${path}.${i}` : i
       if (typeof obj[i] === 'object' && obj[i])
-        traverse(obj[i])
+        traverse(obj[i], errorPath)
 
       if (typeof obj[i] === 'string') {
         if (resolveOption.expressionRE.test(obj[i])) {
           const body = obj[i].match(resolveOption.expressionRE)[1]
+
           Object.defineProperty(obj, i, {
             get() {
               // eslint-disable-next-line no-new-func
-              return new Function(...Object.keys(data.value), `return ${body}`)(
-                ...Object.values(data.value),
+              return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{return ${body}}catch(e){return _eh(e,"${errorPath}")}` : `return ${body}`)(
+                ...Object.values(data.value), resolveOption.errorHandler,
               )
             },
           })
@@ -44,9 +47,12 @@ export function createFilter<Data extends Record<string, any>>(
           Object.defineProperty(obj, i, {
             get() {
               // eslint-disable-next-line no-new-func
-              return new Function(...Object.keys(data.value), `${body}`)(
-                ...Object.values(data.value),
+              return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{${body}}catch(e){return _eh(e,"${errorPath}")}` : `${body}`)(
+                ...Object.values(data.value), resolveOption.errorHandler,
               )
+              // return new Function(...Object.keys(data.value), `${body}`)(
+              //   ...Object.values(data.value),
+              // )
             },
           })
         }
