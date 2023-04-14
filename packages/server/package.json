@@ -1,0 +1,25 @@
+{
+  "name": "phecda-server",
+  "version": "1.0.",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "keywords": [],
+  "author": "",
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  },
+  "dependencies": {
+    "phecda-core": "workspace:^",
+    "reflect-metadata": "^0.1.13"
+  }
+}

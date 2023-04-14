@@ -31,6 +31,10 @@ export function init(target: Phecda) {
          * 状态变量的处理器
         */
       __STATE_HANDLER__: new Map(),
+      /**
+         * 状态变量的共有状态
+        */
+      __STATE_NAMESPACE__: new Map(),
     }
   }
 }
@@ -45,7 +49,7 @@ export function getInitEvent(target: Phecda) {
   return [...target._namespace.__INIT_EVENT__] as string[]
 }
 
-export function setModalState(target: Phecda, key: PropertyKey) {
+export function setModalVar(target: Phecda, key: PropertyKey) {
   init(target)
   target._namespace.__STATE_VAR__.add(key)
   // 绑定状态的值，均属于暴露的值
@@ -88,6 +92,13 @@ export function regisHandler(target: Phecda, key: PropertyKey, handler: PhecdaHa
 
 export function getHandler(target: Phecda, key: PropertyKey) {
   return target._namespace.__STATE_HANDLER__.get(key) || []
+}
+
+export function mergeState(target: Phecda, key: PropertyKey, state: any) {
+  const namespace = target._namespace.__STATE_NAMESPACE__
+  if (!namespace.has(key))
+    namespace.set(key, state)
+  else Object.assign(namespace.get(key)!, state)
 }
 
 export function register(instance: Phecda) {

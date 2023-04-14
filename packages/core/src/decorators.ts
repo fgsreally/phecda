@@ -1,8 +1,8 @@
 import type { to } from './helper'
-import { init, regisHandler, setExposeKey, setIgnoreKey, setModalState } from './core'
+import { init, regisHandler, setExposeKey, setIgnoreKey, setModalVar } from './core'
 
 export function Init(target: any, key: PropertyKey) {
-  setModalState(target, key)
+  setModalVar(target, key)
 
   regisHandler(target, key, {
     async init(instance: any) {
@@ -15,7 +15,7 @@ export function Rule(rule: RegExp | string | Function | number,
   info: string,
   meta?: any) {
   return (obj: any, key: PropertyKey) => {
-    setModalState(obj, key)
+    setModalVar(obj, key)
     regisHandler(obj, key, {
       rule,
       info,
@@ -40,7 +40,7 @@ export function Clear(target: any, key: PropertyKey) {
 
 export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   return (target: any, key: PropertyKey) => {
-    setModalState(target, key)
+    setModalVar(target, key)
     regisHandler(target, key, {
       error: cb,
     })
@@ -53,7 +53,7 @@ export function Get(target: any, key: PropertyKey) {
 
 export function Pipe(v: ReturnType<typeof to>) {
   return (obj: any, key: PropertyKey) => {
-    setModalState(obj, key)
+    setModalVar(obj, key)
     regisHandler(obj, key, {
       async pipe(instance: any) {
         const tasks = v.value
@@ -78,7 +78,7 @@ export function Storage(target: any) {
   if (tag === '')
     throw new Error('miss tag')
   const uniTag = Symbol(tag)
-  setModalState(target.prototype, uniTag)
+  setModalVar(target.prototype, uniTag)
   regisHandler(target.prototype, uniTag, {
     init: (instance: any) => {
       const { state } = instance

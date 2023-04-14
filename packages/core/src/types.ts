@@ -8,14 +8,14 @@ export interface UsePipeOptions {
 }
 
 export interface PhecdaHandler {
-  init?: (instance: any) => any
-  pipe?: (instance: any) => void
-  rule?: RegExp | string | Function | number
-  info?: string
-  meta?: any
-  error?: any
-  http?: any
-
+  [key: string]: any
+  // init?: (instance: any) => any
+  // pipe?: (instance: any) => void
+  // rule?: RegExp | string | Function | number
+  // info?: string
+  // meta?: any
+  // error?: any
+  // http?: any
 }
 export interface Phecda {
   _namespace: {
@@ -31,6 +31,8 @@ export interface Phecda {
     __STATE_VAR__: Set<PropertyKey>
 
     __STATE_HANDLER__: Map<PropertyKey, PhecdaHandler[]>
+
+    __STATE_NAMESPACE__: Map<PropertyKey, Object>
   }
 }
 
