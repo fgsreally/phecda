@@ -56,17 +56,11 @@ export class PhecdaServer {
   }
 
   requestToMethod(method: (...params: any[]) => any) {
-    const length = (this.meta.params || []).length
-    const params = [] as ServerMeta['params']
+    const params: ServerMeta['params'] = this.meta.params || []
 
     const guards = this.meta.guards || []
     const interceptors = this.meta.interceptor || []
-    for (let i = 0; i < length; i++) {
-      const param = this.meta.params.pop()
-      params.unshift(param!)
-      if (param?.index === 0)
-        break
-    }
+
     this.params = params.map((param) => {
       return `${param.type}-${param.key}`
     })

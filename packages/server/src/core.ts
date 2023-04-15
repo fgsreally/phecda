@@ -9,6 +9,7 @@ export function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: ServerMeta[] = []
   Modules.forEach(Module => buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>)
+  console.log(meta[0].params)
   return { moduleMap, meta }
 }
 
@@ -46,6 +47,13 @@ function getMetaFromInstance(instance: Phecda, name: string) {
       state.route.route = baseState.route.route + state.route.route
     state.name = name
     state.method = i
+    const params = [] as any[]
+    for (const i of state.params || []) {
+      params.unshift(i)
+      if (i.index === 0)
+        break
+    }
+    state.params = params
     return state
   }) as unknown as ServerMeta[]
 }

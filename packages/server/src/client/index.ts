@@ -1,26 +1,49 @@
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
+import type { MergeType, RequestType } from '../types'
 interface RequestArgs {
   body: Record<string, any>
   query: Record<string, string>
   params: Record<string, string>
   realParam: string
-  method: string
+  method: RequestType
+  url: string
+  name: string
 }
+type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params'>
 export function toReq(arg: RequestArgs) {
-  const { body, query, realParam } = arg
-  return { body, query: Object.keys(query).length > 0 ? `?${Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&')}` : '', params: realParam }
+  const { body, query, realParam, method, url } = arg
+  return { method, url, body, query: Object.keys(query).length > 0 ? `?${Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&')}` : '', params: realParam }
+}
+// @ts-expect-error misdirction
+export const merge: MergeType = (...args: RequestArgs[]) => {
+  const ret = {} as Record<string, MergedReqArg>
+  for (const i of args) {
+    const { name, body, query, params } = i
+    ret[name] = { body, query, params }
+  }
+
+  return ret
+}
+export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Parameters<F>) => Promise<ReturnType<F>>
+
+export function createReq(instance?: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>> > {
+  return (arg: any, config?: AxiosRequestConfig) => {
+    const { url, params, query, body, method } = toReq(arg as RequestArgs)
+
+    const ret = [`http://127.0.0.1:3699${url}${params}${query}`] as any[]
+    body && ret.push(body)
+    config && ret.push(config)
+    // @ts-expect-error misdirction
+
+    return (instance || axios)[method](...ret)
+  }
 }
 
-export function mergeReq(arg: RequestArgs) {
-  const { body, query, params } = arg
-  return { body, query, params }
-}
+export function createMergeReq(instance?: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends any[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<R>> {
+  // @ts-expect-error misdirction
 
-export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, ...args: Parameters<F>) => Promise<ReturnType<F>>
-
-export function createAxios(instance: AxiosInstance): RequestMethod {
-  const ret = fn(...args) as RequestArgs
-  return () => {
-   return  axios[ret.method]()
-  } as unknoew
+  return (args: Record<string, MergedReqArg>, config?: AxiosRequestConfig) => {
+    return (instance || axios).post(key, args, config)
+  }
 }

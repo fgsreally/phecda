@@ -1,3 +1,5 @@
+import type { RequestType } from './types'
+
 export class FakeController {
   content = ''
   classMap: Record<string, { [key: string]: string }> = {}
@@ -15,12 +17,13 @@ export class FakeController {
     return content
   }
 
-  addMethod(className: string, methodName: string, params: { type: string; key: string; index: number }[]) {
+  addMethod(className: string, methodName: string, route: string, requestType: RequestType, params: { type: string; key: string; index: number }[] = []) {
+    const url = route.replace(/\/\:([^\/]*)/g, '')
     if (!this.classMap[className])
       this.classMap[className] = {}
     this.classMap[className][methodName] = `
     ${methodName}(${genParams(params)}){
-const ret={body:{},query:{},params:{},realParam:''}
+const ret={name:"${className}-${methodName}",body:{},query:{},params:{},realParam:'',method:"${requestType}",url:"${url}"}
 ${params.reduce((p, c) => `${p}ret.${c.type}.${c.key}=arg${c.index}\n${c.type === 'params' ? `ret.realParam+='/'+arg${c.index}\n` : ''}`, '')}
 return ret
     }

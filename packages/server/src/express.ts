@@ -11,7 +11,7 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: ServerMeta[];
     const method = server.requestToMethod(instance[i.method].bind(instance))
     methodMap[`${i.name}-${i.method}`] = method
     if (i.route.type) {
-      (app as any)[i.route.type](i.route.route, async (req: any, res: any) => {
+      app[i.route.type](i.route.route, async (req, res) => {
         const ret = await method(req)
         if (ret instanceof HttpException) {
           res.status(ret.status)

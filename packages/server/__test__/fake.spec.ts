@@ -6,6 +6,10 @@ describe('fakeController', () => {
       {
         name: 'Controller1',
         method: 'add',
+        route: {
+          route: '/a',
+          type: 'post' as const,
+        },
         params: [{
           type: 'query',
           key: 'a',
@@ -27,7 +31,10 @@ describe('fakeController', () => {
       {
         name: 'Controller2',
         method: 'add',
-
+        route: {
+          route: '/a',
+          type: 'post' as const,
+        },
         params: [{
           type: 'query',
           key: 'a',
@@ -42,7 +49,7 @@ describe('fakeController', () => {
     const faker = new FakeController()
 
     for (const i of meta)
-      faker.addMethod(i.name, i.method, i.params)
+      faker.addMethod(i.name, i.method, i.route.route, i.route.type, i.params)
 
     expect(faker.getContent()).toMatchSnapshot()
   })

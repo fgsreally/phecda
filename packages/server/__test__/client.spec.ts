@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mergeReq, toReq } from '../src/client'
+import {  toReq } from '../src/client'
 
 describe('client ', () => {
   it('handle request data', () => {
@@ -15,9 +15,11 @@ describe('client ', () => {
       body: {
         name: 'server',
       },
+      name: 'A-test',
+      method: 'post' as const,
+      url: '/base',
       realParam: '/phecda/loc',
     }
     expect(toReq(data)).toMatchSnapshot()
-    expect(mergeReq(data)).toMatchSnapshot()
   })
 })

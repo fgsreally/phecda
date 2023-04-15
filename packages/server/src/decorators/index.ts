@@ -2,7 +2,7 @@ import { mergeState, setModalVar } from 'phecda-core'
 
 export function Inject() { }
 
-export function Route(route: string, type?: string) {
+export function Route(route: string, type?: string): any {
   return (target: any, key?: PropertyKey) => {
     if (key) {
       setModalVar(target, key)
@@ -36,7 +36,7 @@ export function Controller(route: string) {
   return Route(route)
 }
 
-export function BaseParam(type: string, key: string) {
+export function BaseParam(type: string, key: string): any {
   return (target: any, k: PropertyKey, index: number) => {
     setModalVar(target, k)
     mergeState(target, k, {

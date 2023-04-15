@@ -38,7 +38,7 @@ describe('express ', () => {
     bindApp(app, data)
 
     const res1 = await request(app).post('/base/phecda?id=1').send({ name: 'server' })
-    expect(res1.body).toBe('phecda-server-1')
+    expect(res1.text).toBe('phecda-server-1')
 
     const res2 = await request(app).post('/__PHECDA_SERVER__').send({
       'A-test': {
