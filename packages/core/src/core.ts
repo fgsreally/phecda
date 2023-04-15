@@ -1,4 +1,5 @@
 import type { Phecda, PhecdaHandler } from './types'
+import { mergeOptions } from './utils'
 
 // 一个类挂载第一个phecda装饰器时，会创建对应的，类似元数据的东西
 export function init(target: Phecda) {
@@ -98,7 +99,13 @@ export function mergeState(target: Phecda, key: PropertyKey, state: any) {
   const namespace = target._namespace.__STATE_NAMESPACE__
   if (!namespace.has(key))
     namespace.set(key, state)
-  else Object.assign(namespace.get(key)!, state)
+  else mergeOptions(namespace.get(key)!, state)
+}
+
+export function getState(target: Phecda, key: PropertyKey) {
+  const namespace = target._namespace.__STATE_NAMESPACE__
+  if (namespace)
+    return namespace.get(key)
 }
 
 export function register(instance: Phecda) {

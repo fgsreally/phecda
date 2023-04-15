@@ -19,3 +19,25 @@ export async function validate(
 export function getTag<M extends new (...args: any) => any>(Model: M) {
   return (Model as any).prototype?._namespace?.__TAG__
 }
+
+export function mergeOptions(obj1: any, obj2?: any) {
+  if (!obj2)
+    return obj1
+
+  for (const i in obj2) {
+    if (isObject(obj1[i]) && isObject(obj2[i])) {
+      mergeOptions(obj1[i], obj2[i])
+      continue
+    }
+    if (Array.isArray(obj1[i]) && Array.isArray(obj2[i])) {
+      obj1[i].unshift(...obj2[i])
+      continue
+    }
+    obj1[i] = obj2[i]
+  }
+  return obj1
+}
+
+function isObject(obj: any) {
+  return Object.prototype.toString.call(obj) === '[object Object]'
+}

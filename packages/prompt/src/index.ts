@@ -6,7 +6,7 @@ export function fromJsonToData(jsonData: { [key: string]: any }, metadata?: any)
   for (const i in jsonData) {
     if (typeof jsonData[i] === 'string' && EXPRESS_RE.test(jsonData[i])) {
       const expression = replacePromptStr(jsonData[i].match(EXPRESS_RE)[1])
-      const fn = new Function('v', 'prompt', 'meta', `console.log(meta);return ${expression}`)
+      const fn = new Function('v', 'prompt', 'meta', `return ${expression}`)
       jsonData[i] = (v: any) => fn(v, prompt, metadata)
     }
     if (typeof jsonData[i] === 'object')
