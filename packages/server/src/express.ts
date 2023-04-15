@@ -1,6 +1,8 @@
 import type { Express } from 'express'
 import { PhecdaServer } from './server'
 import type { ServerMeta } from './types'
+import { HttpException } from './exception/base'
+import { isObject } from './utils'
 export function bindApp(app: Express, { meta, moduleMap }: { meta: ServerMeta[]; moduleMap: any }, key = '/__PHECDA_SERVER__') {
   const methodMap = {} as Record<string, (...args: any[]) => any>
   for (const i of meta) {
@@ -10,8 +12,15 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: ServerMeta[];
     methodMap[`${i.name}-${i.method}`] = method
     if (i.route.type) {
       (app as any)[i.route.type](i.route.route, async (req: any, res: any) => {
-        // console.log(await method(req))
-        res.json(await method(req))
+        const ret = await method(req)
+        if (ret instanceof HttpException) {
+          res.status(ret.status)
+          res.json(ret)
+        }
+        if (isObject(ret))
+          res.json(ret)
+        else
+          res.send(String(ret))
       })
     }
   }

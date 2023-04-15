@@ -1,3 +1,5 @@
+import { HttpException } from './exception/base'
+import { UndefinedException } from './exception/undefine'
 import type { ServerMeta } from './types'
 
 export class PhecdaServer {
@@ -75,8 +77,9 @@ export class PhecdaServer {
         const ret = await method(...params.map(param => req[param.type][param.key]))
         return this.usePost(ret, posts)
       }
-      catch (e) {
-        console.error(e)
+      catch (e: any) {
+        if (!(e instanceof HttpException))
+          return new UndefinedException(e.message || e)
         return e
       }
     }
