@@ -1,3 +1,4 @@
+import { ForbiddenException } from './exception'
 import { HttpException } from './exception/base'
 import { UndefinedException } from './exception/undefine'
 import type { Meta } from './meta'
@@ -27,7 +28,7 @@ export class PhecdaServer {
   async useGuard(req: any, guards: string[]) {
     for (const guard of guards) {
       if (!await PhecdaServer.guardsRecord[guard]?.(req))
-        throw new Error('aa')
+        throw new ForbiddenException('Guard exception')
     }
   }
 
