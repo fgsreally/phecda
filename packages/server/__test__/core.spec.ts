@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { Factory } from '../src/core'
 import { Body, Controller, Get, Query } from '../src/decorators'
-import type { ServerMeta } from './../src/types'
+import type { Meta } from '../src/meta'
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', () => {
     @Controller('/base')
@@ -12,7 +12,7 @@ describe('Factory ', () => {
       }
     }
     const { meta } = Factory([A])
-    expectTypeOf(meta).items.toEqualTypeOf<ServerMeta>()
+    expectTypeOf(meta).items.toEqualTypeOf<Meta>()
     expect(meta).toMatchSnapshot()
   })
 

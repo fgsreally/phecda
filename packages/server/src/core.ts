@@ -3,17 +3,17 @@ import type { Phecda } from 'phecda-core'
 import { getModelState, getState } from 'phecda-core'
 
 import type { ServerMeta } from './types'
+import { Meta } from './meta'
 type Construct<T = any> = new (...args: Array<any>) => T
 
 export function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
-  const meta: ServerMeta[] = []
+  const meta: Meta[] = []
   Modules.forEach(Module => buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>)
-  console.log(meta[0].params)
   return { moduleMap, meta }
 }
 
-function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: ServerMeta[]) {
+function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Meta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
   const name = Module.name
@@ -40,10 +40,10 @@ function buildNestModule(Module: Construct, map: Map<string, InstanceType<Constr
 
 function getMetaFromInstance(instance: Phecda, name: string) {
   const vars = getModelState(instance).filter(item => item !== '__CLASS')
-  const baseState = getState(instance, '__CLASS') || {} as any
+  const baseState = (getState(instance, '__CLASS') || {}) as Partial<ServerMeta>
   return vars.map((i) => {
-    const state = getState(instance, i) as any
-    if (baseState.route && !baseState.route.type)
+    const state = getState(instance, i) as Partial<ServerMeta>
+    if (baseState.route && state.route)
       state.route.route = baseState.route.route + state.route.route
     state.name = name
     state.method = i
@@ -54,10 +54,10 @@ function getMetaFromInstance(instance: Phecda, name: string) {
         break
     }
     state.params = params
-    return state
-  }) as unknown as ServerMeta[]
+    return new Meta(state as unknown as ServerMeta, getParamtypes(instance, i))
+  })
 }
 
-function getParamtypes(Module: Construct) {
-  return Reflect.getMetadata('design:paramtypes', Module)
+function getParamtypes(Module: any, key?: string | symbol) {
+  return Reflect.getMetadata('design:paramtypes', Module, key!)
 }

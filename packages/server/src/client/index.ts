@@ -1,6 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import axios from 'axios'
-import type { MergeType, RequestType } from '../types'
+import type { MergeType, RequestType, ResOrErr, UnWrapClass } from '../types'
 interface RequestArgs {
   body: Record<string, any>
   query: Record<string, string>
@@ -27,23 +26,27 @@ export const merge: MergeType = (...args: RequestArgs[]) => {
 }
 export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Parameters<F>) => Promise<ReturnType<F>>
 
-export function createReq(instance?: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>> > {
+export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>> > {
   return (arg: any, config?: AxiosRequestConfig) => {
     const { url, params, query, body, method } = toReq(arg as RequestArgs)
 
-    const ret = [`http://127.0.0.1:3699${url}${params}${query}`] as any[]
+    const ret = [`${url}${params}${query}`] as any[]
     body && ret.push(body)
     config && ret.push(config)
     // @ts-expect-error misdirction
 
-    return (instance || axios)[method](...ret)
+    return instance[method](...ret)
   }
 }
 
-export function createMergeReq(instance?: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends any[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<R>> {
+export function createMergeReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends any[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<ResOrErr<R>>> {
   // @ts-expect-error misdirction
 
   return (args: Record<string, MergedReqArg>, config?: AxiosRequestConfig) => {
-    return (instance || axios).post(key, args, config)
+    return instance.post(key, args, config)
   }
+}
+
+export function P<C extends new (...args: any) => any>(Model: C): UnWrapClass<C> {
+  return new Model()
 }

@@ -1,15 +1,18 @@
 import { HttpException } from './exception/base'
 import { UndefinedException } from './exception/undefine'
-import type { ServerMeta } from './types'
+import type { Meta } from './meta'
+import type { PhecdaPipe } from './pipe'
+import { defaultPipe } from './pipe'
 
 export class PhecdaServer {
   method: string
   params: string[]
+  static pipe: PhecdaPipe = defaultPipe
   static guardsRecord: Record<string, (...params: any) => boolean> = {}
-  static interceptorsRecord: Record<string, (...params: any) => any | void> = {}
+  static interceptorsRecord: Record<string, (...params: any) => any | ((...params: any) => any)> = {}
   static serverRecord: Record<string, PhecdaServer> = {}
 
-  constructor(public key: string, public meta: ServerMeta) {
+  constructor(public key: string, public meta: Meta) {
     PhecdaServer.serverRecord[key] = this
   }
 
@@ -20,16 +23,6 @@ export class PhecdaServer {
   static registerInterceptor(key: string, handler: any) {
     PhecdaServer.interceptorsRecord[key] = handler
   }
-
-  // static print() {
-  //   return Object.values(PhecdaServer.serverRecord).map((item) => {
-  //     return {
-  //       key: item.key,
-  //       params: item.params,
-  //       method: item.method,
-  //     }
-  //   })
-  // }
 
   async useGuard(req: any, guards: string[]) {
     for (const guard of guards) {
@@ -55,20 +48,22 @@ export class PhecdaServer {
     return ret
   }
 
-  requestToMethod(method: (...params: any[]) => any) {
-    const params: ServerMeta['params'] = this.meta.params || []
+  async usePipe(args: { arg: any; validate: boolean }[], reflect: any[]) {
+    return PhecdaServer.pipe.transform(args, reflect)
+  }
 
-    const guards = this.meta.guards || []
-    const interceptors = this.meta.interceptor || []
+  methodToHandler(method: (...params: any[]) => any) {
+    const { data: { params = [], guards = [], interceptors = [] }, reflect = [] } = this.meta
 
-    this.params = params.map((param) => {
-      return `${param.type}-${param.key}`
-    })
     return async (req: any) => {
       try {
         await this.useGuard(req, guards)
         const posts = await this.useInterceptor(req, interceptors!)
-        const ret = await method(...params.map(param => req[param.type][param.key]))
+        const args = params.map((param) => {
+          return { arg: req[param.type]?.[param.key], validate: param.validate }
+        })
+
+        const ret = await method(...await this.usePipe(args, reflect))
         return this.usePost(ret, posts)
       }
       catch (e: any) {
@@ -78,4 +73,16 @@ export class PhecdaServer {
       }
     }
   }
+}
+
+export function addGuard(key: string, handler: (...params: any) => boolean) {
+  PhecdaServer.registerGuard(key, handler)
+}
+
+export function addInterceptor(key: string, handler: (...params: any) => any | ((...params: any) => any)) {
+  PhecdaServer.registerInterceptor(key, handler)
+}
+
+export function usePipe(pipe: PhecdaPipe) {
+  PhecdaServer.pipe = pipe
 }

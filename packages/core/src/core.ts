@@ -1,6 +1,9 @@
 import type { Phecda, PhecdaHandler } from './types'
 import { mergeOptions } from './utils'
 
+export function isPhecda(target: any) {
+  return !!target.prototype._namespace
+}
 // 一个类挂载第一个phecda装饰器时，会创建对应的，类似元数据的东西
 export function init(target: Phecda) {
   if (!target._namespace) {

@@ -15,7 +15,7 @@ export class Base {
 export class HomeModel extends Base {
   // name = 'home'
 
-  obj = {
+  readonly obj = {
     id: 1,
     isChange: false,
   }
@@ -24,7 +24,7 @@ export class HomeModel extends Base {
     return `--${this.name}--`
   }
 
-  changeName() {
+  protect changeName() {
     this.name = 'fgs'
   }
 

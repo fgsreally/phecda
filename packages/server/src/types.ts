@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export interface ServerMeta {
-  route: {
+  route?: {
     type: RequestType
     route: string
   }
-  params: { type: string; index: number; key: string }[]
+  params: { type: string; index: number; key: string; validate: boolean }[]
   guards?: string[]
-  interceptor?: string[]
+  interceptors?: string[]
   method: string
   name: string
 }
@@ -13,3 +14,21 @@ export interface ServerMeta {
 export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
 export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
+
+export type Wrap<O, T> = T
+
+export type UnWrap<F extends Wrap<any, any>> = F extends Wrap<any, infer U> ? U : F
+
+export type UnWrapParams<F extends (...args: any[]) => any> = {
+  [K in keyof Parameters<F>]: UnWrap<Parameters<F>[K]>;
+}
+
+export type UnWrapClass<C extends new (...args: any[]) => any> = {
+  [K in keyof C]: C[K] extends (...args: any[]) => any
+    ? (...args: UnWrapParams<C[K]>) => ReturnType<C[K]>
+    : C[K];
+}
+
+export interface PError { message: string; error: true; description: string; status: number}
+
+export type ResOrErr<R > = { [K in keyof R]: R[K] | PError }

@@ -30,7 +30,7 @@ export function mergeOptions(obj1: any, obj2?: any) {
       continue
     }
     if (Array.isArray(obj1[i]) && Array.isArray(obj2[i])) {
-      obj1[i].unshift(...obj2[i])
+      obj1[i].push(...obj2[i].filter((item: any) => !obj1[i].includes(item)))
       continue
     }
     obj1[i] = obj2[i]

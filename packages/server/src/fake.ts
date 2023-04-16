@@ -17,7 +17,7 @@ export class FakeController {
     return content
   }
 
-  addMethod(className: string, methodName: string, route: string, requestType: RequestType, params: { type: string; key: string; index: number }[] = []) {
+  addMethod(className: string, methodName: string, route = '', requestType: RequestType | '' = '', params: { type: string; key: string; index: number }[] = []) {
     const url = route.replace(/\/\:([^\/]*)/g, '')
     if (!this.classMap[className])
       this.classMap[className] = {}
