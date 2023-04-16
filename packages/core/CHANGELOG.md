@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.0.6
+
+### Patch Changes
+
+- add isPhecda
+
 ## 1.0.5
 
 ### Patch Changes

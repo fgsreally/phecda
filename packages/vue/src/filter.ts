@@ -50,9 +50,6 @@ export function createFilter<Data extends Record<string, any>>(
               return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{${body}}catch(e){return _eh(e,"${errorPath}")}` : `${body}`)(
                 ...Object.values(data.value), resolveOption.errorHandler,
               )
-              // return new Function(...Object.keys(data.value), `${body}`)(
-              //   ...Object.values(data.value),
-              // )
             },
           })
         }

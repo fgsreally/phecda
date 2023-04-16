@@ -24,7 +24,7 @@ export class HomeModel extends Base {
     return `--${this.name}--`
   }
 
-  protect changeName() {
+  protected changeName() {
     this.name = 'fgs'
   }
 

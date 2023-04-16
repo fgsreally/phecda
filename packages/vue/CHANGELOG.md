@@ -1,5 +1,16 @@
 # phecda-vue
 
+## 1.2.0
+
+### Minor Changes
+
+- add typescript support
+
+### Patch Changes
+
+- Updated dependencies
+  - phecda-core@1.0.6
+
 ## 1.1.2
 
 ### Patch Changes

@@ -23,7 +23,7 @@ export function Server(localPath: string): PluginOption {
           const faker = new FakeController()
 
           for (const i of meta)
-            faker.addMethod(i.name, i.method, i.route?.route || '', i.route?.type || '', i.params)
+            faker.addMethod(i.name, i.method, i.route?.route, i.route?.type, i.params)
           return {
             code: faker.getContent(),
           }
