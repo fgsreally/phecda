@@ -54,6 +54,8 @@ function getMetaFromInstance(instance: Phecda, name: string) {
         break
     }
     state.params = params
+    if (!state.header)
+      state.header = {}
     return new Pmeta(state as unknown as ServerMeta, getParamtypes(instance, i))
   })
 }

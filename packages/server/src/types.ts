@@ -4,6 +4,7 @@ export interface ServerMeta {
     type: RequestType
     route: string
   }
+  header: Record<string, string>
   params: { type: string; index: number; key: string; validate: boolean }[]
   guards?: string[]
   interceptors?: string[]

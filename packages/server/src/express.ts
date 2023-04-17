@@ -6,7 +6,7 @@ import type { Pmeta } from './meta'
 export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; moduleMap: any }, key = '/__PHECDA_SERVER__') {
   const methodMap = {} as Record<string, (...args: any[]) => any>
   for (const i of meta) {
-    const { name, method, route } = i.data
+    const { name, method, route, header } = i.data
     const server = new Pserver(`${name}`, i)
     const instance = moduleMap.get(name)!
     const handler = server.methodToHandler(instance[method].bind(instance))
@@ -15,7 +15,11 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
       app[route.type](route.route, async (req, res) => {
         instance.request = req
         instance.meta = req.body
+
         const ret = await handler(req)
+        for (const name in header)
+          res.set(name, header[name])
+
         if (ret instanceof HttpException) {
           res.status(ret.status).json(ret.data)
 
