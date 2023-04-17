@@ -4,7 +4,7 @@ import express from 'express'
 import { Rule } from 'phecda-core'
 import { bindApp } from '../src/express'
 import { Factory } from '../src/core'
-import { Body, Controller, Get, Param, Post, Query } from '../src/decorators'
+import { Body, Controller, Get, Meta, Param, Post, Query } from '../src/decorators'
 import { HttpException } from '../src'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
@@ -29,7 +29,8 @@ describe('express ', () => {
     @Controller('/base')
     class A {
       @Post('/:test')
-      test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
+      test(@Param('test') test: string, @Body('name') name: string, @Meta() meta: any, @Query('id') id: string) {
+        console.log('meta', meta)
         return `${test}-${name}-${id}`
       }
     }

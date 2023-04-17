@@ -3,8 +3,8 @@ export interface PhecdaNameSpace {
 }
 
 export interface UsePipeOptions {
-  transform: boolean
-  collectError: boolean
+  transform?: boolean
+  collectError?: boolean
 }
 
 export interface PhecdaHandler {

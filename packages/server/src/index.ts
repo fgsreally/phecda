@@ -1,6 +1,6 @@
 export * from './server'
 export * from './types'
-export * from './fake'
+export * from './compiler'
 export * from './express'
 export * from './core'
 export * from './decorators'

@@ -2,13 +2,9 @@ import { getExposeKey, getHandler, getIgnoreKey, getModelState } from './core'
 import type { ClassValue, UsePipeOptions } from './types'
 import { validate } from './utils'
 
-export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: Partial<UsePipeOptions> = {}) {
+export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
   const data: InstanceType<M> = new Model()
-  const resolvedOptions = {
-    collectError: true,
-    transform: false,
-    ...options,
-  } as UsePipeOptions
+
   const err: string[] = []
   const stateVars = getModelState(data) as PropertyKey[]
 
@@ -17,20 +13,24 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
     const handlers = getHandler(data, item)
     if (handlers) {
       // work for @Rule
-      for (const handler of handlers) {
-        const rule = handler.rule
-        // const ret = await handler.rule?.(data)
-        if (rule && !await validate(rule, data[item])) {
-          err.push(handler.info || '')
-          if (!resolvedOptions.collectError)
-            break
+      if (options.collectError !== false) {
+        for (const handler of handlers) {
+          const rule = handler.rule
+          // const ret = await handler.rule?.(data)
+          if (rule && !await validate(rule, data[item])) {
+            err.push(handler.info || '')
+            if (!options.collectError)
+              break
+          }
         }
       }
-      if (err.length > 0 && !resolvedOptions.transform)
+      if (err.length > 0 && !options.transform)
         return { err, data }
       // work for @Pipe
-      for (const handler of handlers)
-        await handler.pipe?.(data)
+      if (options.transform !== false) {
+        for (const handler of handlers)
+          await handler.pipe?.(data)
+      }
     }
   }
   return { data, err }

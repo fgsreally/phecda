@@ -1,13 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import type { Wrap } from './utils'
+
+export type Construct<T = any> = new (...args: any[]) => T
+
 export interface ServerMeta {
   route?: {
     type: RequestType
     route: string
   }
   header: Record<string, string>
-  params: { type: string; index: number; key: string; validate: boolean }[]
-  guards?: string[]
-  interceptors?: string[]
+  params: { type: string; index: number; key: string; validate?: boolean }[]
+  guards: string[]
+  interceptors: string[]
+  middlewares: string[]
   method: string
   name: string
 }
@@ -16,27 +20,20 @@ export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options
 
 export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
 
-export type Wrap<O, T> = T
-
-export type UnWrap<F extends Wrap<any, any>> = F extends Wrap<any, infer U> ? U : F
-
-export type UnWrapParams<F extends (...args: any[]) => any> = {
-  [K in keyof Parameters<F>]: UnWrap<Parameters<F>[K]>;
-}
-
-export type UnWrapClass<C extends new (...args: any[]) => any> = {
-  [K in keyof C]: C[K] extends (...args: any[]) => any
-    ? (...args: UnWrapParams<C[K]>) => ReturnType<C[K]>
-    : C[K];
-}
-
 export interface PError { message: string; error: true; description: string; status: number}
 
 export type ResOrErr<R > = { [K in keyof R]: R[K] | PError }
 
-declare const MetaSymbol: unique symbol
-export type Pmeta<T extends Record<string, any>> = T & { [MetaSymbol]: true }
+/**
+ * @experiment
+ */
+export type UnWrap<T extends any[]> = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  [K in keyof T]: T[K] extends Wrap<infer F, infer _> ? F : T[K];
+}
 
-export type RemoveMeta<T> = T extends [infer U, ...infer Rest]
-  ? U extends Pmeta<infer R> ? RemoveMeta<Rest> : [U, ...RemoveMeta<Rest>]
-  : []
+export type Transform<A> = {
+  [K in keyof A]: A[K] extends (...args: infer P) => infer R
+    ? (...args: UnWrap<P> extends unknown[] ? UnWrap<P> : unknown[]) => R
+    : never
+}

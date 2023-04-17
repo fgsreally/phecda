@@ -1,6 +1,6 @@
 import type { ServerMeta } from './types'
 
-export class Pmeta {
+export class Meta {
   constructor(public data: ServerMeta, public reflect: any[]) {
 
   }

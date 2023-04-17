@@ -5,3 +5,17 @@ export const isNil = (obj: any): obj is null | undefined =>
 
 export const isObject = (fn: any): fn is object =>
   !isNil(fn) && typeof fn === 'object'
+
+/**
+ * @experiment
+ */
+export class Wrap<F, T> {
+  constructor(public v1: F,
+    public V2: T) {
+
+  }
+
+  get value() {
+    return this.V2
+  }
+}

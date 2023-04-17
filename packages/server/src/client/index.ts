@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { MergeType, RequestType, ResOrErr, UnWrapClass } from '../types'
+import type { MergeType, RequestType, ResOrErr, Transform } from '../types'
 interface RequestArgs {
   body: Record<string, any>
   query: Record<string, string>
@@ -52,6 +52,6 @@ export function createMergeReq(instance: AxiosInstance, key = '/__PHECDA_SERVER_
   }
 }
 
-export function P<C extends new (...args: any) => any>(Model: C): UnWrapClass<C> {
+export function P<C extends new (...args: any) => any>(Model: C): Transform<C> {
   return new Model()
 }

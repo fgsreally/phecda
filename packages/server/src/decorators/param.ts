@@ -1,4 +1,6 @@
-export function BaseParam(type: string, key: string, validate = false): any {
+import { mergeState, setModalVar } from 'phecda-core'
+
+export function BaseParam(type: string, key: string, validate?: boolean): any {
   return (target: any, k: PropertyKey, index: number) => {
     setModalVar(target, k)
     mergeState(target, k, {
@@ -15,4 +17,8 @@ export function Query(key: string, validate?: boolean) {
 }
 export function Param(key: string, validate?: boolean) {
   return BaseParam('params', key, validate)
+}
+
+export function Meta() {
+  return BaseParam('meta', '', false)
 }

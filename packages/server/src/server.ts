@@ -10,6 +10,7 @@ export class Pserver {
   params: string[]
   static pipe: Ppipe = defaultPipe
   static guardsRecord: Record<string, (...params: any) => boolean> = {}
+  static middlewareRecord: Record<string, (...params: any) => boolean> = {}
   static interceptorsRecord: Record<string, (...params: any) => any | ((...params: any) => any)> = {}
   static serverRecord: Record<string, Pserver> = {}
 
@@ -49,19 +50,20 @@ export class Pserver {
     return ret
   }
 
-  async usePipe(args: { arg: any; validate: boolean }[], reflect: any[]) {
+  async usePipe(args: { arg: any; validate?: boolean }[], reflect: any[]) {
     return Pserver.pipe.transform(args, reflect)
   }
 
   methodToHandler(method: (...params: any[]) => any) {
-    const { data: { params = [], guards = [], interceptors = [] }, reflect = [] } = this.meta
+    const { data: { params, guards, interceptors }, reflect } = this.meta
 
     return async (req: any) => {
       try {
         await this.useGuard(req, guards)
         const posts = await this.useInterceptor(req, interceptors!)
         const args = params.map((param) => {
-          return { arg: req[param.type]?.[param.key], validate: param.validate }
+          const { type, key, validate } = param
+          return { arg: req[type]?.[key], validate }
         })
 
         const ret = await method(...await this.usePipe(args, reflect))

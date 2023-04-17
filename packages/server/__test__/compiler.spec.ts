@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Pcompiler } from '../src/fake'
+import { Pcompiler } from '../src/compiler'
 describe('fakeController', () => {
-  it('fakeController will create fake class', () => {
+  it('compiler will create fake class', () => {
     const meta = [
       {
         name: 'Controller1',

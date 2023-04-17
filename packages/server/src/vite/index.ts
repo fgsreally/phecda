@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 import type { PluginOption } from 'vite'
-import { Pcompiler } from '../fake'
+import { Pcompiler } from '../compiler'
 import type { ServerMeta } from '../types'
 export function Server(localPath: string): PluginOption {
   let root: string

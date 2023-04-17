@@ -1,6 +1,6 @@
 // Vitest Snapshot v1
 
-exports[`fakeController > fakeController will create fake class 1`] = `
+exports[`fakeController > compiler will create fake class 1`] = `
 "
         export class Controller1{
             
