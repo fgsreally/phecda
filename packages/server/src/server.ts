@@ -1,41 +1,41 @@
 import { ForbiddenException } from './exception'
 import { HttpException } from './exception/base'
 import { UndefinedException } from './exception/undefine'
-import type { Meta } from './meta'
-import type { PhecdaPipe } from './pipe'
+import type { Pmeta } from './meta'
+import type { Ppipe } from './pipe'
 import { defaultPipe } from './pipe'
 
-export class PhecdaServer {
+export class Pserver {
   method: string
   params: string[]
-  static pipe: PhecdaPipe = defaultPipe
+  static pipe: Ppipe = defaultPipe
   static guardsRecord: Record<string, (...params: any) => boolean> = {}
   static interceptorsRecord: Record<string, (...params: any) => any | ((...params: any) => any)> = {}
-  static serverRecord: Record<string, PhecdaServer> = {}
+  static serverRecord: Record<string, Pserver> = {}
 
-  constructor(public key: string, public meta: Meta) {
-    PhecdaServer.serverRecord[key] = this
+  constructor(public key: string, public meta: Pmeta) {
+    Pserver.serverRecord[key] = this
   }
 
   static registerGuard(key: string, handler: any) {
-    PhecdaServer.guardsRecord[key] = handler
+    Pserver.guardsRecord[key] = handler
   }
 
   static registerInterceptor(key: string, handler: any) {
-    PhecdaServer.interceptorsRecord[key] = handler
+    Pserver.interceptorsRecord[key] = handler
   }
 
   async useGuard(req: any, guards: string[]) {
     for (const guard of guards) {
-      if (!await PhecdaServer.guardsRecord[guard]?.(req))
-        throw new ForbiddenException('Guard exception')
+      if (!await Pserver.guardsRecord[guard]?.(req))
+        throw new ForbiddenException(`Guard exception--${guard}`)
     }
   }
 
   async useInterceptor(req: any, interceptors: string[]) {
     const ret = []
     for (const interceptor of interceptors) {
-      const post = await PhecdaServer.interceptorsRecord[interceptor]?.(req)
+      const post = await Pserver.interceptorsRecord[interceptor]?.(req)
       if (post)
         ret.push(post)
     }
@@ -50,7 +50,7 @@ export class PhecdaServer {
   }
 
   async usePipe(args: { arg: any; validate: boolean }[], reflect: any[]) {
-    return PhecdaServer.pipe.transform(args, reflect)
+    return Pserver.pipe.transform(args, reflect)
   }
 
   methodToHandler(method: (...params: any[]) => any) {
@@ -77,13 +77,13 @@ export class PhecdaServer {
 }
 
 export function addGuard(key: string, handler: (...params: any) => boolean) {
-  PhecdaServer.registerGuard(key, handler)
+  Pserver.registerGuard(key, handler)
 }
 
 export function addInterceptor(key: string, handler: (...params: any) => any | ((...params: any) => any)) {
-  PhecdaServer.registerInterceptor(key, handler)
+  Pserver.registerInterceptor(key, handler)
 }
 
-export function usePipe(pipe: PhecdaPipe) {
-  PhecdaServer.pipe = pipe
+export function usePipe(pipe: Ppipe) {
+  Pserver.pipe = pipe
 }

@@ -1,13 +1,13 @@
 import type { Express } from 'express'
-import { PhecdaServer } from './server'
+import { Pserver } from './server'
 import { HttpException } from './exception/base'
 import { isObject } from './utils'
-import type { Meta } from './meta'
-export function bindApp(app: Express, { meta, moduleMap }: { meta: Meta[]; moduleMap: any }, key = '/__PHECDA_SERVER__') {
+import type { Pmeta } from './meta'
+export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; moduleMap: any }, key = '/__PHECDA_SERVER__') {
   const methodMap = {} as Record<string, (...args: any[]) => any>
   for (const i of meta) {
     const { name, method, route } = i.data
-    const server = new PhecdaServer(`${name}`, i)
+    const server = new Pserver(`${name}`, i)
     const instance = moduleMap.get(name)!
     const handler = server.methodToHandler(instance[method].bind(instance))
     methodMap[`${name}-${method}`] = handler

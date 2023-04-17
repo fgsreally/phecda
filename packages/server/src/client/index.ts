@@ -27,8 +27,13 @@ export const merge: MergeType = (...args: RequestArgs[]) => {
 export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Parameters<F>) => Promise<ReturnType<F>>
 
 export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>> > {
+  // @ts-expect-error methods without route decorator won't send request
   return (arg: any, config?: AxiosRequestConfig) => {
     const { url, params, query, body, method } = toReq(arg as RequestArgs)
+    if (!method) {
+      console.warn('methods without route decorator won\'t send request')
+      return
+    }
 
     const ret = [`${url}${params}${query}`] as any[]
     body && ret.push(body)

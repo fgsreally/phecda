@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FakeController } from '../src/fake'
+import { Pcompiler } from '../src/fake'
 describe('fakeController', () => {
   it('fakeController will create fake class', () => {
     const meta = [
@@ -46,7 +46,7 @@ describe('fakeController', () => {
         }],
       },
     ]
-    const faker = new FakeController()
+    const faker = new Pcompiler()
 
     for (const i of meta)
       faker.addMethod(i.name, i.method, i.route.route, i.route.type, i.params)

@@ -32,3 +32,10 @@ export type UnWrapClass<C extends new (...args: any[]) => any> = {
 export interface PError { message: string; error: true; description: string; status: number}
 
 export type ResOrErr<R > = { [K in keyof R]: R[K] | PError }
+
+declare const MetaSymbol: unique symbol
+export type Pmeta<T extends Record<string, any>> = T & { [MetaSymbol]: true }
+
+export type RemoveMeta<T> = T extends [infer U, ...infer Rest]
+  ? U extends Pmeta<infer R> ? RemoveMeta<Rest> : [U, ...RemoveMeta<Rest>]
+  : []

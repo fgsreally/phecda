@@ -1,6 +1,6 @@
 import type { RequestType } from './types'
 
-export class FakeController {
+export class Pcompiler {
   content = ''
   classMap: Record<string, { [key: string]: string }> = {}
   constructor() { }
