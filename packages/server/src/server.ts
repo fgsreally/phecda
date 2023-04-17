@@ -70,6 +70,7 @@ export class Pserver {
         return this.usePost(ret, posts)
       }
       catch (e: any) {
+        console.log(e)
         if (!(e instanceof HttpException))
           return new UndefinedException(e.message || e)
         return e

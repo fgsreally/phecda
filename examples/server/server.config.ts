@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import { VitePluginNode } from 'vite-plugin-node'
-import swc from 'unplugin-swc'
 
 export default defineConfig({
   ssr: {
@@ -10,9 +9,10 @@ export default defineConfig({
     port: 3699,
   },
   plugins: [
-    swc.vite(),
+    
     ...VitePluginNode({
       adapter: 'express',
+      tsCompiler: 'swc',
       appPath: './src/server.ts',
     }),
   ],

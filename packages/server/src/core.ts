@@ -60,7 +60,7 @@ function getMetaFromInstance(instance: Phecda, name: string) {
     state.guards = [...new Set([...baseState.guards, ...state.guards])]
     state.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Pmeta(state as unknown as ServerMeta, getParamtypes(instance, i))
+    return new Pmeta(state as unknown as ServerMeta, getParamtypes(instance, i) || [])
   })
 }
 
