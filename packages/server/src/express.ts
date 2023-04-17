@@ -13,6 +13,8 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
     methodMap[`${name}-${method}`] = handler
     if (route) {
       app[route.type](route.route, async (req, res) => {
+        instance.request = req
+        instance.meta = req.body
         const ret = await handler(req)
         if (ret instanceof HttpException) {
           res.status(ret.status).json(ret.data)
