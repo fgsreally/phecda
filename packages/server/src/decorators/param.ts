@@ -18,7 +18,3 @@ export function Query(key: string, validate?: boolean) {
 export function Param(key: string, validate?: boolean) {
   return BaseParam('params', key, validate)
 }
-
-export function Meta() {
-  return BaseParam('meta', '', false)
-}
