@@ -46,7 +46,7 @@ describe('validate&transform', () => {
       @Rule((str: string) => str.length < 5, 'name should be short')
       name: string
     }
-    const { err, data } = await plainToClass(Child, { name: 'phecda11' }, { transform: true })
+    const { err, data } = await plainToClass(Child, { name: 'phecda11' }, { transform: true, collectError: true })
     expect(err.length).toBe(2)
     expect(err[1]).toBe('name should be short')
     expect(data.name).toBe('phecda11111')

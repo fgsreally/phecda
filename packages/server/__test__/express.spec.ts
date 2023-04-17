@@ -4,7 +4,7 @@ import express from 'express'
 import { Rule } from 'phecda-core'
 import { bindApp } from '../src/express'
 import { Factory } from '../src/core'
-import { Body, Controller, Get, Meta, Param, Post, Query } from '../src/decorators'
+import { Body, Controller, Get, Param, Post, Query } from '../src/decorators'
 import { HttpException } from '../src'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
@@ -29,8 +29,7 @@ describe('express ', () => {
     @Controller('/base')
     class A {
       @Post('/:test')
-      test(@Param('test') test: string, @Body('name') name: string, @Meta() meta: any, @Query('id') id: string) {
-        console.log('meta', meta)
+      test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
         return `${test}-${name}-${id}`
       }
     }
@@ -40,7 +39,7 @@ describe('express ', () => {
 
     bindApp(app, data)
 
-    const res1 = await request(app).post('/base/phecda').send({ name: 'server' })
+    const res1 = await request(app).post('/base/phecda?id=1').send({ name: 'server' })
     expect(res1.text).toBe('phecda-server-1')
 
     const res2 = await request(app).post('/__PHECDA_SERVER__').send({
@@ -74,7 +73,7 @@ describe('express ', () => {
     bindApp(app, data)
 
     const res1 = await request(app).get('/test')
-    expect(res1.body).toEqual({ description: 'http exception', message: 'test error', status: 500, error: true })
+    expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, error: true })
   })
   it('phecda will validate data', async () => {
     class Info {

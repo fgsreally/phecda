@@ -16,7 +16,7 @@ export const defaultPipe = {
       }
       else {
         if (isPhecda(reflect[i])) {
-          const ret = await plainToClass(reflect[i], arg)
+          const ret = await plainToClass(reflect[i], arg, { transform: false })
           if (ret.err.length > 0)
             throw new ValidateException(ret.err[0])
         }

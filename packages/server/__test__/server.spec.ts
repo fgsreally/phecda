@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { Pserver } from '../src/server'
 import { HttpException } from '../src'
-import { Meta } from '../src/meta'
+import { Pmeta } from '../src/meta'
 describe('Pserver', () => {
-  const meta = new Meta({
+  const meta = new Pmeta({
     route: {
       type: 'get' as const,
       route: '/test',

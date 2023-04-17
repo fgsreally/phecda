@@ -3,16 +3,16 @@ import type { Phecda } from 'phecda-core'
 import { getModelState, getState } from 'phecda-core'
 
 import type { Construct, ServerMeta } from './types'
-import { Meta } from './meta'
+import { Pmeta } from './meta'
 
 export function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
-  const meta: Meta[] = []
+  const meta: Pmeta[] = []
   Modules.forEach(Module => buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>)
   return { moduleMap, meta }
 }
 
-function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Meta[]) {
+function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
   const name = Module.name
@@ -60,7 +60,7 @@ function getMetaFromInstance(instance: Phecda, name: string) {
     state.guards = [...new Set([...baseState.guards, ...state.guards])]
     state.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Meta(state as unknown as ServerMeta, getParamtypes(instance, i))
+    return new Pmeta(state as unknown as ServerMeta, getParamtypes(instance, i))
   })
 }
 

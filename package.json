@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest --environment jsdom",
+    "test": "vitest",
     "dev": "turbo run dev --filter phecda-*",
     "build": "turbo run build --filter phecda-*",
     "publish": "changeset publish"
