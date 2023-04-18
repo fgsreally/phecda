@@ -1,5 +1,6 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { PError, RequestType, ResOrErr } from '../types'
+import { SERIES_SYMBOL } from '../common'
 interface RequestArgs {
   body: Record<string, any>
   query: Record<string, string>
@@ -9,17 +10,17 @@ interface RequestArgs {
   url: string
   name: string
 }
-type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params'>
+type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'name' >
 export function toReq(arg: RequestArgs) {
   const { body, query, realParam, method, url } = arg
   return { method, url, body, query: Object.keys(query).length > 0 ? `?${Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&')}` : '', params: realParam }
 }
 
 export const merge = (...args: RequestArgs[]) => {
-  const ret = {} as Record<string, MergedReqArg>
+  const ret = [] as MergedReqArg[]
   for (const i of args) {
-    const { name, body, query, params } = i
-    ret[name] = { body, query, params }
+    const { body, query, params, name } = i
+    ret.push({ name, body, query, params })
   }
 
   return ret
@@ -53,4 +54,8 @@ export function createMergeReq(instance: AxiosInstance, key = '/__PHECDA_SERVER_
 
 export function isError<T = any>(data: T | PError): data is PError {
   return typeof data === 'object' && (data as any).error
+}
+
+export function $S(index: number, key = ''): any {
+  return `${SERIES_SYMBOL}@${index}@${key}`
 }

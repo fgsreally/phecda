@@ -6,6 +6,12 @@ export const isNil = (obj: any): obj is null | undefined =>
 export const isObject = (fn: any): fn is object =>
   !isNil(fn) && typeof fn === 'object'
 
+export function resolveDep(ret: any, key: string) {
+  if (key)
+    return ret?.[key]
+  return ret
+}
+
 /**
  * @experiment
  */

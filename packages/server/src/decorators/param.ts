@@ -9,7 +9,7 @@ export function BaseParam(type: string, key: string, validate?: boolean): any {
   }
 }
 
-export function Body(key: string, validate?: boolean) {
+export function Body(key = '', validate?: boolean) {
   return BaseParam('body', key, validate)
 }
 export function Query(key: string, validate?: boolean) {

@@ -1,3 +1,4 @@
+import { WrongMetaException } from './exception/wrong-meta'
 import { Phistroy } from './history'
 import { ForbiddenException } from './exception'
 
@@ -8,11 +9,11 @@ import { defaultPipe } from './pipe'
 export class Pcontext {
   method: string
   params: string[]
-  static metaRecord: Record<string, ReturnType<typeof parseMeta>>
   static pipe: Ppipe = defaultPipe
-  static guardsRecord: Record<string, (...params: any) => boolean> = {}
+  static metaRecord: Record<string, ReturnType<typeof parseMeta>> = {}
+  static guardsRecord: Record<string, (req: any, isMerge: boolean) => boolean> = {}
   static middlewareRecord: Record<string, (...params: any) => boolean> = {}
-  static interceptorsRecord: Record<string, (...params: any) => any > = {}
+  static interceptorsRecord: Record<string, (req: any, isMerge: boolean) => any > = {}
   // static serverRecord: Record<string, Pcontext> = {}
   post: ((...params: any) => any)[]
   history = new Phistroy()
@@ -27,20 +28,32 @@ export class Pcontext {
     Pcontext.interceptorsRecord[key] = handler
   }
 
-  async useGuard(guards: string[]) {
+  static useMiddleware(middlewares: string[]) {
+    return middlewares.map((m) => {
+      if (!(m in Pcontext.middlewareRecord))
+        throw new WrongMetaException(`can't find middleware named ${m}`)
+      return Pcontext.middlewareRecord[m]
+    })
+  }
+
+  async useGuard(guards: string[], isMerge = false) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
-        if (!await Pcontext.guardsRecord[guard]?.(this.request))
+        if (!(guard in Pcontext.guardsRecord))
+          throw new WrongMetaException(`can't find guard named ${guard}`)
+        if (!await Pcontext.guardsRecord[guard](this.request, isMerge))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
   }
 
-  async useInterceptor(interceptors: string[]) {
+  async useInterceptor(interceptors: string[], isMerge = false) {
     const ret = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
-        const post = await Pcontext.interceptorsRecord[interceptor]?.(this.request)
+        if (!(interceptor in Pcontext.interceptorsRecord))
+          throw new WrongMetaException(`can't find guard named ${interceptor}`)
+        const post = await Pcontext.interceptorsRecord[interceptor](this.request, isMerge)
         if (post)
           ret.push(post)
       }
@@ -73,11 +86,12 @@ export function usePipe(pipe: Ppipe) {
 }
 
 export function parseMeta(meta: Pmeta) {
-  const { data: { params, guards, interceptors }, reflect } = meta
+  const { data: { params, guards, interceptors, middlewares }, reflect } = meta
   return {
     guards,
     reflect,
     interceptors,
+    middlewares,
     params: params.map((param) => {
       const { type, key, validate } = param
       return { type, key, validate }
