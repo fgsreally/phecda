@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [a60ca7e]
+  - phecda-core@1.0.7
+
 ## 1.2.0
 
 ### Minor Changes

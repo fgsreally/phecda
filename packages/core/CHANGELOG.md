@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.0.7
+
+### Patch Changes
+
+- a60ca7e: plainToClass can only validate or transform ,not both
+
 ## 1.0.6
 
 ### Patch Changes

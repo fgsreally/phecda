@@ -22,7 +22,7 @@ describe('express ', () => {
     const res1 = await request(app).get('/test')
     expect(res1.body.msg).toBe('test')
 
-    const res2 = await request(app).post('/__PHECDA_SERVER__').send({ 'A-test': {} })
+    const res2 = await request(app).post('/__PHECDA_SERVER__').send([{ name: 'A-test' }])
     expect(res2.body[0]).toEqual({ msg: 'test' })
   })
   it('express app will fill params', async () => {
@@ -42,8 +42,8 @@ describe('express ', () => {
     const res1 = await request(app).post('/base/phecda?id=1').send({ name: 'server' })
     expect(res1.text).toBe('phecda-server-1')
 
-    const res2 = await request(app).post('/__PHECDA_SERVER__').send({
-      'A-test': {
+    const res2 = await request(app).post('/__PHECDA_SERVER__').send([
+      {
         query: {
           id: '1',
         },
@@ -53,9 +53,9 @@ describe('express ', () => {
         body: {
           name: 'server',
         },
-
+        name: 'A-test',
       },
-    })
+    ])
     expect(res2.body[0]).toEqual('phecda-server-1')
   })
 
