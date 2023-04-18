@@ -73,11 +73,11 @@ export class Pcontext {
   }
 }
 
-export function addGuard(key: string, handler: (...params: any) => boolean) {
+export function addGuard(key: string, handler: (req: any, isMerge: boolean) => boolean) {
   Pcontext.registerGuard(key, handler)
 }
 
-export function addInterceptor(key: string, handler: (...params: any) => any | ((...params: any) => any)) {
+export function addInterceptor(key: string, handler: (req: any, isMerge: boolean) => any) {
   Pcontext.registerInterceptor(key, handler)
 }
 

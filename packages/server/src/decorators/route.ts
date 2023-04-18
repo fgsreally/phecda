@@ -41,3 +41,37 @@ export function Delete(route: string) {
 export function Controller(route: string) {
   return Route(route)
 }
+
+export function Guard(guardKey: string): any {
+  return (target: any, key?: PropertyKey) => {
+    if (key) {
+      setModalVar(target, key)
+      mergeState(target, key, {
+        guards: [guardKey],
+      })
+    }
+    else {
+      setModalVar(target.prototype, '__CLASS')
+      mergeState(target.prototype, '__CLASS', {
+        guards: [guardKey],
+      })
+    }
+  }
+}
+
+export function Interceptor(interceptorKey: string): any {
+  return (target: any, key?: PropertyKey) => {
+    if (key) {
+      setModalVar(target, key)
+      mergeState(target, key, {
+        interceptors: [interceptorKey],
+      })
+    }
+    else {
+      setModalVar(target.prototype, '__CLASS')
+      mergeState(target.prototype, '__CLASS', {
+        interceptors: [interceptorKey],
+      })
+    }
+  }
+}

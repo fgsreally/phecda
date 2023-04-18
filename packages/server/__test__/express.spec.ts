@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { Rule } from 'phecda-core'
 import { bindApp } from '../src/express'
 import { Factory } from '../src/core'
-import { Body, Controller, Get, Param, Post, Query } from '../src/decorators'
-import { HttpException } from '../src'
+import { Body, Controller, Get, Guard, Interceptor, Param, Post, Query } from '../src/decorators'
+import { HttpException, addGuard, addInterceptor } from '../src'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
     class A {
@@ -75,7 +75,7 @@ describe('express ', () => {
     const res1 = await request(app).get('/test')
     expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, error: true })
   })
-  it('phecda will validate data', async () => {
+  it('pipe will validate data', async () => {
     class Info {
       @Rule('phecda', 'name should be phecda')
       name: string
@@ -94,5 +94,37 @@ describe('express ', () => {
     bindApp(app, data)
     const res1 = await request(app).post('/test').send({ info: { name: '' } })
     expect(res1.body).toMatchObject({ message: 'name should be phecda', error: true })
+  })
+  it('guard/interceptor will work', async () => {
+    const fn = vi.fn((str: string) => str)
+
+    class A {
+      @Guard('test')
+      @Interceptor('test')
+      @Post('/:test')
+      test(@Param('test') test: string) {
+        return `${test}`
+      }
+    }
+    addGuard('test', (req) => {
+      if (req.params.test !== 'test')
+        return false
+      return true
+    })
+    addInterceptor('test', () => {
+      fn('start')
+      return () => {
+        fn('end')
+      }
+    })
+    const data = Factory([A])
+    const app = express()
+    app.use(express.json())
+
+    bindApp(app, data)
+    const res1 = await request(app).post('/no')
+    expect(res1.body).toMatchObject({ description: 'Forbidden resource', error: true })
+    await request(app).post('/test')
+    expect(fn).toHaveBeenCalledTimes(2)
   })
 })
