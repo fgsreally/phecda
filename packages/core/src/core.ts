@@ -120,3 +120,12 @@ export function register(instance: Phecda) {
       hanlder.init?.(instance)
   }
 }
+export async function registerAsync(instance: Phecda) {
+  const stateVars = getModelState(instance) as PropertyKey[]
+
+  for (const item of stateVars) {
+    const handlers = getHandler(instance, item)
+    for (const hanlder of handlers)
+      await hanlder.init?.(instance)
+  }
+}

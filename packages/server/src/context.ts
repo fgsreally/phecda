@@ -69,7 +69,7 @@ export class Pcontext {
   }
 
   async usePipe(args: { arg: any; validate?: boolean }[], reflect: any[]) {
-    return Pcontext.pipe.transform(args, reflect)
+    return Pcontext.pipe.transform?.(args, reflect)
   }
 }
 

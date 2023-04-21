@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { Rule } from 'phecda-core'
-import { bindApp } from '../src/express'
+import { Init, Rule } from 'phecda-core'
+import { bindApp } from '../src/server/express'
 import { Factory } from '../src/core'
 import { Body, Controller, Get, Guard, Interceptor, Param, Post, Query } from '../src/decorators'
 import { HttpException, addGuard, addInterceptor } from '../src'
@@ -14,7 +14,7 @@ describe('express ', () => {
         return { msg: 'test' }
       }
     }
-    const data = Factory([A])
+    const data = await Factory([A])
     const app = express()
     app.use(express.json())
 
@@ -33,7 +33,7 @@ describe('express ', () => {
         return `${test}-${name}-${id}`
       }
     }
-    const data = Factory([A])
+    const data = await Factory([A])
     const app = express()
     app.use(express.json())
 
@@ -66,7 +66,7 @@ describe('express ', () => {
         throw new HttpException('test error', 500)
       }
     }
-    const data = Factory([A])
+    const data = await Factory([A])
     const app = express()
     app.use(express.json())
 
@@ -87,7 +87,7 @@ describe('express ', () => {
       }
     }
 
-    const data = Factory([A])
+    const data = await Factory([A])
     const app = express()
     app.use(express.json())
 
@@ -117,7 +117,7 @@ describe('express ', () => {
         fn('end')
       }
     })
-    const data = Factory([A])
+    const data = await Factory([A])
     const app = express()
     app.use(express.json())
 

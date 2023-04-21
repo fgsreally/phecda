@@ -1,5 +1,13 @@
 # phecda-server
 
+## 1.0.2
+
+### Patch Changes
+
+- support @Init and parse Factory to async
+- Updated dependencies
+  - phecda-core@1.0.8
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,12 +1,12 @@
 /* eslint-disable no-ex-assign */
 import type { Express } from 'express'
-import { Pcontext, parseMeta } from './context'
-import { HttpException } from './exception/base'
-import { isObject, resolveDep } from './utils'
-import type { Pmeta } from './meta'
-import { UndefinedException } from './exception'
-import { NotFoundException } from './exception/not-found'
-import { REQ_SYMBOL, SERIES_SYMBOL } from './common'
+import { Pcontext, parseMeta } from '../context'
+import { HttpException } from '../exception/base'
+import { isObject, resolveDep } from '../utils'
+import type { Pmeta } from '../meta'
+import { UndefinedException } from '../exception'
+import { NotFoundException } from '../exception/not-found'
+import { REQ_SYMBOL, SERIES_SYMBOL } from '../common'
 
 export interface Options {
 /**

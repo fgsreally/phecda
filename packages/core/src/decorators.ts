@@ -47,7 +47,7 @@ export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   }
 }
 
-export function Get(target: any, key: PropertyKey) {
+export function P(target: any, key: PropertyKey) {
   setExposeKey(target, key)
 }
 
@@ -83,7 +83,7 @@ export function Storage(target: any) {
     init: (instance: any) => {
       const { state } = instance
 
-      window.addEventListener('beforeunload', () => {
+      globalThis.addEventListener('beforeunload', () => {
         localStorage.setItem(`_phecda_${tag}`, JSON.stringify(state))
       })
       const lastObjStr = localStorage.getItem(`_phecda_${tag}`)
@@ -95,10 +95,10 @@ export function Storage(target: any) {
     },
   })
 }
-export function Window(target: any) {
-  if (!window.__PHECDA__)
-    window.__PHECDA__ = {}
+export function Global(target: any) {
+  if (!(globalThis as any).__PHECDA__)
+    (globalThis as any).__PHECDA__ = {}
   const tag = target.prototype._namespace.__TAG__
   if (tag)
-    window.__PHECDA__[tag] = target
+    (globalThis as any).__PHECDA__[tag] = target
 }

@@ -1,18 +1,20 @@
 import 'reflect-metadata'
 import type { Phecda } from 'phecda-core'
-import { getModelState, getState } from 'phecda-core'
+import { getModelState, getState, registerAsync } from 'phecda-core'
 
 import type { Construct, ServerMeta } from './types'
 import { Pmeta } from './meta'
 
-export function Factory<T>(Modules: Construct<T>[]) {
+export async function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Pmeta[] = []
-  Modules.forEach(Module => buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>)
+  for (const Module of Modules)
+    await buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>
+
   return { moduleMap, meta }
 }
 
-function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
+async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
   const name = Module.name
@@ -24,14 +26,16 @@ function buildNestModule(Module: Construct, map: Map<string, InstanceType<Constr
   }
   map.set(name, undefined)
   if (paramtypes) {
-    instance = new Module(...paramtypes.map(item =>
-      buildNestModule(item, map, meta),
-    ))
+    for (const i in paramtypes)
+      paramtypes[i] = await buildNestModule(paramtypes[i], map, meta)
+
+    instance = new Module(...paramtypes)
   }
   else {
     instance = new Module()
   }
   meta.push(...getMetaFromInstance(instance, name))
+  await registerAsync(instance)
   map.set(name, instance)
 
   return instance
@@ -42,7 +46,7 @@ function getMetaFromInstance(instance: Phecda, name: string) {
   const baseState = (getState(instance, '__CLASS') || {}) as ServerMeta
   initState(baseState)
   return vars.map((i) => {
-    const state = getState(instance, i) as ServerMeta
+    const state = (getState(instance, i) || {}) as ServerMeta
     if (baseState.route && state.route)
       state.route.route = baseState.route.route + state.route.route
     state.name = name

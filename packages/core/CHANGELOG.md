@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.0.8
+
+### Patch Changes
+
+- replace window with global,get with p
+
 ## 1.0.7
 
 ### Patch Changes

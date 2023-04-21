@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getExposeKey } from '../src/core'
-import { Get, Ignore, Pipe, Rule, addDecoToClass, classToValue, plainToClass, to } from '../src/index'
+import { Ignore, P, Pipe, Rule, addDecoToClass, classToValue, plainToClass, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
@@ -10,7 +10,7 @@ describe('validate&transform', () => {
       .to(name => `${name}1`))
     name: string
 
-    @Get
+    @P
     get fullname() {
       return `${this.name}-core`
     }
@@ -58,7 +58,7 @@ describe('validate&transform', () => {
       name: string
     }
 
-    addDecoToClass(Any, 'name', Get)
+    addDecoToClass(Any, 'name', P)
     expect(getExposeKey(Any.prototype as any)).toMatchSnapshot()
   })
 })

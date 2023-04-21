@@ -3,7 +3,7 @@ import { Factory } from '../src/core'
 import { Body, Controller, Get, Query } from '../src/decorators'
 import type { Pmeta } from '../src/meta'
 describe('Factory ', () => {
-  it('Factory will create instance and collect metadata', () => {
+  it('Factory will create instance and collect metadata', async () => {
     @Controller('/base')
     class A {
       @Get('/test')
@@ -11,12 +11,12 @@ describe('Factory ', () => {
         return id + name
       }
     }
-    const { meta } = Factory([A])
+    const { meta } = await Factory([A])
     expectTypeOf(meta).items.toEqualTypeOf<Pmeta>()
     expect(meta).toMatchSnapshot()
   })
 
-  it('Factory will work using nest class', () => {
+  it('Factory will work using nest class', async () => {
     class Service {
       test() {
         return 'test'
@@ -26,7 +26,6 @@ describe('Factory ', () => {
     @Controller('/base')
     class A {
       constructor(public service: Service) {
-
       }
 
       @Get('/test')
@@ -34,9 +33,8 @@ describe('Factory ', () => {
         return this.service.test()
       }
     }
-    // const {meta} = Factory([A])
-
-    expect(Factory([A]).moduleMap.size).toBe(2)
-    expect(Factory([A]).moduleMap.get('A').test()).toBe('test')
+    const { moduleMap } = await Factory([A])
+    expect(moduleMap.size).toBe(2)
+    expect(moduleMap.get('A').test()).toBe('test')
   })
 })
