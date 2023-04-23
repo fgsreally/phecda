@@ -75,7 +75,7 @@ export class Pcontext {
   }
 
   useFilter(arg: any) {
-    return Pcontext.filter(args)
+    return Pcontext.filter(arg)
   }
 }
 

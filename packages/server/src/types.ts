@@ -7,9 +7,9 @@ export interface ServerMeta {
     type: RequestType
     route: string
   }
-  micro?:{
+  micro?: {
     queue
-  },
+  }
 
   header: Record<string, string>
   params: { type: string; index: number; key: string; validate?: boolean }[]
@@ -24,11 +24,15 @@ export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options
 
 export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
 
-export interface PError { message: string; error: true; description: string; status: number}
+export interface BaseError {
+  error: true
+}
+
+export interface PError extends BaseError { message: string; description: string; status: number}
 
 export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | PError }
 
-export type PRes<T>=T
+export type PRes<T> = T
 /**
  * @experiment
  */
