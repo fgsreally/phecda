@@ -22,6 +22,7 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
     instance = map.get(name)
     if (!instance)
       throw new Error(`exist Circular Module dep--${Module}`)
+
     return instance
   }
   map.set(name, undefined)

@@ -7,6 +7,10 @@ export interface ServerMeta {
     type: RequestType
     route: string
   }
+  micro?:{
+    queue
+  },
+
   header: Record<string, string>
   params: { type: string; index: number; key: string; validate?: boolean }[]
   guards: string[]
@@ -24,6 +28,7 @@ export interface PError { message: string; error: true; description: string; sta
 
 export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | PError }
 
+export type PRes<T>=T
 /**
  * @experiment
  */

@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { PError, RequestType, ResOrErr } from '../types'
+import type { PError, PRes, RequestType, ResOrErr } from '../types'
 import { SERIES_SYMBOL } from '../common'
 interface RequestArgs {
   body: Record<string, any>
@@ -28,7 +28,7 @@ export const merge = (...args: RequestArgs[]) => {
 
 export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Parameters<F>) => Promise<ReturnType<F>>
 
-export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>> > {
+export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<PRes<Awaited<R>>> > {
   // @ts-expect-error methods without route decorator won't send request
   return (arg: any, config?: AxiosRequestConfig) => {
     const { url, params, query, body, method } = toReq(arg as RequestArgs)
@@ -45,7 +45,7 @@ export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRe
   }
 }
 
-export function createMergeReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<ResOrErr<R>>> {
+export function createMergeReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<ResOrErr<PRes<R>>>> {
   // @ts-expect-error misdirction
   return (args: RequestArgs[], config?: AxiosRequestConfig) => {
     return instance.post(key, merge(...args), config)
