@@ -116,10 +116,7 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
       }
     }
     catch (e: any) {
-      if (!(e instanceof HttpException))
-        e = new UndefinedException(e.message || e)
-      console.error(e.stack)
-      ret.push(e.data)
+      ret.push(await context.useFilter(e))
     }
     res.json(ret)
   })

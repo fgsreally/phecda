@@ -3,13 +3,15 @@ import { Phistroy } from './history'
 import { ForbiddenException } from './exception'
 
 import type { Pmeta } from './meta'
-import type { Ppipe } from './pipe'
+import type { ValidatePipe } from './pipe'
 import { defaultPipe } from './pipe'
-
+import type { ErrorFilter } from './filter'
+import { defaultFilter } from './filter'
 export class Pcontext {
   method: string
   params: string[]
-  static pipe: Ppipe = defaultPipe
+  static pipe: ValidatePipe = defaultPipe
+  static filter: ErrorFilter = defaultFilter
   static metaRecord: Record<string, ReturnType<typeof parseMeta>> = {}
   static guardsRecord: Record<string, (req: any, isMerge: boolean) => boolean> = {}
   static middlewareRecord: Record<string, (...params: any) => boolean> = {}
@@ -71,6 +73,10 @@ export class Pcontext {
   async usePipe(args: { arg: any; validate?: boolean }[], reflect: any[]) {
     return Pcontext.pipe.transform?.(args, reflect)
   }
+
+  useFilter(arg: any) {
+    return Pcontext.filter(args)
+  }
 }
 
 export function addGuard(key: string, handler: (req: any, isMerge: boolean) => boolean) {
@@ -81,8 +87,11 @@ export function addInterceptor(key: string, handler: (req: any, isMerge: boolean
   Pcontext.registerInterceptor(key, handler)
 }
 
-export function usePipe(pipe: Ppipe) {
+export function usePipe(pipe: ValidatePipe) {
   Pcontext.pipe = pipe
+}
+export function useFilter(filter: ErrorFilter) {
+  Pcontext.filter = filter
 }
 
 export function parseMeta(meta: Pmeta) {
