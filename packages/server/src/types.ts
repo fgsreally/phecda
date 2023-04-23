@@ -2,13 +2,16 @@ import type { Wrap } from './utils'
 
 export type Construct<T = any> = new (...args: any[]) => T
 
+export interface PHandler {
+  error?: (arg: any) => void
+}
 export interface ServerMeta {
   route?: {
     type: RequestType
     route: string
   }
   micro?: {
-    queue
+
   }
 
   header: Record<string, string>

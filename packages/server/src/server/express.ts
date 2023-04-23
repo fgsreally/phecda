@@ -1,10 +1,7 @@
-/* eslint-disable no-ex-assign */
 import type { Express } from 'express'
 import { Pcontext, parseMeta } from '../context'
-import { HttpException } from '../exception/base'
 import { isObject, resolveDep } from '../utils'
 import type { Pmeta } from '../meta'
-import { UndefinedException } from '../exception'
 import { NotFoundException } from '../exception/not-found'
 import { REQ_SYMBOL, SERIES_SYMBOL } from '../common'
 
@@ -50,8 +47,9 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
     methodMap[tag] = handler
     if (route) {
       app[route.type](route.route, ...Pcontext.useMiddleware(middlewares), async (req, res) => {
+        const context = new Pcontext(`${name}-${method}`, req)
+
         try {
-          const context = new Pcontext(`${name}-${method}`, req)
           instance.ctx = context
           instance.request = req
           for (const name in header)
@@ -68,10 +66,9 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
             res.send(String(ret))
         }
         catch (e: any) {
-          if (!(e instanceof HttpException))
-            e = new UndefinedException(e.message || e)
-
-          res.status(e.status).json(e.data)
+          i.handlers.forEach(handler => handler.error?.(e))
+          const err = await context.useFilter(e)
+          res.status(err.status).json(e)
         }
       })
     }

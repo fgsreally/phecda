@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import type { Phecda } from 'phecda-core'
-import { getModelState, getState, registerAsync } from 'phecda-core'
+import { getHandler, getModelState, getState, registerAsync } from 'phecda-core'
 
 import type { Construct, ServerMeta } from './types'
 import { Pmeta } from './meta'
@@ -65,7 +65,7 @@ function getMetaFromInstance(instance: Phecda, name: string) {
     state.guards = [...new Set([...baseState.guards, ...state.guards])]
     state.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Pmeta(state as unknown as ServerMeta, getParamtypes(instance, i) || [])
+    return new Pmeta(state as unknown as ServerMeta, getHandler(instance, i), getParamtypes(instance, i) || [])
   })
 }
 
