@@ -36,6 +36,7 @@ export function Clear(target: any, key: PropertyKey) {
   target._namespace.__IGNORE_VAR__.delete(key)
   target._namespace.__STATE_VAR__.delete(key)
   target._namespace.__STATE_HANDLER__.delete(key)
+  target._namespace.__STATE_NAMESPACE__.delete(key)
 }
 
 export function Err<Fn extends (...args: any) => any>(cb: Fn) {

@@ -1,4 +1,4 @@
-import { getExposeKey, getHandler, getIgnoreKey, getModelState } from './core'
+import { getExposeKey, getHandler } from './core'
 import type { ClassValue, UsePipeOptions } from './types'
 import { validate } from './utils'
 
@@ -6,7 +6,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
   const data: InstanceType<M> = new Model()
 
   const err: string[] = []
-  const stateVars = getModelState(data) as PropertyKey[]
+  const stateVars = getExposeKey(data) as PropertyKey[]
 
   for (const item of stateVars) {
     data[item] = input[item]
@@ -39,13 +39,10 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
 export function classToValue<M>(instance: M): ClassValue<M> {
   const data = {} as any
   const exposeVar = getExposeKey(instance as any) as PropertyKey[]
-  const ignoreVars = getIgnoreKey(instance as any) as PropertyKey[]
 
-  for (const item of exposeVar) {
-    if (ignoreVars.includes(item))
-      continue
+  for (const item of exposeVar)
+
     data[item] = (instance as any)[item]
-  }
 
   return data
 }

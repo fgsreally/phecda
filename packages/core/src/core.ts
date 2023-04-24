@@ -29,6 +29,7 @@ export function init(target: Phecda) {
       __IGNORE_VAR__: new Set(),
       /**
          * 存在状态的变量
+         * @deprecated
         */
       __STATE_VAR__: new Set(),
       /**
@@ -77,7 +78,8 @@ export function getModelState(target: Phecda) {
 
 export function getExposeKey(target: Phecda) {
   init(target)
-  return [...target._namespace.__EXPOSE_VAR__] as string[]
+
+  return [...target._namespace.__EXPOSE_VAR__].filter(item => !target._namespace.__IGNORE_VAR__.has(item)) as string[]
 }
 
 export function getIgnoreKey(target: Phecda) {
@@ -111,8 +113,9 @@ export function getState(target: Phecda, key: PropertyKey) {
     return namespace.get(key)
 }
 
+// work for init
 export function register(instance: Phecda) {
-  const stateVars = getModelState(instance) as PropertyKey[]
+  const stateVars = getExposeKey(instance) as PropertyKey[]
 
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
@@ -120,8 +123,9 @@ export function register(instance: Phecda) {
       hanlder.init?.(instance)
   }
 }
+
 export async function registerAsync(instance: Phecda) {
-  const stateVars = getModelState(instance) as PropertyKey[]
+  const stateVars = getExposeKey(instance) as PropertyKey[]
 
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
