@@ -2,37 +2,31 @@
 
 exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
-  Pmeta {
-    "data": {
-      "guards": [],
-      "header": {},
-      "interceptors": [],
-      "method": "test",
-      "middlewares": [],
-      "name": "A",
-      "params": [
-        {
-          "index": 0,
-          "key": "id",
-          "type": "query",
-          "validate": undefined,
-        },
-        {
-          "index": 1,
-          "key": "name",
-          "type": "body",
-          "validate": undefined,
-        },
-      ],
-      "route": {
-        "route": "/base/test",
-        "type": "get",
+  {
+    "guards": [],
+    "header": {},
+    "interceptors": [],
+    "method": "test",
+    "middlewares": [],
+    "name": "A",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
       },
-    },
-    "reflect": [
-      [Function],
-      [Function],
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
     ],
+    "route": {
+      "route": "/base/test",
+      "type": "get",
+    },
   },
 ]
 `;

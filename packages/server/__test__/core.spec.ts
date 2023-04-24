@@ -12,8 +12,9 @@ describe('Factory ', () => {
       }
     }
     const { meta } = await Factory([A])
+    const data = meta.map(item => item.data)
     expectTypeOf(meta).items.toEqualTypeOf<Pmeta>()
-    expect(meta).toMatchSnapshot()
+    expect(data).toMatchSnapshot()
   })
 
   it('Factory will work using nest class', async () => {

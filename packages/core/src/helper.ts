@@ -1,4 +1,4 @@
-import { getExposeKey, getHandler } from './core'
+import { getExposeKey, getHandler, getModelState } from './core'
 import type { ClassValue, UsePipeOptions } from './types'
 import { validate } from './utils'
 
@@ -6,8 +6,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
   const data: InstanceType<M> = new Model()
 
   const err: string[] = []
-  const stateVars = getExposeKey(data) as PropertyKey[]
-
+  const stateVars = getModelState(data) as PropertyKey[]
   for (const item of stateVars) {
     data[item] = input[item]
     const handlers = getHandler(data, item)

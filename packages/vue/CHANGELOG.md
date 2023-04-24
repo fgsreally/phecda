@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 1.2.3
+
+### Patch Changes
+
+- 589aaad: Clear and Ignore will work in each situation
+- Updated dependencies [589aaad]
+  - phecda-core@1.1.0
+
 ## 1.2.2
 
 ### Patch Changes

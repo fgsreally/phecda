@@ -1,7 +1,7 @@
 import { HttpException, UndefinedException } from './exception'
 import type { PError } from './types'
 
-export type ErrorFilter<E extends HttpException = any> = (err: E | Error) => PError
+export type ErrorFilter<E extends HttpException = any> = (err: E | Error, method: string) => PError
 
 export const defaultFilter: ErrorFilter = (e: any) => {
   if (!(e instanceof HttpException))

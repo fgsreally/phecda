@@ -47,7 +47,7 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
     methodMap[tag] = handler
     if (route) {
       app[route.type](route.route, ...Pcontext.useMiddleware(middlewares), async (req, res) => {
-        const context = new Pcontext(`${name}-${method}`, req)
+        const context = new Pcontext(tag, req)
 
         try {
           instance.ctx = context
@@ -67,8 +67,8 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
         }
         catch (e: any) {
           i.handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
-          res.status(err.status).json(e)
+          const err = await context.useFilter(e, tag)
+          res.status(err.status).json(err)
         }
       })
     }
@@ -79,19 +79,20 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
   }, ...Pcontext.useMiddleware(proMiddle), async (req, res) => {
     const context = new Pcontext(route, req)
     const ret = [] as any[]
-    try {
-      const { body } = req
 
-      for (const i in body) {
-        const { name: tag } = body[i]
-        const [name] = tag.split('-')
-        const {
-          guards,
-          reflect,
-          interceptors,
-          params,
-        } = Pcontext.metaRecord[tag]
-        const instance = moduleMap.get(name)
+    const { body } = req
+
+    for (const i in body) {
+      const { name: tag } = body[i]
+      const [name] = tag.split('-')
+      const {
+        guards,
+        reflect,
+        interceptors,
+        params,
+      } = Pcontext.metaRecord[tag]
+      const instance = moduleMap.get(name)
+      try {
         instance.ctx = context
         instance.request = req
         if (!params)
@@ -111,10 +112,11 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
 
         ret.push(await context.usePost(await methodMap[tag](...args)))
       }
+      catch (e: any) {
+        ret.push(await context.useFilter(e, tag))
+      }
     }
-    catch (e: any) {
-      ret.push(await context.useFilter(e))
-    }
+
     res.json(ret)
   })
 }

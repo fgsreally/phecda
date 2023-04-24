@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import type { Phecda } from 'phecda-core'
-import { getHandler, getModelState, getState, registerAsync } from 'phecda-core'
+import { getExposeKey, getHandler, getState, registerAsync } from 'phecda-core'
 
 import type { Construct, ServerMeta } from './types'
 import { Pmeta } from './meta'
@@ -43,7 +43,7 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
 }
 
 function getMetaFromInstance(instance: Phecda, name: string) {
-  const vars = getModelState(instance).filter(item => item !== '__CLASS')
+  const vars = getExposeKey(instance).filter(item => item !== '__CLASS')
   const baseState = (getState(instance, '__CLASS') || {}) as ServerMeta
   initState(baseState)
   return vars.map((i) => {

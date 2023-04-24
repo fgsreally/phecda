@@ -23,7 +23,7 @@ export class Pcompiler {
       this.classMap[className] = {}
     this.classMap[className][methodName] = `
     ${methodName}(${genParams(params)}){
-const ret={name:"${className}-${methodName}",body:{},query:{},params:{},realParam:'',method:"${requestType}",url:"${url}"}
+const ret={tag:"${className}-${methodName}",body:{},query:{},params:{},realParam:'',method:"${requestType}",url:"${url}"}
 ${params.reduce((p, c, i) => `${p}ret.${c.type}.${c.key}=arg${i}\n${c.type === 'params' ? `ret.realParam+='/'+arg${i}\n` : ''}`, '')}
 return ret
     }

@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.1.0
+
+### Minor Changes
+
+- 589aaad: Clear and Ignore will work in each situation
+
 ## 1.0.8
 
 ### Patch Changes

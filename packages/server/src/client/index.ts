@@ -8,9 +8,9 @@ interface RequestArgs {
   realParam: string
   method: RequestType
   url: string
-  name: string
+  tag: string
 }
-type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'name' >
+type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'tag' >
 export function toReq(arg: RequestArgs) {
   const { body, query, realParam, method, url } = arg
   return { method, url, body, query: Object.keys(query).length > 0 ? `?${Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&')}` : '', params: realParam }
@@ -19,8 +19,8 @@ export function toReq(arg: RequestArgs) {
 export const merge = (...args: RequestArgs[]) => {
   const ret = [] as MergedReqArg[]
   for (const i of args) {
-    const { body, query, params, name } = i
-    ret.push({ name, body, query, params })
+    const { body, query, params, tag } = i
+    ret.push({ tag, body, query, params })
   }
 
   return ret

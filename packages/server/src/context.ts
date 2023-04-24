@@ -74,8 +74,8 @@ export class Pcontext {
     return Pcontext.pipe.transform?.(args, reflect)
   }
 
-  useFilter(arg: any) {
-    return Pcontext.filter(arg)
+  useFilter(arg: any, method: string) {
+    return Pcontext.filter(arg, method)
   }
 }
 

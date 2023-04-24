@@ -70,12 +70,14 @@ export function setIgnoreKey(target: Phecda, key: PropertyKey) {
   init(target)
   target._namespace.__IGNORE_VAR__.add(key)
 }
-
+// 存在状态的属性
 export function getModelState(target: Phecda) {
   init(target)
   return [...target._namespace.__STATE_VAR__] as string[]
 }
-
+// 暴露的属性
+// 存在状态必然暴露，反之未必，但expose可以被ignore，前者不行
+// 一般而言用这个就行，某些特定情况，可用前一种
 export function getExposeKey(target: Phecda) {
   init(target)
 

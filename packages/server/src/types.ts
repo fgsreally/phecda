@@ -29,9 +29,10 @@ export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof
 
 export interface BaseError {
   error: true
+  status: number
 }
 
-export interface PError extends BaseError { message: string; description: string; status: number}
+export interface PError extends BaseError { message: string; description: string}
 
 export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | PError }
 
