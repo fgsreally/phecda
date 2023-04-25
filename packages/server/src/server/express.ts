@@ -1,5 +1,5 @@
 import type { Express } from 'express'
-import { Pcontext, parseMeta } from '../context'
+import { Pcontext, ServerContext, parseMeta } from '../context'
 import { isObject, resolveDep } from '../utils'
 import type { Pmeta } from '../meta'
 import { NotFoundException } from '../exception/not-found'
@@ -32,26 +32,31 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
     const instance = moduleMap.get(name)!
     const tag = `${name}-${method}`
 
+    Pcontext.metaRecord[tag] = i
     let {
       guards,
       reflect,
       interceptors,
       params,
       middlewares,
-    } = Pcontext.metaRecord[tag] = parseMeta(i)
+    } = Pcontext.metaDataRecord[tag] ? Pcontext.metaDataRecord[tag] : (Pcontext.metaDataRecord[tag] = parseMeta(i))
 
     guards = [...globalGuards!, ...guards]
     interceptors = [...globalInterceptors!, ...interceptors]
 
     const handler = instance[method].bind(instance)
     methodMap[tag] = handler
+    Pcontext.instanceRecord[name] = instance
     if (route) {
-      app[route.type](route.route, ...Pcontext.useMiddleware(middlewares), async (req, res) => {
-        const context = new Pcontext(tag, req)
+      app[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
+        const contextData = {
+          request: req,
+          tag,
+          response: res,
+        }
+        const context = new ServerContext(tag, contextData)
 
         try {
-          instance.ctx = context
-          instance.request = req
           for (const name in header)
             res.set(name, header[name])
           await context.useGuard(guards)
@@ -59,6 +64,8 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
           const args = await context.usePipe(params.map(({ type, key, validate }) => {
             return { arg: resolveDep((req as any)[type], key), validate }
           }), reflect)
+          instance.meta = contextData
+
           const ret = await context.usePost(await handler(...args))
           if (isObject(ret))
             res.json(ret)
@@ -67,17 +74,22 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
         }
         catch (e: any) {
           i.handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e, tag)
+          const err = await context.useFilter(e)
           res.status(err.status).json(err)
         }
       })
     }
   }
+
   app.post(route, (req, _res, next) => {
     (req as any)[REQ_SYMBOL] = true
     next()
-  }, ...Pcontext.useMiddleware(proMiddle), async (req, res) => {
-    const context = new Pcontext(route, req)
+  }, ...ServerContext.useMiddleware(proMiddle), async (req, res) => {
+    const contextData = {
+      request: req,
+      response: res,
+    }
+    const context = new ServerContext(route, contextData)
     const ret = [] as any[]
 
     const { body } = req
@@ -90,15 +102,14 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
         reflect,
         interceptors,
         params,
-      } = Pcontext.metaRecord[tag]
+      } = Pcontext.metaDataRecord[tag]
       const instance = moduleMap.get(name)
+
       try {
-        instance.ctx = context
-        instance.request = req
         if (!params)
           throw new NotFoundException(`"${tag}" doesn't exist`)
 
-        await context.useGuard(guards)
+        await context.useGuard(guards, true)
         await context.useInterceptor(interceptors)
         const args = await context.usePipe(params.map(({ type, key, validate }) => {
           const arg = resolveDep(body[i][type], key)
@@ -109,11 +120,14 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
 
           return { arg, validate }
         }), reflect) as any
+        instance.meta = contextData
 
         ret.push(await context.usePost(await methodMap[tag](...args)))
       }
       catch (e: any) {
-        ret.push(await context.useFilter(e, tag))
+        const m = Pcontext.metaRecord[tag]
+        m.handlers.forEach(handler => handler.error?.(e))
+        ret.push(await context.useFilter(e))
       }
     }
 

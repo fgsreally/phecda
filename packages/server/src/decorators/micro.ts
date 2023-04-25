@@ -1,8 +1,14 @@
-export function MQ() {
-  return (target: any, k: PropertyKey, index: number) => {
-    setModalVar(target, key)
-    mergeState(target, key, {
-      guards: [guardKey],
+import { mergeState, setModalVar } from 'phecda-core'
+import type amqplib from 'amqplib'
+export function MQ(queue: string, routeKey: string, options?: amqplib.Options.Consume) {
+  return (target: any, k: PropertyKey) => {
+    setModalVar(target, k)
+    mergeState(target, k, {
+      mq: {
+        queue,
+        routeKey,
+        options,
+      },
     })
   }
 }

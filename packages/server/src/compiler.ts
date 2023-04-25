@@ -29,18 +29,19 @@ return ret
     }
     `
   }
-}
 
-// function genExpression(type: string, key: string, index: number) {
-//   switch (type) {
-//     case 'params':
-//       return `ret.params+='/'+arg${index}`
-//     case 'query':
-//       return `ret.query+=ret.query?"&${key}="+arg${index}:"?${key}="+arg${index}`
-//     case 'body':
-//       return `ret.body[${key}]=arg${index}`
-//   }
-// }
+  addMqMethod(className: string, methodName: string, exchange = '', routeKey = '', queue = '', params: { type: string; key: string; index: number }[] = []) {
+    if (!this.classMap[className])
+      this.classMap[className] = {}
+    this.classMap[className][methodName] = `
+    ${methodName}(${genParams(params)}){
+const ret={tag:"${className}-${methodName}",exchange:"${exchange}",routeKey:"${routeKey}",queue:"${queue}",args:{}}
+${params.reduce((p, c, i) => `${p}ret.args.${c.key}=arg${i}\n`, '')}
+return ret
+    }
+    `
+  }
+}
 
 function genParams(decorators: any[]) {
   let index = 0

@@ -123,7 +123,8 @@ describe('express ', () => {
 
     bindApp(app, data)
     const res1 = await request(app).post('/no')
-    expect(res1.body).toMatchObject({ description: 'Forbidden resource', error: true })
+    expect(res1.body).toMatchObject({"message": "Guard exception--test",
+       "status": 403, error: true })
     await request(app).post('/test')
     expect(fn).toHaveBeenCalledTimes(2)
   })

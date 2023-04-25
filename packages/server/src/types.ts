@@ -1,5 +1,6 @@
+import type { Request, Response } from 'express'
+import type amqplib from 'amqplib'
 import type { Wrap } from './utils'
-
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface PHandler {
@@ -10,7 +11,10 @@ export interface ServerMeta {
     type: RequestType
     route: string
   }
-  micro?: {
+  mq?: {
+    queue: string
+    routeKey: string
+    options: amqplib.Options.Consume
 
   }
 
@@ -49,4 +53,16 @@ export type Transform<A> = {
   [K in keyof A]: A[K] extends (...args: infer P) => infer R
     ? (...args: UnWrap<P> extends unknown[] ? UnWrap<P> : unknown[]) => R
     : never
+}
+
+export interface ServerContextData {
+  request?: Request<any, any, any, any, Record<string, any>>
+  response?: Response<any, Record<string, any>>
+
+}
+
+export interface MqContextData {
+  content?: string
+  message?: any
+  channel?: amqplib.Channel
 }

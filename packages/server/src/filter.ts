@@ -1,10 +1,13 @@
 import { HttpException, UndefinedException } from './exception'
-import type { PError } from './types'
+export type ErrorFilter<E extends HttpException = any> = (err: E | Error, contextData: any) => any
 
-export type ErrorFilter<E extends HttpException = any> = (err: E | Error, method: string) => PError
-
-export const defaultFilter: ErrorFilter = (e: any) => {
+export const serverFilter: ErrorFilter = (e: any) => {
   if (!(e instanceof HttpException))
     e = new UndefinedException(e.message || e)
   return e.data
+}
+
+export const rabbitMqFilter: ErrorFilter = (e: any, data) => {
+  const { channel, message } = data
+  channel!.reject(message!, true)
 }
