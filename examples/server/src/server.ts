@@ -2,7 +2,7 @@ import fs from 'fs'
 import { Factory, bindApp } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
-const data = Factory([TestController])
+const data = await Factory([TestController])
 fs.writeFileSync('meta.p.js', JSON.stringify(data.meta.map(item => item.data)))
 const app = express()
 app.all('*', (req, res, next) => {

@@ -1,7 +1,7 @@
 import type { Component } from 'vue'
 import { defineComponent, h, ref, render, shallowRef } from 'vue'
 
-export const createModal: (wrapComp: Component, modelKey?: string) => <P>(comp: Component<P>, props?: P) => void = function (modalWrapper: Component, modelKey = 'modelValue') {
+export const createModal: <T>(wrapComp: Component<T>, props?: Partial<T>, modelKey?: string,) => <P>(comp: Component<P>, props?: P) => void = function (modalWrapper: Component, props: any = {}, modelKey = 'modelValue') {
   let isMounted = false
   const isShow = ref(true)
   const content = shallowRef()
@@ -13,6 +13,7 @@ export const createModal: (wrapComp: Component, modelKey?: string) => <P>(comp: 
         [`onUpdate:${modelKey}`]: (v: boolean) => {
           isShow.value = v
         },
+        ...(props),
       }, {
         default: () => content.value && h(content.value, propsRef.value),
       })

@@ -24,7 +24,7 @@ export class Pcompiler {
     this.classMap[className][methodName] = `
     ${methodName}(${genParams(params)}){
 const ret={tag:"${className}-${methodName}",body:{},query:{},params:{},realParam:'',method:"${requestType}",url:"${url}"}
-${params.reduce((p, c, i) => `${p}ret.${c.type}.${c.key}=arg${i}\n${c.type === 'params' ? `ret.realParam+='/'+arg${i}\n` : ''}`, '')}
+${params.filter(item => item.key).reduce((p, c, i) => `${p}ret.${c.type}.${c.key}=arg${i}\n${c.type === 'params' ? `ret.realParam+='/'+arg${i}\n` : ''}`, '')}
 return ret
     }
     `

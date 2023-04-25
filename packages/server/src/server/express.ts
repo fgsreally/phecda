@@ -95,7 +95,7 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
     const { body } = req
 
     for (const i in body) {
-      const { name: tag } = body[i]
+      const { tag } = body[i]
       const [name] = tag.split('-')
       const {
         guards,

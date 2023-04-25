@@ -31,7 +31,7 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: { meta: P
         if (msg !== null) {
           const content = msg.content.toString()
 
-          const data = params.length > 1 ? JSON.parse(content) : content
+          const data = params.length > 0 ? JSON.parse(content) : content
           const contextMeta = {
             message: msg,
             content,

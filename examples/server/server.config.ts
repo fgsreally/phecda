@@ -9,7 +9,7 @@ export default defineConfig({
     port: 3699,
   },
   plugins: [
-    
+
     ...VitePluginNode({
       adapter: 'express',
       tsCompiler: 'swc',
