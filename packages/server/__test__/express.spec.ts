@@ -22,18 +22,18 @@ describe('express ', () => {
     const res1 = await request(app).get('/test')
     expect(res1.body.msg).toBe('test')
 
-    const res2 = await request(app).post('/__PHECDA_SERVER__').send([{ name: 'A-test' }])
+    const res2 = await request(app).post('/__PHECDA_SERVER__').send([{ tag: 'A-test' }])
     expect(res2.body[0]).toEqual({ msg: 'test' })
   })
   it('express app will fill params', async () => {
     @Controller('/base')
-    class A {
+    class B {
       @Post('/:test')
       test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
         return `${test}-${name}-${id}`
       }
     }
-    const data = await Factory([A])
+    const data = await Factory([B])
     const app = express()
     app.use(express.json())
 
@@ -53,20 +53,20 @@ describe('express ', () => {
         body: {
           name: 'server',
         },
-        name: 'A-test',
+        tag: 'B-test',
       },
     ])
     expect(res2.body[0]).toEqual('phecda-server-1')
   })
 
   it('express app will handle exception and error', async () => {
-    class A {
+    class C {
       @Get('/test')
       test() {
         throw new HttpException('test error', 500)
       }
     }
-    const data = await Factory([A])
+    const data = await Factory([C])
     const app = express()
     app.use(express.json())
 
@@ -80,14 +80,14 @@ describe('express ', () => {
       @Rule('phecda', 'name should be phecda')
       name: string
     }
-    class A {
+    class D {
       @Post('/:test')
       test(@Param('test') test: string, @Body('info') info: Info) {
         return `${test}-${info.name}`
       }
     }
 
-    const data = await Factory([A])
+    const data = await Factory([D])
     const app = express()
     app.use(express.json())
 
@@ -97,8 +97,7 @@ describe('express ', () => {
   })
   it('guard/interceptor will work', async () => {
     const fn = vi.fn((str: string) => str)
-
-    class A {
+    class E {
       @Guard('test')
       @Interceptor('test')
       @Post('/:test')
@@ -106,8 +105,8 @@ describe('express ', () => {
         return `${test}`
       }
     }
-    addGuard('test', (req) => {
-      if (req.params.test !== 'test')
+    addGuard('test', ({ request }) => {
+      if (request.params.test !== 'test')
         return false
       return true
     })
@@ -117,14 +116,17 @@ describe('express ', () => {
         fn('end')
       }
     })
-    const data = await Factory([A])
+    const data = await Factory([E])
     const app = express()
     app.use(express.json())
 
     bindApp(app, data)
     const res1 = await request(app).post('/no')
-    expect(res1.body).toMatchObject({"message": "Guard exception--test",
-       "status": 403, error: true })
+    expect(res1.body).toMatchObject({
+      message: 'Guard exception--test',
+      status: 403,
+      error: true,
+    })
     await request(app).post('/test')
     expect(fn).toHaveBeenCalledTimes(2)
   })

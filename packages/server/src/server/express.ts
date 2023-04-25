@@ -110,7 +110,7 @@ export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; modu
           throw new NotFoundException(`"${tag}" doesn't exist`)
 
         await context.useGuard(guards, true)
-        await context.useInterceptor(interceptors)
+        await context.useInterceptor(interceptors, true)
         const args = await context.usePipe(params.map(({ type, key, validate }) => {
           const arg = resolveDep(body[i][type], key)
           if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
