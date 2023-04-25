@@ -56,6 +56,7 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: { meta: P
             ch.ack(msg)
           }
           catch (e) {
+            item.handlers.forEach(handler => handler.error?.(e))
             context.useFilter(e)
           }
         }

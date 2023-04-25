@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 1.2.4
+
+### Patch Changes
+
+- f50578a: createModal can inject props to warp component
+- f50578a: fix types for createModal
+
 ## 1.2.3
 
 ### Patch Changes
