@@ -1,8 +1,16 @@
 import type { Request, Response } from 'express'
 import type amqplib from 'amqplib'
+import type { PhecdaEvents } from 'phecda-core'
 import type { Wrap } from './utils'
 export type Construct<T = any> = new (...args: any[]) => T
 
+export interface PhecdaEmitter {
+  on<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
+  once<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
+  off<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
+  removeAllListeners<N extends keyof PhecdaEvents>(eventName: N): void
+  emit<N extends keyof PhecdaEvents>(eventName: N, param: PhecdaEvents[N]): void
+}
 export interface PHandler {
   error?: (arg: any) => void
 }

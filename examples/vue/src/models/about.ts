@@ -10,7 +10,7 @@ export class AboutModel extends PV {
 
   emit_update() {
     this.emit('update', {
-      from: this.tag as any,
+      from: this.tag,
       value: 'value from emitter',
       type: 'update',
     })

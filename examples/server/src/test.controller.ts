@@ -5,7 +5,7 @@ export class TestController {
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
     console.log(`${test}-${name}-${id}`)
-    emitter.emit('watch', 'name')
+    emitter.emit('watch', 1)
     return `${test}-${name}-${id}`
   }
 

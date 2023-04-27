@@ -26,7 +26,7 @@ export function createPhecda(symbol?: string) {
         }
       }
       let eventRecord = [] as [string, (event: any) => void][]
-      injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
+      injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: any; instance: any; key: string; options?: { once: boolean } }) => {
         const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
         if (options?.once) {
@@ -45,7 +45,7 @@ export function createPhecda(symbol?: string) {
       const originUnmount = app.unmount.bind(app)
       app.unmount = () => {
         eventRecord.forEach(([eventName, handler]) =>
-          emitter.off(eventName, handler),
+          emitter.off(eventName as any, handler),
         )
         eventRecord = []
         if (symbol)

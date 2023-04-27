@@ -1,4 +1,4 @@
-import type { EventType } from 'mitt'
+import type { PhecdaEvents } from 'phecda-core'
 import type { Ref } from 'vue'
 
 type ReadonlyValue<T> = {
@@ -25,6 +25,8 @@ export type SchemaToObj<S> = {
 
 }
 
-export interface PhecdaEvents extends Record<EventType, unknown> {
-  [key: EventType]: any
+export interface PhecdaEmitter {
+  on<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
+  off<N extends keyof PhecdaEvents>(eventName: N, cb?: (args: PhecdaEvents[N]) => void): void
+  emit<N extends keyof PhecdaEvents>(eventName: N, param: PhecdaEvents[N]): void
 }

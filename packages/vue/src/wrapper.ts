@@ -1,5 +1,4 @@
-import type { Handler } from 'mitt'
-import type { PhecdaEvents } from './types'
+import type { PhecdaEvents } from 'phecda-core'
 import { emitter } from './emitter'
 
 export class PV {
@@ -8,19 +7,19 @@ export class PV {
   }
 
   get tag() {
-    // @ts-expect-error miss type
+    // @ts-expect-error 如在pv上声明，会覆盖原有_namespace
     return this._namespace.__TAG__
   }
 
-  on<Key extends keyof PhecdaEvents>(type: Key, handler: Handler<PhecdaEvents[Key]>): void {
+  on<Key extends keyof PhecdaEvents>(type: Key, handler: (arg: PhecdaEvents[Key]) => void): void {
     emitter.on(type, handler)
   }
 
-  emit(type: keyof PhecdaEvents, event: PhecdaEvents[keyof PhecdaEvents]) {
-    emitter.emit(type, event)
+  emit<Key extends keyof PhecdaEvents>(type: Key, param: PhecdaEvents[Key]) {
+    emitter.emit(type, param)
   }
 
-  off<Key extends keyof PhecdaEvents>(type: Key, handler?: Handler<PhecdaEvents[Key]>): void {
+  off<Key extends keyof PhecdaEvents>(type: Key, handler?: (arg: PhecdaEvents[Key]) => void): void {
     emitter.off(type, handler)
   }
 }

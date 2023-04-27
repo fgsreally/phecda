@@ -1,6 +1,5 @@
 import mitt from 'mitt'
-import type { PhecdaEvents } from './types'
+import type { PhecdaEmitter } from './types'
 
-export const emitter = mitt<PhecdaEvents>()
-
-export const invokeAction = emitter.emit.bind(emitter)
+//
+export const emitter: PhecdaEmitter = mitt()

@@ -39,3 +39,7 @@ export interface Phecda {
 export type ClassValue<I> = {
   [P in keyof I]: I[P] extends Function ? undefined : I[P];
 }
+
+export interface PhecdaEvents {
+
+}

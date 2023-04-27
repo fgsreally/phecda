@@ -2,9 +2,11 @@ import 'reflect-metadata'
 import EventEmitter from 'events'
 import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
-import type { Construct, ServerMeta } from './types'
+import type { Construct, PhecdaEmitter, ServerMeta } from './types'
 import { Pmeta } from './meta'
-export const emitter = new EventEmitter()
+
+// TODO: support both phecda-emitter types and origin emitter type
+export const emitter: PhecdaEmitter = new EventEmitter() as any
 
 export async function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()

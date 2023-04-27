@@ -1,5 +1,15 @@
 # phecda-vue
 
+## 1.2.5
+
+### Patch Changes
+
+- 0b46788: support option once in watcher
+- add types limit to Watcher, must be declared in a type file
+- Updated dependencies
+- Updated dependencies [0b46788]
+  - phecda-core@1.1.1
+
 ## 1.2.4
 
 ### Patch Changes
