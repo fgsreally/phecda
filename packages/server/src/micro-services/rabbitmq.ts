@@ -1,11 +1,10 @@
 import type amqplib from 'amqplib'
 
-import type { Pmeta } from '../meta'
 import { Pcontext, RabbitMqContext, parseMeta } from '../context'
 import { resolveDep } from '../utils'
 import { Pconfig } from '../config'
-
-export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: { meta: Pmeta[]; moduleMap: any }) {
+import type { Factory } from '../core'
+export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>) {
   for (const item of meta) {
     const { route, name, method, mq: { routeKey, queue: queueName, options } = {} } = item.data
     const tag = `${name}-${method}`

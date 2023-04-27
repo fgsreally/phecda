@@ -1,16 +1,18 @@
-import { Body, Controller, Get, Param, Post, Query } from 'phecda-server'
+import { Body, Controller, Get, Param, Post, Query, Watcher, emitter } from 'phecda-server'
 
 @Controller('/base')
 export class TestController {
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
     console.log(`${test}-${name}-${id}`)
+    emitter.emit('watch', 'name')
     return `${test}-${name}-${id}`
   }
 
   @Get('/mq')
+  @Watcher('watch')
   async mq(@Body() body: string) {
-    console.log('body11', body)
+    console.log('body', body)
   }
 
   @Get('/get')
@@ -20,3 +22,4 @@ export class TestController {
     }
   }
 }
+// hmr works

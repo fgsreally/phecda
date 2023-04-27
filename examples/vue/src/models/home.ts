@@ -1,4 +1,4 @@
-import { Clear, Init, Storage, Tag, Watcher, Window, useEvent } from 'phecda-vue'
+import { Clear, Global, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
 
 @Tag('base')
 
@@ -9,7 +9,7 @@ export class Base {
     console.log('run')
   }
 }
-@Window
+@Global
 @Storage
 // @Tag('home')
 export class HomeModel extends Base {
@@ -24,7 +24,7 @@ export class HomeModel extends Base {
     return `--${this.name}--`
   }
 
-  protected changeName() {
+  changeName() {
     this.name = 'fgs'
   }
 
@@ -35,8 +35,7 @@ export class HomeModel extends Base {
     })
   }
 
-  @Watcher('update')
-  @Watcher('new')
+  @Watcher('update', { once: true })
 
   on_Watch() {
     alert('update')

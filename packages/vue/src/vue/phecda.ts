@@ -25,17 +25,29 @@ export function createPhecda(symbol?: string) {
           },
         }
       }
-      const eventRecord = [] as [string, (event: any) => void][]
-      injectProperty('watcher', ({ eventName, instance, key }: { eventName: string; instance: any; key: string }) => {
+      let eventRecord = [] as [string, (event: any) => void][]
+      injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
         const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
-        eventRecord.push([eventName, fn])
-        emitter.on(eventName, fn)
+
+        if (options?.once) {
+          const handler = (...args: any) => {
+            fn(...args)
+            emitter.off(eventName, handler)
+          }
+          emitter.on(eventName, handler)
+          eventRecord.push([eventName, handler])
+        }
+        else {
+          eventRecord.push([eventName, fn])
+          emitter.on(eventName, fn)
+        }
       })
       const originUnmount = app.unmount.bind(app)
       app.unmount = () => {
         eventRecord.forEach(([eventName, handler]) =>
           emitter.off(eventName, handler),
         )
+        eventRecord = []
         if (symbol)
           delete window.__PHECDA_VUE__[symbol]
         originUnmount()

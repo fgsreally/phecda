@@ -1,10 +1,11 @@
-import { P, Tag, useV } from 'phecda-vue'
+import { PV, Tag, useV } from 'phecda-vue'
 import { HomeModel } from './home'
 
 @Tag('about')
-export class AboutModel extends P {
+export class AboutModel extends PV {
   change_home_name() {
     useV(HomeModel).changeName()
+    console.log(this.tag)
   }
 
   emit_update() {

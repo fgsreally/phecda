@@ -119,7 +119,7 @@ importers:
   examples/vue:
     dependencies:
       phecda-vue:
-        specifier: workspace:^1.2.3
+        specifier: workspace:^1.2.4
         version: link:../../packages/vue
       vue:
         specifier: ^3.2.45
@@ -224,6 +224,9 @@ importers:
       axios:
         specifier: ^1.3.5
         version: 1.3.5
+      eventemitter3:
+        specifier: ^5.0.0
+        version: 5.0.0
       phecda-core:
         specifier: workspace:*
         version: link:../core
@@ -1776,6 +1779,10 @@ packages:
   /etag@1.8.1:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
+
+  /eventemitter3@5.0.0:
+    resolution: {integrity: sha512-riuVbElZZNXLeLEoprfNYoDSwTBRR44X3mnhdI1YcnENpWTCsTTVZ2zFuqQcpoyqPQIUXdiPEU0ECAq0KQRaHg==}
+    dev: false
 
   /execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}

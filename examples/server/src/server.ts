@@ -16,3 +16,6 @@ app.use(express.json())
 bindApp(app, data)
 
 export const viteNodeApp = app
+export default function () {
+
+}

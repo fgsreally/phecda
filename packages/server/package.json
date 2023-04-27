@@ -43,6 +43,7 @@
     "@types/amqplib": "^0.10.1",
     "amqplib": "^0.10.3",
     "axios": "^1.3.5",
+    "eventemitter3": "^5.0.0",
     "phecda-core": "workspace:*",
     "reflect-metadata": "^0.1.13",
     "vite": "^4.0.0"

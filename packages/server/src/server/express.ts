@@ -1,9 +1,9 @@
 import type { Express } from 'express'
 import { Pcontext, ServerContext, parseMeta } from '../context'
 import { isObject, resolveDep } from '../utils'
-import type { Pmeta } from '../meta'
-import { NotFoundException } from '../exception/not-found'
 import { REQ_SYMBOL, SERIES_SYMBOL } from '../common'
+import type { Factory } from '../core'
+import { NotFoundException } from '../exception/not-found'
 
 export interface Options {
 /**
@@ -24,7 +24,7 @@ export interface Options {
   middlewares?: string[]
 }
 
-export function bindApp(app: Express, { meta, moduleMap }: { meta: Pmeta[]; moduleMap: any }, options: Options = {}) {
+export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   const methodMap = {} as Record<string, (...args: any[]) => any>
   for (const i of meta) {

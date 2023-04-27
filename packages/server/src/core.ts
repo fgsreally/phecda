@@ -1,13 +1,24 @@
 import 'reflect-metadata'
+import EventEmitter from 'events'
 import type { Phecda } from 'phecda-core'
-import { getExposeKey, getHandler, getState, registerAsync } from 'phecda-core'
-
+import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
 import type { Construct, ServerMeta } from './types'
 import { Pmeta } from './meta'
+export const emitter = new EventEmitter()
 
 export async function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Pmeta[] = []
+  injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
+    const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
+
+    if (options?.once)
+      emitter.once(eventName, fn)
+
+    else
+      emitter.on(eventName, fn)
+  })
+
   for (const Module of Modules)
     await buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>
 
