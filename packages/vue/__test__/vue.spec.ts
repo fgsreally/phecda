@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Err } from 'phecda-core'
 import { createApp } from 'vue'
-import { Watcher, createPhecda, invokeAction, useR, useV } from '../src/index'
+import { Watcher, createPhecda, emitter, useR, useV } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
     createApp({}).use(createPhecda())
@@ -16,7 +16,7 @@ describe('work for vue', () => {
 
     expect(name.value).toBeUndefined()
 
-    invokeAction('test', 'phecda')
+    emitter.emit('test', 'phecda')
     expect(name.value).toBe('phecda')
   })
   it('error handler', async () => {
