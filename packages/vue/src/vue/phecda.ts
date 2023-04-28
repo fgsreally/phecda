@@ -31,21 +31,21 @@ export function createPhecda(symbol?: string) {
 
         if (options?.once) {
           const handler = (...args: any) => {
-            fn(...args)
-            emitter.off(eventName, handler)
+            fn(...args);
+            (emitter as any).off(eventName, handler)
           }
-          emitter.on(eventName, handler)
+          (emitter as any).on(eventName, handler)
           eventRecord.push([eventName, handler])
         }
         else {
-          eventRecord.push([eventName, fn])
-          emitter.on(eventName, fn)
+          eventRecord.push([eventName, fn]);
+          (emitter as any).on(eventName, fn)
         }
       })
       const originUnmount = app.unmount.bind(app)
       app.unmount = () => {
         eventRecord.forEach(([eventName, handler]) =>
-          emitter.off(eventName as any, handler),
+          (emitter as any).off(eventName as any, handler),
         )
         eventRecord = []
         if (symbol)

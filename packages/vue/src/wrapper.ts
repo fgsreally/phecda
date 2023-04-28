@@ -12,14 +12,14 @@ export class PV {
   }
 
   on<Key extends keyof PhecdaEvents>(type: Key, handler: (arg: PhecdaEvents[Key]) => void): void {
-    emitter.on(type, handler)
+    (emitter as any).on(type, handler)
   }
 
   emit<Key extends keyof PhecdaEvents>(type: Key, param: PhecdaEvents[Key]) {
-    emitter.emit(type, param)
+    (emitter as any).emit(type, param)
   }
 
   off<Key extends keyof PhecdaEvents>(type: Key, handler?: (arg: PhecdaEvents[Key]) => void): void {
-    emitter.off(type, handler)
+    (emitter as any).off(type, handler)
   }
 }
