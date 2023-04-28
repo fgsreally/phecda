@@ -1,5 +1,12 @@
 # phecda-core
 
+## 1.1.1
+
+### Patch Changes
+
+- add types limit to Watcher, must be declared in a type file
+- 0b46788: add option to watcher
+
 ## 1.1.0
 
 ### Minor Changes

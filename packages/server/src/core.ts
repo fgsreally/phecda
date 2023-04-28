@@ -5,13 +5,13 @@ import { getExposeKey, getHandler, getState, injectProperty, registerAsync } fro
 import type { Construct, PhecdaEmitter, ServerMeta } from './types'
 import { Pmeta } from './meta'
 
-// TODO: support both phecda-emitter types and origin emitter type
+// TODO: support both phecda-emitter types and origin emitter type in future
 export const emitter: PhecdaEmitter = new EventEmitter() as any
 
 export async function Factory<T>(Modules: Construct<T>[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Pmeta[] = []
-  injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
+  injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: any; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
     if (options?.once)

@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import { $S, createMergeReq, createReq, isError } from 'phecda-server/client'
+import { $S, createBeacon, createMergeReq, createReq, isError } from 'phecda-server/client'
 import axios from 'axios'
 import { TestController } from './test.controller'
 const instance = axios.create({
   baseURL: 'http://127.0.0.1:3699',
 })
+const beacon = createBeacon('http://127.0.0.1:3699')
 const useRequest = createReq(instance)
 const useMergeRequest = createMergeReq(instance)
 const { test, get } = new TestController()
@@ -13,6 +14,12 @@ async function request() {
   console.log('[normal request]:')
 
   console.log(data)
+}
+
+async function testFetch() {
+  console.log('[normal beacon]:')
+
+  beacon(test('phecda', 'server', '1'))
 }
 
 async function seriesRequest() {
@@ -36,6 +43,7 @@ async function mergeRequest() {
   else console.log(res2)
 }
 
-request()
-mergeRequest()
-seriesRequest()
+// request()
+// mergeRequest()
+// seriesRequest()
+testFetch()

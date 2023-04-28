@@ -10,7 +10,7 @@ export class TestController {
   }
 
   @Get('/mq')
-  @Watcher('watch')
+  @Watcher('watch', { once: true })
   async mq(@Body() body: string) {
     console.log('body', body)
   }

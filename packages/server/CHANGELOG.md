@@ -1,5 +1,15 @@
 # phecda-server
 
+## 1.1.1
+
+### Patch Changes
+
+- 0b46788: add support for watcher
+- add types limit to Watcher, must be declared in a type file
+- Updated dependencies
+- Updated dependencies [0b46788]
+  - phecda-core@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes
