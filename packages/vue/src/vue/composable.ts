@@ -1,21 +1,21 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
-import { computed, getCurrentInstance, inject, onBeforeUnmount, reactive } from 'vue'
+import { computed, onBeforeUnmount, reactive } from 'vue'
 import type { PhecdaEvents } from 'phecda-core'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { PublicOnly, ReplaceInstanceValues } from '../types'
-import { getActivePhecda, phecdaSymbol, setActivePhecda } from './phecda'
+import { getActivePhecda } from './phecda'
 import type { _DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
 // create/get origin reactive value
 export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
-  if (getCurrentInstance()) {
-    const cur = inject(phecdaSymbol, null)
-    if (cur)
-      setActivePhecda(cur)
-  }
+  // if (getCurrentInstance()) {
+  //   const cur = inject(phecdaSymbol, null)
+  //   if (cur)
+  //     setActivePhecda(cur)
+  // }
   const { useOMap } = getActivePhecda()
   if (!useOMap.has(Model)) {
     const instance = reactive(new Model())

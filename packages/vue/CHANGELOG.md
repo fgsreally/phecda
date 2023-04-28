@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.2.6
+
+### Patch Changes
+
+- weakmap will make sth bad. remove setActivePhecda and weakmap for now
+
 ## 1.2.5
 
 ### Patch Changes

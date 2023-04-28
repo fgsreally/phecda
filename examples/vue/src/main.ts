@@ -9,3 +9,5 @@ const app = createApp(App).use(createPhecda('snap'))
 app.use(router)
 
 app.mount('#app')
+
+app.unmount()

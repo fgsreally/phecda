@@ -17,8 +17,8 @@ export function createPhecda(symbol?: string) {
           instance: phecda,
           snapshot: () => {
             const ret = [] as { key: string; value: any }[]
-            // @ts-expect-error it works
-            for (const [key, value] of phecda.useOMap)
+            const { useOMap } = getActivePhecda()
+            for (const [key, value] of useOMap)
               ret.push({ key: getTag(key) || key.name, value })
 
             return ret
@@ -53,11 +53,11 @@ export function createPhecda(symbol?: string) {
         originUnmount()
       }
     },
-    useVMap: new WeakMap(),
-    useOMap: new (symbol ? Map : WeakMap)(),
-    useRMap: new WeakMap(),
-    fnMap: new WeakMap(),
-    computedMap: new WeakMap(),
+    // useVMap: new WeakMap(),
+    // useOMap: new Map(),
+    // useRMap: new WeakMap(),
+    // fnMap: new WeakMap(),
+    // computedMap: new WeakMap(),
   })
 
   return phecda
@@ -65,7 +65,7 @@ export function createPhecda(symbol?: string) {
 
 interface PhecdaInstance {
   useVMap: WeakMap<any, any>
-  useOMap: WeakMap<any, any>
+  useOMap: Map<any, any>
   useRMap: WeakMap<any, any>
   fnMap: WeakMap<any, any>
   computedMap: WeakMap<any, any>
@@ -73,7 +73,7 @@ interface PhecdaInstance {
 
 let activePhecda: PhecdaInstance = {
   useVMap: new WeakMap(),
-  useOMap: new WeakMap(),
+  useOMap: new Map(),
   useRMap: new WeakMap(),
   fnMap: new WeakMap(),
   computedMap: new WeakMap(),

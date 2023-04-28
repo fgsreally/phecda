@@ -12,6 +12,7 @@ declare module 'phecda-vue'{
           value:string,
           from:string
         }
+        add:null
       }
 }
 
