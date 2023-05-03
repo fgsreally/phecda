@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.2.7
+
+### Patch Changes
+
+- filter will transform array
+
 ## 1.2.6
 
 ### Patch Changes

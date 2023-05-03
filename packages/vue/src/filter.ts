@@ -22,7 +22,7 @@ export function createFilter<Data extends Record<string, any>>(
 
   function traverse(obj: any, path?: string) {
     for (const i in obj) {
-      if (Array.isArray(obj[i]) || resolveOption.exclude.includes(i))
+      if (resolveOption.exclude.includes(i))
         continue
 
       const errorPath = path ? `${path}.${i}` : i

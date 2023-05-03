@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { clearStorage, getTag, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
-const { name, fullName, run } = useV(HomeModel)
+const { name, fullName, run ,key} = useV<typeof HomeModel<number>>(HomeModel)
 console.dir(HomeModel.name)
 </script>
 
