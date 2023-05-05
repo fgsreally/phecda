@@ -1,7 +1,7 @@
 {
   "name": "phecda-core",
   "version": "1.1.1",
-  "description": "",
+  "description": "provide base function and abstract limit to other phecda module ",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

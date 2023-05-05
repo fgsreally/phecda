@@ -43,7 +43,7 @@ async function mergeRequest() {
   else console.log(res2)
 }
 
-// request()
-// mergeRequest()
-// seriesRequest()
+request()
+mergeRequest()
+seriesRequest()
 testFetch()

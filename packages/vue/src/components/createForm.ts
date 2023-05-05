@@ -6,11 +6,16 @@ export function createForm<P extends { $props: any }>(
   compSet: Record<string, Component> | any,
   form: Component<P>,
   formItem: Component | false,
-  modelKey = 'modelValue',
+  options: {
+    modelKey?: string
+    onUpdate?: (key: string) => void
+  } = {},
 ): DefineComponent<{
   config: Object
   data: Object
 } & P['$props']> {
+  const { modelKey = 'modelValue', onUpdate } = options
+
   function generateChildVNode(props: any) {
     return props._children?.map((item: any) =>
       item._active === false ? null : h((compSet as any)[item._component], item),
@@ -18,13 +23,15 @@ export function createForm<P extends { $props: any }>(
   }
 
   function generateVNode(props: any) {
+    const { property } = props
     return h(
-      compSet[props.config[props.property]._component],
+      compSet[props.config[property]._component],
       {
-        ...props.config[props.property],
-        [`${modelKey}`]: props.data[props.property],
+        ...props.config[property],
+        [`${modelKey}`]: props.data[property],
         [`onUpdate:${modelKey}`]: (v: any) => {
-          props.data[props.property] = v
+          props.data[property] = v
+          onUpdate?.(property)
         },
       },
       {

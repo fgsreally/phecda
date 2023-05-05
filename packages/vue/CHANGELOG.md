@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 1.2.8
+
+### Patch Changes
+
+- property will be delete when \_active turn to false in form filter
+- add onUpdate callback to createForm
+
 ## 1.2.7
 
 ### Patch Changes
