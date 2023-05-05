@@ -30,8 +30,8 @@ export function createForm<P extends { $props: any }>(
         ...props.config[property],
         [`${modelKey}`]: props.data[property],
         [`onUpdate:${modelKey}`]: (v: any) => {
-          props.data[property] = v
           onUpdate?.(property)
+          props.data[property] = v
         },
       },
       {
