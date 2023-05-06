@@ -8,7 +8,7 @@ export function createForm<P extends { $props: any }>(
   formItem: Component | false,
   options: {
     modelKey?: string
-    onUpdate?: (key: string) => void
+    onUpdate?: (key: string, v: any) => void
   } = {},
 ): DefineComponent<{
   config: Object
@@ -30,8 +30,10 @@ export function createForm<P extends { $props: any }>(
         ...props.config[property],
         [`${modelKey}`]: props.data[property],
         [`onUpdate:${modelKey}`]: (v: any) => {
-          onUpdate?.(property)
-          props.data[property] = v
+          if (onUpdate)
+            onUpdate(property, v)
+          else
+            props.data[property] = v
         },
       },
       {
