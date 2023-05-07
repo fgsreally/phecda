@@ -1,5 +1,11 @@
 # phecda-server
 
+## 1.2.0
+
+### Minor Changes
+
+- 639928b: support client request for rabbitmq (just simple one ,not for exchange),support parallel request for axios
+
 ## 1.1.1
 
 ### Patch Changes
