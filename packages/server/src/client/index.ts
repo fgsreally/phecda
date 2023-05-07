@@ -1,5 +1,5 @@
-import { toReq } from './server'
-export * from './server'
+import { toReq } from './axios'
+export * from './axios'
 
 export function createBeacon(baseUrl: string) {
   return (arg: any) => {

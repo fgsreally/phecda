@@ -92,45 +92,84 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
     const context = new ServerContext(route, contextData)
     const ret = [] as any[]
 
-    const { body } = req
+    const { body: { category, data } } = req
+    if (category === 'series') {
+      for (const item of data) {
+        const { tag } = item
+        const [name] = tag.split('-')
+        const {
+          guards,
+          reflect,
+          interceptors,
+          params,
+        } = Pcontext.metaDataRecord[tag]
+        const instance = moduleMap.get(name)
 
-    for (const i in body) {
-      const { tag } = body[i]
-      const [name] = tag.split('-')
-      const {
-        guards,
-        reflect,
-        interceptors,
-        params,
-      } = Pcontext.metaDataRecord[tag]
-      const instance = moduleMap.get(name)
+        try {
+          if (!params)
+            throw new NotFoundException(`"${tag}" doesn't exist`)
 
-      try {
-        if (!params)
-          throw new NotFoundException(`"${tag}" doesn't exist`)
+          await context.useGuard(guards, true)
+          await context.useInterceptor(interceptors, true)
+          const args = await context.usePipe(params.map(({ type, key, validate }) => {
+            const arg = resolveDep(item[type], key)
+            if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
+              const [, index, argKey] = arg.split('@')
+              return { arg: resolveDep(ret[Number(index)], argKey || key), validate }
+            }
 
-        await context.useGuard(guards, true)
-        await context.useInterceptor(interceptors, true)
-        const args = await context.usePipe(params.map(({ type, key, validate }) => {
-          const arg = resolveDep(body[i][type], key)
-          if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
-            const [, index, argKey] = arg.split('@')
-            return { arg: resolveDep(ret[Number(index)], argKey || key), validate }
+            return { arg, validate }
+          }), reflect) as any
+          instance.meta = contextData
+
+          ret.push(await context.usePost(await methodMap[tag](...args)))
+        }
+        catch (e: any) {
+          const m = Pcontext.metaRecord[tag]
+          m.handlers.forEach(handler => handler.error?.(e))
+          ret.push(await context.useFilter(e))
+        }
+      }
+      return res.json(ret)
+    }
+    if (category === 'parallel') {
+      return Promise.all(data.map((item: any) => {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve) => {
+          const { tag } = item
+          const [name] = tag.split('-')
+          const {
+            guards,
+            reflect,
+            interceptors,
+            params,
+          } = Pcontext.metaDataRecord[tag]
+          const instance = moduleMap.get(name)
+
+          try {
+            if (!params)
+              throw new NotFoundException(`"${tag}" doesn't exist`)
+
+            await context.useGuard(guards, true)
+            await context.useInterceptor(interceptors, true)
+            const args = await context.usePipe(params.map(({ type, key, validate }) => {
+              const arg = resolveDep(item[type], key)
+              return { arg, validate }
+            }), reflect) as any
+            instance.meta = contextData
+            resolve(await context.usePost(await methodMap[tag](...args)))
           }
-
-          return { arg, validate }
-        }), reflect) as any
-        instance.meta = contextData
-
-        ret.push(await context.usePost(await methodMap[tag](...args)))
-      }
-      catch (e: any) {
-        const m = Pcontext.metaRecord[tag]
-        m.handlers.forEach(handler => handler.error?.(e))
-        ret.push(await context.useFilter(e))
-      }
+          catch (e: any) {
+            const m = Pcontext.metaRecord[tag]
+            m.handlers.forEach(handler => handler.error?.(e))
+            resolve(await context.useFilter(e))
+          }
+        })
+      })).then((ret) => {
+        res.json(ret)
+      })
     }
 
-    res.json(ret)
+    res.json(await context.useFilter(new NotFoundException('category should be \'parallel\' or \'series\'')))
   })
 }
