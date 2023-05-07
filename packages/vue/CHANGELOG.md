@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.2.10
+
+### Patch Changes
+
+- 2bcdd6b: if onUpdate exists .assignment won't work
+
 ## 1.2.9
 
 ### Patch Changes
