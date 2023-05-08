@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, Watcher, emitter } from 'phecda-server'
-
+import { Body, Controller, Get, Param, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
+@Tag('test')
 @Controller('/base')
 export class TestController {
   @Post('/:test')

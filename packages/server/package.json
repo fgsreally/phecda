@@ -1,7 +1,7 @@
 {
   "name": "phecda-server",
   "version": "1.2.0",
-  "description": "",
+  "description": "types share between server and client,`nestjs` format",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -26,7 +26,7 @@
       ]
     }
   },
-  "keywords": [],
+  "keywords": ["server","express","rabbitmq","types-share","fullstack"],
   "author": "",
   "files": [
     "dist"

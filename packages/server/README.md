@@ -1,7 +1,9 @@
 # phecda-server
-types share between server and client, like `nestjs`
+types share between server and client, `nestjs` format
 
 ## express
+
+actually, it works as a set of middlewares
 ### server side
 ```ts
 // in test.controller.ts
