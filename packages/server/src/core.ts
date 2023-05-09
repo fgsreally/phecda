@@ -30,7 +30,7 @@ export async function Factory<T>(Modules: Construct<T>[]) {
 async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
-  const name = Module.prototype._namespace.__TAG__ || Module.name
+  const name = Module.prototype._namespace?.__TAG__ || Module.name
   if (map.has(name)) {
     instance = map.get(name)
     if (!instance)

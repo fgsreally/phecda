@@ -8,7 +8,7 @@ import { Pcontext } from './base'
 export class ServerContext extends Pcontext {
   static pipe = defaultPipe
   static filter = serverFilter
-  static middlewareRecord: Record<string, (...params: any) => boolean> = {}
+  static middlewareRecord: Record<string, (...params: any) => any> = {}
   static useMiddleware(middlewares: string[]) {
     return middlewares.map((m) => {
       if (!(m in ServerContext.middlewareRecord))
@@ -25,6 +25,11 @@ export class ServerContext extends Pcontext {
     return ServerContext.filter(arg, this.data)
   }
 }
+
+export function addMiddleware(key: string, handler: (...params: any) => any) {
+  ServerContext.middlewareRecord[key] = handler
+}
+
 export function useServerPipe(pipe: ValidatePipe) {
   ServerContext.pipe = pipe
 }

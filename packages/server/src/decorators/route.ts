@@ -42,35 +42,52 @@ export function Controller(route: string) {
   return Route(route)
 }
 
-export function Guard(guardKey: string): any {
+export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (key) {
       setModalVar(target, key)
       mergeState(target, key, {
-        guards: [guardKey],
+        guards: [...guards],
       })
     }
     else {
       setModalVar(target.prototype, '__CLASS')
       mergeState(target.prototype, '__CLASS', {
-        guards: [guardKey],
+        guards: [...guards],
       })
     }
   }
 }
 
-export function Interceptor(interceptorKey: string): any {
+export function Middle(...middlewares: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (key) {
       setModalVar(target, key)
       mergeState(target, key, {
-        interceptors: [interceptorKey],
+        middlewares: [...middlewares],
       })
     }
     else {
       setModalVar(target.prototype, '__CLASS')
       mergeState(target.prototype, '__CLASS', {
-        interceptors: [interceptorKey],
+        middlewares: [...middlewares],
+      })
+    }
+  }
+}
+
+export function Interceptor(...interceptors: string[]): any {
+  return (target: any, key?: PropertyKey) => {
+    if (key) {
+      setModalVar(target, key)
+      mergeState(target, key, {
+        interceptors: [...interceptors],
+      })
+    }
+    else {
+      setModalVar(target.prototype, '__CLASS')
+      mergeState(target.prototype, '__CLASS', {
+        interceptors: [...interceptors],
       })
     }
   }
