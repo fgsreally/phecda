@@ -1,6 +1,6 @@
 // custom decorator
 
-import { regisHandler, setModalVar } from '../core'
+import { init, regisHandler, setModalVar } from '../core'
 import { getProperty } from '../namespace'
 import type { PhecdaEvents } from '../types'
 
@@ -12,5 +12,35 @@ export function Watcher(eventName: keyof PhecdaEvents, options?: { once: boolean
         getProperty('watcher')?.({ eventName, instance, key, options })
       },
     })
+  }
+}
+
+export function Storage(storeKey?: string) {
+  return (target: any, key?: PropertyKey) => {
+    let tag: string
+
+    if (key) {
+      init(target)
+      tag = storeKey || target._namespace.__TAG__
+      const uniTag = Symbol(tag)
+
+      setModalVar(target, uniTag)
+      regisHandler(target, uniTag, {
+        init: (instance: any) => {
+          getProperty('storage')?.({ instance, key, tag })
+        },
+      })
+    }
+    else {
+      init(target.prototype)
+      tag = storeKey || `${target.prototype._namespace.__TAG__}_${key}`
+      const uniTag = Symbol(tag)
+      setModalVar(target.prototype, uniTag)
+      regisHandler(target.prototype, uniTag, {
+        init: (instance: any) => {
+          getProperty('storage')?.({ instance, key: '', tag })
+        },
+      })
+    }
   }
 }

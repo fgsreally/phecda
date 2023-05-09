@@ -3,7 +3,6 @@ import { usePatch, useV } from 'phecda-vue'
 import TheWelcome from '../components/TheWelcome.vue'
 import { HomeModel } from '@/models/home'
 const { name, fullName, obj, changeName } = useV(HomeModel)
-obj.value = 1
 </script>
 
 <template>

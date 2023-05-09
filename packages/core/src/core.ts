@@ -121,6 +121,7 @@ export function register(instance: Phecda) {
 
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
+
     for (const hanlder of handlers)
       hanlder.init?.(instance)
   }

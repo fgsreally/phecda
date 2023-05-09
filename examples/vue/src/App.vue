@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { clearStorage, getTag, useV } from 'phecda-vue'
+import { getTag, initialize, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
-const { name, fullName, run ,key} = useV<typeof HomeModel<number>>(HomeModel)
-console.dir(HomeModel.name)
+const { name, fullName, run, key } = useV<typeof HomeModel<number>>(HomeModel)
 </script>
 
 <template>
@@ -17,9 +16,10 @@ console.dir(HomeModel.name)
       <HelloWorld msg="You did it!" />
 
       <nav>
-        <button @click="clearStorage(HomeModel, true)">
-          清空记录并刷新
+        <button @click="initialize(HomeModel)">
+          初始化数据
         </button>
+
         <RouterLink to="/">
           Home
         </RouterLink>

@@ -117,21 +117,12 @@ export function useEvent<Key extends keyof PhecdaEvents>(eventName: Key, cb: Han
   return () => emitter.off(eventName, cb)
 }
 
-export function initalize<M extends new (...args: any) => any>(Model: M): InstanceType<M> | void {
+export function initialize<M extends new (...args: any) => any>(Model: M): InstanceType<M> | void {
   const instance = useO(Model)
   if (instance) {
     Object.assign(instance, new Model())
     return instance
   }
-}
-
-export function clearStorage<M extends new (...args: any) => any>(Model: M, isForceUpdate = true) {
-  localStorage.removeItem(`_phecda_${useO(Model)._symbol}`)
-  isForceUpdate && initalize(Model)
-}
-
-export function deleteStorage(tag: string) {
-  localStorage.removeItem(`_phecda_${tag}`)
 }
 
 // export function cloneV<Instance extends Object>(instance: Instance): Instance {

@@ -10,11 +10,11 @@ export class Base {
   }
 }
 @Global
-@Storage
+@Storage('fgs')
 // @Tag('home')
 export class HomeModel<T> extends Base {
   // name = 'home'
-  key:T
+  key: T
   readonly obj = {
     id: 1,
     isChange: false,

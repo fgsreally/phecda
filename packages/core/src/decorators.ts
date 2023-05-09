@@ -72,30 +72,30 @@ export function Tag(tag: string) {
   }
 }
 
-export function Storage(target: any) {
-  init(target.prototype)
+// export function Storage(target: any) {
+//   init(target.prototype)
 
-  const tag = target.prototype._namespace.__TAG__
-  if (tag === '')
-    throw new Error('miss tag')
-  const uniTag = Symbol(tag)
-  setModalVar(target.prototype, uniTag)
-  regisHandler(target.prototype, uniTag, {
-    init: (instance: any) => {
-      const { state } = instance
+//   const tag = target.prototype._namespace.__TAG__
+//   if (tag === '')
+//     throw new Error('miss tag')
+//   const uniTag = Symbol(tag)
+//   setModalVar(target.prototype, uniTag)
+//   regisHandler(target.prototype, uniTag, {
+//     init: (instance: any) => {
+//       const { state } = instance
 
-      globalThis.addEventListener('beforeunload', () => {
-        localStorage.setItem(`_phecda_${tag}`, JSON.stringify(state))
-      })
-      const lastObjStr = localStorage.getItem(`_phecda_${tag}`)
-      if (lastObjStr && lastObjStr !== 'undefined') {
-        const lastObj = JSON.parse(lastObjStr)
-        for (const i in lastObj)
-          state[i] = lastObj[i]
-      }
-    },
-  })
-}
+//       globalThis.addEventListener('beforeunload', () => {
+//         localStorage.setItem(`_phecda_${tag}`, JSON.stringify(state))
+//       })
+//       const lastObjStr = localStorage.getItem(`_phecda_${tag}`)
+//       if (lastObjStr && lastObjStr !== 'undefined') {
+//         const lastObj = JSON.parse(lastObjStr)
+//         for (const i in lastObj)
+//           state[i] = lastObj[i]
+//       }
+//     },
+//   })
+// }
 export function Global(target: any) {
   if (!(globalThis as any).__PHECDA__)
     (globalThis as any).__PHECDA__ = {}
