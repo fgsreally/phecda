@@ -1,5 +1,12 @@
 # phecda-server
 
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [9b91e2f]
+  - phecda-core@1.2.0
+
 ## 1.2.1
 
 ### Patch Changes
