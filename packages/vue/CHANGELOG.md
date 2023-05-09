@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.3.1
+
+### Patch Changes
+
+- 63c4cd8: add support to \_mount and \_unmount
+
 ## 1.3.0
 
 ### Minor Changes
