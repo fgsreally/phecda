@@ -1,5 +1,12 @@
 # phecda-server
 
+## 1.2.1
+
+### Patch Changes
+
+- 0f357e7: support Tag
+- 522aaa2: make up for Middle and change part of decorators format
+
 ## 1.2.0
 
 ### Minor Changes
