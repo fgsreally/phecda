@@ -29,6 +29,7 @@ export function createForm<P extends { $props: any }>(
       {
         ...item,
         onVnodeMounted: vnode => item._mount?.(vnode),
+        onVnodeUnmounted: vnode => item._unmount?.(vnode),
         [`${modelKey}`]: props.data[property],
         [`onUpdate:${modelKey}`]: (v: any) => {
           if (onUpdate)
