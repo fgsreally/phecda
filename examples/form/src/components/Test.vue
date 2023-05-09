@@ -3,5 +3,5 @@ defineProps<{ sex: number }>()
 </script>
 
 <template>
-  {{ sex }}
+  TEST1 {{ sex }}
 </template>

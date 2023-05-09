@@ -1,11 +1,12 @@
 import type { Component } from 'vue'
-import { defineComponent, h, ref, render, shallowRef } from 'vue'
+import { defineComponent, h, render, shallowRef } from 'vue'
 
-export const createModal: <T>(wrapComp: Component<T>, props?: Partial<T>, modelKey?: string,) => <P>(comp: Component<P>, props?: P) => void = function (modalWrapper: Component, props: any = {}, modelKey = 'modelValue') {
+export const createLayer: <T>(wrapComp: Component<T>, props?: Partial<T>, modelKey?: string,) => <P>(comp: Component<P>, props?: P) => void = function (modalWrapper: Component, props: any = {}, modelKey = 'modelValue') {
   let isMounted = false
-  const isShow = ref(true)
+  const isShow = shallowRef(true)
   const content = shallowRef()
-  const propsRef = ref<any>({})
+  const propsRef = shallowRef<any>({})
+
   const wrapper = defineComponent({
     setup() {
       return () => h(modalWrapper, {

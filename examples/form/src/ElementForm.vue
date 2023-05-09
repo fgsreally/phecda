@@ -39,6 +39,7 @@ const { config, data } = createFormData({
     _component: 'ElSelect',
     _formItem: { label: '退休金', prop: 'money' },
     _default: 3000,
+    _mount: console.log,
     _children: [
       { key: 'low', label: '普通', value: 3000, _component: 'ElOption' },
       { key: 'high', label: '高', value: 8000, _component: 'ElOption' },

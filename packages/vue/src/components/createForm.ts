@@ -15,7 +15,6 @@ export function createForm<P extends { $props: any }>(
   data: Object
 } & P['$props']> {
   const { modelKey = 'modelValue', onUpdate } = options
-
   function generateChildVNode(props: any) {
     return props._children?.map((item: any) =>
       item._active === false ? null : h((compSet as any)[item._component], item),
@@ -24,10 +23,12 @@ export function createForm<P extends { $props: any }>(
 
   function generateVNode(props: any) {
     const { property } = props
+    const item = props.config[property]
     return h(
-      compSet[props.config[property]._component],
+      compSet[item._component],
       {
-        ...props.config[property],
+        ...item,
+        onVnodeMounted: vnode => item._mount?.(vnode),
         [`${modelKey}`]: props.data[property],
         [`onUpdate:${modelKey}`]: (v: any) => {
           if (onUpdate)

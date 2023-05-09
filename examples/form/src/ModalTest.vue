@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import { createModal } from 'phecda-vue'
-import { ElDialog } from 'element-plus'
-import Test from './components/Test.vue'
-import Test2 from './components/Test2.vue'
-const useModal = createModal(ElDialog, { title: 'fgp' })
-function modalAppear() {
-  if (Math.random() > 0.5)
-    useModal(Test2, { name: 'fgs' })
+import { useModal } from './components/modal'
 
-  else
-    useModal(Test, { sex: 1 })
-}
+import Test2 from './components/Test2.vue'
 </script>
 
 <template>
-  <button @click="modalAppear">
+  <button
+    @click=" useModal(Test2, { name: 'fgs' })
+    "
+  >
     createModal
   </button>
 </template>
