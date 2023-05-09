@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.2.0
+
+### Minor Changes
+
+- 9b91e2f: Storage is an 'inject' decorator like Watcher at now
+
 ## 1.1.1
 
 ### Patch Changes

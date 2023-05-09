@@ -1,5 +1,16 @@
 # phecda-vue
 
+## 1.3.0
+
+### Minor Changes
+
+- 9b91e2f: Storage is an 'inject' decorator like Watcher at now
+
+### Patch Changes
+
+- Updated dependencies [9b91e2f]
+  - phecda-core@1.2.0
+
 ## 1.2.10
 
 ### Patch Changes
