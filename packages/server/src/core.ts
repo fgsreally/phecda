@@ -48,7 +48,7 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
   else {
     instance = new Module()
   }
-  meta.push(...getMetaFromInstance(instance, name))
+  meta.push(...getMetaFromInstance(instance, Module.name))
   await registerAsync(instance)
   map.set(name, instance)
 
