@@ -1,5 +1,11 @@
 # phecda-server
 
+## 1.2.3
+
+### Patch Changes
+
+- 5143c0c: vite plugin will create an independent bundle in build command
+
 ## 1.2.2
 
 ### Patch Changes
