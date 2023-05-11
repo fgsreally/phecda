@@ -17,12 +17,40 @@
     "./client": {
       "import": "./dist/client/index.mjs",
       "require": "./dist/client/index.js"
+    },
+    "./unplugin": {
+      "import": "./dist/unplugin/unplugin.mjs",
+      "require": "./dist/unplugin/unplugin.js"
+    },
+    "./vite": {
+      "import": "./dist/unplugin/vite.mjs",
+      "require": "./dist/unplugin/vite.js"
+    },
+    "./webpack": {
+      "import": "./dist/unplugin/webpack.mjs",
+      "require": "./dist/unplugin/webpack.js"
+    },
+    "./esbuild": {
+      "import": "./dist/unplugin/esbuild.mjs",
+      "require": "./dist/unplugin/esbuild.js"
     }
   },
   "typesVersions": {
     "*": {
       "client": [
         "dist/client/index.d.ts"
+      ],
+      "vite": [
+        "dist/unplugin/vite.d.ts"
+      ],
+      "webpack": [
+        "dist/unplugin/webpack.d.ts"
+      ],
+      "esbuild": [
+        "dist/unplugin/esbuild.d.ts"
+      ],
+      "unplugin": [
+        "dist/unplugin/unplugin.d.ts"
       ]
     }
   },
@@ -41,17 +69,18 @@
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/supertest": "^2.0.12",
+    "@types/amqplib": "^0.10.1",
     "express": "^4.18.2",
     "supertest": "^6.3.3",
+    "vite": "^4.0.0",
     "tsup": "^6.5.0"
   },
   "dependencies": {
-    "@types/amqplib": "^0.10.1",
     "amqplib": "^0.10.3",
     "axios": "^1.3.5",
     "eventemitter3": "^5.0.0",
     "phecda-core": "workspace:*",
     "reflect-metadata": "^0.1.13",
-    "vite": "^4.0.0"
+    "unplugin": "^1.3.1"
   }
 }

@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 import EventEmitter from 'events'
+import fs from 'fs'
 import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
 import type { Construct, PhecdaEmitter, ServerMeta } from './types'
 import { Pmeta } from './meta'
-
 // TODO: support both phecda-emitter types and origin emitter type in future
 export const emitter: PhecdaEmitter = new EventEmitter() as any
 
@@ -24,7 +24,7 @@ export async function Factory<T>(Modules: Construct<T>[]) {
   for (const Module of Modules)
     await buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>
 
-  return { moduleMap, meta }
+  return { moduleMap, meta, output: (p: string) => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
 }
 
 async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {

@@ -11,15 +11,15 @@ export const defaultPipe = {
       const { validate, arg } = args[i]
       if (validate === false)
         continue
-      if (validate && !(arg?.constructor === reflect[i])) {
-        throw new ValidateException(`${arg} is not ${reflect[i].name}`)
+
+      if (isPhecda(reflect[i])) {
+        const ret = await plainToClass(reflect[i], arg, { transform: true })
+        if (ret.err.length > 0)
+          throw new ValidateException(ret.err[0])
+        args[i].arg = ret.data
       }
       else {
-        if (isPhecda(reflect[i])) {
-          const ret = await plainToClass(reflect[i], arg, { transform: false })
-          if (ret.err.length > 0)
-            throw new ValidateException(ret.err[0])
-        }
+        args[i].arg = reflect[i](arg)
       }
     }
     return args.map(item => item.arg)

@@ -11,7 +11,7 @@ const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
 const { test, get } = new TestController()
 async function request() {
-  const { data } = await useRequest(test('phecda', 'server', '1'))
+  const { data } = await useRequest(test(110, 'server', '1'))
   console.log('[normal request]:')
 
   console.log(data)
@@ -58,7 +58,7 @@ async function parallelRequest() {
 }
 
 request()
-mergeRequest()
-seriesRequest()
-parallelRequest()
-testFetch()
+// mergeRequest()
+// seriesRequest()
+// parallelRequest()
+// testFetch()

@@ -3,7 +3,7 @@ import { Factory, bindApp } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 const data = await Factory([TestController])
-fs.writeFileSync('meta.p.js', JSON.stringify(data.meta.map(item => item.data)))
+data.output('pmeta.js')
 const app = express()
 app.all('*', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')

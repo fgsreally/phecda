@@ -1,10 +1,10 @@
 import { URL, fileURLToPath } from 'node:url'
 
 import { defineConfig } from 'vite'
-import { Server } from 'phecda-server'
+import plugin from 'phecda-server/vite'
 
 export default defineConfig({
-  plugins: [Server('meta.p.js')],
+  plugins: [plugin()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
