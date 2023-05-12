@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.3.3
+
+### Patch Changes
+
+- 81c7a7c: add modal_props to returntype of createLayer
+
 ## 1.3.2
 
 ### Patch Changes
