@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.2.1
+
+### Patch Changes
+
+- 4273f22: external preset and add iife format bundle
+
 ## 1.2.0
 
 ### Minor Changes
