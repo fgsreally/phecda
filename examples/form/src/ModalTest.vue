@@ -6,7 +6,7 @@ import Test2 from './components/Test2.vue'
 
 <template>
   <button
-    @click=" useModal(Test2, { name: 'fgs' })
+    @click=" useModal(Test2, { name: 'fgs' }, { title: 'modal1' })
     "
   >
     createModal

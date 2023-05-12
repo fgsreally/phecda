@@ -5,7 +5,7 @@ defineProps<{ name: string }>()
 </script>
 
 <template>
-  <button @click="useModal2(Test, { sex: 10 })">
+  <button @click="useModal2(Test, { sex: 10 }, { title: 'modal2' })">
     打开弹窗1
   </button>
   TEST2 {{ name }}
