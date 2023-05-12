@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "types share between server and client,`nestjs` format",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

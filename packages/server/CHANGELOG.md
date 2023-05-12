@@ -1,5 +1,14 @@
 # phecda-server
 
+## 1.2.4
+
+### Patch Changes
+
+- 4273f22: replace vite plugin with unplugin,add output method in Factory
+- 4273f22: change defaultpipe content
+- Updated dependencies [4273f22]
+  - phecda-core@1.2.1
+
 ## 1.2.3
 
 ### Patch Changes
