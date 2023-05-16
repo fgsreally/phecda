@@ -62,7 +62,7 @@ export abstract class Pcontext {
   }
 }
 
-export function addGuard(key: string, handler: (contextData: any, isMerge: boolean) => boolean) {
+export function addGuard(key: string, handler: (contextData: any, isMerge: boolean) => Promise<boolean> | boolean) {
   Pcontext.registerGuard(key, handler)
 }
 

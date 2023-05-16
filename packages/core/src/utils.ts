@@ -17,7 +17,7 @@ export async function validate(
 }
 
 export function getTag<M extends new (...args: any) => any>(Model: M) {
-  return (Model as any).prototype?._namespace?.__TAG__
+  return (Model as any).prototype?.__TAG__
 }
 
 export function mergeOptions(obj1: any, obj2?: any) {

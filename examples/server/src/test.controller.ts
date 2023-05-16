@@ -1,12 +1,18 @@
 import { Body, Controller, Get, Param, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
 
-// @Tag('test')
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { A } from './test.service'
+
 @Controller('/base')
 export class TestController {
+  constructor(public fgs: A) {
+
+  }
+
   @Post('/:test')
   async test(@Param('test') test: number, @Body('name') name: string, @Query('id') id: string) {
     // console.log(`${test}-${name}-${id}`)
-    console.log(test, name, id)
+    console.log(this.fgs.fgs.run())
     emitter.emit('watch', 1)
 
     return `${test}-${name}-${id}`

@@ -8,7 +8,7 @@ export class PV {
 
   get tag() {
     // @ts-expect-error 如在pv上声明，会覆盖原有_namespace
-    return this._namespace.__TAG__
+    return this.__TAG__
   }
 
   on<Key extends keyof PhecdaEvents>(type: Key, handler: (arg: PhecdaEvents[Key]) => void): void {

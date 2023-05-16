@@ -10,6 +10,7 @@ export class Base {
   }
 }
 @Global
+@Tag('aa')
 @Storage('fgs')
 // @Tag('home')
 export class HomeModel<T> extends Base {
@@ -25,6 +26,8 @@ export class HomeModel<T> extends Base {
   }
 
   changeName() {
+    console.log(this)
+
     this.name = 'fgs'
   }
 

@@ -24,13 +24,13 @@ export async function Factory<T>(Modules: Construct<T>[]) {
   for (const Module of Modules)
     await buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>
 
-  return { moduleMap, meta, output: (p: string) => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
+  return { moduleMap, meta, output: (p = 'pmeta.js') => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
 }
 
 async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
-  const name = Module.prototype._namespace?.__TAG__ || Module.name
+  const name = Module.prototype?.__TAG__ || Module.name
   if (map.has(name)) {
     instance = map.get(name)
     if (!instance)

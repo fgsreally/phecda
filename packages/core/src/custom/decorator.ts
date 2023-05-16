@@ -21,7 +21,7 @@ export function Storage(storeKey?: string) {
 
     if (key) {
       init(target)
-      tag = storeKey || target._namespace.__TAG__
+      tag = storeKey || target.__TAG__
       const uniTag = Symbol(tag)
 
       setModalVar(target, uniTag)
@@ -33,7 +33,7 @@ export function Storage(storeKey?: string) {
     }
     else {
       init(target.prototype)
-      tag = storeKey || `${target.prototype._namespace.__TAG__}_${key}`
+      tag = storeKey || `${target.prototype.__TAG__}_${key}`
       const uniTag = Symbol(tag)
       setModalVar(target.prototype, uniTag)
       regisHandler(target.prototype, uniTag, {

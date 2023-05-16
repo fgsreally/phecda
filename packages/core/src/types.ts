@@ -20,7 +20,6 @@ export interface PhecdaHandler {
 export interface Phecda {
   _namespace: {
 
-    __TAG__: string
 
     __INIT_EVENT__: Set<PropertyKey>
 

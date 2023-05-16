@@ -8,10 +8,7 @@ export function isPhecda(target: any) {
 export function init(target: Phecda) {
   if (!target._namespace) {
     target._namespace = {
-      /**
-         * 类的 @tag
-        */
-      __TAG__: '',
+
       /**
          * @Init 事件,
          * 引入Model时就会执行

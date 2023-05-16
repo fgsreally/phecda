@@ -67,8 +67,7 @@ export function Pipe(v: ReturnType<typeof to>) {
 
 export function Tag(tag: string) {
   return (target: any) => {
-    init(target.prototype)
-    target.prototype._namespace.__TAG__ = tag
+    target.prototype.__TAG__ = tag
   }
 }
 
@@ -99,7 +98,7 @@ export function Tag(tag: string) {
 export function Global(target: any) {
   if (!(globalThis as any).__PHECDA__)
     (globalThis as any).__PHECDA__ = {}
-  const tag = target.prototype._namespace.__TAG__
+  const tag = target.prototype.__TAG__
   if (tag)
     (globalThis as any).__PHECDA__[tag] = target
 }
