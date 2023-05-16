@@ -34,7 +34,7 @@ describe('Factory ', () => {
         return this.service.test()
       }
     }
-    const { moduleMap } = await Factory([A])
+    const { moduleMap } = await Factory([A, Service])
     expect(moduleMap.size).toBe(2)
     expect(moduleMap.get('A').test()).toBe('test')
   })

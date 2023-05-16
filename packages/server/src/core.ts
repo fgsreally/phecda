@@ -8,7 +8,7 @@ import { Pmeta } from './meta'
 // TODO: support both phecda-emitter types and origin emitter type in future
 export const emitter: PhecdaEmitter = new EventEmitter() as any
 
-export async function Factory<T>(Modules: Construct<T>[]) {
+export async function Factory(Modules: (new (...args: any) => any)[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Pmeta[] = []
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
@@ -22,7 +22,7 @@ export async function Factory<T>(Modules: Construct<T>[]) {
   })
 
   for (const Module of Modules)
-    await buildNestModule(Module, moduleMap, meta) as InstanceType<Construct<T>>
+    await buildNestModule(Module, moduleMap, meta)
 
   return { moduleMap, meta, output: (p = 'pmeta.js') => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
 }
