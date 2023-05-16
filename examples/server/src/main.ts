@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { $S, createBeacon, createParallelReq, createReq, createSeriesReq, isError } from 'phecda-server/client'
+import { $S, createBeacon, createParallelReq, createReq, createSeriesReq, isError, useC } from 'phecda-server/client'
 import axios from 'axios'
 import { TestController } from './test.controller'
 const instance = axios.create({
@@ -9,9 +9,9 @@ const beacon = createBeacon('http://localhost:3699')
 const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
-const { test, get } = new TestController()
+const { test, get } = useC(TestController)
 async function request() {
-  const { data } = await useRequest(test(110, 'server', '1'))
+  const { data } = await useRequest(test('110', 'server', '1'))
   console.log('[normal request]:')
 
   console.log(data)
@@ -58,7 +58,7 @@ async function parallelRequest() {
 }
 
 request()
-// mergeRequest()
-// seriesRequest()
-// parallelRequest()
+mergeRequest()
+seriesRequest()
+parallelRequest()
 // testFetch()

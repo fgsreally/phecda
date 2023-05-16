@@ -27,6 +27,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
       "route": "/base/test",
       "type": "get",
     },
+    "tag": "A",
   },
 ]
 `;

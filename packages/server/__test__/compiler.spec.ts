@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { Pcompiler } from '../src/compiler'
+import type { ServerMeta } from '../src/types'
 describe('fakeController', () => {
   it('compiler will create fake class', () => {
-    const meta = [
+    const meta: ServerMeta[] = [
       {
         name: 'Controller1',
         method: 'add',
+        tag: '1',
         route: {
           route: '/a',
           type: 'post' as const,
         },
+        header: {},
+        guards: [],
+        interceptors: [],
+        middlewares: [],
         params: [{
           type: 'query',
           key: 'a',
@@ -31,6 +37,11 @@ describe('fakeController', () => {
       {
         name: 'Controller2',
         method: 'add',
+        tag: '2',
+        header: {},
+        guards: [],
+        interceptors: [],
+        middlewares: [],
         route: {
           route: '/a',
           type: 'post' as const,
@@ -49,7 +60,7 @@ describe('fakeController', () => {
     const faker = new Pcompiler()
 
     for (const i of meta)
-      faker.addMethod(i.name, i.method, i.route.route, i.route.type, i.params)
+      faker.addMethod(i)
 
     expect(faker.getContent()).toMatchSnapshot()
   })

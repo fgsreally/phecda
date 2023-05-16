@@ -33,6 +33,7 @@ export interface ServerMeta {
   middlewares: string[]
   method: string
   name: string
+  tag: string
 }
 
 export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'

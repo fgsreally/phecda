@@ -30,32 +30,33 @@ export async function Factory(Modules: (new (...args: any) => any)[]) {
 async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
-  const name = Module.prototype?.__TAG__ || Module.name
-  if (map.has(name)) {
-    instance = map.get(name)
+  const tag = Module.prototype?.__TAG__ || Module.name
+  if (map.has(tag)) {
+    instance = map.get(tag)
     if (!instance)
       throw new Error(`exist Circular Module dep--${Module}`)
 
     return instance
   }
-  map.set(name, undefined)
+  map.set(tag, undefined)
   if (paramtypes) {
+    const paramtypesInstances = [] as any[]
     for (const i in paramtypes)
-      paramtypes[i] = await buildNestModule(paramtypes[i], map, meta)
+      paramtypesInstances[i] = await buildNestModule(paramtypes[i], map, meta)
 
-    instance = new Module(...paramtypes)
+    instance = new Module(...paramtypesInstances)
   }
   else {
     instance = new Module()
   }
-  meta.push(...getMetaFromInstance(instance, Module.name))
+  meta.push(...getMetaFromInstance(instance, Module.name, tag))
   await registerAsync(instance)
-  map.set(name, instance)
+  map.set(tag, instance)
 
   return instance
 }
 
-function getMetaFromInstance(instance: Phecda, name: string) {
+function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
   const vars = getExposeKey(instance).filter(item => item !== '__CLASS')
   const baseState = (getState(instance, '__CLASS') || {}) as ServerMeta
   initState(baseState)
@@ -64,6 +65,7 @@ function getMetaFromInstance(instance: Phecda, name: string) {
     if (baseState.route && state.route)
       state.route.route = baseState.route.route + state.route.route
     state.name = name
+    state.tag = tag
     state.method = i
     const params = [] as any[]
     for (const i of state.params || []) {

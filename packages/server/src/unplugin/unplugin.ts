@@ -42,7 +42,7 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
       const compiler = new Pcompiler()
 
       for (const i of meta)
-        compiler.addMethod(i.name, i.method, i.route?.route, i.route?.type, i.params)
+        compiler.addMethod(i)
 
       return {
         code: compiler.getContent(),

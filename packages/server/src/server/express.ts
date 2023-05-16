@@ -28,33 +28,33 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   const methodMap = {} as Record<string, (...args: any[]) => any>
   for (const i of meta) {
-    const { name, method, route, header } = i.data
-    const instance = moduleMap.get(name)!
-    const tag = `${name}-${method}`
+    const { name, method, route, header, tag } = i.data
+    const instance = moduleMap.get(tag)!
+    const methodTag = `${tag}-${method}`
 
-    Pcontext.metaRecord[tag] = i
+    Pcontext.metaRecord[methodTag] = i
     let {
       guards,
       reflect,
       interceptors,
       params,
       middlewares,
-    } = Pcontext.metaDataRecord[tag] ? Pcontext.metaDataRecord[tag] : (Pcontext.metaDataRecord[tag] = parseMeta(i))
+    } = Pcontext.metaDataRecord[methodTag] ? Pcontext.metaDataRecord[methodTag] : (Pcontext.metaDataRecord[methodTag] = parseMeta(i))
 
     guards = [...globalGuards!, ...guards]
     interceptors = [...globalInterceptors!, ...interceptors]
 
     const handler = instance[method].bind(instance)
-    methodMap[tag] = handler
+    methodMap[methodTag] = handler
     Pcontext.instanceRecord[name] = instance
     if (route) {
       app[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
         const contextData = {
           request: req,
-          tag,
+          methodTag,
           response: res,
         }
-        const context = new ServerContext(tag, contextData)
+        const context = new ServerContext(methodTag, contextData)
 
         try {
           for (const name in header)

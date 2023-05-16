@@ -4,8 +4,8 @@ exports[`fakeController > compiler will create fake class 1`] = `
 "
         export class Controller1{
             
-    add(arg0,arg1,arg2,arg3,){
-const ret={tag:\\"Controller1-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
+    add(arg0,arg1,arg2,arg3){
+const ret={tag:\\"1-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
 ret.query.a=arg0
 ret.body.b=arg1
 ret.params.c=arg2
@@ -19,8 +19,8 @@ return ret
             }
         export class Controller2{
             
-    add(arg0,arg1,){
-const ret={tag:\\"Controller2-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
+    add(arg0,arg1){
+const ret={tag:\\"2-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
 ret.query.a=arg0
 ret.body.b=arg1
 

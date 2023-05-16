@@ -8,3 +8,7 @@ export function createBeacon(baseUrl: string) {
     navigator.sendBeacon(`${baseUrl}${url}${params}${query}`, JSON.stringify(body))
   }
 }
+
+export function useC<T extends new (...args: any) => any>(Module: T): InstanceType<T> {
+  return new Module()
+}

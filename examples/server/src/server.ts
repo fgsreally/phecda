@@ -1,9 +1,9 @@
-import fs from 'fs'
 import { Factory, bindApp } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 const data = await Factory([TestController])
 data.output('pmeta.js')
+
 const app = express()
 app.all('*', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')

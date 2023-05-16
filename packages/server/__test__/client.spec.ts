@@ -18,6 +18,7 @@ describe('client ', () => {
       name: 'A-test',
       method: 'post' as const,
       url: '/base',
+      tag: 'A-test',
       realParam: '/phecda/loc',
     }
     expect(toReq(data)).toMatchSnapshot()

@@ -4,13 +4,14 @@ import { Body, Controller, Get, Param, Post, Query, Tag, Watcher, emitter } from
 import { A } from './test.service'
 
 @Controller('/base')
+@Tag('test')
 export class TestController {
   constructor(public fgs: A) {
 
   }
 
   @Post('/:test')
-  async test(@Param('test') test: number, @Body('name') name: string, @Query('id') id: string) {
+  async test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
     // console.log(`${test}-${name}-${id}`)
     console.log(this.fgs.fgs.run())
     emitter.emit('watch', 1)
