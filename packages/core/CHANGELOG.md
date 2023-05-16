@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.3.0
+
+### Minor Changes
+
+- f13c1e9: remove **TAG** to prototype, avoid pollution in namespace
+
 ## 1.2.1
 
 ### Patch Changes

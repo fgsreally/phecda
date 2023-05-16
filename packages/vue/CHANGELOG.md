@@ -1,5 +1,16 @@
 # phecda-vue
 
+## 1.4.0
+
+### Minor Changes
+
+- f13c1e9: remove **TAG** to prototype, avoid pollution in namespace
+
+### Patch Changes
+
+- Updated dependencies [f13c1e9]
+  - phecda-core@1.3.0
+
 ## 1.3.3
 
 ### Patch Changes
