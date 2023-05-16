@@ -1,5 +1,21 @@
 # phecda-server
 
+## 1.3.0
+
+### Minor Changes
+
+- f13c1e9: remove **TAG** to prototype, avoid pollution in namespace
+
+### Patch Changes
+
+- caa829e: add useC to support constructor parameters, work for types
+- caa829e: support Tag in server,it actually can't work before this version
+- caa829e: default pipe in server can handle NaN correctly
+- b1c5edf: fix Factory types
+- caa829e: program won't crash in vite during hmr(danger)
+- Updated dependencies [f13c1e9]
+  - phecda-core@1.3.0
+
 ## 1.2.4
 
 ### Patch Changes
