@@ -30,17 +30,17 @@ const { config, data } = createFormData({
   age: {
     _component: 'ElInputNumber',
     _default: 40,
-    _formItem: { label: '年龄', prop: 'age' },
+    _formItem: { label: '年龄', prop: 'age', style: 'flex-basis: 50%;box-sizing: border-box' },
 
     label: '年龄',
   },
   money: {
     _active: '{{age>40}}',
     _component: 'ElSelect',
-    _formItem: { label: '退休金', prop: 'money' },
+    _formItem: { label: '退休金', prop: 'money', style: 'flex-basis: 50%;box-sizing: border-box' },
     _default: 3000,
     _mount: console.log,
-    _unmount:console.log,
+    _unmount: console.log,
     _children: [
       { key: 'low', label: '普通', value: 3000, _component: 'ElOption' },
       { key: 'high', label: '高', value: 8000, _component: 'ElOption' },
@@ -71,7 +71,7 @@ const submitForm = (formEl: any) => {
   <CustomForm
     ref="ruleFormRef"
     :config="config"
-
+    style="display:flex;flex-wrap: wrap;width:600px;box-sizing: border-box"
     :data="data"
     :model="data"
     label-width="120px"
@@ -83,3 +83,9 @@ const submitForm = (formEl: any) => {
   </ElButton>
   {{ data }}
 </template>
+
+<style>
+*{
+  margin: 0;padding: 0;
+}
+</style>

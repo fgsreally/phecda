@@ -1,9 +1,9 @@
 import type { PhecdaEvents } from 'phecda-core'
-import type { Ref } from 'vue'
+import type { DeepReadonly, Ref } from 'vue'
 
-type ReadonlyValue<T> = {
-  readonly [K in keyof T]: K extends 'value' ? T[K] : ReadonlyValue<T[K]>
-}
+// type ReadonlyValue<T> = {
+//   readonly [K in keyof T]: K extends 'value' ? T[K] : ReadonlyValue<T[K]>
+// }
 
 export type PublicOnly<T> = {
   [K in keyof T]: T[K] extends Function
@@ -16,7 +16,7 @@ export type PublicOnly<T> = {
 }
 
 export type ReplaceInstanceValues<I> = {
-  [P in keyof I]: I[P] extends (...args: any[]) => any ? I[P] : I[P] extends Readonly<any> ? ReadonlyValue<Ref<I[P]>> :
+  [P in keyof I]: I[P] extends (...args: any[]) => any ? I[P] : I[P] extends Readonly<any> ? DeepReadonly<Ref<I[P]>> :
     Ref<I[P]>;
 }
 

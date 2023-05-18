@@ -3,6 +3,7 @@ import express from 'express'
 import { TestController } from './test.controller'
 const data = await Factory([TestController])
 data.output('pmeta.js')
+console.log('start server..')
 
 const app = express()
 app.all('*', (req, res, next) => {
@@ -16,6 +17,3 @@ app.use(express.json())
 bindApp(app, data)
 
 export const viteNodeApp = app
-export default function () {
-
-}

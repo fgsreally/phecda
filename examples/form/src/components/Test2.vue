@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useModal2 } from './modal'
-import Test from './Test.vue'
+import { useModal } from './modal'
 defineProps<{ name: string }>()
 </script>
 
 <template>
-  <button @click="useModal2(Test, { sex: 10 }, { title: 'modal2' })">
+  <button @click="useModal({ sex: 10 }, { title: 'modal2' })">
     打开弹窗1
   </button>
   TEST2 {{ name }}

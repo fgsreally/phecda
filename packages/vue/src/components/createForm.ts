@@ -27,7 +27,6 @@ export function createForm<P extends { $props: any }>(
     return h(
       compSet[item._component],
       {
-        ...item,
         onVnodeMounted: vnode => item._mount?.(vnode),
         onVnodeUnmounted: vnode => item._unmount?.(vnode),
         [`${modelKey}`]: props.data[property],
@@ -37,6 +36,7 @@ export function createForm<P extends { $props: any }>(
           else
             props.data[property] = v
         },
+        ...item,
       },
       {
         default: () =>
