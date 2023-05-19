@@ -1,5 +1,16 @@
 # phecda-vue
 
+## 1.5.0
+
+### Minor Changes
+
+- 57b0072: add createModal
+
+### Patch Changes
+
+- 57b0072: fix useV types
+- 57b0072: input can override the default configuration
+
 ## 1.4.0
 
 ### Minor Changes
