@@ -4,6 +4,7 @@ import { isObject, resolveDep } from '../utils'
 import { REQ_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
 import { NotFoundException } from '../exception/not-found'
+import type { Pmeta } from '../meta'
 
 export interface Options {
 /**
@@ -27,11 +28,12 @@ export interface Options {
 export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   const methodMap = {} as Record<string, (...args: any[]) => any>
+  const contextMeta = {} as Record<string, Pmeta>
   for (const i of meta) {
     const { name, method, route, header, tag } = i.data
     const instance = moduleMap.get(tag)!
     const methodTag = `${tag}-${method}`
-
+    contextMeta[methodTag] = i
     Pcontext.metaRecord[methodTag] = i
     let {
       guards,
@@ -52,6 +54,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
         const contextData = {
           request: req,
           methodTag,
+          meta: i,
           response: res,
         }
         const context = new ServerContext(methodTag, contextData)
@@ -64,7 +67,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
           const args = await context.usePipe(params.map(({ type, key, validate }) => {
             return { arg: resolveDep((req as any)[type], key), validate }
           }), reflect)
-          instance.meta = contextData
+          instance.context = contextData
 
           const ret = await context.usePost(await handler(...args))
           if (isObject(ret))
@@ -88,6 +91,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
     const contextData = {
       request: req,
       response: res,
+      meta: contextMeta,
     }
     const context = new ServerContext(route, contextData)
     const ret = [] as any[]
@@ -120,7 +124,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
 
             return { arg, validate }
           }), reflect) as any
-          instance.meta = contextData
+          instance.context = contextData
 
           ret.push(await context.usePost(await methodMap[tag](...args)))
         }
@@ -156,7 +160,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
               const arg = resolveDep(item[type], key)
               return { arg, validate }
             }), reflect) as any
-            instance.meta = contextData
+            instance.context = contextData
             resolve(await context.usePost(await methodMap[tag](...args)))
           }
           catch (e: any) {

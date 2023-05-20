@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import type amqplib from 'amqplib'
 import type { PhecdaEvents } from 'phecda-core'
 import type { Wrap } from './utils'
+import type { Pmeta } from './meta'
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface PhecdaEmitter {
@@ -25,7 +26,7 @@ export interface ServerMeta {
     options: amqplib.Options.Consume
 
   }
-
+  meta?: any
   header: Record<string, string>
   params: { type: string; index: number; key: string; validate?: boolean }[]
   guards: string[]
@@ -74,4 +75,13 @@ export interface MqContextData {
   content?: string
   message?: any
   channel?: amqplib.Channel
+}
+
+export interface ContextData {
+  request: Request
+  response: Response
+  meta: Pmeta
+}
+export class Base {
+  context: ContextData
 }

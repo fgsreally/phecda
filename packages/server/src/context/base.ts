@@ -3,6 +3,7 @@ import { Phistroy } from '../history'
 import { ForbiddenException } from '../exception'
 
 import type { Pmeta } from '../meta'
+import type { ContextData } from '../types'
 
 export abstract class Pcontext {
   method: string
@@ -62,11 +63,11 @@ export abstract class Pcontext {
   }
 }
 
-export function addGuard(key: string, handler: (contextData: any, isMerge: boolean) => Promise<boolean> | boolean) {
+export function addGuard(key: string, handler: (contextData: ContextData, isMerge?: boolean) => Promise<boolean> | boolean) {
   Pcontext.registerGuard(key, handler)
 }
 
-export function addInterceptor(key: string, handler: (contextData: any, isMerge: boolean) => any) {
+export function addInterceptor(key: string, handler: (contextData: ContextData, isMerge?: boolean) => any) {
   Pcontext.registerInterceptor(key, handler)
 }
 export function getInstance(tag: string) {
