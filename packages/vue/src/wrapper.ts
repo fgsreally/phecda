@@ -1,4 +1,4 @@
-import type { PhecdaEvents } from 'phecda-core'
+import type { Events } from 'phecda-core'
 import { emitter } from './emitter'
 
 export class PV {
@@ -11,15 +11,15 @@ export class PV {
     return this.__TAG__
   }
 
-  on<Key extends keyof PhecdaEvents>(type: Key, handler: (arg: PhecdaEvents[Key]) => void): void {
+  on<Key extends keyof Events>(type: Key, handler: (arg: Events[Key]) => void): void {
     (emitter as any).on(type, handler)
   }
 
-  emit<Key extends keyof PhecdaEvents>(type: Key, param: PhecdaEvents[Key]) {
+  emit<Key extends keyof Events>(type: Key, param: Events[Key]) {
     (emitter as any).emit(type, param)
   }
 
-  off<Key extends keyof PhecdaEvents>(type: Key, handler?: (arg: PhecdaEvents[Key]) => void): void {
+  off<Key extends keyof Events>(type: Key, handler?: (arg: Events[Key]) => void): void {
     (emitter as any).off(type, handler)
   }
 }

@@ -53,7 +53,6 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
       app[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
         const contextData = {
           request: req,
-          methodTag,
           meta: i,
           response: res,
         }

@@ -1,7 +1,7 @@
 import 'phecda-server'
 
 declare module 'phecda-server'{
-      interface PhecdaEvents{
+      interface Events{
       watch:number
       }
 }
