@@ -2,7 +2,7 @@ import type { ValidatePipe } from '../pipe'
 import { defaultPipe } from '../pipe'
 import type { MQFilter } from '../filter'
 import { rabbitMqFilter } from '../filter'
-import { WrongMetaException } from '../exception/wrong-meta'
+import { FrameworkException } from '../exception'
 import { Pcontext } from './base'
 
 export class RabbitMqContext extends Pcontext {
@@ -12,7 +12,7 @@ export class RabbitMqContext extends Pcontext {
   static useMiddleware(middlewares: string[]) {
     return middlewares.map((m) => {
       if (!(m in RabbitMqContext.middlewareRecord))
-        throw new WrongMetaException(`can't find middleware named ${m}`)
+        throw new FrameworkException(`can't find middleware named ${m}`)
       return RabbitMqContext.middlewareRecord[m]
     })
   }

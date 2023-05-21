@@ -1,11 +1,10 @@
-import { WrongMetaException } from '../exception/wrong-meta'
+import { ForbiddenException, FrameworkException } from '../exception'
 import { Phistroy } from '../history'
-import { ForbiddenException } from '../exception'
 
 import type { Pmeta } from '../meta'
-import type { Guard, Interceptor, ServerCtx, ServerMergeCtx } from '../types'
+import type { Pguard, Pinterceptor } from '../types'
 
-export abstract class Pcontext {
+export abstract class Pcontext<Data = any> {
   method: string
   params: string[]
 
@@ -17,7 +16,8 @@ export abstract class Pcontext {
   // static serverRecord: Record<string, Pcontext> = {}
   post: ((...params: any) => any)[]
   history = new Phistroy()
-  constructor(public key: string, public data: ServerCtx | ServerMergeCtx) {
+
+  constructor(public key: string, public data: Data) {
   }
 
   static registerGuard(key: string, handler: any) {
@@ -32,7 +32,7 @@ export abstract class Pcontext {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Pcontext.guardsRecord))
-          throw new WrongMetaException(`can't find guard named ${guard}`)
+          throw new FrameworkException(`can't find guard named ${guard}`)
         if (!await Pcontext.guardsRecord[guard](this.data, isMerge))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
@@ -44,7 +44,7 @@ export abstract class Pcontext {
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Pcontext.interceptorsRecord))
-          throw new WrongMetaException(`can't find guard named ${interceptor}`)
+          throw new FrameworkException(`can't find guard named ${interceptor}`)
         const post = await Pcontext.interceptorsRecord[interceptor](this.data, isMerge)
         if (post)
           ret.push(post)
@@ -63,11 +63,11 @@ export abstract class Pcontext {
   }
 }
 
-export function addGuard(key: string, handler: Guard) {
+export function addGuard(key: string, handler: Pguard) {
   Pcontext.registerGuard(key, handler)
 }
 
-export function addInterceptor(key: string, handler: Interceptor) {
+export function addInterceptor(key: string, handler: Pinterceptor) {
   Pcontext.registerInterceptor(key, handler)
 }
 export function getInstance(tag: string) {

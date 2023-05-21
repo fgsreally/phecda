@@ -11,17 +11,3 @@ export function resolveDep(ret: any, key: string) {
     return ret?.[key]
   return ret
 }
-
-/**
- * @experiment
- */
-export class Wrap<F, T> {
-  constructor(public v1: F,
-    public V2: T) {
-
-  }
-
-  get value() {
-    return this.V2
-  }
-}

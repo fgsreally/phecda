@@ -3,18 +3,18 @@ import type { ValidatePipe } from '../pipe'
 import { defaultPipe } from '../pipe'
 import type { ServerFilter } from '../filter'
 import { serverFilter } from '../filter'
-import { WrongMetaException } from '../exception/wrong-meta'
+import { FrameworkException } from '../exception'
 import type { ServerCtx, ServerMergeCtx } from '../types'
 import { Pcontext } from './base'
 
-export class ServerContext extends Pcontext {
+export class ServerContext extends Pcontext< ServerCtx | ServerMergeCtx > {
   static pipe = defaultPipe
   static filter = serverFilter
   static middlewareRecord: Record<string, (...params: any) => any> = {}
   static useMiddleware(middlewares: string[]) {
     return middlewares.map((m) => {
       if (!(m in ServerContext.middlewareRecord))
-        throw new WrongMetaException(`can't find middleware named ${m}`)
+        throw new FrameworkException(`can't find middleware named ${m}`)
       return ServerContext.middlewareRecord[m]
     })
   }

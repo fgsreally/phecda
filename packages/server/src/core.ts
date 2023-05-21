@@ -3,10 +3,10 @@ import EventEmitter from 'events'
 import fs from 'fs'
 import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
-import type { Construct, PhecdaEmitter, ServerMeta } from './types'
+import type { Construct, Emitter, ServerMeta } from './types'
 import { Pmeta } from './meta'
 // TODO: support both phecda-emitter types and origin emitter type in future
-export const emitter: PhecdaEmitter = new EventEmitter() as any
+export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()

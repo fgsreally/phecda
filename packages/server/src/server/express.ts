@@ -3,7 +3,7 @@ import { Pcontext, ServerContext, parseMeta } from '../context'
 import { isObject, resolveDep } from '../utils'
 import { MERGE_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
-import { NotFoundException } from '../exception/not-found'
+import { BadRequestException } from '../exception'
 import type { Pmeta } from '../meta'
 import type { ServerMergeCtx } from '../types'
 
@@ -95,8 +95,9 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
       response: res,
       meta: contextMeta,
     } as unknown as ServerMergeCtx
+
     if (!Array.isArray(data))
-      return res.json(await ServerContext.useFilter(new NotFoundException('data format is not correct'), contextData))
+      return res.json(await ServerContext.useFilter(new BadRequestException('data format should be an array'), contextData))
 
     contextData.tags = data.map((item: any) => item.tag)
 
@@ -117,7 +118,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
 
         try {
           if (!params)
-            throw new NotFoundException(`"${tag}" doesn't exist`)
+            throw new BadRequestException(`"${tag}" doesn't exist`)
 
           await context.useGuard(guards, true)
           await context.useInterceptor(interceptors, true)
@@ -158,7 +159,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
 
           try {
             if (!params)
-              throw new NotFoundException(`"${tag}" doesn't exist`)
+              throw new BadRequestException(`"${tag}" doesn't exist`)
 
             await context.useGuard(guards, true)
             await context.useInterceptor(interceptors, true)
@@ -180,6 +181,6 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
       })
     }
 
-    res.json(await context.useFilter(new NotFoundException('category should be \'parallel\' or \'series\'')))
+    res.json(await context.useFilter(new BadRequestException('category should be \'parallel\' or \'series\'')))
   })
 }
