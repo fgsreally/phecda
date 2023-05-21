@@ -1,6 +1,6 @@
 import type { ValidatePipe } from '../pipe'
 import { defaultPipe } from '../pipe'
-import type { ErrorFilter } from '../filter'
+import type { MQFilter } from '../filter'
 import { rabbitMqFilter } from '../filter'
 import { WrongMetaException } from '../exception/wrong-meta'
 import { Pcontext } from './base'
@@ -21,6 +21,10 @@ export class RabbitMqContext extends Pcontext {
     return RabbitMqContext.pipe.transform?.(args, reflect)
   }
 
+  static useFilter(arg: any, data: MQFilter) {
+    return RabbitMqContext.filter(arg, data)
+  }
+
   useFilter(arg: any) {
     return RabbitMqContext.filter(arg, this.data)
   }
@@ -28,6 +32,6 @@ export class RabbitMqContext extends Pcontext {
 export function useMqPipe(pipe: ValidatePipe) {
   RabbitMqContext.pipe = pipe
 }
-export function useMqFilter(filter: ErrorFilter) {
+export function useMqFilter(filter: MQFilter) {
   RabbitMqContext.filter = filter
 }

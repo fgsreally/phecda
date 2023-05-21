@@ -77,11 +77,22 @@ export interface MqContextData {
   channel?: amqplib.Channel
 }
 
-export interface ContextData {
+export interface ServerMergeCtx {
+  request: Request
+  response: Response
+  meta: Record<string, Pmeta>
+  tags: string[]
+}
+
+export interface ServerCtx {
   request: Request
   response: Response
   meta: Pmeta
 }
 export class Base {
-  context: ContextData
+  context: ServerMergeCtx | ServerCtx
 }
+
+export type Guard = ((contextData: ServerCtx, isMerge?: false) => Promise<boolean> | boolean) | ((contextData: ServerMergeCtx, isMerge?: true) => Promise<boolean> | boolean)
+
+export type Interceptor = ((contextData: ServerCtx, isMerge?: false) => any) | ((contextData: ServerMergeCtx, isMerge?: true) => any)
