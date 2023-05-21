@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "phecda-vue": "^1.5.0",
+    "phecda-vue": "^1.5.1",
     "vue": "^3.2.47"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "phecda-vue",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "provide store/form/table with phecda function to vue",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
