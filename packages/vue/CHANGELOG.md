@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 1.5.1
+
+### Patch Changes
+
+- caab8b6: remove type prefix
+- Updated dependencies [caab8b6]
+  - phecda-core@1.3.1
+
 ## 1.5.0
 
 ### Minor Changes

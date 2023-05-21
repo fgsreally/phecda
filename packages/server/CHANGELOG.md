@@ -1,5 +1,19 @@
 # phecda-server
 
+## 1.4.0
+
+### Minor Changes
+
+- de84e23: add Base/Meta
+- de84e23: rename meta to context
+
+### Patch Changes
+
+- 3ee5ef0: add more exception and improve types support
+- caab8b6: remove type prefix
+- Updated dependencies [caab8b6]
+  - phecda-core@1.3.1
+
 ## 1.3.0
 
 ### Minor Changes
