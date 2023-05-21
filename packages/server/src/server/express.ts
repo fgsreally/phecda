@@ -1,10 +1,11 @@
 import type { Express } from 'express'
 import { Pcontext, ServerContext, parseMeta } from '../context'
 import { isObject, resolveDep } from '../utils'
-import { REQ_SYMBOL, SERIES_SYMBOL } from '../common'
+import { MERGE_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
-import { NotFoundException } from '../exception/not-found'
+import { BadRequestException } from '../exception'
 import type { Pmeta } from '../meta'
+import type { ServerMergeCtx } from '../types'
 
 export interface Options {
 /**
@@ -53,7 +54,6 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
       app[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
         const contextData = {
           request: req,
-          methodTag,
           meta: i,
           response: res,
         }
@@ -85,18 +85,25 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
   }
 
   app.post(route, (req, _res, next) => {
-    (req as any)[REQ_SYMBOL] = true
+    (req as any)[MERGE_SYMBOL] = true
     next()
   }, ...ServerContext.useMiddleware(proMiddle), async (req, res) => {
+    const { body: { category, data } } = req
+
     const contextData = {
       request: req,
       response: res,
       meta: contextMeta,
-    }
+    } as unknown as ServerMergeCtx
+
+    if (!Array.isArray(data))
+      return res.json(await ServerContext.useFilter(new BadRequestException('data format should be an array'), contextData))
+
+    contextData.tags = data.map((item: any) => item.tag)
+
     const context = new ServerContext(route, contextData)
     const ret = [] as any[]
 
-    const { body: { category, data } } = req
     if (category === 'series') {
       for (const item of data) {
         const { tag } = item
@@ -111,7 +118,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
 
         try {
           if (!params)
-            throw new NotFoundException(`"${tag}" doesn't exist`)
+            throw new BadRequestException(`"${tag}" doesn't exist`)
 
           await context.useGuard(guards, true)
           await context.useInterceptor(interceptors, true)
@@ -152,7 +159,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
 
           try {
             if (!params)
-              throw new NotFoundException(`"${tag}" doesn't exist`)
+              throw new BadRequestException(`"${tag}" doesn't exist`)
 
             await context.useGuard(guards, true)
             await context.useInterceptor(interceptors, true)
@@ -174,6 +181,6 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
       })
     }
 
-    res.json(await context.useFilter(new NotFoundException('category should be \'parallel\' or \'series\'')))
+    res.json(await context.useFilter(new BadRequestException('category should be \'parallel\' or \'series\'')))
   })
 }

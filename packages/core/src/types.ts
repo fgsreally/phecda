@@ -1,4 +1,4 @@
-export interface PhecdaNameSpace {
+export interface NameSpace {
   [name: string]: Phecda
 }
 
@@ -20,7 +20,6 @@ export interface PhecdaHandler {
 export interface Phecda {
   _namespace: {
 
-
     __INIT_EVENT__: Set<PropertyKey>
 
     __EXPOSE_VAR__: Set<PropertyKey>
@@ -39,6 +38,6 @@ export type ClassValue<I> = {
   [P in keyof I]: I[P] extends Function ? undefined : I[P];
 }
 
-export interface PhecdaEvents {
+export interface Events {
 
 }

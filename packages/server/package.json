@@ -63,7 +63,7 @@
   ],
   "author": "",
   "files": [
-    "dist"
+    "dist","template"
   ],
   "license": "MIT",
   "devDependencies": {

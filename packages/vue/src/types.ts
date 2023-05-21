@@ -1,4 +1,4 @@
-import type { PhecdaEvents } from 'phecda-core'
+import type { Events } from 'phecda-core'
 import type { DeepReadonly, Ref } from 'vue'
 
 // type ReadonlyValue<T> = {
@@ -26,7 +26,7 @@ export type SchemaToObj<S> = {
 }
 
 export interface PhecdaEmitter {
-  on<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
-  off<N extends keyof PhecdaEvents>(eventName: N, cb?: (args: PhecdaEvents[N]) => void): void
-  emit<N extends keyof PhecdaEvents>(eventName: N, param: PhecdaEvents[N]): void
+  on<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
+  off<N extends keyof Events>(eventName: N, cb?: (args: Events[N]) => void): void
+  emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }

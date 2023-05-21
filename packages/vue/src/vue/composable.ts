@@ -1,7 +1,7 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
 import { computed, onBeforeUnmount, reactive } from 'vue'
-import type { PhecdaEvents } from 'phecda-core'
+import type { Events } from 'phecda-core'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { PublicOnly, ReplaceInstanceValues } from '../types'
@@ -108,7 +108,7 @@ export function useV<T extends new (...args: any) => any>(Model: T): PublicOnly<
   useVMap.set(Model, proxy)
   return proxy
 }
-export function useEvent<Key extends keyof PhecdaEvents>(eventName: Key, cb: Handler<PhecdaEvents[Key]>) {
+export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<Events[Key]>) {
   onBeforeUnmount(() => {
     emitter.off(eventName, cb)
   })

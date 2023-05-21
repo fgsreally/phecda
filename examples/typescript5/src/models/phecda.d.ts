@@ -2,11 +2,11 @@ import { HomeModel } from './home';
 import 'phecda-vue'
 
 declare module 'phecda-vue'{
-    interface PhecdaNameSpace {
+    interface NameSpace {
         home: HomeModel;
       }
      
-      interface PhecdaEvents{
+      interface Events{
         update:{
           type:string,
           value:string,

@@ -2,9 +2,9 @@
 
 import { init, regisHandler, setModalVar } from '../core'
 import { getProperty } from '../namespace'
-import type { PhecdaEvents } from '../types'
+import type { Events } from '../types'
 
-export function Watcher(eventName: keyof PhecdaEvents, options?: { once: boolean }) {
+export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
   return (obj: any, key: string) => {
     setModalVar(obj, key)
     regisHandler(obj, key, {

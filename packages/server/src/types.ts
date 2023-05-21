@@ -1,16 +1,15 @@
 import type { Request, Response } from 'express'
 import type amqplib from 'amqplib'
-import type { PhecdaEvents } from 'phecda-core'
-import type { Wrap } from './utils'
+import type { Events } from 'phecda-core'
 import type { Pmeta } from './meta'
 export type Construct<T = any> = new (...args: any[]) => T
 
-export interface PhecdaEmitter {
-  on<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
-  once<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
-  off<N extends keyof PhecdaEvents>(eventName: N, cb: (args: PhecdaEvents[N]) => void): void
-  removeAllListeners<N extends keyof PhecdaEvents>(eventName: N): void
-  emit<N extends keyof PhecdaEvents>(eventName: N, param: PhecdaEvents[N]): void
+export interface Emitter {
+  on<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
+  once<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
+  off<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
+  removeAllListeners<N extends keyof Events>(eventName: N): void
+  emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }
 export interface PHandler {
   error?: (arg: any) => void
@@ -51,19 +50,6 @@ export interface PError extends BaseError { message: string; description: string
 export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | PError }
 
 export type PRes<T> = T
-/**
- * @experiment
- */
-export type UnWrap<T extends any[]> = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  [K in keyof T]: T[K] extends Wrap<infer F, infer _> ? F : T[K];
-}
-
-export type Transform<A> = {
-  [K in keyof A]: A[K] extends (...args: infer P) => infer R
-    ? (...args: UnWrap<P> extends unknown[] ? UnWrap<P> : unknown[]) => R
-    : never
-}
 
 export interface ServerContextData {
   request?: Request<any, any, any, any, Record<string, any>>
@@ -77,11 +63,22 @@ export interface MqContextData {
   channel?: amqplib.Channel
 }
 
-export interface ContextData {
+export interface ServerMergeCtx {
+  request: Request
+  response: Response
+  meta: Record<string, Pmeta>
+  tags?: string[]
+}
+
+export interface ServerCtx {
   request: Request
   response: Response
   meta: Pmeta
 }
 export class Base {
-  context: ContextData
+  context: ServerMergeCtx | ServerCtx
 }
+
+export type Pguard = ((contextData: ServerCtx, isMerge?: false) => Promise<boolean> | boolean) | ((contextData: ServerMergeCtx, isMerge?: true) => Promise<boolean> | boolean)
+
+export type Pinterceptor = ((contextData: ServerCtx, isMerge?: false) => any) | ((contextData: ServerMergeCtx, isMerge?: true) => any)
