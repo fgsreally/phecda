@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.4.0
+
+### Minor Changes
+
+- 263a6a7: add Assign to assign value to instance
+
 ## 1.3.1
 
 ### Patch Changes
