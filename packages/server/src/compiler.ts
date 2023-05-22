@@ -1,8 +1,8 @@
 import type { ServerMeta } from './types'
 
 export class Pcompiler {
-  content = ''
   classMap: Record<string, { [key: string]: string }> = {}
+  name: string
   constructor() { }
 
   getContent() {
@@ -17,6 +17,13 @@ export class Pcompiler {
     return content
   }
 
+  createRequest() {
+    let content = 'import {useC} from \'phecda-server\'\n'
+    for (const name in this.classMap)
+      content += `export const {${Object.keys(this.classMap[name]).join(',')}}=useC(${name})\n`
+    return content
+  }
+
   addMethod(args: ServerMeta) {
     const {
       route: {
@@ -25,6 +32,7 @@ export class Pcompiler {
       } = {}, name, method, params, tag,
     } = args
     const url = route.replace(/\/\:([^\/]*)/g, '')
+    this.name = name
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
@@ -35,18 +43,6 @@ return ret
     }
     `
   }
-
-//   addMqMethod(className: string, methodName: string, tag: string, exchange = '', routeKey = '', queue = '', params: { type: string; key: string; index: number }[] = []) {
-//     if (!this.classMap[className])
-//       this.classMap[className] = {}
-//     this.classMap[className][methodName] = `
-//     ${methodName}(${genParams(params)}){
-// const ret={tag:"${tag}-${methodName}",exchange:"${exchange}",routeKey:"${routeKey}",queue:"${queue}",args:{}}
-// ${params.reduce((p, c, i) => `${p}ret.args.${c.key}=arg${i}\n`, '')}
-// return ret
-//     }
-//     `
-//   }
 }
 
 function genParams(decorators: any[]) {

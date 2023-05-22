@@ -18,7 +18,7 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
       },
 
       buildStart() {
-        if (command === 'build') {
+        if (command !== 'serve') {
           this.emitFile({
             type: 'chunk',
             id: metaPath,
@@ -27,15 +27,12 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
           })
         }
       },
+
     },
     resolveId(id) {
       if (id.endsWith('.controller'))
 
         return metaPath
-    },
-
-    transformInclude(id) {
-      return id === metaPath
     },
     transform(code) {
       const meta = JSON.parse(code) as ServerMeta[]
@@ -44,9 +41,19 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
       for (const i of meta)
         compiler.addMethod(i)
 
-      return {
-        code: compiler.getContent(),
-      }
+      this.emitFile({
+        type: 'asset',
+        fileName: `${compiler.name}.client.ts`,
+        needsCodeReference: false,
+        source: compiler.createRequest(),
+      })
+
+      return { code: compiler.getContent() }
     },
+
+    transformInclude(id) {
+      return id === metaPath
+    },
+
   }
 })
