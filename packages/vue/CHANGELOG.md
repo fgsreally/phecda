@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 1.5.2
+
+### Patch Changes
+
+- Updated dependencies [263a6a7]
+  - phecda-core@1.4.0
+
 ## 1.5.1
 
 ### Patch Changes
