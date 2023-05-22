@@ -70,31 +70,23 @@ export function Tag(tag: string) {
     target.prototype.__TAG__ = tag
   }
 }
+// async assign value to instance
+export function Assign(cb: (instance?: any) => any) {
+  return (target: any) => {
+    init(target.prototype)
+    setModalVar(target.prototype, '__CLASS')
+    regisHandler(target.prototype, '__CLASS', {
+      init: async (instance: any) => {
+        const value = await cb(instance)
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          for (const i in value)
+            instance[i] = value[i]
+        }
+      },
+    })
+  }
+}
 
-// export function Storage(target: any) {
-//   init(target.prototype)
-
-//   const tag = target.prototype._namespace.__TAG__
-//   if (tag === '')
-//     throw new Error('miss tag')
-//   const uniTag = Symbol(tag)
-//   setModalVar(target.prototype, uniTag)
-//   regisHandler(target.prototype, uniTag, {
-//     init: (instance: any) => {
-//       const { state } = instance
-
-//       globalThis.addEventListener('beforeunload', () => {
-//         localStorage.setItem(`_phecda_${tag}`, JSON.stringify(state))
-//       })
-//       const lastObjStr = localStorage.getItem(`_phecda_${tag}`)
-//       if (lastObjStr && lastObjStr !== 'undefined') {
-//         const lastObj = JSON.parse(lastObjStr)
-//         for (const i in lastObj)
-//           state[i] = lastObj[i]
-//       }
-//     },
-//   })
-// }
 export function Global(target: any) {
   if (!(globalThis as any).__PHECDA__)
     (globalThis as any).__PHECDA__ = {}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getExposeKey } from '../src/core'
-import { Ignore, P, Pipe, Rule, addDecoToClass, classToValue, plainToClass, to } from '../src/index'
+import { Assign, Ignore, P, Pipe, Rule, addDecoToClass, classToValue, plainToClass, registerAsync, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
@@ -60,5 +60,14 @@ describe('validate&transform', () => {
 
     addDecoToClass(Any, 'name', P)
     expect(getExposeKey(Any.prototype as any)).toMatchSnapshot()
+  })
+  it('test Assign', async () => {
+    @Assign(() => new Promise(resolve => resolve({ key: 'test2' })))
+    class Test {
+      key = 'test'
+    }
+    const instance = new Test() as any
+    await registerAsync(instance)
+    expect(instance.key).toBe('test2')
   })
 })
