@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.3.1
+
+### Patch Changes
+
+- caab8b6: remove type prefix
+
 ## 1.3.0
 
 ### Minor Changes
