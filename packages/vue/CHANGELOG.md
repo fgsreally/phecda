@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.5.3
+
+### Patch Changes
+
+- 204539c: useV won't support readonly at now
+
 ## 1.5.2
 
 ### Patch Changes
