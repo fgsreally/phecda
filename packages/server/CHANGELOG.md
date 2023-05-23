@@ -1,5 +1,13 @@
 # phecda-server
 
+## 1.4.1
+
+### Patch Changes
+
+- 0c7cbcb: create client request template
+- Updated dependencies [263a6a7]
+  - phecda-core@1.4.0
+
 ## 1.4.0
 
 ### Minor Changes
