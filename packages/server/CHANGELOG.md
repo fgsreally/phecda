@@ -1,5 +1,16 @@
 # phecda-server
 
+## 1.5.0
+
+### Minor Changes
+
+- 4b67e98: refactor types to a namespace
+
+### Patch Changes
+
+- Updated dependencies [4b67e98]
+  - phecda-core@1.4.1
+
 ## 1.4.1
 
 ### Patch Changes
