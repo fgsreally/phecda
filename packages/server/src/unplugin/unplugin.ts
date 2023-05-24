@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
-import { Pcompiler } from '../compiler'
+import { Compiler } from '../compiler'
 import type { P } from '../types'
 
 export const unplugin = createUnplugin((options: { localPath?: string } = {}) => {
@@ -36,17 +36,19 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
     },
     transform(code) {
       const meta = JSON.parse(code) as P.Meta[]
-      const compiler = new Pcompiler()
+      const compiler = new Compiler()
 
       for (const i of meta)
         compiler.addMethod(i)
 
-      this.emitFile({
-        type: 'asset',
-        fileName: `${compiler.name}.client.ts`,
-        needsCodeReference: false,
-        source: compiler.createRequest(),
-      })
+      if (command !== 'serve') {
+        this.emitFile({
+          type: 'asset',
+          fileName: `${compiler.name}.client.ts`,
+          needsCodeReference: false,
+          source: compiler.createRequest(),
+        })
+      }
 
       return { code: compiler.getContent() }
     },

@@ -1,6 +1,5 @@
-import type { ValidatePipe } from '../pipe'
+import type { MQFilter, P } from '../types'
 import { defaultPipe } from '../pipe'
-import type { MQFilter } from '../filter'
 import { rabbitMqFilter } from '../filter'
 import { FrameworkException } from '../exception'
 import { Context } from './base'
@@ -29,7 +28,7 @@ export class RabbitMqContext extends Context {
     return RabbitMqContext.filter(arg, this.data)
   }
 }
-export function useMqPipe(pipe: ValidatePipe) {
+export function useMqPipe(pipe: P.Pipe) {
   RabbitMqContext.pipe = pipe
 }
 export function useMqFilter(filter: MQFilter) {

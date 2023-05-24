@@ -1,4 +1,4 @@
-import { Base, Body, Controller, Get, Meta, Param, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Base, Body, Controller, Define, Get, Param, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { A } from './test.service'
@@ -25,7 +25,7 @@ export class TestController extends Base {
     console.log('body', body)
   }
 
-  @Meta('user', 'A')
+  @Define('user', 'A')
 
   @Get('/get')
   async get() {

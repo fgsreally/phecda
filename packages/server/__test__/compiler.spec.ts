@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Pcompiler } from '../src/compiler'
+import { Compiler } from '../src/compiler'
 import type { ServerMeta } from '../src/types'
 describe('fakeController', () => {
   it('compiler will create fake class', () => {
@@ -57,7 +57,7 @@ describe('fakeController', () => {
         }],
       },
     ]
-    const faker = new Pcompiler()
+    const faker = new Compiler()
 
     for (const i of meta)
       faker.addMethod(i)

@@ -1,12 +1,11 @@
 import type { RequestHandler } from 'express'
 import { defaultPipe } from '../pipe'
-import type { ServerFilter } from '../filter'
 import { serverFilter } from '../filter'
 import { FrameworkException } from '../exception'
-import type { P, ServerCtx, ServerMergeCtx } from '../types'
+import type { P, ServerCtx, ServerFilter, ServerMergeCtx } from '../types'
 import { Context } from './base'
 
-export class ServerContext extends Context< ServerCtx | ServerMergeCtx > {
+export class ServerContext extends Context<ServerCtx | ServerMergeCtx > {
   static pipe = defaultPipe
   static filter = serverFilter
   static middlewareRecord: Record<string, (...params: any) => any> = {}

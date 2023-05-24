@@ -94,6 +94,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
       request: req,
       response: res,
       meta: contextMeta,
+      isMerge: true,
     } as unknown as ServerMergeCtx
 
     if (!Array.isArray(data))

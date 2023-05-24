@@ -1,6 +1,6 @@
 import type { P } from './types'
 
-export class Pcompiler {
+export class Compiler {
   classMap: Record<string, { [key: string]: string }> = {}
   name: string
   constructor() { }
