@@ -48,7 +48,7 @@ export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   }
 }
 
-export function P(target: any, key: PropertyKey) {
+export function Expose(target: any, key: PropertyKey) {
   setExposeKey(target, key)
 }
 

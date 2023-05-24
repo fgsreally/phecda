@@ -1,9 +1,7 @@
 import { isPhecda, plainToClass } from 'phecda-core'
 import { ValidateException } from './exception/validate'
 
-export interface ValidatePipe {
-  transform(args: { arg: any; validate?: boolean }[], reflect: any[]): Promise<any[]>
-}
+import type { P } from './types'
 
 export const defaultPipe = {
   async transform(args: { arg: any; validate: boolean }[], reflect: any[]) {
@@ -26,4 +24,4 @@ export const defaultPipe = {
     }
     return args.map(item => item.arg)
   },
-} as ValidatePipe
+} as P.Pipe

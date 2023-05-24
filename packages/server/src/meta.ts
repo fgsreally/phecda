@@ -1,7 +1,7 @@
-import type { PHandler, ServerMeta } from './types'
+import type { P } from './types'
 
-export class Pmeta {
-  constructor(public data: ServerMeta, public handlers: PHandler[], public reflect: any[]) {
+export class Meta {
+  constructor(public data: P.Meta, public handlers: P.Handler[], public reflect: any[]) {
 
   }
 }

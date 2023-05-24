@@ -3,9 +3,9 @@ import { defaultPipe } from '../pipe'
 import type { MQFilter } from '../filter'
 import { rabbitMqFilter } from '../filter'
 import { FrameworkException } from '../exception'
-import { Pcontext } from './base'
+import { Context } from './base'
 
-export class RabbitMqContext extends Pcontext {
+export class RabbitMqContext extends Context {
   static pipe = defaultPipe
   static filter = rabbitMqFilter
   static middlewareRecord: Record<string, (...params: any) => boolean> = {}

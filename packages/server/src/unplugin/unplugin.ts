@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
 import { Pcompiler } from '../compiler'
-import type { ServerMeta } from '../types'
+import type { P } from '../types'
 
 export const unplugin = createUnplugin((options: { localPath?: string } = {}) => {
   const { localPath = 'pmeta.js' } = options
@@ -35,7 +35,7 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
         return metaPath
     },
     transform(code) {
-      const meta = JSON.parse(code) as ServerMeta[]
+      const meta = JSON.parse(code) as P.Meta[]
       const compiler = new Pcompiler()
 
       for (const i of meta)

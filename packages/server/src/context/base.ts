@@ -1,19 +1,19 @@
 import { ForbiddenException, FrameworkException } from '../exception'
 import { Phistroy } from '../history'
 
-import type { Pmeta } from '../meta'
-import type { Pguard, Pinterceptor } from '../types'
+import type { Meta } from '../meta'
+import type { P } from '../types'
 
-export abstract class Pcontext<Data = any> {
+export abstract class Context<Data = any> {
   method: string
   params: string[]
 
-  static metaRecord: Record<string, Pmeta> = {}
+  static metaRecord: Record<string, Meta> = {}
   static metaDataRecord: Record<string, ReturnType<typeof parseMeta>> = {}
   static instanceRecord: Record<string, any> = {}
-  static guardsRecord: Record<string, (req: any, isMerge: boolean) => boolean> = {}
-  static interceptorsRecord: Record<string, (req: any, isMerge: boolean) => any > = {}
-  // static serverRecord: Record<string, Pcontext> = {}
+  static guardsRecord: Record<string, any> = {}
+  static interceptorsRecord: Record<string, any > = {}
+  // static serverRecord: Record<string, Context> = {}
   post: ((...params: any) => any)[]
   history = new Phistroy()
 
@@ -21,19 +21,19 @@ export abstract class Pcontext<Data = any> {
   }
 
   static registerGuard(key: string, handler: any) {
-    Pcontext.guardsRecord[key] = handler
+    Context.guardsRecord[key] = handler
   }
 
   static registerInterceptor(key: string, handler: any) {
-    Pcontext.interceptorsRecord[key] = handler
+    Context.interceptorsRecord[key] = handler
   }
 
   async useGuard(guards: string[], isMerge = false) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
-        if (!(guard in Pcontext.guardsRecord))
+        if (!(guard in Context.guardsRecord))
           throw new FrameworkException(`can't find guard named ${guard}`)
-        if (!await Pcontext.guardsRecord[guard](this.data, isMerge))
+        if (!await Context.guardsRecord[guard](this.data, isMerge))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
@@ -43,9 +43,9 @@ export abstract class Pcontext<Data = any> {
     const ret = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
-        if (!(interceptor in Pcontext.interceptorsRecord))
+        if (!(interceptor in Context.interceptorsRecord))
           throw new FrameworkException(`can't find guard named ${interceptor}`)
-        const post = await Pcontext.interceptorsRecord[interceptor](this.data, isMerge)
+        const post = await Context.interceptorsRecord[interceptor](this.data, isMerge)
         if (post)
           ret.push(post)
       }
@@ -63,18 +63,18 @@ export abstract class Pcontext<Data = any> {
   }
 }
 
-export function addGuard(key: string, handler: Pguard) {
-  Pcontext.registerGuard(key, handler)
+export function addGuard(key: string, handler: P.Guard) {
+  Context.registerGuard(key, handler)
 }
 
-export function addInterceptor(key: string, handler: Pinterceptor) {
-  Pcontext.registerInterceptor(key, handler)
+export function addInterceptor(key: string, handler: P.Interceptor) {
+  Context.registerInterceptor(key, handler)
 }
 export function getInstance(tag: string) {
-  return Pcontext.instanceRecord[tag]
+  return Context.instanceRecord[tag]
 }
 
-export function parseMeta(meta: Pmeta) {
+export function parseMeta(meta: Meta) {
   const { data: { params, guards, interceptors, middlewares }, reflect } = meta
   return {
     guards,

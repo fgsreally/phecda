@@ -3,14 +3,14 @@ import EventEmitter from 'events'
 import fs from 'fs'
 import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
-import type { Construct, Emitter, ServerMeta } from './types'
-import { Pmeta } from './meta'
+import type { Construct, Emitter, P } from './types'
+import { Meta } from './meta'
 // TODO: support both phecda-emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
-  const meta: Pmeta[] = []
+  const meta: Meta[] = []
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
@@ -27,7 +27,7 @@ export async function Factory(Modules: (new (...args: any) => any)[]) {
   return { moduleMap, meta, output: (p = 'pmeta.js') => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
 }
 
-async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Pmeta[]) {
+async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Meta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
   const tag = Module.prototype?.__TAG__ || Module.name
@@ -58,10 +58,10 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
 
 function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
   const vars = getExposeKey(instance).filter(item => item !== '__CLASS')
-  const baseState = (getState(instance, '__CLASS') || {}) as ServerMeta
+  const baseState = (getState(instance, '__CLASS') || {}) as P.Meta
   initState(baseState)
   return vars.map((i) => {
-    const state = (getState(instance, i) || {}) as ServerMeta
+    const state = (getState(instance, i) || {}) as P.Meta
     if (baseState.route && state.route)
       state.route.route = baseState.route.route + state.route.route
     state.name = name
@@ -80,7 +80,7 @@ function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
     state.guards = [...new Set([...baseState.guards, ...state.guards])]
     state.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Pmeta(state as unknown as ServerMeta, getHandler(instance, i), getParamtypes(instance, i) || [])
+    return new Meta(state as unknown as P.Meta, getHandler(instance, i), getParamtypes(instance, i) || [])
   })
 }
 

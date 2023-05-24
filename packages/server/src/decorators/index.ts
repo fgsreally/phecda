@@ -11,11 +11,11 @@ export function Header(name: string, value: string) {
   }
 }
 
-export function Meta(key: string, value: any) {
+export function Define(key: string, value: any) {
   return (target: any, k: PropertyKey) => {
     setModalVar(target, k)
     mergeState(target, k, {
-      meta: { [key]: value },
+      define: { [key]: value },
     })
   }
 }

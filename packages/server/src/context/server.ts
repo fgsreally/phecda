@@ -1,13 +1,12 @@
 import type { RequestHandler } from 'express'
-import type { ValidatePipe } from '../pipe'
 import { defaultPipe } from '../pipe'
 import type { ServerFilter } from '../filter'
 import { serverFilter } from '../filter'
 import { FrameworkException } from '../exception'
-import type { ServerCtx, ServerMergeCtx } from '../types'
-import { Pcontext } from './base'
+import type { P, ServerCtx, ServerMergeCtx } from '../types'
+import { Context } from './base'
 
-export class ServerContext extends Pcontext< ServerCtx | ServerMergeCtx > {
+export class ServerContext extends Context< ServerCtx | ServerMergeCtx > {
   static pipe = defaultPipe
   static filter = serverFilter
   static middlewareRecord: Record<string, (...params: any) => any> = {}
@@ -36,7 +35,7 @@ export function addMiddleware(key: string, handler: RequestHandler) {
   ServerContext.middlewareRecord[key] = handler
 }
 
-export function useServerPipe(pipe: ValidatePipe) {
+export function useServerPipe(pipe: P.Pipe) {
   ServerContext.pipe = pipe
 }
 export function useServerFilter(filter: ServerFilter) {

@@ -1,10 +1,10 @@
 import type { Express } from 'express'
-import { Pcontext, ServerContext, parseMeta } from '../context'
+import { Context, ServerContext, parseMeta } from '../context'
 import { isObject, resolveDep } from '../utils'
 import { MERGE_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
 import { BadRequestException } from '../exception'
-import type { Pmeta } from '../meta'
+import type { Meta } from '../meta'
 import type { ServerMergeCtx } from '../types'
 
 export interface Options {
@@ -29,27 +29,27 @@ export interface Options {
 export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   const methodMap = {} as Record<string, (...args: any[]) => any>
-  const contextMeta = {} as Record<string, Pmeta>
+  const contextMeta = {} as Record<string, Meta>
   for (const i of meta) {
     const { name, method, route, header, tag } = i.data
     const instance = moduleMap.get(tag)!
     const methodTag = `${tag}-${method}`
     contextMeta[methodTag] = i
-    Pcontext.metaRecord[methodTag] = i
+    Context.metaRecord[methodTag] = i
     let {
       guards,
       reflect,
       interceptors,
       params,
       middlewares,
-    } = Pcontext.metaDataRecord[methodTag] ? Pcontext.metaDataRecord[methodTag] : (Pcontext.metaDataRecord[methodTag] = parseMeta(i))
+    } = Context.metaDataRecord[methodTag] ? Context.metaDataRecord[methodTag] : (Context.metaDataRecord[methodTag] = parseMeta(i))
 
     guards = [...globalGuards!, ...guards]
     interceptors = [...globalInterceptors!, ...interceptors]
 
     const handler = instance[method].bind(instance)
     methodMap[methodTag] = handler
-    Pcontext.instanceRecord[name] = instance
+    Context.instanceRecord[name] = instance
     if (route) {
       app[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
         const contextData = {
@@ -113,7 +113,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
           reflect,
           interceptors,
           params,
-        } = Pcontext.metaDataRecord[tag]
+        } = Context.metaDataRecord[tag]
         const instance = moduleMap.get(name)
 
         try {
@@ -136,7 +136,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
           ret.push(await context.usePost(await methodMap[tag](...args)))
         }
         catch (e: any) {
-          const m = Pcontext.metaRecord[tag]
+          const m = Context.metaRecord[tag]
           m.handlers.forEach(handler => handler.error?.(e))
           ret.push(await context.useFilter(e))
         }
@@ -154,7 +154,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
             reflect,
             interceptors,
             params,
-          } = Pcontext.metaDataRecord[tag]
+          } = Context.metaDataRecord[tag]
           const instance = moduleMap.get(name)
 
           try {
@@ -171,7 +171,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
             resolve(await context.usePost(await methodMap[tag](...args)))
           }
           catch (e: any) {
-            const m = Pcontext.metaRecord[tag]
+            const m = Context.metaRecord[tag]
             m.handlers.forEach(handler => handler.error?.(e))
             resolve(await context.useFilter(e))
           }

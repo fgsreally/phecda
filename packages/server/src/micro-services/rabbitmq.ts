@@ -1,6 +1,6 @@
 import type amqplib from 'amqplib'
 
-import { Pcontext, RabbitMqContext, parseMeta } from '../context'
+import { Context, RabbitMqContext, parseMeta } from '../context'
 import { resolveDep } from '../utils'
 import { Pconfig } from '../config'
 import type { Factory } from '../core'
@@ -8,18 +8,18 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<R
   for (const item of meta) {
     const { route, name, method, mq: { routeKey, queue: queueName, options } = {} } = item.data
     const tag = `${name}-${method}`
-    Pcontext.metaRecord[tag] = item
+    Context.metaRecord[tag] = item
 
     const {
       guards,
       reflect,
       interceptors,
       params,
-    } = Pcontext.metaDataRecord[tag] ? Pcontext.metaDataRecord[tag] : (Pcontext.metaDataRecord[tag] = parseMeta(item))
+    } = Context.metaDataRecord[tag] ? Context.metaDataRecord[tag] : (Context.metaDataRecord[tag] = parseMeta(item))
     const instance = moduleMap.get(name)!
     const handler = instance[method].bind(instance)
 
-    Pcontext.instanceRecord[name] = instance
+    Context.instanceRecord[name] = instance
 
     if (route) {
       const { queue } = await ch.assertQueue(route.route)

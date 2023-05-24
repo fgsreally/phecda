@@ -1,4 +1,4 @@
-import type { ServerMeta } from './types'
+import type { P } from './types'
 
 export class Pcompiler {
   classMap: Record<string, { [key: string]: string }> = {}
@@ -24,7 +24,7 @@ export class Pcompiler {
     return content
   }
 
-  addMethod(args: ServerMeta) {
+  addMethod(args: P.Meta) {
     const {
       route: {
         route = '/',
