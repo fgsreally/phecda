@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.4.1
+
+### Patch Changes
+
+- 4b67e98: rename P to Expose
+
 ## 1.4.0
 
 ### Minor Changes
