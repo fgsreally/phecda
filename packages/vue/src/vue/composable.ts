@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, reactive } from 'vue'
 import type { Events } from 'phecda-core'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
-import type { PublicOnly, ReplaceInstanceValues } from '../types'
+import type { ReplaceInstanceValues } from '../types'
 import { getActivePhecda } from './phecda'
 import type { _DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
@@ -64,7 +64,7 @@ export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNeste
   return proxy
 }
 
-export function useV<T extends new (...args: any) => any>(Model: T): PublicOnly<ReplaceInstanceValues<InstanceType<T>>> {
+export function useV<T extends new (...args: any) => any>(Model: T): ReplaceInstanceValues<InstanceType<T>> {
   useO(Model)
   const { useVMap, useOMap, fnMap, computedMap } = getActivePhecda()
 
