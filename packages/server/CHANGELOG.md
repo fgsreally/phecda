@@ -1,5 +1,11 @@
 # phecda-server
 
+## 1.5.1
+
+### Patch Changes
+
+- 8863b8a: Define can bind class
+
 ## 1.5.0
 
 ### Minor Changes
