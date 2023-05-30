@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.5.5
+
+### Patch Changes
+
+- fc0122f: remove PublicOnly
+
 ## 1.5.4
 
 ### Patch Changes
