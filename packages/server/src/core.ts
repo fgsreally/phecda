@@ -64,6 +64,7 @@ function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
     const state = (getState(instance, i) || {}) as P.Meta
     if (baseState.route && state.route)
       state.route.route = baseState.route.route + state.route.route
+    state.define = { ...baseState.define, ...state.define }
     state.name = name
     state.tag = tag
     state.method = i

@@ -12,11 +12,18 @@ export function Header(name: string, value: string) {
 }
 
 export function Define(key: string, value: any) {
-  return (target: any, k: PropertyKey) => {
-    setModalVar(target, k)
-    mergeState(target, k, {
-      define: { [key]: value },
-    })
+  return (target: any, k?: PropertyKey) => {
+    if (k) {
+      setModalVar(target, k)
+      mergeState(target, k, {
+        define: { [key]: value },
+      })
+    } else {
+      setModalVar(target.prototype, '__CLASS')
+      mergeState(target.prototype, '__CLASS', {
+        define: { [key]: value },
+      })
+    }
   }
 }
 
