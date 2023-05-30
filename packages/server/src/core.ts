@@ -64,7 +64,6 @@ function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
     const state = (getState(instance, i) || {}) as P.Meta
     if (baseState.route && state.route)
       state.route.route = baseState.route.route + state.route.route
-    state.define = { ...baseState.define, ...state.define }
     state.name = name
     state.tag = tag
     state.method = i
@@ -76,7 +75,8 @@ function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
     }
     state.params = params
     initState(state)
-    state.header = Object.assign({}, baseState.header, state.header)
+    state.define = { ...baseState.define, ...state.define }
+    state.header = { ...baseState.header, ...state.header }
     state.middlewares = [...new Set([...baseState.middlewares, ...state.middlewares])]
     state.guards = [...new Set([...baseState.guards, ...state.guards])]
     state.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
@@ -90,6 +90,8 @@ function getParamtypes(Module: any, key?: string | symbol) {
 }
 
 function initState(state: any) {
+  if (!state.define)
+    state.define = {}
   if (!state.header)
     state.header = {}
   if (!state.middlewares)

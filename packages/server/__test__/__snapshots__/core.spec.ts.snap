@@ -3,6 +3,7 @@
 exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
+    "define": {},
     "guards": [],
     "header": {},
     "interceptors": [],
