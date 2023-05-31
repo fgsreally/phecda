@@ -14,7 +14,6 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
- 
     "./unplugin": {
       "import": "./dist/unplugin/unplugin.mjs",
       "require": "./dist/unplugin/unplugin.js"
@@ -34,7 +33,6 @@
   },
   "typesVersions": {
     "*": {
-  
       "vite": [
         "dist/unplugin/vite.d.ts"
       ],
@@ -57,7 +55,8 @@
   ],
   "author": "",
   "files": [
-    "dist"  ],
+    "dist"
+  ],
   "license": "MIT",
   "devDependencies": {
     "vite": "^4.0.0",

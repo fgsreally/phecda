@@ -1,6 +1,6 @@
 {
   "name": "phecda-rabbitmq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "types share between server and client,`nestjs` format",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "amqplib": "^0.10.3",
-    "phecda-server": "^1.5.1"
+    "phecda-server": "^2.0.0"
   }
 }
