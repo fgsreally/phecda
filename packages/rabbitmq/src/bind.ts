@@ -1,22 +1,25 @@
 import type amqplib from 'amqplib'
 
-import { Context, RabbitMqContext, parseMeta } from '../context'
-import { resolveDep } from '../utils'
-import { Pconfig } from '../config'
-import type { Factory } from '../core'
-export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>) {
+import { Context, parseMeta, resolveDep } from 'phecda-server'
+import type { Factory } from 'phecda-server'
+import { RabbitMqContext } from './context'
+export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, opts: {
+  guard?: boolean
+  interceptor?: boolean
+} = {}) {
   for (const item of meta) {
-    const { route, name, method, mq: { routeKey, queue: queueName, options } = {} } = item.data
-    const tag = `${name}-${method}`
-    Context.metaRecord[tag] = item
+    const { route, tag, method, name, define: { rabbitmq = {} } } = item.data
+    const { routeKey, queue: queueName, options } = rabbitmq
+    const methodTag = `${name}-${method}`
+    Context.metaRecord[methodTag] = item
 
     const {
       guards,
       reflect,
       interceptors,
       params,
-    } = Context.metaDataRecord[tag] ? Context.metaDataRecord[tag] : (Context.metaDataRecord[tag] = parseMeta(item))
-    const instance = moduleMap.get(name)!
+    } = Context.metaDataRecord[methodTag] ? Context.metaDataRecord[methodTag] : (Context.metaDataRecord[methodTag] = parseMeta(item))
+    const instance = moduleMap.get(tag)!
     const handler = instance[method].bind(instance)
 
     Context.instanceRecord[name] = instance
@@ -37,12 +40,12 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<R
             channel: ch,
 
           }
-          const context = new RabbitMqContext(tag, contextMeta)
+          const context = new RabbitMqContext(methodTag, contextMeta)
 
           try {
-            if (Pconfig.rabbitmq.guard)
+            if (opts.guard)
               await context.useGuard(guards)
-            if (Pconfig.rabbitmq.interceptor)
+            if (opts.interceptor)
               await context.useInterceptor(interceptors)
 
             const args = await context.usePipe(params.map(({ key, validate }) => {

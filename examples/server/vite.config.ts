@@ -1,7 +1,7 @@
 import { URL, fileURLToPath } from 'node:url'
 
 import { defineConfig } from 'vite'
-import plugin from 'phecda-server/vite'
+import plugin from 'phecda-client/vite'
 
 export default defineConfig({
   plugins: [plugin()],
@@ -10,7 +10,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  server: {
 
-  },
 })

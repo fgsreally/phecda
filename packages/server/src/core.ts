@@ -1,11 +1,11 @@
 import 'reflect-metadata'
-import EventEmitter from 'events'
 import fs from 'fs'
+import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
-// TODO: support both phecda-emitter types and origin emitter type in future
+// TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {

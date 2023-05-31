@@ -18,7 +18,8 @@ export function Define(key: string, value: any) {
       mergeState(target, k, {
         define: { [key]: value },
       })
-    } else {
+    }
+    else {
       setModalVar(target.prototype, '__CLASS')
       mergeState(target.prototype, '__CLASS', {
         define: { [key]: value },
@@ -29,5 +30,3 @@ export function Define(key: string, value: any) {
 
 export * from './param'
 export * from './route'
-
-export * from './micro'

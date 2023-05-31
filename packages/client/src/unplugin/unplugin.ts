@@ -1,10 +1,10 @@
 import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
-import { Compiler } from '../../../client/src/compiler'
-import type { P } from '../types'
+import type { P } from 'phecda-server'
+import { Compiler } from '../compiler'
 
-export const unplugin = createUnplugin((options: { localPath?: string } = {}) => {
-  const { localPath = 'pmeta.js' } = options
+export const unplugin = createUnplugin((options: { localPath?: string; parseFile?: (id: string) => boolean } = {}) => {
+  const { localPath = 'pmeta.js', parseFile = id => id.endsWith('.controller') } = options
 
   let command: string
   const metaPath = resolve(process.cwd(), localPath).replace(/\\/g, '/')
@@ -30,8 +30,7 @@ export const unplugin = createUnplugin((options: { localPath?: string } = {}) =>
 
     },
     resolveId(id) {
-      if (id.endsWith('.controller'))
-
+      if (parseFile(id))
         return metaPath
     },
     transform(code) {

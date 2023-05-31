@@ -1,4 +1,4 @@
-import type { P } from './types'
+import type { P } from 'phecda-server'
 
 export class Compiler {
   classMap: Record<string, { [key: string]: string }> = {}

@@ -1,6 +1,7 @@
-import { defineConfig, normalizePath } from 'vite'
-import plugin from 'phecda-client/vite'
+import { defineConfig } from 'vite'
 import { VitePluginNode } from 'vite-plugin-node'
+import plugin from 'phecda-client/vite'
+
 export default defineConfig({
   ssr: {
     format: 'cjs',
@@ -18,7 +19,7 @@ export default defineConfig({
     VitePluginNode({
       adapter: 'express',
       tsCompiler: 'swc',
-      appPath: './src/server.ts',
+      appPath: './src/rabbitmq.ts',
     }),
   ],
 })
