@@ -1,8 +1,7 @@
-import type { MQFilter, P } from '../types'
-import { defaultPipe } from '../pipe'
-import { rabbitMqFilter } from '../filter'
-import { FrameworkException } from '../exception'
-import { Context } from './base'
+import type { P } from 'phecda-server'
+import { Context, FrameworkException, defaultPipe } from 'phecda-server'
+import { rabbitMqFilter } from './filter'
+import type { MQFilter } from './types'
 
 export class RabbitMqContext extends Context {
   static pipe = defaultPipe

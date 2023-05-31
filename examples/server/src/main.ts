@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { $S, createBeacon, createParallelReq, createReq, createSeriesReq, isError, useC } from 'phecda-server/client'
+import { $S, createBeacon, createParallelReq, createReq, createSeriesReq, isError, useC } from 'phecda-client'
 import axios from 'axios'
 import { TestController } from './test.controller'
 const instance = axios.create({

@@ -2,6 +2,7 @@ import { Base, Body, Controller, Define, Get, Param, Post, Query, Tag, Watcher, 
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { A } from './test.service'
+// import { publish } from './publish'
 
 @Controller('/base')
 @Tag('test')
@@ -12,27 +13,32 @@ export class TestController extends Base {
 
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
-    // console.log(`${test}-${name}-${id}`)
-    console.log(this.fgs.fgs.run())
-    emitter.emit('watch', 1)
-
     return `${test}-${name}-${id}`
   }
 
   @Get('/mq')
-  @Watcher('watch', { once: true })
-  async mq(@Body() body: string) {
-    console.log('body', body)
+  async mq(@Body('data') body: string) {
+    console.log('use mq', body)
+  }
+
+  @Get('/send')
+  async sendMsgToMQ(@Body('data') body: string) {
+    emitter.emit('watch', 1)
+    console.log('use mq', body)
+    return 'send msg to mq'
   }
 
   @Define('user', 'A')
-
   @Get('/get')
   async get() {
-    console.log(this.context.meta)
     return {
       data: 'test',
     }
+  }
+
+  @Watcher('watch', { once: true })
+  watch() {
+    // publish()
   }
 }
 // hmr works

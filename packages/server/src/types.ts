@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express'
-import type amqplib from 'amqplib'
 import type { Events } from 'phecda-core'
 import type { Meta } from './meta'
 import type { HttpException } from './exception'
@@ -17,11 +16,6 @@ export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options
 
 export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
 
-export interface MqCtx {
-  content?: string
-  message?: any
-  channel?: amqplib.Channel
-}
 export interface ServerMergeCtx {
   request: Request
   response: Response
@@ -40,7 +34,6 @@ export interface BaseError {
   status: number
 }
 export type ServerFilter<E extends HttpException = any> = (err: E | Error, contextData: ServerMergeCtx | ServerCtx) => any
-export type MQFilter<E extends HttpException = any> = (err: E | Error, contextData: any) => any
 
 export class Base {
   context: ServerMergeCtx | ServerCtx
@@ -62,12 +55,12 @@ export namespace P{
       type: RequestType
       route: string
     }
-    mq?: {
-      queue: string
-      routeKey: string
-      options: amqplib.Options.Consume
+    // mq?: {
+    //   queue: string
+    //   routeKey: string
+    //   options: amqplib.Options.Consume
 
-    }
+    // }
     define?: any
     header: Record<string, string>
     params: { type: string; index: number; key: string; validate?: boolean }[]

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { Compiler } from '../src/compiler'
-import type { ServerMeta } from '../src/types'
+import type { P } from 'phecda-server'
+import { Compiler } from '../src'
 describe('fakeController', () => {
   it('compiler will create fake class', () => {
-    const meta: ServerMeta[] = [
+    const meta: P.Meta[] = [
       {
         name: 'Controller1',
         method: 'add',

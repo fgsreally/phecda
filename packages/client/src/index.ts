@@ -1,5 +1,4 @@
 import { toReq } from './axios'
-export * from './axios'
 
 export function createBeacon(baseUrl: string) {
   return (arg: any) => {
@@ -12,3 +11,6 @@ export function createBeacon(baseUrl: string) {
 export function useC<T extends new (...args: any) => any>(Module: T): InstanceType<T> {
   return new Module()
 }
+
+export * from './axios'
+export * from './compiler'
