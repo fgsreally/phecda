@@ -6,7 +6,6 @@
     "dev": "vite",
     "serve": "vite -c server.config.ts",
     "mq": "vite -c rabbitmq.config.ts",
-
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

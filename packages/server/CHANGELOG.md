@@ -1,5 +1,11 @@
 # phecda-server
 
+## 2.0.0
+
+### Major Changes
+
+- b85e32b: split phecda-server to phecda-client(axios) phecda-server(express) phecda-rabbitmq(rabbitmq)
+
 ## 1.5.1
 
 ### Patch Changes
