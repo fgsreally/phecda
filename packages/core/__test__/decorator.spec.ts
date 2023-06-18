@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getExposeKey } from '../src/core'
-import { Assign, Ignore, Expose, Pipe, Rule, addDecoToClass, classToValue, plainToClass, registerAsync, to } from '../src/index'
+import { Assign, Bind, Expose, Ignore, Pipe, Rule, addDecoToClass, classToValue, getBind, plainToClass, registerAsync, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
@@ -61,7 +61,7 @@ describe('validate&transform', () => {
     addDecoToClass(Any, 'name', Expose)
     expect(getExposeKey(Any.prototype as any)).toMatchSnapshot()
   })
-  it('test Assign', async () => {
+  it(' Assign', async () => {
     @Assign(() => new Promise(resolve => resolve({ key: 'test2' })))
     class Test {
       key = 'test'
@@ -69,5 +69,13 @@ describe('validate&transform', () => {
     const instance = new Test() as any
     await registerAsync(instance)
     expect(instance.key).toBe('test2')
+  })
+
+  it('bind', () => {
+    class Test {
+      @Bind('phecda')
+      key: string
+    }
+    expect(getBind(Test).key).toBe('phecda')
   })
 })

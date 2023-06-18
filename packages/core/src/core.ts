@@ -50,7 +50,7 @@ export function getInitEvent(target: Phecda) {
   init(target)
   return [...target._namespace.__INIT_EVENT__] as string[]
 }
-
+// it should be setmodelVar
 export function setModalVar(target: Phecda, key: PropertyKey) {
   init(target)
   target._namespace.__STATE_VAR__.add(key)
