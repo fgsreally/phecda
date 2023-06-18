@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import { VitePluginNode } from 'vite-plugin-node'
-import plugin from 'phecda-client/vite'
 
 export default defineConfig({
   ssr: {
@@ -11,11 +10,7 @@ export default defineConfig({
     cors: true,
   },
   plugins: [
-    plugin({
-      parseFile(id) {
-        return id.endsWith('?client')
-      },
-    }),
+
     VitePluginNode({
       adapter: 'express',
       tsCompiler: 'swc',
