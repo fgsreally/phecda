@@ -1,6 +1,19 @@
-import { getExposeKey, getHandler, getModelState } from './core'
-import type { ClassValue, UsePipeOptions } from './types'
+import { getExposeKey, getHandler, getModelState, getState } from './core'
+import type { ClassValue, Phecda, UsePipeOptions } from './types'
 import { validate } from './utils'
+
+export function getBind<M extends new (...args: any) => any>(Model: M) {
+  const instance = new Model() as Phecda
+  const keys = getModelState(instance) as PropertyKey[]
+  const ret: any = {}
+  for (const item of keys) {
+    const state = getState(instance as any, item) as any
+
+    if (state.value)
+      ret[item] = state.value
+  }
+  return ret
+}
 
 export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
   const data: InstanceType<M> = new Model()
@@ -70,7 +83,7 @@ export function snapShot<T extends new (...args: any) => any>(data: InstanceType
   }
 }
 /**
- * add phecda-decorator to a class by function
+ * add decorator to a class by function
  */
 export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler:((target: any, key: PropertyKey) => void), type: 'static' | 'class' | 'normal' = 'normal') {
   handler(type === 'normal' ? c.prototype : c, key)

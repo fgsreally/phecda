@@ -1,5 +1,5 @@
 import type { to } from './helper'
-import { init, regisHandler, setExposeKey, setIgnoreKey, setModalVar } from './core'
+import { init, mergeState, regisHandler, setExposeKey, setIgnoreKey, setModalVar } from './core'
 
 export function Init(target: any, key: PropertyKey) {
   setModalVar(target, key)
@@ -9,6 +9,16 @@ export function Init(target: any, key: PropertyKey) {
       instance[key]()
     },
   })
+}
+
+// bind value
+export function Bind(value: any) {
+  return (target: any, k: PropertyKey) => {
+    setModalVar(target, k)
+    mergeState(target, k, {
+      value,
+    })
+  }
 }
 
 export function Rule(rule: RegExp | string | Function | number,
