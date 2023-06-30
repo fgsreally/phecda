@@ -80,6 +80,10 @@ export function createFilter<Data extends Record<string, any>>(
     data.value = params || initState || {}
   }
 
+  function delState(key: string) {
+    delete data.value[key]
+  }
+
   function clearStore(key: string) {
     delete store[key]
   }
@@ -89,5 +93,5 @@ export function createFilter<Data extends Record<string, any>>(
     store = null as any
     scope.stop()
   }
-  return { filter, data, init, setState, storeState, store, applyStore, dispose, clearStore }
+  return { filter, data, init, setState, storeState, store, applyStore, dispose, clearStore, delState }
 }
