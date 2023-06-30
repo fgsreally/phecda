@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.5.7
+
+### Patch Changes
+
+- 6b13839: add delState to filter
+
 ## 1.5.6
 
 ### Patch Changes
