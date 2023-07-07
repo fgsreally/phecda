@@ -72,3 +72,11 @@ export function isError<T = any>(data: T | P.Error): data is P.Error {
 export function $S(index: number, key = ''): any {
   return `${SERIES_SYMBOL}@${index}@${key}`
 }
+
+// work for vue-request
+// phecda-client request instance + method from class => async function
+export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<typeof createReq>, cb: F) {
+  return async (...params: Parameters<F>) => {
+    return (await pcRequest(cb(...params as any) as ReturnType<F>)).data
+  }
+}
