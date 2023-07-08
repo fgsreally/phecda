@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.6.0
+
+### Minor Changes
+
+- 70e5f9d: filter support simple setter
+
 ## 1.5.7
 
 ### Patch Changes
