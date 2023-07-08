@@ -1,3 +1,4 @@
+/* eslint-disable no-new-func */
 import { effectScope, reactive, ref } from 'vue'
 import type { SchemaToObj } from './types'
 export const EXPRESS_RE = /^{{(.*)}}$/
@@ -35,10 +36,21 @@ export function createFilter<Data extends Record<string, any>>(
 
           Object.defineProperty(obj, i, {
             get() {
-              // eslint-disable-next-line no-new-func
               return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{return ${body}}catch(e){return _eh(e,"${errorPath}")}` : `return ${body}`)(
                 ...Object.values(data.value), resolveOption.errorHandler,
               )
+            },
+            // only work when using variable(not expression)
+            set(value) {
+              try {
+                new Function('_data', '_v', `_data.${body}=_v`)(
+                  data.value, value,
+                )
+                return true
+              }
+              catch (e) {
+                return false
+              }
             },
           })
         }
@@ -46,7 +58,6 @@ export function createFilter<Data extends Record<string, any>>(
           const body = obj[i].match(resolveOption.fnRE)[1]
           Object.defineProperty(obj, i, {
             get() {
-              // eslint-disable-next-line no-new-func
               return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{${body}}catch(e){return _eh(e,"${errorPath}")}` : `${body}`)(
                 ...Object.values(data.value), resolveOption.errorHandler,
               )

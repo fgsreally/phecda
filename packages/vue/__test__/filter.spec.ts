@@ -12,6 +12,25 @@ describe('createFilter', () => {
     data.value.age = 40
     const ret = filter(schema)
     expect(ret.category.value).toBe('old')
+    // setter won't work
+    ret.category.value = 50
+    expect(ret.category.value).toBe('old')
+  })
+
+  it('setter', async () => {
+    const schema = {
+      category: {
+        value: '{{age}}',
+      },
+
+    }
+    // false
+    const { filter, data } = createFilter()
+    data.value.age = 40
+    const ret = filter(schema)
+    expect(ret.category.value).toBe(40)
+    ret.category.value = 50
+    expect(data.value.age).toBe(50)
   })
 
   it('error handler should work', async () => {
