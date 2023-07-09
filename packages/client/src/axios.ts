@@ -1,6 +1,7 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { P, RequestType } from 'phecda-server'
-import { SERIES_SYMBOL } from 'phecda-server'
+import { SERIES_SYMBOL } from './common'
+
 interface RequestArgs {
   body: Record<string, any>
   query: Record<string, string>
