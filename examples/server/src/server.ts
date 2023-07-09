@@ -4,7 +4,7 @@ import { TestController } from './test.controller'
 const data = await Factory([TestController])
 data.output('pmeta.js')
 console.log('start server..')
-
+const router = express.Router()
 const app = express()
 app.all('*', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
@@ -13,7 +13,7 @@ app.all('*', (req, res, next) => {
   next()
 })
 app.use(express.json())
-
-bindApp(app, data)
+bindApp(router, data)
+app.use('/base', router)
 
 export const viteNodeApp = app

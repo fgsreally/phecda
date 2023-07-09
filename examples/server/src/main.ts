@@ -3,7 +3,7 @@ import { $S, createBeacon, createParallelReq, createReq, createSeriesReq, isErro
 import axios from 'axios'
 import { TestController } from './test.controller'
 const instance = axios.create({
-  baseURL: 'http://localhost:3699',
+  baseURL: 'http://localhost:3699/base',
 })
 const beacon = createBeacon('http://localhost:3699')
 const useRequest = createReq(instance)

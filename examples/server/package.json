@@ -6,11 +6,11 @@
     "dev": "vite",
     "serve": "vite -c server.config.ts",
     "mq": "vite -c rabbitmq.config.ts",
-
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/express": "^4.17.17",
     "typescript": "^4.9.3",
     "vite": "^4.2.0",
     "vite-plugin-node": "^3.0.2"
