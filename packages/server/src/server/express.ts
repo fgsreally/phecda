@@ -1,4 +1,4 @@
-import type { Express } from 'express'
+import type { Express, Router } from 'express'
 import { Context, ServerContext, parseMeta } from '../context'
 import { isObject, resolveDep } from '../utils'
 import { MERGE_SYMBOL, SERIES_SYMBOL } from '../common'
@@ -26,7 +26,7 @@ export interface Options {
   middlewares?: string[]
 }
 
-export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
+export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   const methodMap = {} as Record<string, (...args: any[]) => any>
   const contextMeta = {} as Record<string, Meta>
@@ -51,7 +51,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
     methodMap[methodTag] = handler
     Context.instanceRecord[name] = instance
     if (route) {
-      app[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
+      (app as Express)[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
         const contextData = {
           request: req,
           meta: i,
@@ -84,7 +84,7 @@ export function bindApp(app: Express, { meta, moduleMap }: Awaited<ReturnType<ty
     }
   }
 
-  app.post(route, (req, _res, next) => {
+  (app as Express).post(route, (req, _res, next) => {
     (req as any)[MERGE_SYMBOL] = true
     next()
   }, ...ServerContext.useMiddleware(proMiddle), async (req, res) => {

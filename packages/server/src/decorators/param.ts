@@ -9,12 +9,12 @@ export function BaseParam(type: string, key: string, validate?: boolean): any {
   }
 }
 
-export function Body(key = '', validate?: boolean) {
-  return BaseParam('body', key, validate)
+export function Body(key = '', usePipe?: boolean) {
+  return BaseParam('body', key, usePipe)
 }
-export function Query(key: string, validate?: boolean) {
-  return BaseParam('query', key, validate)
+export function Query(key: string, usePipe?: boolean) {
+  return BaseParam('query', key, usePipe)
 }
-export function Param(key: string, validate?: boolean) {
-  return BaseParam('params', key, validate)
+export function Param(key: string, usePipe?: boolean) {
+  return BaseParam('params', key, usePipe)
 }

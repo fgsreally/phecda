@@ -90,6 +90,9 @@ importers:
         specifier: workspace:^
         version: link:../../packages/server
     devDependencies:
+      '@types/express':
+        specifier: ^4.17.17
+        version: 4.17.17
       typescript:
         specifier: ^4.9.3
         version: 4.9.4

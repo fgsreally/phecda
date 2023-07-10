@@ -4,6 +4,14 @@ import { Base, Body, Controller, Define, Get, Param, Post, Query, Tag, Watcher, 
 import { A } from './test.service'
 // import { publish } from './publish'
 
+class t {
+  constructor(public fgs: string) {}
+}
+
+interface b {
+  name: string
+}
+
 @Controller('/base')
 @Tag('test')
 export class TestController extends Base {
@@ -11,14 +19,20 @@ export class TestController extends Base {
     super()
   }
 
+  @Post('/mq')
+  async mq(@Body('') body: undefined) {
+    console.log('use mq', body)
+  }
+
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
     return `${test}-${name}-${id}`
   }
 
-  @Get('/mq')
-  async mq(@Body('data') body: string) {
-    console.log('use mq', body)
+  @Get('/query')
+  async query(@Query('id') id: t[]) {
+    console.log('query', typeof id, id)
+    return id
   }
 
   @Get('/send')
