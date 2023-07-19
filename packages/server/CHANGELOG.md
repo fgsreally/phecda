@@ -1,5 +1,11 @@
 # phecda-server
 
+## 2.0.2
+
+### Patch Changes
+
+- 40e7ec2: fix decorators type, to support custom pipe
+
 ## 2.0.1
 
 ### Patch Changes
