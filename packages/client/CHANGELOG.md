@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.1.1
+
+### Patch Changes
+
+- 0ad3128: fix vite plugin type and support .route
+
 ## 1.1.0
 
 ### Minor Changes
