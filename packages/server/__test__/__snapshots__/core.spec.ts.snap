@@ -32,3 +32,64 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
   },
 ]
 `;
+
+exports[`Factory  > In extended case 1`] = `
+[
+  {
+    "define": {},
+    "guards": [],
+    "header": {},
+    "interceptors": [],
+    "method": "test",
+    "middlewares": [],
+    "name": "B",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
+      },
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
+    ],
+    "route": {
+      "route": "/B/testA",
+      "type": "get",
+    },
+    "tag": "B",
+  },
+  {
+    "define": {},
+    "guards": [],
+    "header": {},
+    "interceptors": [],
+    "method": "test2",
+    "middlewares": [],
+    "name": "B",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
+      },
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
+    ],
+    "route": {
+      "route": "/B/testB",
+      "type": "get",
+    },
+    "tag": "B",
+  },
+]
+`;
