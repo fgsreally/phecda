@@ -17,8 +17,7 @@
   ],
   "author": "",
   "files": [
-    "dist",
-    "template"
+    "dist"
   ],
   "license": "MIT",
   "devDependencies": {
