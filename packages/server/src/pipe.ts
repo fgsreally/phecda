@@ -17,9 +17,12 @@ export const defaultPipe = {
         args[i].arg = ret.data
       }
       else {
-        args[i].arg = reflect[i](arg)
-        if (reflect[i] === Number && Object.is(args[i].arg, NaN))
-          throw new ValidateException(`parameter ${Number(i) + 1} should be a number`)
+        if ([Number, Boolean].includes(reflect[i])) {
+          args[i].arg = reflect[i](arg)
+
+          if (reflect[i] === Number && Object.is(args[i].arg, NaN))
+            throw new ValidateException(`parameter ${Number(i) + 1} should be a number`)
+        }
       }
     }
     return args.map(item => item.arg)
