@@ -1,5 +1,11 @@
 # phecda-server
 
+## 2.0.3
+
+### Patch Changes
+
+- b7dd58a: default pipe only transform Number and Boolean
+
 ## 2.0.2
 
 ### Patch Changes
