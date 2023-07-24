@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.1.2
+
+### Patch Changes
+
+- 34e74ab: fix emitFile in vite
+
 ## 1.1.1
 
 ### Patch Changes
