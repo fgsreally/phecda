@@ -1,5 +1,17 @@
 # phecda-server
 
+## 2.1.0
+
+### Minor Changes
+
+- 2daabb8: add Provide and Inject
+
+### Patch Changes
+
+- 9904e92: add Empty
+- Updated dependencies [2daabb8]
+  - phecda-core@1.6.0
+
 ## 2.0.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.6.0
+
+### Minor Changes
+
+- 2daabb8: add Provide and Inject
+
 ## 1.5.0
 
 ### Minor Changes
