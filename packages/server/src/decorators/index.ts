@@ -3,9 +3,7 @@ import { mergeState, setModalVar } from 'phecda-core'
  *
  * @deprecate
  */
-export function Inject(_target: any) { }
-
-export function Empty(_target: any) { }
+// export function Inject(_target: any) { }
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {

@@ -1,5 +1,6 @@
 import type { to } from './helper'
 import { init, mergeState, regisHandler, setExposeKey, setIgnoreKey, setModalVar } from './core'
+import type { PhecdaInjectData } from './types'
 
 export function Init(target: any, key: PropertyKey) {
   setModalVar(target, key)
@@ -103,4 +104,16 @@ export function Global(target: any) {
   const tag = target.prototype.__TAG__
   if (tag)
     (globalThis as any).__PHECDA__[tag] = target
+}
+
+export function Empty(_target: any) { }
+
+export const DataMap = {} as PhecdaInjectData
+
+export function Provide<K extends keyof PhecdaInjectData>(key: K, value: PhecdaInjectData[K]) {
+  DataMap[key] = value
+}
+
+export function Inject<K extends keyof PhecdaInjectData>(key: K): PhecdaInjectData[K] {
+  return DataMap[key] || (() => Empty) /** work for @Inject(x)(...) */
 }

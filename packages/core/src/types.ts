@@ -7,6 +7,11 @@ export interface UsePipeOptions {
   collectError?: boolean
 }
 
+export interface PhecdaInjectData{
+  [key: string]: any
+
+}
+
 export interface PhecdaHandler {
   [key: string]: any
   // init?: (instance: any) => any
