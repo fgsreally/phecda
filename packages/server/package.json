@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "1.5.1",
+  "version": "2.1.0",
   "description": "provide express middlewares, `nestjs` format",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -9,7 +9,6 @@
     "dev": "tsup --watch",
     "build": "tsup"
   },
-
   "keywords": [
     "server",
     "express",
@@ -18,8 +17,7 @@
   ],
   "author": "",
   "files": [
-    "dist",
-    "template"
+    "dist"
   ],
   "license": "MIT",
   "devDependencies": {

@@ -1,5 +1,31 @@
 # phecda-vue
 
+## 1.6.1
+
+### Patch Changes
+
+- Updated dependencies [2daabb8]
+  - phecda-core@1.6.0
+
+## 1.6.0
+
+### Minor Changes
+
+- 70e5f9d: filter support simple setter
+
+## 1.5.7
+
+### Patch Changes
+
+- 6b13839: add delState to filter
+
+## 1.5.6
+
+### Patch Changes
+
+- Updated dependencies [538d86f]
+  - phecda-core@1.5.0
+
 ## 1.5.5
 
 ### Patch Changes

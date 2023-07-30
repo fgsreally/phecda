@@ -1,6 +1,6 @@
 import { mergeState, setModalVar } from 'phecda-core'
 
-export function BaseParam(type: string, key: string, validate?: boolean): any {
+export function BaseParam(type: string, key: string, validate?: any): any {
   return (target: any, k: PropertyKey, index: number) => {
     setModalVar(target, k)
     mergeState(target, k, {
@@ -9,12 +9,12 @@ export function BaseParam(type: string, key: string, validate?: boolean): any {
   }
 }
 
-export function Body(key = '', usePipe?: boolean) {
-  return BaseParam('body', key, usePipe)
+export function Body(key = '', pipeOpts?: any) {
+  return BaseParam('body', key, pipeOpts)
 }
-export function Query(key: string, usePipe?: boolean) {
-  return BaseParam('query', key, usePipe)
+export function Query(key: string, pipeOpts?: any) {
+  return BaseParam('query', key, pipeOpts)
 }
-export function Param(key: string, usePipe?: boolean) {
-  return BaseParam('params', key, usePipe)
+export function Param(key: string, pipeOpts?: any) {
+  return BaseParam('params', key, pipeOpts)
 }

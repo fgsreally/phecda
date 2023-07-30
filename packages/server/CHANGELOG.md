@@ -1,5 +1,42 @@
 # phecda-server
 
+## 2.1.0
+
+### Minor Changes
+
+- 2daabb8: add Provide and Inject
+
+### Patch Changes
+
+- 9904e92: add Empty
+- Updated dependencies [2daabb8]
+  - phecda-core@1.6.0
+
+## 2.0.3
+
+### Patch Changes
+
+- b7dd58a: default pipe only transform Number and Boolean
+
+## 2.0.2
+
+### Patch Changes
+
+- 40e7ec2: fix decorators type, to support custom pipe
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies [538d86f]
+  - phecda-core@1.5.0
+
+## 2.0.0
+
+### Major Changes
+
+- b85e32b: split phecda-server to phecda-client(axios) phecda-server(express) phecda-rabbitmq(rabbitmq)
+
 ## 1.5.1
 
 ### Patch Changes

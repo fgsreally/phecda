@@ -1,10 +1,10 @@
 import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
 import type { P } from 'phecda-server'
+import axios from 'axios'
 import { Compiler } from '../compiler'
-
-export const unplugin = createUnplugin((options: { localPath?: string; parseFile?: (id: string) => boolean } = {}) => {
-  const { localPath = 'pmeta.js', parseFile = id => id.endsWith('.controller') } = options
+export const unplugin = createUnplugin((options: { localPath?: string; parseFile?: (id: string) => boolean; port?: string; interval?: number; split?: boolean } = {}) => {
+  const { localPath = 'pmeta.js', parseFile = id => id.includes('.controller') || id.includes('.route'), port, interval = 3000, split = false } = options
 
   let command: string
   const metaPath = resolve(process.cwd(), localPath).replace(/\\/g, '/')
@@ -19,12 +19,18 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
 
       buildStart() {
         if (command !== 'serve') {
-          this.emitFile({
-            type: 'chunk',
-            id: metaPath,
-            fileName: localPath,
-            preserveSignature: 'allow-extension',
-          })
+          if (split) {
+            this.emitFile({
+              type: 'chunk',
+              id: metaPath,
+              fileName: 'pmeta.js',
+              preserveSignature: 'allow-extension',
+            })
+          }
+        }
+        else {
+          if (port)
+            setInterval(() => axios.get(port).catch(() => {}), interval)
         }
       },
 
@@ -39,15 +45,6 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
 
       for (const i of meta)
         compiler.addMethod(i)
-
-      if (command !== 'serve') {
-        this.emitFile({
-          type: 'asset',
-          fileName: `${compiler.name}.client.ts`,
-          needsCodeReference: false,
-          source: compiler.createRequest(),
-        })
-      }
 
       return { code: compiler.getContent() }
     },

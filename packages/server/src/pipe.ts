@@ -18,18 +18,7 @@ export const defaultPipe = {
         args[i].arg = ret.data
       }
       else {
-        if (typeof args[i].arg === 'string') {
-          // only parse when reflect is array(like:number[],[number,number])
-          if (reflect[i] === Array) {
-            try {
-              args[i].arg = JSON.parse(args[i].arg)
-            }
-            catch (e) {
-              throw new ValidateException(`parameter ${Number(i) + 1} can\'t be transformed correctly`)
-            }
-            continue
-          }
-          // json parse can transform string to boolean/number
+        if ([Number, Boolean].includes(reflect[i])) {
           args[i].arg = reflect[i](arg)
 
           if (reflect[i] === Number && Object.is(args[i].arg, NaN))

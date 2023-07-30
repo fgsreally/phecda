@@ -1,5 +1,17 @@
 # phecda-core
 
+## 1.6.0
+
+### Minor Changes
+
+- 2daabb8: add Provide and Inject
+
+## 1.5.0
+
+### Minor Changes
+
+- 538d86f: add Bind and getBind
+
 ## 1.4.1
 
 ### Patch Changes

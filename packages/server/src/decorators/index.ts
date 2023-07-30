@@ -1,6 +1,9 @@
 import { mergeState, setModalVar } from 'phecda-core'
-
-export function Inject(_target: any) { }
+/**
+ *
+ * @deprecate
+ */
+// export function Inject(_target: any) { }
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {

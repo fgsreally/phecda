@@ -2,7 +2,6 @@ import type { P } from 'phecda-server'
 
 export class Compiler {
   classMap: Record<string, { [key: string]: string }> = {}
-  name: string
   constructor() { }
 
   getContent() {
@@ -32,7 +31,6 @@ export class Compiler {
       } = {}, name, method, params, tag,
     } = args
     const url = route.replace(/\/\:([^\/]*)/g, '')
-    this.name = name
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
