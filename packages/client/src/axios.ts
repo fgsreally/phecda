@@ -76,8 +76,9 @@ export function $S(index: number, key = ''): any {
 
 // work for vue-request
 // phecda-client request instance + method from class => async function
-export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<typeof createReq>, cb: F) {
+export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<typeof createReq>, cb: F): (...params: Parameters<F>) => ReturnType<F> {
+  // @ts-expect-error misdirct
   return async (...params: Parameters<F>) => {
-    return (await pcRequest(cb(...params as any) as ReturnType<F>)).data
+    return (await pcRequest(cb(...params as any))).data as any
   }
 }
