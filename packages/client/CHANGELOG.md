@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.1.3
+
+### Patch Changes
+
+- c412cc9: fix toAsync type
+
 ## 1.1.2
 
 ### Patch Changes

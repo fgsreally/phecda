@@ -1,5 +1,11 @@
 # phecda-server
 
+## 2.1.1
+
+### Patch Changes
+
+- d78c82a: support bind express.Router
+
 ## 2.1.0
 
 ### Minor Changes
