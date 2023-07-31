@@ -9,7 +9,7 @@ const beacon = createBeacon('http://localhost:3699')
 const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
-const { test, get } = useC(TestController)
+const { test, get, query } = useC(TestController)
 async function request() {
   const { data } = await useRequest(test('110', 'server', '1'))
   console.log('[normal request]:')
@@ -18,9 +18,8 @@ async function request() {
 }
 
 async function testFetch() {
-  console.log('[normal beacon]:')
-
-  beacon(test('phecda', 'server', '1'))
+  const { data } = await useRequest(query('1'))
+  console.log('data', data)
 }
 
 async function seriesRequest() {
@@ -57,6 +56,7 @@ async function parallelRequest() {
   else console.log(res2)
 }
 
+testFetch()
 request()
 mergeRequest()
 seriesRequest()

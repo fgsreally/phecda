@@ -4,10 +4,11 @@ import { ValidateException } from './exception/validate'
 import type { P } from './types'
 
 export const defaultPipe = {
+  // todo: add more params
   async transform(args: { arg: any; validate: boolean }[], reflect: any[]) {
     for (const i in args) {
       const { validate, arg } = args[i]
-      if (validate === false)
+      if (validate === false || !reflect[i]/** work for undefined */)
         continue
 
       if (isPhecda(reflect[i])) {
