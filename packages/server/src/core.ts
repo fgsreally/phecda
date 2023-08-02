@@ -34,7 +34,7 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
   if (map.has(tag)) {
     instance = map.get(tag)
     if (!instance)
-      throw new Error(`exist Circular Module dep--${Module}`)
+      throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${tag}--[module] ${Module}`)
 
     return instance
   }
