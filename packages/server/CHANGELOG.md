@@ -1,5 +1,11 @@
 # phecda-server
 
+## 2.1.2
+
+### Patch Changes
+
+- 7c5f176: circular dep and multple modules with same tag will cause the same error
+
 ## 2.1.1
 
 ### Patch Changes
