@@ -99,3 +99,31 @@ export function getNutUIRules<M, O extends object>(Model: M, options: O = {} as 
 }
 
 export const getVantRules = getNutUIRules
+
+export function getArcoRules<M, O extends object>(Model: M, options: O = {} as any): any {
+  const stateVars = getExposeKey(Model as any)
+  const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
+  for (const item of stateVars) {
+    const handlers = getHandler(Model as any, item)
+    if (handlers) {
+      for (const handler of handlers) {
+        const { rule, meta, info } = handler
+        // const ret = await handler.rule?.(data)
+        if (rule) {
+          if (!ret[item])
+            ret[item] = []
+          ret[item].push({
+            validator: async (value: any, cb: any) => {
+              if (!(await validate(rule, value)))
+                cb(info)
+            },
+            ...options,
+
+            ...(meta || {}),
+          })
+        }
+      }
+    }
+  }
+  return ret
+}

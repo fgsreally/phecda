@@ -23,7 +23,7 @@ async function testFetch() {
 }
 
 async function seriesRequest() {
-  const { data: [, res2] } = await useSeriesReq([get(), test($S(0, 'data'), 'server', '1')])
+  const { data: [, res2] } = await useSeriesReq([get(), test($S(0, 'data'), '1', '2')])
   console.log('[series request]:')
 
   if (isError(res2))
@@ -31,7 +31,7 @@ async function seriesRequest() {
   else console.log(res2)
 }
 async function mergeRequest() {
-  const { data: [res1, res2] } = await useSeriesReq([test('merge', 'server', '1'), get()])
+  const { data: [res1, res2] } = await useSeriesReq([test('0', '1', '2'), get()])
   console.log('[merge request]:')
 
   if (isError(res1))
@@ -44,7 +44,7 @@ async function mergeRequest() {
 }
 
 async function parallelRequest() {
-  const { data: [res1, res2] } = await useParallelReq([get(), test('parallel', 'server', '1')])
+  const { data: [res1, res2] } = await useParallelReq([get(), test('0', '1', '2')])
   console.log('[parallel request]:')
 
   if (isError(res1))
