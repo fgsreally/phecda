@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@arco-design/web-vue": "^2.49.3",
     "element-plus": "^2.2.28",
     "naive-ui": "^2.34.3",
     "phecda-vue": "workspace:*",

@@ -5,13 +5,15 @@ import Element from './ElementForm.vue'
 import Naive from './NaiveForm.vue'
 import ModalTest from './ModalTest.vue'
 import Table from './Table.vue'
+import Arco from './ArcoForm.vue'
 </script>
 
 <template>
   <ModalTest />
   <Element />
   <Naive />
-  <Table></Table>
+  <Table />
+  <Arco />
 </template>
 
 <style scoped></style>

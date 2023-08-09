@@ -13,7 +13,7 @@ class Pension {
       return num > 55
     },
     '需要大于55',
-    { required: true },
+    { required: true, trigger: 'blur' },
   )
   age: number
 
@@ -52,7 +52,6 @@ const { config, data } = createFormData({
 
 const rules = getElementPlusRules(new Pension())
 const submitForm = (formEl: any) => {
-  console.log(data.value)
   if (!formEl)
     return
   formEl.$.exposed?.validate((valid: boolean) => {
