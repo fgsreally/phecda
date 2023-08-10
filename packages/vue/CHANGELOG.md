@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 1.6.2
+
+### Patch Changes
+
+- bf0eb81: add arco resolver
+
 ## 1.6.1
 
 ### Patch Changes
