@@ -64,4 +64,46 @@ describe('fakeController', () => {
 
     expect(faker.getContent()).toMatchSnapshot()
   })
+
+  it('when key doesn\' exist', () => {
+    const meta: P.Meta[] = [
+      {
+        name: 'Controller1',
+        method: 'add',
+        tag: '1',
+        route: {
+          route: '/a',
+          type: 'post' as const,
+        },
+        header: {},
+        guards: [],
+        interceptors: [],
+        middlewares: [],
+        params: [{
+          type: 'query',
+          key: 'a',
+          index: 0,
+        }, {
+          type: 'body',
+          key: '',
+          index: 1,
+        }, {
+          type: 'params',
+          key: 'c',
+          index: 2,
+        }, {
+          type: 'params',
+          key: 'd',
+          index: 3,
+        }],
+      },
+
+    ]
+    const faker = new Compiler()
+
+    for (const i of meta)
+      faker.addMethod(i)
+
+    expect(faker.getContent()).toMatchSnapshot()
+  })
 })

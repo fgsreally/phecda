@@ -36,7 +36,7 @@ export class Compiler {
     this.classMap[name][method] = `
     ${method}(${genParams(params)}){
 const ret={tag:"${tag}-${method}",body:{},query:{},params:{},realParam:'',method:"${type}",url:"${url}"}
-${params.filter(item => item.key).reduce((p, c, i) => `${p}ret.${c.type}.${c.key}=arg${i}\n${c.type === 'params' ? `ret.realParam+='/'+arg${i}\n` : ''}`, '')}
+${params.reduce((p, c, i) => `${p}ret.${c.type}${c.key ? `.${c.key}` : ''}=arg${i}\n${c.type === 'params' ? `ret.realParam+='/'+arg${i}\n` : ''}`, '')}
 return ret
     }
     `
