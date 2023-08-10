@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.1.4
+
+### Patch Changes
+
+- 6f87795: support empty key, all parameters in controller must have decorator
+
 ## 1.1.3
 
 ### Patch Changes
