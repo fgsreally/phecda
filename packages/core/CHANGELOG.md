@@ -1,5 +1,11 @@
 # phecda-core
 
+## 1.7.0
+
+### Minor Changes
+
+- 8022370: add Effect decorator
+
 ## 1.6.0
 
 ### Minor Changes
