@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { getExposeKey } from '../src/core'
-import { Assign, Bind, Expose, Ignore, Pipe, Rule, addDecoToClass, classToValue, getBind, plainToClass, registerAsync, to } from '../src/index'
+import { Assign, Bind, Effect, Expose, Ignore, Pipe, Rule, addDecoToClass, classToValue, getBind, injectProperty, plainToClass, registerAsync, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
@@ -77,5 +77,26 @@ describe('validate&transform', () => {
       key: string
     }
     expect(getBind(Test).key).toBe('phecda')
+  })
+
+  it('Effect', async () => {
+    const fn = vi.fn(v => v)
+    class Test {
+      @Effect('phecda')
+      key = 10
+    }
+
+    injectProperty('effect-phecda', ({ value }: any) => {
+      fn(value)
+    })
+    const instance = new Test() as any
+    await registerAsync(instance)
+    expect(instance.key).toBe(10)
+    expect(instance.$_key).toBe(10)
+
+    instance.key = 20
+    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveReturnedWith(20)
+    expect(instance.key).toBe(20)
   })
 })
