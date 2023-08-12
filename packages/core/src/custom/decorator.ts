@@ -15,6 +15,27 @@ export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
   }
 }
 
+export function Effect(eventName: string, options?: any) {
+  return (obj: any, key: string) => {
+    setModalVar(obj, key)
+    regisHandler(obj, key, {
+      init(instance: any) {
+        instance[`$_${key}`] = instance[key]
+        Object.defineProperty(instance, key, {
+          get() {
+            return instance[`$_${key}`]
+          },
+          set(v) {
+            instance[`$_${key}`] = v
+            getProperty(`effect-${eventName}`)?.({ instance, key, value: v, options })
+            return true
+          },
+        })
+      },
+    })
+  }
+}
+
 export function Storage(storeKey?: string) {
   return (target: any, key?: PropertyKey) => {
     let tag: string
