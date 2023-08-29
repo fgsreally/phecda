@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.1.5
+
+### Patch Changes
+
+- 48e0f9b: improve useC type, to make sure the response won't include function/symbol
+
 ## 1.1.4
 
 ### Patch Changes
