@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.1.6
+
+### Patch Changes
+
+- b8caae4: AsyncReturnToJson may cause types infinite , remove it from useC
+
 ## 1.1.5
 
 ### Patch Changes
