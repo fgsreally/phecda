@@ -12,7 +12,7 @@ export function BaseParam(type: string, key: string, validate?: any): any {
 export function Body(key = '', pipeOpts?: any) {
   return BaseParam('body', key, pipeOpts)
 }
-export function Query(key: string, pipeOpts?: any) {
+export function Query(key = '', pipeOpts?: any) {
   return BaseParam('query', key, pipeOpts)
 }
 export function Param(key: string, pipeOpts?: any) {
