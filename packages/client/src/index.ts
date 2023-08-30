@@ -25,7 +25,11 @@ export type AsyncReturnToJson<T> = ExcludeNever<{
   [Key in keyof T]: T[Key] extends (...args: any) => any ? (...args: Parameters<T[Key]>) => Promise<PickJsonData<Awaited< ReturnType<T[Key]>>>> : never
 }>
 
-export function useC<T extends new (...args: any) => any>(Module: T): AsyncReturnToJson<InstanceType<T>> {
+export type ExcludeNotFn<T> = ExcludeNever<{
+  [Key in keyof T]: T[Key] extends (...args: any) => any ? T[Key] : never
+}>
+
+export function useC<T extends new (...args: any) => any>(Module: T): ExcludeNotFn<InstanceType<T>> {
   return new Module()
 }
 

@@ -25,8 +25,9 @@ export class TestController extends Base {
   }
 
   @Post('/:test')
-  async test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
-    return `${test}-${name}-${id}`
+  async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+    console.log(id)
+    return `${test}-${name}-${id.id}`
   }
 
   @Get('/query')
