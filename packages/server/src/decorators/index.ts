@@ -1,4 +1,4 @@
-import { mergeState, setModalVar } from 'phecda-core'
+import { setModelVar, setState } from 'phecda-core'
 /**
  *
  * @deprecate
@@ -7,8 +7,8 @@ import { mergeState, setModalVar } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
-    setModalVar(target, k)
-    mergeState(target, k, {
+    setModelVar(target, k)
+    setState(target, k, {
       header: { name, value },
     })
   }
@@ -17,14 +17,14 @@ export function Header(name: string, value: string) {
 export function Define(key: string, value: any) {
   return (target: any, k?: PropertyKey) => {
     if (k) {
-      setModalVar(target, k)
-      mergeState(target, k, {
+      setModelVar(target, k)
+      setState(target, k, {
         define: { [key]: value },
       })
     }
     else {
-      setModalVar(target.prototype, '__CLASS')
-      mergeState(target.prototype, '__CLASS', {
+      setModelVar(target.prototype, '__CLASS')
+      setState(target.prototype, '__CLASS', {
         define: { [key]: value },
       })
     }

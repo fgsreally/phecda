@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { getTag, initialize, useV } from 'phecda-vue'
+import { getTag, initialize, useR, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
 const { name, fullName, run, key } = useV<typeof HomeModel<number>>(HomeModel)
+console.log(Object.getPrototypeOf(useR(HomeModel)))
 </script>
 
 <template>

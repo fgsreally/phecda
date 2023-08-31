@@ -1,24 +1,39 @@
-import { mergeState, setModalVar } from 'phecda-core'
+import { init, setModelVar, setState } from 'phecda-core'
 
 export function Route(route: string, type?: string): any {
   return (target: any, key?: PropertyKey) => {
+    // init(target)
+    // if (!key)
+    //   key = '__CLASS'
+    // target = key === '__CLASS' ? target.prototype : target
+    // setModelVar(target, key)
+
+    // const state = target.__STATE_NAMESPACE__.get(key) || {}
+    // state.route = {
+    //   route,
+    //   type,
+    // }
+    // setState(target, key, state)
+    init(target)
     if (key) {
-      setModalVar(target, key)
-      mergeState(target, key, {
-        route: {
-          route,
-          type,
-        },
-      })
+      const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+      setModelVar(target, key)
+
+      state.route = {
+        route,
+        type,
+      }
+      setState(target, key, state)
     }
     else {
-      setModalVar(target.prototype, '__CLASS')
-      mergeState(target.prototype, '__CLASS', {
-        route: {
-          route,
-          type,
-        },
-      })
+      setModelVar(target.prototype, '__CLASS')
+
+      const state = target._namespace.__STATE_NAMESPACE__.get('__CLASS') || {}
+      state.route = {
+        route,
+        type,
+      }
+      setState(target.prototype, '__CLASS', state)
     }
   }
 }
@@ -45,14 +60,16 @@ export function Controller(route: string) {
 export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (key) {
-      setModalVar(target, key)
-      mergeState(target, key, {
-        guards: [...guards],
-      })
+      const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+      if (!state.guards)
+        state.guards = []
+      state.guards.push(...guards)
+      setModelVar(target, key)
+      setState(target, key, state)
     }
     else {
-      setModalVar(target.prototype, '__CLASS')
-      mergeState(target.prototype, '__CLASS', {
+      setModelVar(target.prototype, '__CLASS')
+      setState(target.prototype, '__CLASS', {
         guards: [...guards],
       })
     }
@@ -62,14 +79,14 @@ export function Guard(...guards: string[]): any {
 export function Middle(...middlewares: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (key) {
-      setModalVar(target, key)
-      mergeState(target, key, {
+      setModelVar(target, key)
+      setState(target, key, {
         middlewares: [...middlewares],
       })
     }
     else {
-      setModalVar(target.prototype, '__CLASS')
-      mergeState(target.prototype, '__CLASS', {
+      setModelVar(target.prototype, '__CLASS')
+      setState(target.prototype, '__CLASS', {
         middlewares: [...middlewares],
       })
     }
@@ -79,14 +96,17 @@ export function Middle(...middlewares: string[]): any {
 export function Interceptor(...interceptors: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (key) {
-      setModalVar(target, key)
-      mergeState(target, key, {
-        interceptors: [...interceptors],
-      })
+      setModelVar(target, key)
+      const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+      if (!state.interceptors)
+        state.interceptors = []
+      state.interceptors.push(...interceptors)
+      setModelVar(target, key)
+      setState(target, key, state)
     }
     else {
-      setModalVar(target.prototype, '__CLASS')
-      mergeState(target.prototype, '__CLASS', {
+      setModelVar(target.prototype, '__CLASS')
+      setState(target.prototype, '__CLASS', {
         interceptors: [...interceptors],
       })
     }

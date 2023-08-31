@@ -1,0 +1,68 @@
+// Vitest Snapshot v1
+
+exports[`extends won't populate namespace > base 1`] = `
+[
+  "b",
+  "a",
+]
+`;
+
+exports[`extends won't populate namespace > base 2`] = `
+[
+  "b",
+]
+`;
+
+exports[`extends won't populate namespace > base 3`] = `
+[
+  "c",
+  "a",
+]
+`;
+
+exports[`extends won't populate namespace > base 4`] = `
+[
+  "c",
+]
+`;
+
+exports[`extends won't populate namespace > modelVar 1`] = `
+[
+  "b",
+  "a",
+]
+`;
+
+exports[`extends won't populate namespace > modelVar 2`] = `
+[
+  "b",
+]
+`;
+
+exports[`extends won't populate namespace > modelVar 3`] = `
+[
+  "c",
+  "a",
+]
+`;
+
+exports[`extends won't populate namespace > modelVar 4`] = `
+[
+  "c",
+]
+`;
+
+exports[`extends won't populate namespace > setState 1`] = `
+{
+  "a": 1,
+  "b": 1,
+}
+`;
+
+exports[`extends won't populate namespace > setState 2`] = `
+{
+  "a": 1,
+  "b": 0,
+  "c": 1,
+}
+`;

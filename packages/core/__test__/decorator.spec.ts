@@ -44,24 +44,26 @@ describe('validate&transform', () => {
   it('extend', async () => {
     class Child extends Parent {
       @Rule((str: string) => str.length < 5, 'name should be short')
+      @Ignore
       name: string
     }
-    const { err, data } = await plainToClass(Child, { name: 'phecda11' }, { transform: true, collectError: true })
+
+    const { err, data } = await plainToClass(Child, { name: 'phecda11', age: '1' }, { transform: true, collectError: true })
     expect(err.length).toBe(2)
-    expect(err[1]).toBe('name should be short')
+    expect(err[0]).toBe('name should be short')
     expect(data.name).toBe('phecda11111')
     expect(classToValue(data)).toMatchSnapshot()
   })
 
   it('use function to add decorator', () => {
-    class Any {
+    class Test {
       name: string
     }
 
-    addDecoToClass(Any, 'name', Expose)
-    expect(getExposeKey(Any.prototype as any)).toMatchSnapshot()
+    addDecoToClass(Test, 'name', Expose)
+    expect(getExposeKey(new Test() as any)).toMatchSnapshot()
   })
-  it(' Assign', async () => {
+  it('Assign', async () => {
     @Assign(() => new Promise(resolve => resolve({ key: 'test2' })))
     class Test {
       key = 'test'

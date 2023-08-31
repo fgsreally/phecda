@@ -17,7 +17,6 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
 
 export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
   const data: InstanceType<M> = new Model()
-
   const err: string[] = []
   const stateVars = getModelState(data) as PropertyKey[]
   for (const item of stateVars) {
@@ -50,9 +49,8 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
 
 export function classToValue<M>(instance: M): ClassValue<M> {
   const data = {} as any
-  const exposeVar = getExposeKey(instance as any) as PropertyKey[]
-
-  for (const item of exposeVar)
+  const exposeVars = getExposeKey(instance as any) as PropertyKey[]
+  for (const item of exposeVars)
 
     data[item] = (instance as any)[item]
 

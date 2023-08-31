@@ -122,6 +122,7 @@ describe('express ', () => {
     const data = await Factory([E])
     const app = express()
     app.use(express.json())
+    console.log(data.meta)
 
     bindApp(app, data)
     const res1 = await request(app).post('/no')

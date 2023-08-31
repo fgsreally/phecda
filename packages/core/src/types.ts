@@ -7,7 +7,7 @@ export interface UsePipeOptions {
   collectError?: boolean
 }
 
-export interface PhecdaInjectData{
+export interface PhecdaInjectData {
   [key: string]: any
 
 }
@@ -23,6 +23,7 @@ export interface PhecdaHandler {
   // http?: any
 }
 export interface Phecda {
+  prototype: any
   _namespace: {
 
     __INIT_EVENT__: Set<PropertyKey>

@@ -1,9 +1,9 @@
 import type { to } from './helper'
-import { init, mergeState, regisHandler, setExposeKey, setIgnoreKey, setModalVar } from './core'
+import { init, regisHandler, setExposeKey, setIgnoreKey, setModelVar, setState } from './core'
 import type { PhecdaInjectData } from './types'
 
 export function Init(target: any, key: PropertyKey) {
-  setModalVar(target, key)
+  setModelVar(target, key)
 
   regisHandler(target, key, {
     async init(instance: any) {
@@ -15,8 +15,8 @@ export function Init(target: any, key: PropertyKey) {
 // bind value
 export function Bind(value: any) {
   return (target: any, k: PropertyKey) => {
-    setModalVar(target, k)
-    mergeState(target, k, {
+    setModelVar(target, k)
+    setState(target, k, {
       value,
     })
   }
@@ -26,7 +26,7 @@ export function Rule(rule: RegExp | string | Function | number,
   info: string,
   meta?: any) {
   return (obj: any, key: PropertyKey) => {
-    setModalVar(obj, key)
+    setModelVar(obj, key)
     regisHandler(obj, key, {
       rule,
       info,
@@ -52,7 +52,7 @@ export function Clear(target: any, key: PropertyKey) {
 
 export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   return (target: any, key: PropertyKey) => {
-    setModalVar(target, key)
+    setModelVar(target, key)
     regisHandler(target, key, {
       error: cb,
     })
@@ -65,7 +65,7 @@ export function Expose(target: any, key: PropertyKey) {
 
 export function Pipe(v: ReturnType<typeof to>) {
   return (obj: any, key: PropertyKey) => {
-    setModalVar(obj, key)
+    setModelVar(obj, key)
     regisHandler(obj, key, {
       async pipe(instance: any) {
         const tasks = v.value
@@ -85,7 +85,7 @@ export function Tag(tag: string) {
 export function Assign(cb: (instance?: any) => any) {
   return (target: any) => {
     init(target.prototype)
-    setModalVar(target.prototype, '__CLASS')
+    setModelVar(target.prototype, '__CLASS')
     regisHandler(target.prototype, '__CLASS', {
       init: async (instance: any) => {
         const value = await cb(instance)
