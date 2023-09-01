@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
 ## 1.7.0
 
 ### Minor Changes
