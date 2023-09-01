@@ -24,7 +24,9 @@ class Pension {
   }, '似乎太低了')
   money: number
 }
-const CustomForm = createForm(Naive, NForm, NFormItem, 'value')
+const CustomForm = createForm(Naive, NForm, NFormItem, {
+  modelKey: 'value',
+})
 
 const ruleFormRef = ref<any>()
 const { config, data } = createFormData({

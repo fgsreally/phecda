@@ -1,33 +1,31 @@
 import { setModelVar, setState } from 'phecda-core'
-/**
- *
- * @deprecate
- */
-// export function Inject(_target: any) { }
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
     setModelVar(target, k)
-    setState(target, k, {
-      header: { name, value },
-    })
+    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    if (!state.header)
+      state.header = {}
+
+    state.header[name] = value
+    setState(target, k, state)
   }
 }
 
 export function Define(key: string, value: any) {
   return (target: any, k?: PropertyKey) => {
-    if (k) {
-      setModelVar(target, k)
-      setState(target, k, {
-        define: { [key]: value },
-      })
+    if (!k) {
+      k = '__CLASS'
+      target = target.prototype
     }
-    else {
-      setModelVar(target.prototype, '__CLASS')
-      setState(target.prototype, '__CLASS', {
-        define: { [key]: value },
-      })
-    }
+
+    setModelVar(target, k)
+    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    if (!state.define)
+      state.define = {}
+
+    state.define[key] = value
+    setState(target, k, state)
   }
 }
 

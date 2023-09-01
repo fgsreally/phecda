@@ -1,5 +1,4 @@
 import type { Phecda, PhecdaHandler } from './types'
-import { mergeAny } from './utils'
 
 export function isPhecda(target: any) {
   return target && !!target.prototype._namespace
@@ -130,7 +129,6 @@ export function regisHandler(target: Phecda, key: PropertyKey, handler: PhecdaHa
   init(target)
   if (!target._namespace.__STATE_HANDLER__.has(key))
     target._namespace.__STATE_HANDLER__.set(key, [handler])
-
   else
     target._namespace.__STATE_HANDLER__.get(key)!.push(handler)
 }

@@ -1,4 +1,4 @@
-import { getOwnState, init, setModelVar, setState } from 'phecda-core'
+import { setModelVar, setState } from 'phecda-core'
 
 export function BaseParam(type: string, key: string, validate?: any): any {
   return (target: any, k: PropertyKey, index: number) => {

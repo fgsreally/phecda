@@ -40,6 +40,95 @@ exports[`Factory  > In extended case 1`] = `
     "guards": [],
     "header": {},
     "interceptors": [],
+    "method": "test2",
+    "middlewares": [],
+    "name": "B",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
+      },
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
+    ],
+    "route": {
+      "route": "/B/testB",
+      "type": "get",
+    },
+    "tag": "B",
+  },
+  {
+    "define": {},
+    "guards": [],
+    "header": {},
+    "interceptors": [],
+    "method": "test",
+    "middlewares": [],
+    "name": "B",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
+      },
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
+    ],
+    "route": {
+      "route": "/B/testA",
+      "type": "get",
+    },
+    "tag": "B",
+  },
+]
+`;
+
+exports[`Factory  > multple class extends the same class 1`] = `
+[
+  {
+    "define": {},
+    "guards": [],
+    "header": {},
+    "interceptors": [],
+    "method": "test2",
+    "middlewares": [],
+    "name": "B",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
+      },
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
+    ],
+    "route": {
+      "route": "/B/testB",
+      "type": "get",
+    },
+    "tag": "B",
+  },
+  {
+    "define": {},
+    "guards": [],
+    "header": {},
+    "interceptors": [],
     "method": "test",
     "middlewares": [],
     "name": "B",
@@ -68,9 +157,9 @@ exports[`Factory  > In extended case 1`] = `
     "guards": [],
     "header": {},
     "interceptors": [],
-    "method": "test2",
+    "method": "test3",
     "middlewares": [],
-    "name": "B",
+    "name": "C",
     "params": [
       {
         "index": 0,
@@ -86,10 +175,38 @@ exports[`Factory  > In extended case 1`] = `
       },
     ],
     "route": {
-      "route": "/B/testB",
+      "route": "/C/testC",
       "type": "get",
     },
-    "tag": "B",
+    "tag": "C",
+  },
+  {
+    "define": {},
+    "guards": [],
+    "header": {},
+    "interceptors": [],
+    "method": "test",
+    "middlewares": [],
+    "name": "C",
+    "params": [
+      {
+        "index": 0,
+        "key": "id",
+        "type": "query",
+        "validate": undefined,
+      },
+      {
+        "index": 1,
+        "key": "name",
+        "type": "body",
+        "validate": undefined,
+      },
+    ],
+    "route": {
+      "route": "/C/testA",
+      "type": "get",
+    },
+    "tag": "C",
   },
 ]
 `;

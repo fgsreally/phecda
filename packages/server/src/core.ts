@@ -66,7 +66,6 @@ function getMetaFromInstance(instance: Phecda, name: string, tag: string) {
     const meta = {} as P.Meta
     const state = (getState(instance, i) || {}) as P.Meta
     initState(state)
-    console.log('state', state)
     if (state.route) {
       meta.route = {
         route: (baseState.route?.route || '') + (state.route.route),
