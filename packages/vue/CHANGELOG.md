@@ -1,5 +1,18 @@
 # phecda-vue
 
+## 1.6.3
+
+### Patch Changes
+
+- Updated dependencies [8022370]
+  - phecda-core@1.7.0
+
+## 1.6.2
+
+### Patch Changes
+
+- bf0eb81: add arco resolver
+
 ## 1.6.1
 
 ### Patch Changes

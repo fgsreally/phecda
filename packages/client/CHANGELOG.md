@@ -1,5 +1,23 @@
 # phecda-client
 
+## 1.1.6
+
+### Patch Changes
+
+- b8caae4: AsyncReturnToJson may cause types infinite , remove it from useC
+
+## 1.1.5
+
+### Patch Changes
+
+- 48e0f9b: improve useC type, to make sure the response won't include function/symbol
+
+## 1.1.4
+
+### Patch Changes
+
+- 6f87795: support empty key, all parameters in controller must have decorator
+
 ## 1.1.3
 
 ### Patch Changes
