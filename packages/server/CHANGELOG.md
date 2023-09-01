@@ -1,5 +1,16 @@
 # phecda-server
 
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
+### Patch Changes
+
+- Updated dependencies [78cb57a]
+  - phecda-core@2.0.0-alpha.0
+
 ## 2.1.4
 
 ### Patch Changes

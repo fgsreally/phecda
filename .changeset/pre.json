@@ -13,5 +13,7 @@
     "phecda-server": "2.1.2",
     "phecda-vue": "1.6.1"
   },
-  "changesets": []
+  "changesets": [
+    "few-beers-pull"
+  ]
 }
