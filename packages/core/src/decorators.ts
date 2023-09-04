@@ -23,7 +23,7 @@ export function Bind(value: any) {
 }
 
 export function Rule(rule: RegExp | string | Function | number,
-  info: string,
+  info: string | ((k: string) => string),
   meta?: any) {
   return (obj: any, key: PropertyKey) => {
     setModelVar(obj, key)

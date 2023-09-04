@@ -29,7 +29,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
           const rule = handler.rule
           // const ret = await handler.rule?.(data)
           if (rule && !await validate(rule, data[item])) {
-            err.push(handler.info || '')
+            err.push(typeof handler.info === 'function' ? handler.info(item) : handler.info)
             if (!options.collectError)
               break
           }

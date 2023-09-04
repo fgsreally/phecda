@@ -4,7 +4,7 @@ import { Assign, Bind, Effect, Expose, Ignore, Pipe, Rule, addDecoToClass, class
 describe('validate&transform', () => {
   class Parent {
     @Ignore
-    @Rule('phecda', 'name should be phecda')
+    @Rule('phecda', k => `${k} should be phecda`)
     @Pipe(to((name: string) => `${name}1`)
       .to(name => `${name}1`)
       .to(name => `${name}1`))
