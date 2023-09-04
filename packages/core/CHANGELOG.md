@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.1
+
+### Patch Changes
+
+- 64c2f70: Rule support function info
+
 ## 2.0.0-alpha.0
 
 ### Major Changes

@@ -14,6 +14,7 @@
     "phecda-vue": "1.6.1"
   },
   "changesets": [
-    "few-beers-pull"
+    "few-beers-pull",
+    "warm-guests-beam"
   ]
 }
