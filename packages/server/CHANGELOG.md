@@ -1,5 +1,13 @@
 # phecda-server
 
+## 3.0.0-alpha.2
+
+### Patch Changes
+
+- 8fe5ced: pipe add ctx params
+- Updated dependencies [8fe5ced]
+  - phecda-core@2.0.0-alpha.2
+
 ## 3.0.0-alpha.1
 
 ### Patch Changes

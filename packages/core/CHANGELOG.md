@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.2
+
+### Patch Changes
+
+- 8fe5ced: export all presets
+
 ## 2.0.0-alpha.1
 
 ### Patch Changes
