@@ -1,6 +1,7 @@
 import type { Express, Router } from 'express'
 import { Context, ServerContext, parseMeta } from '../context'
-import { isObject, resolveDep } from '../utils'
+import { isObject } from '../utils'
+import { resolveDep } from '../helper'
 import { MERGE_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
 import { BadRequestException } from '../exception'

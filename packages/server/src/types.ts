@@ -33,7 +33,7 @@ export interface BaseError {
   error: true
   status: number
 }
-export type ServerFilter<E extends HttpException = any> = (err: E | Error, contextData: ServerMergeCtx | ServerCtx) => any
+export type ServerFilter<E extends HttpException = any> = (err: E | Error, ctx: ServerMergeCtx | ServerCtx) => any
 
 export class Base {
   context: ServerMergeCtx | ServerCtx
@@ -45,8 +45,8 @@ export namespace P{
   export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | Error }
 
   export type Res<T> = T
-  export type Guard = ((contextData: ServerCtx, isMerge?: false) => Promise<boolean> | boolean) | ((contextData: ServerMergeCtx, isMerge?: true) => Promise<boolean> | boolean)
-  export type Interceptor = ((contextData: ServerCtx, isMerge?: false) => any) | ((contextData: ServerMergeCtx, isMerge?: true) => any)
+  export type Guard = ((ctx: ServerCtx, isMerge?: false) => Promise<boolean> | boolean) | ((ctx: ServerMergeCtx, isMerge?: true) => Promise<boolean> | boolean)
+  export type Interceptor = ((ctx: ServerCtx, isMerge?: false) => any) | ((ctx: ServerMergeCtx, isMerge?: true) => any)
   export interface Handler {
     error?: (arg: any) => void
   }
@@ -72,7 +72,7 @@ export namespace P{
     tag: string
   }
   export interface Pipe {
-    transform(args: { arg: any; validate?: boolean }[], reflect: any[]): Promise<any[]>
+    transform(args: { arg: any; validate?: boolean }[], reflect: any[], ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
   }
 
 }
