@@ -22,7 +22,7 @@ export function Bind(value: any) {
   }
 }
 
-export function Rule(rule: RegExp | string | Function | number,
+export function Rule(rule: RegExp | string | ((arg: any) => boolean | 'ok') | number,
   info: string | ((k: string) => string),
   meta?: any) {
   return (obj: any, key: PropertyKey) => {

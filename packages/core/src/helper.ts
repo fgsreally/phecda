@@ -21,14 +21,18 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
   const stateVars = getModelState(data) as PropertyKey[]
   for (const item of stateVars) {
     data[item] = input[item]
+
     const handlers = getHandler(data, item)
     if (handlers) {
       // work for @Rule
       if (options.collectError !== false) {
         for (const handler of handlers) {
           const rule = handler.rule
-          // const ret = await handler.rule?.(data)
-          if (rule && !await validate(rule, data[item])) {
+          const ret = await validate(rule, data[item])
+          // 当rule为函数，且返回'ok'时，不会进行其他验证
+          if (ret === 'ok')
+            break
+          if (rule && !ret) {
             err.push(typeof handler.info === 'function' ? handler.info(item) : handler.info)
             if (!options.collectError)
               break

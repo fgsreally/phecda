@@ -1,4 +1,8 @@
 import { Rule } from '../decorators'
+
+export function isOption() {
+  return Rule((param: any) => param === undefined ? 'ok' : true, '')
+}
 export function isArray(info?: string) {
   return Rule((param: any) => Array.isArray(param), info || (k => `'${k}' should be an array`))
 }
