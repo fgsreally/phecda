@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.3
+
+### Patch Changes
+
+- 049c138: plainToClass support option rule
+
 ## 2.0.0-alpha.2
 
 ### Patch Changes
