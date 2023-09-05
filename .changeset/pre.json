@@ -14,6 +14,7 @@
     "phecda-vue": "1.6.1"
   },
   "changesets": [
+    "chilled-dancers-raise",
     "few-beers-pull",
     "red-oranges-sing",
     "warm-guests-beam",
