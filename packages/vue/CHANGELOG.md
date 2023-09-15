@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 2.0.0-alpha.4
+
+### Patch Changes
+
+- c507f78: createTable support custom render(with props) and column group (only test arco and element-plus)
+- c507f78: add useRaw
+
 ## 2.0.0-alpha.3
 
 ### Patch Changes
