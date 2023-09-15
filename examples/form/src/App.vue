@@ -4,7 +4,8 @@
 import Element from './ElementForm.vue'
 import Naive from './NaiveForm.vue'
 import ModalTest from './ModalTest.vue'
-import Table from './Table.vue'
+import Table from './ArcoTable.vue'
+import ElementTable from './ElementTable.vue'
 import Arco from './ArcoForm.vue'
 </script>
 
@@ -13,6 +14,7 @@ import Arco from './ArcoForm.vue'
   <Element />
   <Naive />
   <Table />
+  <ElementTable />
   <Arco />
 </template>
 

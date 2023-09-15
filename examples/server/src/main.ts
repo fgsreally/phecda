@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { $S, createBeacon, createParallelReq, createReq, createSeriesReq, isError, useC } from 'phecda-client'
+import { $S, createBeacon, createChainRequest, createParallelReq, createReq, createSeriesReq, isError, useC } from 'phecda-client'
 import axios from 'axios'
 import { TestController } from './test.controller'
 const instance = axios.create({
@@ -10,6 +10,19 @@ const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
 const { test, get, query } = useC(TestController)
+const $test = useC(TestController)
+
+const chain = createChainRequest(instance, { $test })
+
+async function chainRequest() {
+  const { data } = await chain.options({
+    headers: {
+      Accept: '1',
+    },
+  }).$test.test('110', 'server', { id: '1', name: 'test' })
+  console.log(data)
+}
+
 async function request() {
   const { data } = await useRequest(test('110', 'server', { id: '1', name: 'test' }))
   console.log('[normal request]:')
@@ -56,9 +69,10 @@ async function parallelRequest() {
   else console.log(res2)
 }
 
+chainRequest()
 // testFetch()
-request()
-mergeRequest()
-seriesRequest()
-parallelRequest()
+// request()
+// mergeRequest()
+// seriesRequest()
+// parallelRequest()
 // testFetch()
