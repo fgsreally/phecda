@@ -99,11 +99,13 @@ export function Assign(cb: (instance?: any) => any) {
 }
 
 export function Global(target: any) {
-  if (!(globalThis as any).__PHECDA__)
-    (globalThis as any).__PHECDA__ = {}
   const tag = target.prototype.__TAG__
-  if (tag)
-    (globalThis as any).__PHECDA__[tag] = target
+  if (tag) {
+    if (!(globalThis as any).__PHECDA__) {
+      (globalThis as any).__PHECDA__ = {};
+      (globalThis as any).__PHECDA__[tag] = target
+    }
+  }
 }
 
 export function Empty(_target: any) { }

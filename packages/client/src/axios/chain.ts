@@ -22,10 +22,12 @@ export function createChainReq<C extends Record<string, any>>(instance: AxiosIns
       return this
     },
   }
-  const $r = createReq(instance)
+  let $r: ReturnType<typeof createReq>
   let $pr: ReturnType<typeof createParallelReq>
   if (options?.batch)
     $pr = createParallelReq(instance)
+  else
+    $r = createReq(instance)
 
   for (const key in controllers) {
     const proxy = new Proxy(controllers[key], {
