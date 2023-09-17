@@ -1,6 +1,6 @@
 import type { to } from './helper'
 import { init, regisHandler, setExposeKey, setIgnoreKey, setModelVar, setState } from './core'
-import type { PhecdaInjectData } from './types'
+import type { InjectData } from './types'
 
 export function Init(target: any, key: PropertyKey) {
   setModelVar(target, key)
@@ -101,21 +101,26 @@ export function Assign(cb: (instance?: any) => any) {
 export function Global(target: any) {
   const tag = target.prototype.__TAG__
   if (tag) {
-    if (!(globalThis as any).__PHECDA__) {
-      (globalThis as any).__PHECDA__ = {};
-      (globalThis as any).__PHECDA__[tag] = target
-    }
+    init(target.prototype)
+    setModelVar(target.prototype, '__CLASS')
+    regisHandler(target.prototype, '__CLASS', {
+      init: async () => {
+        if (!(globalThis as any).__PHECDA__)
+          (globalThis as any).__PHECDA__ = {};
+        (globalThis as any).__PHECDA__[tag] = target
+      },
+    })
   }
 }
 
 export function Empty(_target: any) { }
 
-export const DataMap = {} as PhecdaInjectData
+export const DataMap = {} as InjectData
 
-export function Provide<K extends keyof PhecdaInjectData>(key: K, value: PhecdaInjectData[K]) {
+export function Provide<K extends keyof InjectData>(key: K, value: InjectData[K]) {
   DataMap[key] = value
 }
 
-export function Inject<K extends keyof PhecdaInjectData>(key: K): PhecdaInjectData[K] {
+export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
   return DataMap[key] || (() => Empty) /** work for @Inject(x)(...) */
 }

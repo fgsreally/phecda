@@ -1,4 +1,4 @@
-import type { Phecda, PhecdaHandler } from './types'
+import type { Phecda, Handler } from './types'
 
 export function isPhecda(target: any) {
   return target && !!target.prototype._namespace
@@ -125,7 +125,7 @@ export function getOwnIgnoreKey(target: Phecda) {
   return [...target._namespace.__IGNORE_VAR__] as string[]
 }
 
-export function regisHandler(target: Phecda, key: PropertyKey, handler: PhecdaHandler) {
+export function regisHandler(target: Phecda, key: PropertyKey, handler: Handler) {
   init(target)
   if (!target._namespace.__STATE_HANDLER__.has(key))
     target._namespace.__STATE_HANDLER__.set(key, [handler])
