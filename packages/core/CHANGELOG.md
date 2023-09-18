@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.4
+
+### Patch Changes
+
+- d6d2146: Global will mount class in init handler
+
 ## 2.0.0-alpha.3
 
 ### Patch Changes
