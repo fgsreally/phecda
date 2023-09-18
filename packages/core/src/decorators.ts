@@ -99,18 +99,18 @@ export function Assign(cb: (instance?: any) => any) {
 }
 
 export function Global(target: any) {
-  const tag = target.prototype.__TAG__
-  if (tag) {
-    init(target.prototype)
-    setModelVar(target.prototype, '__CLASS')
-    regisHandler(target.prototype, '__CLASS', {
-      init: async () => {
-        if (!(globalThis as any).__PHECDA__)
-          (globalThis as any).__PHECDA__ = {};
-        (globalThis as any).__PHECDA__[tag] = target
-      },
-    })
-  }
+  init(target.prototype)
+  setModelVar(target.prototype, '__CLASS')
+  regisHandler(target.prototype, '__CLASS', {
+    init: async () => {
+      const tag = target.prototype.__TAG__
+      if (!tag)
+        return
+      if (!(globalThis as any).__PHECDA__)
+        (globalThis as any).__PHECDA__ = {};
+      (globalThis as any).__PHECDA__[tag] = target
+    },
+  })
 }
 
 export function Empty(_target: any) { }

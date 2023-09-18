@@ -15,6 +15,13 @@ export class Base {
 // @Tag('home')
 export class HomeModel<T> extends Base {
   // name = 'home'
+aa={
+  name:'fuck'
+}
+  constructor(){
+    super()
+    console.log(this.aa)
+  }
   key: T
   readonly obj = {
     id: 1,
