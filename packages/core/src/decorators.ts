@@ -102,13 +102,13 @@ export function Global(target: any) {
   init(target.prototype)
   setModelVar(target.prototype, '__CLASS')
   regisHandler(target.prototype, '__CLASS', {
-    init: async () => {
-      const tag = target.prototype.__TAG__
+    init: async (instance) => {
+      const tag = instance.__TAG__
       if (!tag)
         return
       if (!(globalThis as any).__PHECDA__)
         (globalThis as any).__PHECDA__ = {};
-      (globalThis as any).__PHECDA__[tag] = target
+      (globalThis as any).__PHECDA__[tag] = instance.constructor
     },
   })
 }
