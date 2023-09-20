@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.5
+
+### Patch Changes
+
+- eec80a6: no essential to use Global before Tag
+
 ## 2.0.0-alpha.4
 
 ### Patch Changes

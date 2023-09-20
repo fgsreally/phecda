@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 2.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies [eec80a6]
+  - phecda-core@2.0.0-alpha.5
+
 ## 2.0.0-alpha.5
 
 ### Patch Changes
