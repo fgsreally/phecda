@@ -102,7 +102,7 @@ export function Global(target: any) {
   init(target.prototype)
   setModelVar(target.prototype, '__CLASS')
   regisHandler(target.prototype, '__CLASS', {
-    init: async (instance) => {
+    init: async (instance: any) => {
       const tag = instance.__TAG__
       if (!tag)
         return
