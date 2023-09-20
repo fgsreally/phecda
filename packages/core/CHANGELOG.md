@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.6
+
+### Patch Changes
+
+- 25cf638: fix Global when extend
+
 ## 2.0.0-alpha.5
 
 ### Patch Changes
