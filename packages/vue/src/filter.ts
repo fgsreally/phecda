@@ -43,7 +43,9 @@ export function createFilter<Data extends Record<string, any>>(
             // only work when using variable(not expression)
             set(value) {
               try {
-                data.value[body] = value
+                new Function('_data', '_v', `_data.${body}=_v`)(
+                  data.value, value,
+                )
                 return true
               }
               catch (e) {
