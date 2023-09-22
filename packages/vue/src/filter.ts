@@ -49,6 +49,7 @@ export function createFilter<Data extends Record<string, any>>(
                 return true
               }
               catch (e) {
+                resolveOption.errorHandler?.(e as Error)
                 return false
               }
             },
