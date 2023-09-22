@@ -1,5 +1,5 @@
 /* eslint-disable no-new-func */
-import { effectScope, reactive, ref } from 'vue'
+import { effectScope, ref } from 'vue'
 import type { SchemaToObj } from './types'
 export const EXPRESS_RE = /^{{(.*)}}$/
 export const FN_RE = /^\[\[(.*)\]\]$/
@@ -43,9 +43,7 @@ export function createFilter<Data extends Record<string, any>>(
             // only work when using variable(not expression)
             set(value) {
               try {
-                new Function('_data', '_v', `_data.${body}=_v`)(
-                  data.value, value,
-                )
+                data.value[body] = value
                 return true
               }
               catch (e) {
@@ -69,7 +67,6 @@ export function createFilter<Data extends Record<string, any>>(
   }
 
   function filter<Schema>(obj: Schema): SchemaToObj<Schema> {
-    obj = reactive<any>(obj)
     traverse(obj)
     return obj
   }

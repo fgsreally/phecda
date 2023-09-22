@@ -66,6 +66,7 @@ const { config, data } = createFormData({
     :rules="rules"
     label-width="120px"
   />
+  {{ data }}
 </template>
 
 <style>
