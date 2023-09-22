@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 2.0.0-alpha.8
+
+### Patch Changes
+
+- e23c5fb: errorHandler work even in setter
+- ebae9ea: filter return reactive will cause perf in some cases
+
 ## 2.0.0-alpha.7
 
 ### Patch Changes
