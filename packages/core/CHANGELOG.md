@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.0-alpha.7
+
+### Patch Changes
+
+- a701f34: Inject won't throw error if not Provide
+
 ## 2.0.0-alpha.6
 
 ### Patch Changes
