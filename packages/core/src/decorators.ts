@@ -121,6 +121,11 @@ export function Provide<K extends keyof InjectData>(key: K, value: InjectData[K]
   DataMap[key] = value
 }
 
+const EmptyProxy: any = new Proxy(Empty, {
+  apply() {
+    return EmptyProxy
+  },
+})
 export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
-  return DataMap[key] || (() => Empty) /** work for @Inject(x)(...) */
+  return DataMap[key] || EmptyProxy/** work for @Inject(x)(...) */
 }
