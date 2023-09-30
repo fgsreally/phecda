@@ -1,4 +1,4 @@
-import type { Phecda, Handler } from './types'
+import type { Handler, Phecda } from './types'
 
 export function isPhecda(target: any) {
   return target && !!target.prototype._namespace
