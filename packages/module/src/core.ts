@@ -24,6 +24,7 @@ if (__DEV__) {
 
 async function buildNestModule(Module: Construct) {
   const paramtypes = getParamtypes(Module) as Construct[]
+
   let instance: InstanceType<Construct>
   const tag = Module.prototype?.__TAG__ || Module.name
 
