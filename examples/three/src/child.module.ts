@@ -1,7 +1,7 @@
-import { Tag } from 'phecda-three'
+import { Tag } from 'phecda-module'
 @Tag('child')
 export class Child {
-  name = 'child'
+  name = 'child1'
   constructor() {
     console.log('Child')
   }
@@ -10,6 +10,3 @@ export class Child {
     console.log('Child destroy')
   }
 }
-
-if (import.meta.hot)
-  import.meta.hot.accept(__PHECDA_THREE__)

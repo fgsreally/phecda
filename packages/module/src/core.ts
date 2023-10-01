@@ -12,9 +12,8 @@ export async function Factory(Modules: (new (...args: any) => any)[]) {
 
 if (__DEV__) {
   // @ts-expect-error work for hmr
-  window.__PHECDA_THREE__ = (target) => {
+  window.__PHECDA_MODULE_UPDATE__ = (target) => {
     target = Object.values(target)[0]
-    console.log(target)
     const tag = target.prototype?.__TAG__ || target.name
     const module = moduleMap.get(tag)
     module.destroy?.()

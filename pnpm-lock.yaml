@@ -115,7 +115,7 @@ importers:
 
   examples/three:
     dependencies:
-      phecda-three:
+      phecda-module:
         specifier: workspace:^1.0.0
         version: link:../../packages/three
     devDependencies:
