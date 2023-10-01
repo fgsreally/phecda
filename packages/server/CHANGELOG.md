@@ -1,5 +1,12 @@
 # phecda-server
 
+## 3.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies [a701f34]
+  - phecda-core@2.0.0-alpha.7
+
 ## 3.0.0-alpha.6
 
 ### Patch Changes
