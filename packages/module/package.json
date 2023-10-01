@@ -30,7 +30,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "phecda-core": "workspace:2.0.0-alpha.6",
+    "phecda-core": "workspace:*",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
