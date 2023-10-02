@@ -1,5 +1,18 @@
 # phecda-client
 
+## 1.2.0-alpha.1
+
+### Patch Changes
+
+- d6d2146: only createReq when batch is false
+
+## 1.2.0-alpha.0
+
+### Minor Changes
+
+- c507f78: add createChainRequest
+- 6033ec7: chain req support batch
+
 ## 1.1.6
 
 ### Patch Changes

@@ -100,9 +100,12 @@ describe('express ', () => {
   })
   it('guard/interceptor will work', async () => {
     const fn = vi.fn((str: string) => str)
+    @Interceptor('test')
     class E {
       @Guard('test')
       @Interceptor('test')
+      @Interceptor('test2')
+
       @Post('/:test')
       test(@Param('test') test: string) {
         return `${test}`
@@ -113,12 +116,16 @@ describe('express ', () => {
         return false
       return true
     })
-    addInterceptor('test', () => {
+
+    const mockInterceptor = () => {
       fn('start')
       return () => {
         fn('end')
       }
-    })
+    }
+    addInterceptor('test', mockInterceptor)
+    addInterceptor('test2', mockInterceptor)
+
     const data = await Factory([E])
     const app = express()
     app.use(express.json())
@@ -131,6 +138,6 @@ describe('express ', () => {
       error: true,
     })
     await request(app).post('/test')
-    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fn).toHaveBeenCalledTimes(4)
   })
 })

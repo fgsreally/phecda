@@ -17,20 +17,23 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
 
 export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
   const data: InstanceType<M> = new Model()
-
   const err: string[] = []
   const stateVars = getModelState(data) as PropertyKey[]
   for (const item of stateVars) {
     data[item] = input[item]
+
     const handlers = getHandler(data, item)
     if (handlers) {
       // work for @Rule
       if (options.collectError !== false) {
         for (const handler of handlers) {
           const rule = handler.rule
-          // const ret = await handler.rule?.(data)
-          if (rule && !await validate(rule, data[item])) {
-            err.push(handler.info || '')
+          const ret = await validate(rule, data[item])
+          // 当rule为函数，且返回'ok'时，不会进行其他验证
+          if (ret === 'ok')
+            break
+          if (rule && !ret) {
+            err.push(typeof handler.info === 'function' ? handler.info(item) : handler.info)
             if (!options.collectError)
               break
           }
@@ -50,9 +53,8 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
 
 export function classToValue<M>(instance: M): ClassValue<M> {
   const data = {} as any
-  const exposeVar = getExposeKey(instance as any) as PropertyKey[]
-
-  for (const item of exposeVar)
+  const exposeVars = getExposeKey(instance as any) as PropertyKey[]
+  for (const item of exposeVars)
 
     data[item] = (instance as any)[item]
 
@@ -85,6 +87,6 @@ export function snapShot<T extends new (...args: any) => any>(data: InstanceType
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler:((target: any, key: PropertyKey) => void), type: 'static' | 'class' | 'normal' = 'normal') {
+export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'static' | 'class' | 'normal' = 'normal') {
   handler(type === 'normal' ? c.prototype : c, key)
 }

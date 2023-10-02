@@ -1,33 +1,31 @@
-import { mergeState, setModalVar } from 'phecda-core'
-/**
- *
- * @deprecate
- */
-// export function Inject(_target: any) { }
+import { setModelVar, setState } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
-    setModalVar(target, k)
-    mergeState(target, k, {
-      header: { name, value },
-    })
+    setModelVar(target, k)
+    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    if (!state.header)
+      state.header = {}
+
+    state.header[name] = value
+    setState(target, k, state)
   }
 }
 
 export function Define(key: string, value: any) {
   return (target: any, k?: PropertyKey) => {
-    if (k) {
-      setModalVar(target, k)
-      mergeState(target, k, {
-        define: { [key]: value },
-      })
+    if (!k) {
+      k = '__CLASS'
+      target = target.prototype
     }
-    else {
-      setModalVar(target.prototype, '__CLASS')
-      mergeState(target.prototype, '__CLASS', {
-        define: { [key]: value },
-      })
-    }
+
+    setModelVar(target, k)
+    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    if (!state.define)
+      state.define = {}
+
+    state.define[key] = value
+    setState(target, k, state)
   }
 }
 

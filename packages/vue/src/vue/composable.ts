@@ -1,6 +1,6 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
-import { computed, onBeforeUnmount, reactive } from 'vue'
+import { computed, onBeforeUnmount, reactive, toRaw } from 'vue'
 import type { Events } from 'phecda-core'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
@@ -23,6 +23,10 @@ export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNeste
     register(instance)
   }
   return useOMap.get(Model)
+}
+
+export function useRaw<T extends new (...args: any) => any>(Model: T) {
+  return toRaw(useO(Model)) as unknown as InstanceType<T>
 }
 // like what pinia do
 export function usePatch<T extends new (...args: any) => any>(Model: T, Data: _DeepPartial<InstanceType<T>>) {

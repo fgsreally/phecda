@@ -1,0 +1,34 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "example-vue-form-table": "0.0.0",
+    "example-server": "0.0.4",
+    "example-typescript5": "0.0.0",
+    "example-vue": "0.0.0",
+    "phecda-client": "1.1.3",
+    "phecda-core": "1.6.0",
+    "phecda-prompt": "1.0.1",
+    "phecda-rabbitmq": "1.0.1",
+    "phecda-server": "2.1.2",
+    "phecda-vue": "1.6.1"
+  },
+  "changesets": [
+    "beige-mails-argue",
+    "chilled-dancers-raise",
+    "few-beers-pull",
+    "fresh-coats-hug",
+    "fresh-foxes-stare",
+    "gold-lamps-wink",
+    "grumpy-dots-sparkle",
+    "quick-tools-share",
+    "red-oranges-sing",
+    "rotten-colts-tell",
+    "serious-apples-appear",
+    "smooth-needles-compare",
+    "spotty-kids-sleep",
+    "sweet-doors-taste",
+    "warm-guests-beam",
+    "wicked-mirrors-cheer"
+  ]
+}

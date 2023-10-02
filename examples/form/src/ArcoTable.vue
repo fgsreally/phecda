@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { createTable } from 'phecda-vue'
-import { ElTable, ElTableColumn } from 'element-plus'
-import Test3 from './components/Test3.vue'
+import { Button, Table, TableColumn } from '@arco-design/web-vue'
 
 const data = [
   {
@@ -40,18 +39,39 @@ const data = [
     address: 'No. 189, Grove St, Los Angeles',
   },
 ]
-const CustomTable = createTable({ test: Test3 }, ElTable, ElTableColumn, data)
+const CustomTable = createTable({ button: Button }, {
+  table: Table,
+  column: TableColumn,
+  data,
+  columnSlot: 'columns',
+  cellSlot: 'cell',
+})
 const config = [
+
   {
-    type: 'selection',
+    'data-index': 'name',
+    'title': 'Name',
   },
   {
-    property: 'name',
-    label: 'Name',
+    title: 'address',
+    _children: [
+      {
+        'data-index': 'address',
+    'title': 'address',
+      },
+      {
+        'data-index': 'date',
+    'title': 'date',
+      },
+    ],
   },
   {
-    _component: 'test',
-    label: 'button',
+    _component: 'button',
+    title: 'button',
+    _props: ({ record }: any) => {
+      return { _slots: record.name, onClick: () => console.log(record.name) }
+    },
+
   },
 ]
 </script>

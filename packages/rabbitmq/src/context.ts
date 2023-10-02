@@ -16,7 +16,7 @@ export class RabbitMqContext extends Context {
   }
 
   async usePipe(args: { arg: any; validate?: boolean }[], reflect: any[]) {
-    return RabbitMqContext.pipe.transform?.(args, reflect)
+    return RabbitMqContext.pipe.transform?.(args, reflect, this.data)
   }
 
   static useFilter(arg: any, data: MQFilter) {

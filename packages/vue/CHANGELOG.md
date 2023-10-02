@@ -1,5 +1,79 @@
 # phecda-vue
 
+## 2.0.0-alpha.9
+
+### Patch Changes
+
+- Updated dependencies [a701f34]
+  - phecda-core@2.0.0-alpha.7
+
+## 2.0.0-alpha.8
+
+### Patch Changes
+
+- e23c5fb: errorHandler work even in setter
+- ebae9ea: filter return reactive will cause perf in some cases
+
+## 2.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies [25cf638]
+  - phecda-core@2.0.0-alpha.6
+
+## 2.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies [eec80a6]
+  - phecda-core@2.0.0-alpha.5
+
+## 2.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies [d6d2146]
+  - phecda-core@2.0.0-alpha.4
+
+## 2.0.0-alpha.4
+
+### Patch Changes
+
+- c507f78: createTable support custom render(with props) and column group (only test arco and element-plus)
+- c507f78: add useRaw
+
+## 2.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies [049c138]
+  - phecda-core@2.0.0-alpha.3
+
+## 2.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [8fe5ced]
+  - phecda-core@2.0.0-alpha.2
+
+## 2.0.0-alpha.1
+
+### Patch Changes
+
+- Updated dependencies [64c2f70]
+  - phecda-core@2.0.0-alpha.1
+
+## 2.0.0-alpha.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
+### Patch Changes
+
+- Updated dependencies [78cb57a]
+  - phecda-core@2.0.0-alpha.0
+
 ## 1.6.3
 
 ### Patch Changes

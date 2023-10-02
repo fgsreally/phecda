@@ -1,11 +1,15 @@
-import { mergeState, setModalVar } from 'phecda-core'
+import { setModelVar, setState } from 'phecda-core'
 
 export function BaseParam(type: string, key: string, validate?: any): any {
   return (target: any, k: PropertyKey, index: number) => {
-    setModalVar(target, k)
-    mergeState(target, k, {
-      params: [{ type, key, index, validate }],
-    })
+    setModelVar(target, k)
+
+    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    if (!state.params)
+      state.params = []
+
+    state.params.push({ type, key, index, validate })
+    setState(target, k, state)
   }
 }
 

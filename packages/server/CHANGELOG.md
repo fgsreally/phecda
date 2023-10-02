@@ -1,5 +1,66 @@
 # phecda-server
 
+## 3.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies [a701f34]
+  - phecda-core@2.0.0-alpha.7
+
+## 3.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies [25cf638]
+  - phecda-core@2.0.0-alpha.6
+
+## 3.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies [eec80a6]
+  - phecda-core@2.0.0-alpha.5
+
+## 3.0.0-alpha.4
+
+### Patch Changes
+
+- Updated dependencies [d6d2146]
+  - phecda-core@2.0.0-alpha.4
+
+## 3.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies [049c138]
+  - phecda-core@2.0.0-alpha.3
+
+## 3.0.0-alpha.2
+
+### Patch Changes
+
+- 8fe5ced: pipe add ctx params
+- Updated dependencies [8fe5ced]
+  - phecda-core@2.0.0-alpha.2
+
+## 3.0.0-alpha.1
+
+### Patch Changes
+
+- Updated dependencies [64c2f70]
+  - phecda-core@2.0.0-alpha.1
+
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
+### Patch Changes
+
+- Updated dependencies [78cb57a]
+  - phecda-core@2.0.0-alpha.0
+
 ## 2.1.4
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 import { getExposeKey, getHandler, validate } from 'phecda-core'
 
 export function getElementPlusRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getExposeKey(Model as any)
+  const stateVars = getExposeKey(Model as any) as string[]
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
     const handlers = getHandler(Model as any, item)
@@ -34,7 +34,7 @@ export function getElementPlusRules<M, O extends object>(Model: M, options: O = 
 export const GetDevUIRules = getElementPlusRules
 
 export function getNaiveUIRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getExposeKey(Model as any)
+  const stateVars = getExposeKey(Model as any) as string[]
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
     const handlers = getHandler(Model as any, item)
@@ -67,7 +67,7 @@ export function getNaiveUIRules<M, O extends object>(Model: M, options: O = {} a
 export const getAntDRules = getNaiveUIRules
 
 export function getNutUIRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getExposeKey(Model as any)
+  const stateVars = getExposeKey(Model as any) as string[]
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
     const handlers = getHandler(Model as any, item)
@@ -101,7 +101,7 @@ export function getNutUIRules<M, O extends object>(Model: M, options: O = {} as 
 export const getVantRules = getNutUIRules
 
 export function getArcoRules<M, O extends object>(Model: M, options: O = {} as any): any {
-  const stateVars = getExposeKey(Model as any)
+  const stateVars = getExposeKey(Model as any) as string[]
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}
   for (const item of stateVars) {
     const handlers = getHandler(Model as any, item)

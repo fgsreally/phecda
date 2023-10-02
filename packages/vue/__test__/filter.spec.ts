@@ -14,6 +14,7 @@ describe('createFilter', () => {
     expect(ret.category.value).toBe('old')
     // setter won't work
     ret.category.value = 50
+
     expect(ret.category.value).toBe('old')
   })
 

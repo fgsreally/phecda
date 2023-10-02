@@ -1,9 +1,9 @@
 import type { to } from './helper'
-import { init, mergeState, regisHandler, setExposeKey, setIgnoreKey, setModalVar } from './core'
-import type { PhecdaInjectData } from './types'
+import { init, regisHandler, setExposeKey, setIgnoreKey, setModelVar, setState } from './core'
+import type { InjectData } from './types'
 
 export function Init(target: any, key: PropertyKey) {
-  setModalVar(target, key)
+  setModelVar(target, key)
 
   regisHandler(target, key, {
     async init(instance: any) {
@@ -15,18 +15,18 @@ export function Init(target: any, key: PropertyKey) {
 // bind value
 export function Bind(value: any) {
   return (target: any, k: PropertyKey) => {
-    setModalVar(target, k)
-    mergeState(target, k, {
+    setModelVar(target, k)
+    setState(target, k, {
       value,
     })
   }
 }
 
-export function Rule(rule: RegExp | string | Function | number,
-  info: string,
+export function Rule(rule: RegExp | string | ((arg: any) => boolean | 'ok') | number,
+  info: string | ((k: string) => string),
   meta?: any) {
   return (obj: any, key: PropertyKey) => {
-    setModalVar(obj, key)
+    setModelVar(obj, key)
     regisHandler(obj, key, {
       rule,
       info,
@@ -52,7 +52,7 @@ export function Clear(target: any, key: PropertyKey) {
 
 export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   return (target: any, key: PropertyKey) => {
-    setModalVar(target, key)
+    setModelVar(target, key)
     regisHandler(target, key, {
       error: cb,
     })
@@ -65,7 +65,7 @@ export function Expose(target: any, key: PropertyKey) {
 
 export function Pipe(v: ReturnType<typeof to>) {
   return (obj: any, key: PropertyKey) => {
-    setModalVar(obj, key)
+    setModelVar(obj, key)
     regisHandler(obj, key, {
       async pipe(instance: any) {
         const tasks = v.value
@@ -85,7 +85,7 @@ export function Tag(tag: string) {
 export function Assign(cb: (instance?: any) => any) {
   return (target: any) => {
     init(target.prototype)
-    setModalVar(target.prototype, '__CLASS')
+    setModelVar(target.prototype, '__CLASS')
     regisHandler(target.prototype, '__CLASS', {
       init: async (instance: any) => {
         const value = await cb(instance)
@@ -99,21 +99,33 @@ export function Assign(cb: (instance?: any) => any) {
 }
 
 export function Global(target: any) {
-  if (!(globalThis as any).__PHECDA__)
-    (globalThis as any).__PHECDA__ = {}
-  const tag = target.prototype.__TAG__
-  if (tag)
-    (globalThis as any).__PHECDA__[tag] = target
+  init(target.prototype)
+  setModelVar(target.prototype, '__CLASS')
+  regisHandler(target.prototype, '__CLASS', {
+    init: async (instance: any) => {
+      const tag = instance.__TAG__
+      if (!tag)
+        return
+      if (!(globalThis as any).__PHECDA__)
+        (globalThis as any).__PHECDA__ = {};
+      (globalThis as any).__PHECDA__[tag] = instance.constructor
+    },
+  })
 }
 
 export function Empty(_target: any) { }
 
-export const DataMap = {} as PhecdaInjectData
+export const DataMap = {} as InjectData
 
-export function Provide<K extends keyof PhecdaInjectData>(key: K, value: PhecdaInjectData[K]) {
+export function Provide<K extends keyof InjectData>(key: K, value: InjectData[K]) {
   DataMap[key] = value
 }
 
-export function Inject<K extends keyof PhecdaInjectData>(key: K): PhecdaInjectData[K] {
-  return DataMap[key] || (() => Empty) /** work for @Inject(x)(...) */
+const EmptyProxy: any = new Proxy(Empty, {
+  apply() {
+    return EmptyProxy
+  },
+})
+export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
+  return DataMap[key] || EmptyProxy/** work for @Inject(x)(...) */
 }

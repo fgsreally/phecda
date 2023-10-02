@@ -18,7 +18,7 @@ export class ServerContext extends Context<ServerCtx | ServerMergeCtx > {
   }
 
   async usePipe(args: { arg: any; validate?: boolean }[], reflect: any[]) {
-    return ServerContext.pipe.transform?.(args, reflect)
+    return ServerContext.pipe.transform?.(args, reflect, this.data)
   }
 
   static useFilter(arg: any, data: ServerCtx | ServerMergeCtx) {

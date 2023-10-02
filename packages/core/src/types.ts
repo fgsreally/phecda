@@ -7,12 +7,12 @@ export interface UsePipeOptions {
   collectError?: boolean
 }
 
-export interface PhecdaInjectData{
+export interface InjectData {
   [key: string]: any
 
 }
 
-export interface PhecdaHandler {
+export interface Handler {
   [key: string]: any
   // init?: (instance: any) => any
   // pipe?: (instance: any) => void
@@ -23,6 +23,7 @@ export interface PhecdaHandler {
   // http?: any
 }
 export interface Phecda {
+  prototype: any
   _namespace: {
 
     __INIT_EVENT__: Set<PropertyKey>
@@ -33,7 +34,7 @@ export interface Phecda {
 
     __STATE_VAR__: Set<PropertyKey>
 
-    __STATE_HANDLER__: Map<PropertyKey, PhecdaHandler[]>
+    __STATE_HANDLER__: Map<PropertyKey, Handler[]>
 
     __STATE_NAMESPACE__: Map<PropertyKey, Object>
   }
