@@ -1,5 +1,4 @@
 import { Clear, Global, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
-
 @Tag('base')
 
 export class Base {
@@ -15,13 +14,11 @@ export class Base {
 // @Tag('home')
 export class HomeModel<T> extends Base {
   // name = 'home'
-aa={
-  name:'fuck'
-}
-  constructor(){
+
+  constructor() {
     super()
-    console.log(this.aa)
   }
+
   key: T
   readonly obj = {
     id: 1,
