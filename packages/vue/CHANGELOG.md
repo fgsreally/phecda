@@ -1,5 +1,28 @@
 # phecda-vue
 
+## 2.0.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
+### Patch Changes
+
+- e23c5fb: errorHandler work even in setter
+- ebae9ea: filter return reactive will cause perf in some cases
+- c507f78: createTable support custom render(with props) and column group (only test arco and element-plus)
+- c507f78: add useRaw
+- bf8d83a: replace computed with toRef
+- Updated dependencies [d6d2146]
+- Updated dependencies [049c138]
+- Updated dependencies [78cb57a]
+- Updated dependencies [a701f34]
+- Updated dependencies [25cf638]
+- Updated dependencies [eec80a6]
+- Updated dependencies [64c2f70]
+- Updated dependencies [8fe5ced]
+  - phecda-core@2.0.0
+
 ## 2.0.0-alpha.9
 
 ### Patch Changes
