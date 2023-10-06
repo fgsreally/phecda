@@ -1,6 +1,6 @@
 {
   "name": "phecda-client",
-  "version": "1.2.0-alpha.1",
+  "version": "1.2.0",
   "description": "create request:types share between server and client",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
