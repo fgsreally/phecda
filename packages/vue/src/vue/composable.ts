@@ -1,6 +1,6 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
-import { computed, onBeforeUnmount, reactive, toRaw } from 'vue'
+import { onBeforeUnmount, reactive, toRaw, toRef } from 'vue'
 import type { Events } from 'phecda-core'
 import { getHandler, register } from 'phecda-core'
 import { emitter } from '../emitter'
@@ -93,14 +93,15 @@ export function useV<T extends new (...args: any) => any>(Model: T): ReplaceInst
         return cache[key]()
 
       cache[key] = createSharedReactive(() => {
-        return computed({
-          get() {
-            return target[key]
-          },
-          set(v) {
-            return target[key] = v
-          },
-        })
+        return toRef(target, key)
+        // return computed({
+        //   get() {
+        //     return target[key]
+        //   },
+        //   set(v) {
+        //     return target[key] = v
+        //   },
+        // })
       })
       return cache[key]()
     },
