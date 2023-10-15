@@ -1,17 +1,15 @@
 /* eslint-disable no-new-func */
 import { effectScope, ref } from 'vue'
 import type { SchemaToObj } from './types'
-export const EXPRESS_RE = /^{{(.*)}}$/
-export const FN_RE = /^\[\[(.*)\]\]$/
+export const RE = /{{(.*)}}/
 // array won't be filtered
 export function createFilter<Data extends Record<string, any>>(
   initState: Object = {},
-  option: { expressionRE?: RegExp; fnRE?: RegExp; exclude?: string[]; errorHandler?: (error?: Error, errorPath?: string) => any } = {},
+  option: { RE?: RegExp; needReturn?: boolean; exclude?: string[]; errorHandler?: (error?: Error, errorPath?: string) => any } = {},
 ) {
   const resolveOption = Object.assign(
     {
-      expressionRE: EXPRESS_RE,
-      fnRE: FN_RE,
+      RE,
       exclude: [],
     },
     option,
@@ -31,12 +29,15 @@ export function createFilter<Data extends Record<string, any>>(
         traverse(obj[i], errorPath)
 
       if (typeof obj[i] === 'string') {
-        if (resolveOption.expressionRE.test(obj[i])) {
-          const body = obj[i].match(resolveOption.expressionRE)[1]
+        if (resolveOption.RE.test(obj[i])) {
+          // @ts-expect-error miss type
+          const body = obj[i].replace(resolveOption.RE, (_, s) => {
+            return s
+          })
 
           Object.defineProperty(obj, i, {
             get() {
-              return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{return ${body}}catch(e){return _eh(e,"${errorPath}")}` : `return ${body}`)(
+              return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{${resolveOption.needReturn ? '' : 'return'} ${body}}catch(e){return _eh(e,"${errorPath}")}` : `${resolveOption.needReturn ? '' : 'return'} ${body}`)(
                 ...Object.values(data.value), resolveOption.errorHandler,
               )
             },
@@ -55,16 +56,16 @@ export function createFilter<Data extends Record<string, any>>(
             },
           })
         }
-        if (resolveOption.fnRE.test(obj[i])) {
-          const body = obj[i].match(resolveOption.fnRE)[1]
-          Object.defineProperty(obj, i, {
-            get() {
-              return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{${body}}catch(e){return _eh(e,"${errorPath}")}` : `${body}`)(
-                ...Object.values(data.value), resolveOption.errorHandler,
-              )
-            },
-          })
-        }
+        // if (resolveOption.fnRE.test(obj[i])) {
+        //   const body = obj[i].match(resolveOption.fnRE)[1]
+        //   Object.defineProperty(obj, i, {
+        //     get() {
+        //       return new Function(...Object.keys(data.value), '_eh', resolveOption.errorHandler ? `try{${body}}catch(e){return _eh(e,"${errorPath}")}` : `${body}`)(
+        //         ...Object.values(data.value), resolveOption.errorHandler,
+        //       )
+        //     },
+        //   })
+        // }
       }
     }
   }

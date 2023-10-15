@@ -5,6 +5,9 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "bin":{
+    "ps":"bin/cli.js"
+  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup"
@@ -17,7 +20,7 @@
   ],
   "author": "",
   "files": [
-    "dist"
+    "dist","bin"
   ],
   "license": "MIT",
   "devDependencies": {
