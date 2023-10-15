@@ -1,5 +1,21 @@
 # phecda-core
 
+## 2.0.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
+### Patch Changes
+
+- d6d2146: Global will mount class in init handler
+- 049c138: plainToClass support option rule
+- a701f34: Inject won't throw error if not Provide
+- 25cf638: fix Global when extend
+- eec80a6: no essential to use Global before Tag
+- 64c2f70: Rule support function info
+- 8fe5ced: export all presets
+
 ## 2.0.0-alpha.7
 
 ### Patch Changes
