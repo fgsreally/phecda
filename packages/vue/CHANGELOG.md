@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 2.0.1
+
+### Patch Changes
+
+- 9615af4: rewrite createFilter
+
 ## 2.0.0
 
 ### Major Changes

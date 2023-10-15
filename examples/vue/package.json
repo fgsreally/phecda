@@ -10,7 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "phecda-vue": "workspace:^2.0.0",
+    "phecda-vue": "workspace:^2.0.1",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
