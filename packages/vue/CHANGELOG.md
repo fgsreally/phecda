@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 2.0.2
+
+### Patch Changes
+
+- 1d58f4e: add appContext to createModal/createLayer,to support provide/inject(must with createPhecda)
+
 ## 2.0.1
 
 ### Patch Changes
