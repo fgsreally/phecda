@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 import { defineComponent, h, render, shallowRef } from 'vue'
+import { interval } from '../vue/phecda'
 
 // similar to createLayer
 export const createModal: <T1, T2 >(wrapComp: Component<T1>, comp: Component<T2>, opts?: {
@@ -8,6 +9,7 @@ export const createModal: <T1, T2 >(wrapComp: Component<T1>, comp: Component<T2>
   compProps?: Partial<T2>
 }) => (props?: Partial<T2>, modalProps?: Partial<T1>) => void = function (wrapComp: Component, comp: Component, opts = {}) {
   let isMounted = false
+
   const { modelKey = 'modelValue', wrapProps = {}, compProps = {} } = opts
   const isShow = shallowRef(true)
   const contentProps = shallowRef({})
@@ -32,6 +34,7 @@ export const createModal: <T1, T2 >(wrapComp: Component<T1>, comp: Component<T2>
     if (!isMounted) {
       const el = document.createElement('div')
       const vnode = h(wrapper)
+      vnode.appContext = interval.app?._context
       document.body.appendChild((render(vnode, el), el))
       isMounted = true
     }

@@ -4,9 +4,13 @@ import { getProperty, getTag, injectProperty } from 'phecda-core'
 import { emitter } from '../emitter'
 export const phecdaSymbol = Symbol('phecda')
 
+export const interval = {
+
+} as any
 export function createPhecda(symbol?: string) {
   const phecda = markRaw({
     install(app: App) {
+      interval.app = app
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
       if (!window.__PHECDA_VUE__)

@@ -58,10 +58,6 @@ export function isAsyncFunc(fn: Function) {
   return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
 }
 
-export function createSharedComputed() {
-
-}
-
 export function createSharedReactive<F extends (...args: any) => any>(composable: F): () => ReturnType<F> {
   let subscribers = 0
   let state: ReturnType<F>

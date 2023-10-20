@@ -1,6 +1,5 @@
 import { Base, Body, Controller, Define, Get, Param, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { A } from './test.service'
 // import { publish } from './publish'
 
@@ -8,7 +7,9 @@ class t {
   constructor(public fgs: string) {}
 }
 
-interface b {
+type C<t> = t | any
+
+class b {
   name: string
 }
 
@@ -26,7 +27,7 @@ export class TestController extends Base {
 
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
-    console.log(id)
+    console.log(id, 'test')
     return `${test}-${name}-${id.id}`
   }
 

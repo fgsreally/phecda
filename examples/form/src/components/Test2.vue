@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { inject } from 'vue';
 import { useModal } from './modal'
 defineProps<{ name: string }>()
+console.log(inject('test'))
 </script>
 
 <template>

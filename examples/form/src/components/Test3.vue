@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useAttrs } from 'vue'
+import { useAttrs ,inject} from 'vue'
 import { ElButton } from 'element-plus'
 
 const { scope: { row }, data } = useAttrs()
+console.log(inject('test'))
 
 function output() {
   console.log(data)

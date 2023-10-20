@@ -7,6 +7,7 @@ import ModalTest from './ModalTest.vue'
 import Table from './ArcoTable.vue'
 import ElementTable from './ElementTable.vue'
 import Arco from './ArcoForm.vue'
+import './components/modal'
 </script>
 
 <template>

@@ -6,6 +6,7 @@ import type { P } from './types'
 export const defaultPipe = {
   // todo: add more params
   async transform(args: { arg: any; validate: boolean }[], reflect: any[]) {
+    console.log(reflect)
     for (const i in args) {
       const { validate, arg } = args[i]
       if (validate === false || !reflect[i]/** work for undefined */)
