@@ -12,7 +12,7 @@ export type ChainController<T extends Record<string, any>> = {
   options(config: AxiosRequestConfig): ChainController<T>
 }
 
-let batchStack: any[]
+let batchStack: any[] | null
 let batchPromise: any
 
 export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean }): ChainController<C> {
@@ -50,7 +50,7 @@ export function createChainReq<C extends Record<string, any>>(instance: AxiosIns
               // eslint-disable-next-line no-async-promise-executor
               batchPromise = new Promise(async (resolve) => {
                 await Promise.resolve()
-                const { data } = await $pr(batchStack)
+                const { data } = await $pr(batchStack!)
                 batchStack = []
                 resolve(data)
               })
@@ -60,7 +60,9 @@ export function createChainReq<C extends Record<string, any>>(instance: AxiosIns
             }
             return new Promise((resolve, reject) => {
               batchPromise.then((data: any[]) => {
+                batchStack = null
                 const ret = data[index]
+
                 if (isError(ret))
                   reject(ret)
 

@@ -35,6 +35,7 @@ export const createModal: <T1, T2 >(wrapComp: Component<T1>, comp: Component<T2>
       const el = document.createElement('div')
       const vnode = h(wrapper)
       vnode.appContext = interval.app?._context
+      console.log(vnode.appContext)
       document.body.appendChild((render(vnode, el), el))
       isMounted = true
     }

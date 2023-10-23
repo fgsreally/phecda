@@ -48,7 +48,7 @@ export class TestController extends Base {
   @Get('/get')
   async get() {
     return {
-      data: 'test',
+      data: 'test'+Date.now(),
     }
   }
 

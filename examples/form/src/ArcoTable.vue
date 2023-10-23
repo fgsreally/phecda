@@ -57,11 +57,11 @@ const config = [
     _children: [
       {
         'data-index': 'address',
-    'title': 'address',
+        'title': 'address',
       },
       {
         'data-index': 'date',
-    'title': 'date',
+        'title': 'date',
       },
     ],
   },

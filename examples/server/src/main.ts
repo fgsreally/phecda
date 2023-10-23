@@ -18,8 +18,11 @@ async function chainRequest() {
   const data = await Promise.all([chain.options({
   }).$test.test('110', 'server', { id: '1', name: 'test' }), chain.$test.get()])
   console.log('[chain and batch request]:')
-
   console.log(data)
+  console.log('[chain request second]:')
+
+  console.log(await chain.$test.get())
+
 }
 
 async function request() {
