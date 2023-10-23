@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.2.1
+
+### Patch Changes
+
+- 02850c2: delete batchStack after chainReq promise finish( or it will cause puzzling problem)
+
 ## 1.2.0
 
 ### Minor Changes
