@@ -20,9 +20,7 @@ async function chainRequest() {
   console.log('[chain and batch request]:')
   console.log(data)
   console.log('[chain request second]:')
-
   console.log(await chain.$test.get())
-
 }
 
 async function request() {

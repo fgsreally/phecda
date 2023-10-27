@@ -35,7 +35,9 @@ const ret = await login('fgs', '1')// 这样就可以直接复用服务端类型
 
 一个不算坏的方案是：服务端输出一些元数据，包含路由，请求方式等信息，然后前端通过编译时，用这些元数据创造出一些函数方法,从而使得这些方法能够绑定对应的路由、请求方式、挂载位置，然后应用层面上就只需要关心方法这个层级了
 
-> 写法上和`nestjs`基本保持一致，也有守卫/管道/拦截器/过滤器，但能够实现`trpc`类似的类型复用，即` 长得像nestjs的trpc`；因为同时需要服务端运行+前端编译，即`运行时+编译时`；这种屏蔽实现细节，仅暴露函数调用的思路，不仅仅能用于`express`等服务端框架,`rabbitmq`等一样可以,即`跨技术栈`;关于依赖注入，[详见](./nestjs.md)
+> 写法上和`nestjs`基本保持一致，也有守卫/管道/拦截器/过滤器，但能够实现`trpc`类似的类型复用，即` 长得像nestjs的trpc`；因为同时需要服务端运行+前端编译，即`运行时+编译时`；
+
+这种屏蔽实现细节，仅暴露函数调用的思路，不仅仅能用于`express`等服务端框架,`rabbitmq`等一样可以,即`跨技术栈`;关于依赖注入，[详见](./nestjs.md)
 
 
 ## 快速开始
@@ -86,6 +88,7 @@ app.listen(3000)
 ### 客户端
 当然，这取决于用什么库去实现请求，如果是`axios`，那么安装`phecda-client`
 > 其他的话就要自己实现一个类似`phecda-client`的东西了
+#### 编译时
 编译方面，以`vite`为例
 ```ts
 import PC from 'phecda-client/vite'
@@ -94,6 +97,8 @@ export default defineConfig({
   plugins: [PC({ localPath: './pmeta.js'/** 元数据文件的路径 */, port: ' http://localhost:3699/', })],
 })
 ```
+
+#### 运行时
 运行时的部分：
 ```ts
 import axios from 'axios'
@@ -113,8 +118,21 @@ async function request() {
 }
 ```
 ::: warning 提醒
-注意两点，
+注意两点：
 1. 由于需要对应类型，所以在参数层面，不支持自定义装饰器，因为自定义装饰器对应的数据，可能是来自于中间件而非客户端，这不符合函数入参的逻辑
-2. 不能接收`module`,也就是`controller`和`service`中的类，的类名或者`Tag`（优先级更高，有就不用管类名）重复，必须保证唯一
+2. 在接口中拿到`req`/`res`，可以通过`controller`上的`context`拿到，但注意，这必须在接口中顶部去拿
+```ts
+@Controller('/')
+class A {
+  context: any
+  @Get('')
+  get() {
+    const { request } = this.context// 必须在顶部拿
+    // do sth
+
+  }
+}
+```
+2. 不能接收`module`的类名或者`Tag`（优先级更高，有就不用管类名）重复，必须保证唯一
 
 :::

@@ -17,7 +17,7 @@ export const createLayer: <T>(wrapComp: Component<T>, props?: Partial<T>, modelK
         },
         ...(modalProps.value),
       }, {
-        default: () => content.value && h(content.value, contentProps.value),
+        default: (slot = {}) => content.value && h(content.value, { ...contentProps.value, ...slot }),
       })
     },
   })

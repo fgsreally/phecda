@@ -3,34 +3,29 @@ import { defineComponent, h, render, shallowRef } from 'vue'
 import { interval } from '../vue/phecda'
 
 // similar to createLayer
-export const createModal: <T1, T2 >(wrapComp: Component<T1>, comp: Component<T2>, opts?: {
+export const createDialog: <T >(comp: Component<T>, opts?: {
   modelKey?: string
-  wrapProps?: Partial<T1>
-  compProps?: Partial<T2>
-}) => (props?: Partial<T2>, modalProps?: Partial<T1>) => void = function (wrapComp: Component, comp: Component, opts = {}) {
+  props?: Partial<T>
+}) => (props?: Partial<T>) => void = function (comp: Component, opts = {}) {
   let isMounted = false
 
-  const { modelKey = 'modelValue', wrapProps = {}, compProps = {} } = opts
+  const { modelKey = 'modelValue', props = {} } = opts
   const isShow = shallowRef(true)
   const contentProps = shallowRef({})
-  const modalProps = shallowRef({})
   const wrapper = defineComponent({
     setup() {
-      return () => h(wrapComp, {
+      return () => h(comp, {
         [modelKey]: isShow.value,
         [`onUpdate:${modelKey}`]: (v: boolean) => {
           isShow.value = v
         },
-        ...(modalProps.value),
-      }, {
-        default: (slot = {}) => h(comp, { ...slot, ...contentProps.value }),
+        ...(contentProps.value),
       })
     },
   })
 
-  return (props?: any, wrap_props?: any) => {
-    contentProps.value = Object.assign({}, compProps, props)
-    modalProps.value = Object.assign({}, wrapProps, wrap_props)
+  return (_props = {}) => {
+    contentProps.value = Object.assign({}, props, _props)
     if (!isMounted) {
       const el = document.createElement('div')
       const vnode = h(wrapper)

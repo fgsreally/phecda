@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import {inject} from 'vue'
-defineProps<{ sex: number }>()
-console.log(inject('test'))
-
+import { toRef } from 'vue'
+import { ElDialog } from 'element-plus'
+const props = defineProps<{ sex: number }>()
 </script>
 
 <template>
-  TEST1 {{ sex }}
+  <ElDialog v-bind="$attrs">
+    TEST1 {{ sex }}
+  </ElDialog>
 </template>
