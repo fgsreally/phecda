@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 2.0.3
+
+### Patch Changes
+
+- 9c73b4d: hard to use createModal sometimes, so add createDialog instead
+- 9c73b4d: props that bind slot tag in modal wrap will inject to the content
+
 ## 2.0.2
 
 ### Patch Changes
