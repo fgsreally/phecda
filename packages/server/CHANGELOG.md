@@ -1,5 +1,13 @@
 # phecda-server
 
+## 3.0.1
+
+### Patch Changes
+
+- e0af42f: default filter will console.error
+- e0af42f: actually it is a break change for merge request: support global guard and interceptor, invoke useGuard/useInterceptor/usePost only once(not include useFilter) during a request
+- a217f88: default pipe will transform arg by validate option when reflect doesn't exist
+
 ## 3.0.0
 
 ### Major Changes
