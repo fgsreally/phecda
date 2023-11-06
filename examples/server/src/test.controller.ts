@@ -32,8 +32,8 @@ export class TestController extends Base {
   }
 
   @Get('/query')
-  async query(@Query('id') id: t[]) {
-    console.log('query', typeof id, id)
+  async query(@Query('id') id: t[], @Query('name', Number) name = 10) {
+    console.log('query', typeof id, id, typeof name, name)
     return id
   }
 

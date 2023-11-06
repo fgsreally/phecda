@@ -5,11 +5,18 @@ import type { P } from './types'
 
 export const defaultPipe = {
   // todo: add more params
-  async transform(args: { arg: any; validate: boolean }[], reflect: any[]) {
+  async transform(args: { arg: any; validate: any }[], reflect: any[]) {
     for (const i in args) {
       const { validate, arg } = args[i]
-      if (validate === false || !reflect[i]/** work for undefined */)
+      if (validate === false)
         continue
+      console.log(reflect[i])
+      if (!reflect[i]) {
+        if (validate && arg)
+          args[i].arg = validate(arg)
+
+        continue
+      }
 
       if (isPhecda(reflect[i])) {
         const ret = await plainToClass(reflect[i], arg, { transform: true })

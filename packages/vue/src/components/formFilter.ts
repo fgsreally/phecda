@@ -1,7 +1,6 @@
 import { watch } from 'vue'
 import { createFilter } from '../filter'
 
-// it's a hook
 export function createFormData<Schema extends object, Data extends object>(schema: Schema, initData: Data = {} as any, options: { expressionRE?: RegExp;fnRE?: RegExp; exclude?: string[] } = {}) {
   const { data, filter } = createFilter(initData, options)
   initlize(schema, data.value)

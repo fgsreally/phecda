@@ -2,7 +2,6 @@ import type { Component } from 'vue'
 import { defineComponent, h, render, shallowRef } from 'vue'
 import { interval } from '../vue/phecda'
 
-// similar to createLayer
 export const createDialog: <T >(comp: Component<T>, opts?: {
   modelKey?: string
   props?: Partial<T>

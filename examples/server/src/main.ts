@@ -31,7 +31,7 @@ async function request() {
 }
 
 async function testFetch() {
-  const { data } = await useRequest(query('1'))
+  const { data } = await useRequest(query('1', 50))
   console.log('data', data)
 }
 

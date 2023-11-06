@@ -6,12 +6,14 @@ exports[`fakeController > compiler will create fake class 1`] = `
             
     add(arg0,arg1,arg2,arg3){
 const ret={tag:\\"1-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
-ret.query.a=arg0
-ret.body.b=arg1
-ret.params.c=arg2
-ret.realParam+='/'+arg2
-ret.params.d=arg3
-ret.realParam+='/'+arg3
+if(arg0!==undefined&&arg0!==null){ret.query.a=arg0
+}
+if(arg1!==undefined&&arg1!==null){ret.body.b=arg1
+}
+if(arg2!==undefined&&arg2!==null){ret.params.c=arg2
+ret.realParam+='/'+arg2}
+if(arg3!==undefined&&arg3!==null){ret.params.d=arg3
+ret.realParam+='/'+arg3}
 
 return ret
     }
@@ -21,8 +23,10 @@ return ret
             
     add(arg0,arg1){
 const ret={tag:\\"2-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
-ret.query.a=arg0
-ret.body.b=arg1
+if(arg0!==undefined&&arg0!==null){ret.query.a=arg0
+}
+if(arg1!==undefined&&arg1!==null){ret.body.b=arg1
+}
 
 return ret
     }
@@ -36,12 +40,14 @@ exports[`fakeController > when key doesn' exist 1`] = `
             
     add(arg0,arg1,arg2,arg3){
 const ret={tag:\\"1-add\\",body:{},query:{},params:{},realParam:'',method:\\"post\\",url:\\"/a\\"}
-ret.query.a=arg0
-ret.body=arg1
-ret.params.c=arg2
-ret.realParam+='/'+arg2
-ret.params.d=arg3
-ret.realParam+='/'+arg3
+if(arg0!==undefined&&arg0!==null){ret.query.a=arg0
+}
+if(arg1!==undefined&&arg1!==null){ret.body=arg1
+}
+if(arg2!==undefined&&arg2!==null){ret.params.c=arg2
+ret.realParam+='/'+arg2}
+if(arg3!==undefined&&arg3!==null){ret.params.d=arg3
+ret.realParam+='/'+arg3}
 
 return ret
     }
