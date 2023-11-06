@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.2.2
+
+### Patch Changes
+
+- a217f88: remove null and undefined in request
+
 ## 1.2.1
 
 ### Patch Changes
