@@ -10,7 +10,6 @@ export const defaultPipe = {
       const { validate, arg } = args[i]
       if (validate === false)
         continue
-      console.log(reflect[i])
       if (!reflect[i]) {
         if (validate && arg)
           args[i].arg = validate(arg)

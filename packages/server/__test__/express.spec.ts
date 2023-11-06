@@ -140,4 +140,65 @@ describe('express ', () => {
     await request(app).post('/test')
     expect(fn).toHaveBeenCalledTimes(4)
   })
+
+  it('guard/interceptor in parallel', async () => {
+    const fn = vi.fn((str: string) => str)
+    const Guardfn = vi.fn((str: string) => str)
+
+    @Interceptor('test')
+    class E {
+      @Guard('test')
+      @Interceptor('test')
+
+      @Post('/:test')
+      test(@Param('test') test: string) {
+        return `${test}`
+      }
+    }
+    addGuard('test', () => {
+      Guardfn('1')
+      return true
+    })
+
+    addGuard('test2', () => {
+      Guardfn('2')
+      return true
+    })
+    const mockInterceptor = () => {
+      fn('start')
+      return () => {
+        fn('end')
+      }
+    }
+    addInterceptor('test', mockInterceptor)
+    addInterceptor('test2', mockInterceptor)
+
+    const data = await Factory([E])
+    const app = express()
+    app.use(express.json())
+
+    bindApp(app, data, {
+      globalGuards: ['test2'],
+      globalInterceptors: ['test2'],
+    })
+    await request(app).post('/__PHECDA_SERVER__').send({
+      category: 'parallel',
+      data: [
+        {
+          query: {
+          },
+          params: {
+            test: 'phecda',
+          },
+          body: {
+          },
+          tag: 'E-test',
+        },
+      ],
+    })
+
+    expect(Guardfn).toHaveBeenCalledTimes(2)
+
+    expect(fn).toHaveBeenCalledTimes(4)
+  })
 })

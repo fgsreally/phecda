@@ -75,12 +75,13 @@ export function getInstance(tag: string) {
 }
 
 export function parseMeta(meta: Meta) {
-  const { data: { params, guards, interceptors, middlewares }, reflect } = meta
+  const { data: { params, guards, interceptors, middlewares }, reflect, handlers } = meta
   return {
     guards,
     reflect,
     interceptors,
     middlewares,
+    handlers,
     params: params.map((param) => {
       const { type, key, validate } = param
       return { type, key, validate }

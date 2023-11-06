@@ -31,6 +31,118 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   const methodMap = {} as Record<string, (...args: any[]) => any>
   const contextMeta = {} as Record<string, Meta>
+  (app as Express).post(route, (req, _res, next) => {
+    (req as any)[MERGE_SYMBOL] = true
+    next()
+  }, ...ServerContext.useMiddleware(proMiddle), async (req, res) => {
+    const { body: { category, data } } = req
+
+    const contextData = {
+      request: req,
+      response: res,
+      meta: contextMeta,
+      isMerge: true,
+    } as unknown as ServerMergeCtx
+
+    if (!Array.isArray(data))
+      return res.json(await ServerContext.useFilter(new BadRequestException('data format should be an array'), contextData))
+
+    if (category !== 'series' && category !== 'parallel')
+      return res.json(await ServerContext.useFilter(new BadRequestException('category should be \'parallel\' or \'series\''), contextData))
+
+    contextData.tags = data.map((item: any) => item.tag)
+
+    const context = new ServerContext(route, contextData)
+    const ret = [] as any[]
+    try {
+      const mergeGuards = new Set([...globalGuards])
+      const mergeInterceptors = new Set([...globalInterceptors])
+
+      data.forEach(({ tag }) => {
+        const {
+          guards,
+          interceptors,
+        } = Context.metaDataRecord[tag]
+        guards.forEach(guard => mergeGuards.add(guard))
+        interceptors.forEach(intercept => mergeInterceptors.add(intercept))
+      })
+      await context.useGuard([...mergeGuards], true)
+      await context.useInterceptor([...mergeInterceptors], true)
+
+      if (category === 'series') {
+        for (const item of data) {
+          const { tag } = item
+          const [name] = tag.split('-')
+          const {
+            reflect,
+            params,
+          } = Context.metaDataRecord[tag]
+          const instance = moduleMap.get(name)
+
+          try {
+            if (!params)
+              throw new BadRequestException(`"${tag}" doesn't exist`)
+            const args = await context.usePipe(params.map(({ type, key, validate }) => {
+              const arg = resolveDep(item[type], key)
+              if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
+                const [, index, argKey] = arg.split('@')
+                return { arg: resolveDep(ret[Number(index)], argKey || key), validate }
+              }
+
+              return { arg, validate }
+            }), reflect) as any
+            instance.context = contextData
+
+            ret.push(await methodMap[tag](...args))
+          }
+          catch (e: any) {
+            const m = Context.metaRecord[tag]
+            m.handlers.forEach(handler => handler.error?.(e))
+            ret.push(await context.useFilter(e))
+          }
+        }
+        return res.json(await context.usePost(ret))
+      }
+      if (category === 'parallel') {
+        return Promise.all(data.map((item: any) => {
+          // eslint-disable-next-line no-async-promise-executor
+          return new Promise(async (resolve) => {
+            const { tag } = item
+            const [name] = tag.split('-')
+            const {
+              reflect,
+              params,
+              handlers,
+            } = Context.metaDataRecord[tag]
+
+            const instance = moduleMap.get(name)
+
+            try {
+              if (!params)
+                throw new BadRequestException(`"${tag}" doesn't exist`)
+
+              const args = await context.usePipe(params.map(({ type, key, validate }) => {
+                const arg = resolveDep(item[type], key)
+                return { arg, validate }
+              }), reflect) as any
+              instance.context = contextData
+              resolve(await methodMap[tag](...args))
+            }
+            catch (e: any) {
+              handlers.forEach(handler => handler.error?.(e))
+              resolve(await context.useFilter(e))
+            }
+          })
+        })).then(async (ret) => {
+          res.json(await context.usePost(ret))
+        })
+      }
+    }
+    catch (e) {
+      const err = await context.useFilter(e)
+      res.status(err.status).json(err)
+    }
+  })
   for (const i of meta) {
     const { name, method, route, header, tag } = i.data
     const instance = moduleMap.get(tag)!
@@ -42,6 +154,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
       reflect,
       interceptors,
       params,
+      handlers,
       middlewares,
     } = Context.metaDataRecord[methodTag] ? Context.metaDataRecord[methodTag] : (Context.metaDataRecord[methodTag] = parseMeta(i))
 
@@ -77,112 +190,11 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
             res.send(String(ret))
         }
         catch (e: any) {
-          i.handlers.forEach(handler => handler.error?.(e))
+          handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e)
           res.status(err.status).json(err)
         }
       })
     }
   }
-
-  (app as Express).post(route, (req, _res, next) => {
-    (req as any)[MERGE_SYMBOL] = true
-    next()
-  }, ...ServerContext.useMiddleware(proMiddle), async (req, res) => {
-    const { body: { category, data } } = req
-
-    const contextData = {
-      request: req,
-      response: res,
-      meta: contextMeta,
-      isMerge: true,
-    } as unknown as ServerMergeCtx
-
-    if (!Array.isArray(data))
-      return res.json(await ServerContext.useFilter(new BadRequestException('data format should be an array'), contextData))
-
-    contextData.tags = data.map((item: any) => item.tag)
-
-    const context = new ServerContext(route, contextData)
-    const ret = [] as any[]
-
-    if (category === 'series') {
-      for (const item of data) {
-        const { tag } = item
-        const [name] = tag.split('-')
-        const {
-          guards,
-          reflect,
-          interceptors,
-          params,
-        } = Context.metaDataRecord[tag]
-        const instance = moduleMap.get(name)
-
-        try {
-          if (!params)
-            throw new BadRequestException(`"${tag}" doesn't exist`)
-
-          await context.useGuard(guards, true)
-          await context.useInterceptor(interceptors, true)
-          const args = await context.usePipe(params.map(({ type, key, validate }) => {
-            const arg = resolveDep(item[type], key)
-            if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
-              const [, index, argKey] = arg.split('@')
-              return { arg: resolveDep(ret[Number(index)], argKey || key), validate }
-            }
-
-            return { arg, validate }
-          }), reflect) as any
-          instance.context = contextData
-
-          ret.push(await context.usePost(await methodMap[tag](...args)))
-        }
-        catch (e: any) {
-          const m = Context.metaRecord[tag]
-          m.handlers.forEach(handler => handler.error?.(e))
-          ret.push(await context.useFilter(e))
-        }
-      }
-      return res.json(ret)
-    }
-    if (category === 'parallel') {
-      return Promise.all(data.map((item: any) => {
-        // eslint-disable-next-line no-async-promise-executor
-        return new Promise(async (resolve) => {
-          const { tag } = item
-          const [name] = tag.split('-')
-          const {
-            guards,
-            reflect,
-            interceptors,
-            params,
-          } = Context.metaDataRecord[tag]
-          const instance = moduleMap.get(name)
-
-          try {
-            if (!params)
-              throw new BadRequestException(`"${tag}" doesn't exist`)
-
-            await context.useGuard(guards, true)
-            await context.useInterceptor(interceptors, true)
-            const args = await context.usePipe(params.map(({ type, key, validate }) => {
-              const arg = resolveDep(item[type], key)
-              return { arg, validate }
-            }), reflect) as any
-            instance.context = contextData
-            resolve(await context.usePost(await methodMap[tag](...args)))
-          }
-          catch (e: any) {
-            const m = Context.metaRecord[tag]
-            m.handlers.forEach(handler => handler.error?.(e))
-            resolve(await context.useFilter(e))
-          }
-        })
-      })).then((ret) => {
-        res.json(ret)
-      })
-    }
-
-    res.json(await context.useFilter(new BadRequestException('category should be \'parallel\' or \'series\'')))
-  })
 }

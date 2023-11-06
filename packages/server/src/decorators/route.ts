@@ -28,6 +28,9 @@ export function Put(route: string) {
   return Route(route, 'put')
 }
 
+export function Patch(route: string) {
+  return Route(route, 'patch')
+}
 export function Delete(route: string) {
   return Route(route, 'delete')
 }
