@@ -1,5 +1,11 @@
 # phecda-server
 
+## 3.0.2
+
+### Patch Changes
+
+- 8fc9844: add warner and remove useless dep
+
 ## 3.0.1
 
 ### Patch Changes
