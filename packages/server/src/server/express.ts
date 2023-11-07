@@ -22,7 +22,7 @@ export interface Options {
  */
   globalInterceptors?: string[]
   /**
- * 专用路由的中间件，全局中间件请在bindApp以外设置
+ * 专用路由的中间件(work for merge request)，全局中间件请在bindApp以外设置
  */
   middlewares?: string[]
 }

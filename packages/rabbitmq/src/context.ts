@@ -7,6 +7,10 @@ export class RabbitMqContext extends Context {
   static pipe = defaultPipe
   static filter = rabbitMqFilter
   static middlewareRecord: Record<string, (...params: any) => boolean> = {}
+
+  /**
+   * @deprecated it seems useless
+   */
   static useMiddleware(middlewares: string[]) {
     return middlewares.map((m) => {
       if (!(m in RabbitMqContext.middlewareRecord))

@@ -44,7 +44,7 @@ export abstract class Context<Data = any> {
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Context.interceptorsRecord))
-          throw new FrameworkException(`can't find guard named ${interceptor}`)
+          throw new FrameworkException(`can't find interceptor named ${interceptor}`)
         const post = await Context.interceptorsRecord[interceptor](this.data, isMerge)
         if (post)
           ret.push(post)

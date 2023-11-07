@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { Factory } from '../src/core'
 import { Body, Controller, Get, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
+import { Tag } from '../src'
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', async () => {
     @Controller('/base')
@@ -27,6 +28,7 @@ describe('Factory ', () => {
     }
 
     @Controller('/B')
+
     class B extends A {
       @Get('/testB')
       test2(@Query('id') id: string, @Body('name') name: string) {
@@ -67,6 +69,7 @@ describe('Factory ', () => {
   })
 
   it('Factory will work using nest class', async () => {
+    @Tag('S')
     class Service {
       test() {
         return 'test'

@@ -5,6 +5,7 @@ import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
+import { warn } from './utils'
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
@@ -27,6 +28,8 @@ export async function Factory(Modules: (new (...args: any) => any)[]) {
   return { moduleMap, meta, output: (p = 'pmeta.js') => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
 }
 
+export const constructorMap = new Map() // just for warn
+
 async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Meta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]
   let instance: InstanceType<Construct>
@@ -36,6 +39,9 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
     instance = map.get(tag)
     if (!instance)
       throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${tag}--[module] ${Module}`)
+
+    if (constructorMap.get(tag) !== Module)
+      warn(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`)
 
     return instance
   }
@@ -53,7 +59,7 @@ async function buildNestModule(Module: Construct, map: Map<string, InstanceType<
   meta.push(...getMetaFromInstance(instance, Module.name, tag))
   await registerAsync(instance)
   map.set(tag, instance)
-
+  constructorMap.set(tag, Module)
   return instance
 }
 
