@@ -8,6 +8,7 @@ import { Meta } from './meta'
 import { warn } from './utils'
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
+export const constructorMap = new Map() // just for warn
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
@@ -25,10 +26,9 @@ export async function Factory(Modules: (new (...args: any) => any)[]) {
   for (const Module of Modules)
     await buildNestModule(Module, moduleMap, meta)
 
+  constructorMap.clear()
   return { moduleMap, meta, output: (p = 'pmeta.js') => fs.writeFileSync(p, JSON.stringify(meta.map(item => item.data))) }
 }
-
-export const constructorMap = new Map() // just for warn
 
 async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>, meta: Meta[]) {
   const paramtypes = getParamtypes(Module) as Construct[]

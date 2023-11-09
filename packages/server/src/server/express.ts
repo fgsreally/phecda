@@ -41,6 +41,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
       request: req,
       response: res,
       meta: contextMeta,
+      moduleMap,
       isMerge: true,
     } as unknown as ServerMergeCtx
 
@@ -170,6 +171,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
           request: req,
           meta: i,
           response: res,
+          moduleMap,
         }
         const context = new ServerContext(methodTag, contextData)
 

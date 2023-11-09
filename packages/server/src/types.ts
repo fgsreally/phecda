@@ -20,6 +20,7 @@ export interface ServerMergeCtx {
   request: Request
   response: Response
   meta: Record<string, Meta>
+  moduleMap: Record<string, any>
   isMerge: true
   tags?: string[]
 }
@@ -28,6 +29,7 @@ export interface ServerCtx {
   request: Request
   response: Response
   meta: Meta
+  moduleMap: Record<string, any>
 }
 export interface BaseError {
   error: true
