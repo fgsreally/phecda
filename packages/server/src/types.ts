@@ -57,15 +57,10 @@ export namespace P{
       type: RequestType
       route: string
     }
-    // mq?: {
-    //   queue: string
-    //   routeKey: string
-    //   options: amqplib.Options.Consume
 
-    // }
     define?: any
     header: Record<string, string>
-    params: { type: string; index: number; key: string; validate?: boolean }[]
+    params: { type: string; index: number; key: string; option?: any }[]
     guards: string[]
     interceptors: string[]
     middlewares: string[]
@@ -74,7 +69,7 @@ export namespace P{
     tag: string
   }
   export interface Pipe {
-    transform(args: { arg: any; validate?: boolean }[], reflect: any[], ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
+    transform(args: { arg: any; option?: boolean; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
   }
 
 }

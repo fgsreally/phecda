@@ -3,6 +3,7 @@ import { Phistroy } from '../history'
 
 import type { Meta } from '../meta'
 import type { P } from '../types'
+import { warn } from '../utils'
 
 export abstract class Context<Data = any> {
   method: string
@@ -76,15 +77,17 @@ export function getInstance(tag: string) {
 
 export function parseMeta(meta: Meta) {
   const { data: { params, guards, interceptors, middlewares }, reflect, handlers } = meta
+
+  params.forEach(({ index, key }, i) => {
+    if (index !== i)
+      warn(`the ${i + 1}th argument on the method '${key}' require decorator`)
+  })
   return {
     guards,
     reflect,
     interceptors,
     middlewares,
     handlers,
-    params: params.map((param) => {
-      const { type, key, validate } = param
-      return { type, key, validate }
-    }),
+    params,
   }
 }

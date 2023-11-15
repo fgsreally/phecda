@@ -1,6 +1,6 @@
 import { setModelVar, setState } from 'phecda-core'
 
-export function BaseParam(type: string, key: string, validate?: any): any {
+export function BaseParam(type: string, key: string, option?: any): any {
   return (target: any, k: PropertyKey, index: number) => {
     setModelVar(target, k)
 
@@ -8,7 +8,7 @@ export function BaseParam(type: string, key: string, validate?: any): any {
     if (!state.params)
       state.params = []
 
-    state.params.push({ type, key, index, validate })
+    state.params.push({ type, key, index, option })
     setState(target, k, state)
   }
 }

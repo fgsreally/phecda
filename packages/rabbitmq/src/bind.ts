@@ -32,8 +32,8 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<R
       ch.consume(route.route, async (msg) => {
         if (msg !== null) {
           const content = msg.content.toString()
-
-          const data = params.length > 0 ? JSON.parse(content) : content
+          const data = JSON.parse(content)
+          // const data = params.length > 0 ? JSON.parse(content) : content
           const contextMeta = {
             message: msg,
             content,
@@ -48,9 +48,9 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<R
             if (opts.interceptor)
               await context.useInterceptor(interceptors)
 
-            const args = await context.usePipe(params.map(({ key, validate }) => {
-              return { arg: resolveDep(data, key), validate }
-            }), reflect)
+            const args = await context.usePipe(params.map(({ key, option, type, index }) => {
+              return { arg: resolveDep(data, key), option, type, index, key, reflect: reflect[index] }
+            }), methodTag)
 
             instance.meta = contextMeta
 

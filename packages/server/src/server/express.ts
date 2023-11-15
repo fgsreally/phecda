@@ -83,15 +83,15 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
           try {
             if (!params)
               throw new BadRequestException(`"${tag}" doesn't exist`)
-            const args = await context.usePipe(params.map(({ type, key, validate }) => {
+            const args = await context.usePipe(params.map(({ type, key, option, index }) => {
               const arg = resolveDep(item[type], key)
               if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
-                const [, index, argKey] = arg.split('@')
-                return { arg: resolveDep(ret[Number(index)], argKey || key), validate }
+                const [, argIndex, argKey] = arg.split('@')
+                return { arg: resolveDep(ret[Number(argIndex)], argKey || key), option, index, type, key, reflect: reflect[index] }
               }
 
-              return { arg, validate }
-            }), reflect) as any
+              return { arg, option, index, type, key, reflect: reflect[index] }
+            }), tag) as any
             instance.context = contextData
 
             ret.push(await methodMap[tag](...args))
@@ -122,10 +122,10 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
               if (!params)
                 throw new BadRequestException(`"${tag}" doesn't exist`)
 
-              const args = await context.usePipe(params.map(({ type, key, validate }) => {
+              const args = await context.usePipe(params.map(({ type, key, option, index }) => {
                 const arg = resolveDep(item[type], key)
-                return { arg, validate }
-              }), reflect) as any
+                return { arg, type, key, option, index, reflect: reflect[index] }
+              }), tag) as any
               instance.context = contextData
               resolve(await methodMap[tag](...args))
             }
@@ -180,9 +180,9 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
             res.set(name, header[name])
           await context.useGuard(guards)
           await context.useInterceptor(interceptors)
-          const args = await context.usePipe(params.map(({ type, key, validate }) => {
-            return { arg: resolveDep((req as any)[type], key), validate }
-          }), reflect)
+          const args = await context.usePipe(params.map(({ type, key, option, index }) => {
+            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
+          }), methodTag)
           instance.context = contextData
 
           const ret = await context.usePost(await handler(...args))
