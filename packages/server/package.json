@@ -7,7 +7,12 @@
   "types": "dist/index.d.ts",
   "bin": {
     "ps": "bin/cli.js"
+  },  
+  "exports": {
+    ".": "./dist/index.js",
+    "./register": "./dist/register.js"
   },
+
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup"

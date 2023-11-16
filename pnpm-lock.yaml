@@ -96,9 +96,6 @@ importers:
       phecda-rabbitmq:
         specifier: workspace:^
         version: link:../../packages/rabbitmq
-      phecda-server:
-        specifier: workspace:^
-        version: link:../../packages/server
     devDependencies:
       '@types/express':
         specifier: ^4.17.17

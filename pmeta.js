@@ -1,0 +1,1 @@
+[{"route":{"route":"/:test","type":"post"},"tag":"E","method":"test","params":[{"type":"params","key":"test","index":0}],"define":{},"header":{},"middlewares":[],"guards":["test"],"interceptors":["test"]}]

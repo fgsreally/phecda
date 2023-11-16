@@ -65,11 +65,11 @@ export namespace P{
     interceptors: string[]
     middlewares: string[]
     method: string
-    name: string
+    // name?: string
     tag: string
   }
   export interface Pipe {
-    transform(args: { arg: any; option?: boolean; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
+    transform(args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
   }
 
 }
