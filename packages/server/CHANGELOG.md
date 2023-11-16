@@ -1,5 +1,15 @@
 # phecda-server
 
+## 3.1.0
+
+### Minor Changes
+
+- 58cd33b: refactor pipe parameter
+
+### Patch Changes
+
+- 58cd33b: add warn to make sure that the parameters in the front position have a decorator (in controller method )
+
 ## 3.0.3
 
 ### Patch Changes
