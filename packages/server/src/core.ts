@@ -2,22 +2,23 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
-import { getExposeKey, getHandler, getState, injectProperty, registerAsync } from 'phecda-core'
+import { getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { warn } from './utils'
-import { UPDATE_SYMBOL } from './common'
+import { UNMOUNT_SYMBOL } from './common'
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(Modules: (new (...args: any) => any)[], opts: {
-  proxy?: boolean
+  dev?: boolean
   file?: string
 } = {}) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   let meta: Meta[] = []
   const constructorMap = new Map()
-  const { proxy = process.env.NODE_ENV === 'development', file = 'pmeta.js' } = opts
+  const moduleGraph = new WeakMap()
+  const { dev = process.env.NODE_ENV === 'development', file = 'pmeta.js' } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
@@ -28,12 +29,30 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       (emitter as any).on(eventName, fn)
   })
 
-  function update(moduleMap: Map<string, any>, tag: string, Module: Construct) {
-    if (moduleMap.has(tag)) {
-      meta = meta.filter(item => item.data.tag !== tag)
-      moduleMap.get(tag)[UPDATE_SYMBOL] = buildNestModule(Module, moduleMap)
-      writeMeta()
+  async function update(Module: Construct) {
+    const tag = Module.prototype?.__TAG__ || Module.name
+
+    if (!moduleMap.has(tag))
+      return
+
+    const instance = moduleMap.get(tag)
+
+    if (instance?.[UNMOUNT_SYMBOL]) {
+      for (const cb of instance[UNMOUNT_SYMBOL])
+        await cb()
     }
+    moduleMap.delete(tag)
+
+    meta = meta.filter(item => item.data.tag !== tag)
+    const newModule = await buildNestModule(Module, moduleMap)
+    moduleGraph.get(instance)?.forEach((module: any) => {
+      for (const key in module) {
+        if (module[key] === instance)
+          module[key] = newModule
+      }
+    })
+    moduleGraph.get(instance)
+    moduleMap.set(tag, newModule)
   }
   async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>) {
     const paramtypes = getParamtypes(Module) as Construct[]
@@ -56,13 +75,18 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
         paramtypesInstances[i] = await buildNestModule(paramtypes[i], map)
 
       instance = new Module(...paramtypesInstances)
+      for (const i of paramtypesInstances) {
+        if (!moduleGraph.has(i))
+          moduleGraph.set(i, [])
+        moduleGraph.get(i).push(instance)
+      }
     }
     else {
       instance = new Module()
     }
-    meta.push(...getMetaFromInstance(instance, tag))
+    meta.push(...getMetaFromInstance(instance, tag, Module.name))
     await registerAsync(instance)
-    map.set(tag, proxy ? createProxyModule(instance) : instance)
+    map.set(tag, instance)
     constructorMap.set(tag, Module)
     return instance
   }
@@ -75,10 +99,18 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   }
 
   writeMeta()
-
-  if (proxy)
-  // @ts-expect-error miss types
-    globalThis.PHECDA_SERVER_HMR = update
+  if (dev) {
+    // @ts-expect-error globalThis
+    globalThis.__PHECDA_SERVER_HMR__ = async (file: string) => {
+      const module = await import(file)
+      for (const i in module) {
+        if (isPhecda(module[i]))
+          await update(module[i])
+      }
+    }
+    // @ts-expect-error globalThis
+    globalThis.__PHECDA_SERVER_META__ = writeMeta
+  }
 
   return {
     moduleMap,
@@ -88,26 +120,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   }
 }
 
-function createProxyModule(module: any) {
-  return new Proxy({ module }, {
-    get(target, p) {
-      return target.module![p]
-    },
-    has(target, p) {
-      return p in target.module
-    },
-    set(target, p, v) {
-      if (p === UPDATE_SYMBOL)
-        return target.module = v
-
-      else
-        return target.module[p] = v
-    },
-
-  })
-}
-
-function getMetaFromInstance(instance: Phecda, tag: string) {
+function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
   const vars = getExposeKey(instance).filter(item => item !== '__CLASS')
   const baseState = (getState(instance, '__CLASS') || {}) as P.Meta
   initState(baseState)
@@ -122,7 +135,7 @@ function getMetaFromInstance(instance: Phecda, tag: string) {
         type: state.route.type,
       }
     }
-
+    meta.name = name
     meta.tag = tag
     meta.method = i as string
     const params = [] as any[]
@@ -157,4 +170,11 @@ function initState(state: any) {
     state.guards = []
   if (!state.interceptors)
     state.interceptors = []
+}
+
+export class Dev {
+  [UNMOUNT_SYMBOL]: (() => void)[] = []
+  onUnmount(cb: () => void) {
+    this[UNMOUNT_SYMBOL].push(cb)
+  }
 }

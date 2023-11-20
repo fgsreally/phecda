@@ -1,0 +1,19 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "example-vue-form-table": "0.0.0",
+    "example-module": "0.0.0",
+    "example-server": "0.0.4",
+    "example-typescript5": "0.0.0",
+    "example-vue": "0.0.0",
+    "phecda-client": "1.2.2",
+    "phecda-core": "2.0.0",
+    "phecda-module": "1.0.1",
+    "phecda-prompt": "1.0.1",
+    "phecda-rabbitmq": "2.0.0",
+    "phecda-server": "3.1.0",
+    "phecda-vue": "2.0.3"
+  },
+  "changesets": []
+}

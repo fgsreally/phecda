@@ -22,8 +22,6 @@ export async function bindMQ(ch: amqplib.Channel, { meta, moduleMap }: Awaited<R
     const instance = moduleMap.get(tag)!
     const handler = instance[method].bind(instance)
 
-    Context.instanceRecord[name] = instance
-
     if (route) {
       const { queue } = await ch.assertQueue(route.route)
       if (queueName && routeKey)

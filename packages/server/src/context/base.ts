@@ -1,5 +1,5 @@
 import { ForbiddenException, FrameworkException } from '../exception'
-import { Phistroy } from '../history'
+import { Histroy } from '../history'
 
 import type { Meta } from '../meta'
 import type { P } from '../types'
@@ -11,12 +11,11 @@ export abstract class Context<Data = any> {
 
   static metaRecord: Record<string, Meta> = {}
   static metaDataRecord: Record<string, ReturnType<typeof parseMeta>> = {}
-  static instanceRecord: Record<string, any> = {}
   static guardsRecord: Record<string, any> = {}
   static interceptorsRecord: Record<string, any > = {}
   // static serverRecord: Record<string, Context> = {}
   post: ((...params: any) => any)[]
-  history = new Phistroy()
+  history = new Histroy()
 
   constructor(public key: string, public data: Data) {
   }
@@ -70,9 +69,6 @@ export function addGuard(key: string, handler: P.Guard) {
 
 export function addInterceptor(key: string, handler: P.Interceptor) {
   Context.registerInterceptor(key, handler)
-}
-export function getInstance(tag: string) {
-  return Context.instanceRecord[tag]
 }
 
 export function parseMeta(meta: Meta) {

@@ -1,9 +1,9 @@
 import { Factory, bindApp } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
-const data = await Factory([TestController])
-data.output('pmeta.js')
-console.log('start server..')
+const data = await Factory([TestController], {
+  proxy: true,
+})
 const router = express.Router()
 const app = express()
 app.all('*', (req, res, next) => {
@@ -16,4 +16,6 @@ app.use(express.json())
 bindApp(router, data)
 app.use('/base', router)
 
-export const viteNodeApp = app
+app.listen('3000', () => {
+  console.log('start server..')
+})

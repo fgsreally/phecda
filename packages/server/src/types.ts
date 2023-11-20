@@ -65,7 +65,7 @@ export namespace P{
     interceptors: string[]
     middlewares: string[]
     method: string
-    // name?: string
+    name: string
     tag: string
   }
   export interface Pipe {

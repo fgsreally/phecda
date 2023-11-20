@@ -1,4 +1,4 @@
-export class Phistroy {
+export class Histroy {
   guard: string[] = []
   interceptor: string[] = []
   record(name: string, type: 'guard' | 'interceptor') {

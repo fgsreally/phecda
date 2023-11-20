@@ -29,7 +29,6 @@ export interface Options {
 
 export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
-  const methodMap = {} as Record<string, (...args: any[]) => any>
   const contextMeta = {} as Record<string, Meta>
   (app as Express).post(route, (req, _res, next) => {
     (req as any)[MERGE_SYMBOL] = true
@@ -73,7 +72,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
       if (category === 'series') {
         for (const item of data) {
           const { tag } = item
-          const [name] = tag.split('-')
+          const [name, method] = tag.split('-')
           const {
             reflect,
             params,
@@ -94,7 +93,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
             }), tag) as any
             instance.context = contextData
 
-            ret.push(await methodMap[tag](...args))
+            ret.push(await moduleMap.get(name)[method](...args))
           }
           catch (e: any) {
             const m = Context.metaRecord[tag]
@@ -109,7 +108,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag } = item
-            const [name] = tag.split('-')
+            const [name, method] = tag.split('-')
             const {
               reflect,
               params,
@@ -127,7 +126,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
                 return { arg, type, key, option, index, reflect: reflect[index] }
               }), tag) as any
               instance.context = contextData
-              resolve(await methodMap[tag](...args))
+              resolve(await moduleMap.get(name)[method](...args))
             }
             catch (e: any) {
               handlers.forEach(handler => handler.error?.(e))
@@ -145,8 +144,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
     }
   })
   for (const i of meta) {
-    const { name, method, route, header, tag } = i.data
-    const instance = moduleMap.get(tag)!
+    const { method, route, header, tag } = i.data
     const methodTag = `${tag}-${method}`
     contextMeta[methodTag] = i
     Context.metaRecord[methodTag] = i
@@ -162,11 +160,9 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
     guards = [...globalGuards!, ...guards]
     interceptors = [...globalInterceptors!, ...interceptors]
 
-    const handler = instance[method].bind(instance)
-    methodMap[methodTag] = handler
-    Context.instanceRecord[name] = instance
     if (route) {
       (app as Express)[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
+        const instance = moduleMap.get(tag)!
         const contextData = {
           request: req,
           meta: i,
@@ -185,7 +181,7 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
           }), methodTag)
           instance.context = contextData
 
-          const ret = await context.usePost(await handler(...args))
+          const ret = await context.usePost(await instance[method](...args))
           if (isObject(ret))
             res.json(ret)
           else
