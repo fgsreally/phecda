@@ -15,7 +15,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   file?: string
 } = {}) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
-  let meta: Meta[] = []
+  const meta: Meta[] = []
   const constructorMap = new Map()
   const moduleGraph = new WeakMap()
   const { dev = process.env.NODE_ENV === 'development', file = 'pmeta.js' } = opts
@@ -31,7 +31,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
   async function update(Module: Construct) {
     const tag = Module.prototype?.__TAG__ || Module.name
-
+    console.log('update', tag)
     if (!moduleMap.has(tag))
       return
 
@@ -42,8 +42,11 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
         await cb()
     }
     moduleMap.delete(tag)
-
-    meta = meta.filter(item => item.data.tag !== tag)
+    constructorMap.delete(tag)
+    for (let i = meta.length - 1; i >= 0; i--) {
+      if (meta[i].data.tag === tag)
+        meta.splice(i, 1)
+    }
     const newModule = await buildNestModule(Module, moduleMap)
     moduleGraph.get(instance)?.forEach((module: any) => {
       for (const key in module) {
@@ -102,6 +105,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   if (dev) {
     // @ts-expect-error globalThis
     globalThis.__PHECDA_SERVER_HMR__ = async (file: string) => {
+      console.log('hmr', file)
       const module = await import(file)
       for (const i in module) {
         if (isPhecda(module[i]))
@@ -144,6 +148,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
       if (i.index === 0)
         break
     }
+
     meta.params = params
     meta.define = { ...baseState.define, ...state.define }
     meta.header = { ...baseState.header, ...state.header }

@@ -9,7 +9,9 @@ import type { Meta } from '../meta'
 import type { ServerMergeCtx } from '../types'
 
 export interface Options {
-/**
+
+  dev?: boolean
+  /**
  * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
  */
   route?: string
@@ -27,8 +29,9 @@ export interface Options {
   middlewares?: string[]
 }
 
-export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+export function bindApp(app: Express | Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
+  const { dev = process.env.NODE_ENV !== 'production', globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+
   const contextMeta = {} as Record<string, Meta>
   (app as Express).post(route, (req, _res, next) => {
     (req as any)[MERGE_SYMBOL] = true
@@ -143,56 +146,75 @@ export function bindApp(app: Express | Router, { meta, moduleMap }: Awaited<Retu
       res.status(err.status).json(err)
     }
   })
-  for (const i of meta) {
-    const { method, route, header, tag } = i.data
-    const methodTag = `${tag}-${method}`
-    contextMeta[methodTag] = i
-    Context.metaRecord[methodTag] = i
-    let {
-      guards,
-      reflect,
-      interceptors,
-      params,
-      handlers,
-      middlewares,
-    } = Context.metaDataRecord[methodTag] ? Context.metaDataRecord[methodTag] : (Context.metaDataRecord[methodTag] = parseMeta(i))
 
-    guards = [...globalGuards!, ...guards]
-    interceptors = [...globalInterceptors!, ...interceptors]
+  async function createRoute() {
+    for (const i of meta) {
+      const { method, route, header, tag } = i.data
+      const methodTag = `${tag}-${method}`
+      contextMeta[methodTag] = i
+      Context.metaRecord[methodTag] = i
 
-    if (route) {
-      (app as Express)[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          request: req,
-          meta: i,
-          response: res,
-          moduleMap,
-        }
-        const context = new ServerContext(methodTag, contextData)
+      let {
+        guards,
+        reflect,
+        interceptors,
+        params,
+        handlers,
+        middlewares,
+      } = Context.metaDataRecord[methodTag] ? Context.metaDataRecord[methodTag] : (Context.metaDataRecord[methodTag] = parseMeta(i))
 
-        try {
-          for (const name in header)
-            res.set(name, header[name])
-          await context.useGuard(guards)
-          await context.useInterceptor(interceptors)
-          const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
-          }), methodTag)
-          instance.context = contextData
+      guards = [...globalGuards!, ...guards]
+      interceptors = [...globalInterceptors!, ...interceptors]
 
-          const ret = await context.usePost(await instance[method](...args))
-          if (isObject(ret))
-            res.json(ret)
-          else
-            res.send(String(ret))
-        }
-        catch (e: any) {
-          handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
-          res.status(err.status).json(err)
-        }
-      })
+      if (route) {
+        (app as Express)[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            request: req,
+            meta: i,
+            response: res,
+            moduleMap,
+          }
+          const context = new ServerContext(methodTag, contextData)
+
+          try {
+            for (const name in header)
+              res.set(name, header[name])
+            await context.useGuard(guards)
+            await context.useInterceptor(interceptors)
+            const args = await context.usePipe(params.map(({ type, key, option, index }) => {
+              return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
+            }), methodTag)
+            instance.context = contextData
+
+            const ret = await context.usePost(await instance[method](...args))
+            if (isObject(ret))
+              res.json(ret)
+            else
+              res.send(String(ret))
+          }
+          catch (e: any) {
+            handlers.forEach(handler => handler.error?.(e))
+            const err = await context.useFilter(e)
+            res.status(err.status).json(err)
+          }
+        })
+      }
+    }
+  }
+
+  createRoute()
+  if (dev) {
+    // @ts-expect-error globalThis
+    const rawMetaHmr = globalThis.__PHECDA_SERVER_META__
+    // @ts-expect-error globalThis
+
+    globalThis.__PHECDA_SERVER_META__ = () => {
+      app.stack = app.stack.slice(0, 1)
+      Context.metaDataRecord = {}
+
+      createRoute()
+      rawMetaHmr?.()
     }
   }
 }

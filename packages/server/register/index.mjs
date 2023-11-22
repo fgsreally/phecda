@@ -10,9 +10,10 @@ register('./loader.mjs', {
 })
 
 port1.on('message', async (data) => {
-  const files = JSON.parse(data)
-  for (const file of files)
-    await globalThis.__PHECDA_SERVER_HMR__?.(file)
+  const { type, files } = JSON.parse(data)
+  if (type === 'change') {
+    for (const file of files) await globalThis.__PHECDA_SERVER_HMR__?.(file)
 
-  await globalThis.__PHECDA_SERVER_META__?.()
+    await globalThis.__PHECDA_SERVER_META__?.()
+  }
 })

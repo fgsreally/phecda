@@ -23,9 +23,8 @@ export async function initialize(data) {
 }
 
 const watchFiles = new Set()
-const updateFiles = new Set()
+const filesRecord = new Map()
 const moduleGraph = {}
-
 export const resolve = async (specifier, context, nextResolve) => {
   // entrypoint
   if (!context.parentURL) {
@@ -59,15 +58,13 @@ export const resolve = async (specifier, context, nextResolve) => {
     if (!(url in moduleGraph))
       moduleGraph[url] = new Set()
 
-    moduleGraph[url].add(context.parentURL)
-
+    moduleGraph[url].add(context.parentURL.split('?')[0])
     return {
       format: 'ts',
-      url: url + (updateFiles.has(url) ? `?t=${Date.now()}` : ''),
+      url: url + (filesRecord.has(url) ? `?t=${filesRecord.get(url)}` : ''),
       shortCircuit: true,
     }
   }
-
   return nextResolve(specifier)
 }
 
@@ -80,21 +77,30 @@ export const load = async (url, context, nextLoad) => {
   ) {
     watchFiles.add(url)
 
-    watch(fileURLToPath(url), (type) => {
-      if (type === 'change' && !updateFiles.has(url))
+    watch(fileURLToPath(url), debounce((type) => {
+      if (type === 'change') {
+        try {
+          const files = [...findTopScope(url, Date.now())]
 
-        port.postMessage(JSON.stringify([...findTopScope(url)]))
-    })
+          port.postMessage(
+            JSON.stringify({
+              type: 'change',
+              files,
+            }),
+          )
+        }
+        catch (e) {
+          process.exit(3)
+        }
+      }
+    }))
   }
 
   if (context.format === 'ts') {
-    updateFiles.delete(url)
-
     const { source } = await nextLoad(url, context)
     const code
       = typeof source === 'string' ? source : Buffer.from(source).toString()
     const compiled = await compile(code, url)
-
     return {
       format: 'module',
       source: compiled,
@@ -106,8 +112,8 @@ export const load = async (url, context, nextLoad) => {
   }
 }
 
-export function findTopScope(url, modules = new Set()) {
-  updateFiles.add(url)
+function findTopScope(url, time, modules = new Set()) {
+  filesRecord.set(url, time)
   if (
     url.endsWith('.controller.ts')
     || url.endsWith('.service.ts')
@@ -118,10 +124,22 @@ export function findTopScope(url, modules = new Set()) {
   }
   else {
     if (!moduleGraph[url])
-      return modules
-
-    for (const i of [...moduleGraph[url]]) findTopScope(i, modules)
+      throw new Error('root file update')
+    for (const i of [...moduleGraph[url]]) findTopScope(i, time, modules)
   }
 
   return modules
+}
+
+function debounce(cb, timeout = 500) {
+  let timer
+  return (...args) => {
+    if (timer)
+      return
+
+    timer = setTimeout(() => {
+      cb(...args)
+      timer = undefined
+    }, timeout)
+  }
 }

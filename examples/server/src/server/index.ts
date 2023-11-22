@@ -2,7 +2,7 @@ import { Factory, bindApp } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
-  proxy: true,
+  dev: true,
 })
 const router = express.Router()
 const app = express()

@@ -1,19 +1,20 @@
-import { Dev, Init } from 'phecda-server'
+import { Dev, Empty, Init } from 'phecda-server'
 import { log } from './utils'
 
 class c {
   run() {
-    log('cc')
+    log('cc2')
 
     return 'c'
   }
 }
-export abstract class BaseService<T extends new (...args: any) => any> extends Dev {
+abstract class BaseService<T extends new (...args: any) => any> extends Dev {
   abstract fgs: InstanceType<T>
 
   @Init
   init() {
-    console.log('init')
+    console.log('initxx')
+    this.fgs.run()
     this.onUnmount(() => {
       console.log('unmount')
     })
@@ -24,6 +25,7 @@ export abstract class BaseService<T extends new (...args: any) => any> extends D
   }
 }
 
+@Empty
 export class A extends BaseService<typeof c> {
   fgs = new c()
 }

@@ -1,14 +1,9 @@
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 const { transformSync } = require('@swc-node/core')
-const {
 
-  SourcemapMap,
-} = require('@swc-node/sourcemap-support')
-
-const injectInlineSourceMap = ({ filename, code, map }) => {
+const injectInlineSourceMap = ({ code, map }) => {
   if (map) {
-    SourcemapMap.set(filename, map)
     const base64Map = Buffer.from(map, 'utf8').toString('base64')
     const sourceMapContent = `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${base64Map}`
     return `${code}\n${sourceMapContent}`
@@ -30,5 +25,5 @@ export function compile(sourcecode, filename) {
 
   })
 
-  return injectInlineSourceMap({ filename, code, map })
+  return injectInlineSourceMap({ code, map })
 }
