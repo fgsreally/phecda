@@ -1,8 +1,9 @@
 const { exec } = require('child_process')
+const pc = require('picocolors')
 const cmd = process.argv.slice(2)[0]
+let child
 function startChild() {
-  console.log(`node --import phecda-server/register ${cmd}`)
-  const child = exec(`node --import phecda-server/register ${cmd}`, {
+  child = exec(`node --import phecda-server/register ${cmd}`, {
     env: process.env,
     // cwd: process.cwd(),
   })
@@ -11,11 +12,22 @@ function startChild() {
   child.stdout.pipe(process.stdout)
 
   child.on('exit', (code) => {
-    console.log('exit', code)
-    if (code === 3)
+    if (code === 3) {
+      log('relunch...')
       return startChild()
+    }
+
     process.exit(0)
   })
+}
+
+process.on('SIGINT', () => {
+  child.kill('SIGINT')
+})
+
+function log(msg, color = 'green') {
+  const date = new Date()
+  console.log(`${pc.gray(`${date.getHours()} ${date.getMinutes()} ${date.getSeconds()}`)} ${pc.magenta('[phecda-server]')} ${pc[color](msg)}`)
 }
 
 startChild()

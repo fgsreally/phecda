@@ -3,10 +3,13 @@ import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
 import { getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
+import Debug from 'debug'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { warn } from './utils'
 import { UNMOUNT_SYMBOL } from './common'
+
+const debug = Debug('phecda-server')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
@@ -31,9 +34,9 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
   async function update(Module: Construct) {
     const tag = Module.prototype?.__TAG__ || Module.name
-    console.log('update', tag)
     if (!moduleMap.has(tag))
       return
+    debug(`update module "${tag}"`)
 
     const instance = moduleMap.get(tag)
 
@@ -98,6 +101,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     await buildNestModule(Module, moduleMap)
 
   function writeMeta() {
+    debug('write metadata')
     fs.promises.writeFile(file, JSON.stringify(meta.map(item => item.data)))
   }
 
@@ -105,7 +109,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   if (dev) {
     // @ts-expect-error globalThis
     globalThis.__PHECDA_SERVER_HMR__ = async (file: string) => {
-      console.log('hmr', file)
+      debug(`reload file ${file}`)
       const module = await import(file)
       for (const i in module) {
         if (isPhecda(module[i]))

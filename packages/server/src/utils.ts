@@ -8,6 +8,6 @@ export const isObject = (fn: any): fn is object =>
   !isNil(fn) && typeof fn === 'object'
 
 export function warn(msg: string, color = 'yellow') {
-  // @ts-expect-error type error
+  // @ts-expect-error pc
   console.warn(`${pc.magenta('[phecda-server]')} ${pc[color](msg)}`)
 }

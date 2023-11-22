@@ -5,6 +5,7 @@ const data = await Factory([TestController], {
   dev: true,
 })
 const router = express.Router()
+
 const app = express()
 app.all('*', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
@@ -16,6 +17,6 @@ app.use(express.json())
 bindApp(router, data)
 app.use('/base', router)
 
-app.listen('3000', () => {
+app.listen('3005', () => {
   console.log('start server..')
 })
