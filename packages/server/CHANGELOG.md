@@ -1,5 +1,18 @@
 # phecda-server
 
+## 3.2.0-alpha.0
+
+### Minor Changes
+
+- 0b3c856: refactor Factory to support hmr
+- 0b3c856: add node loader to support hmr
+
+### Patch Changes
+
+- fae8d80: add cli command to run a child process for entry file hmr
+- 7bca1f5: add debug and log to help debug
+- fae8d80: bindApp in express support hmr
+
 ## 3.1.0
 
 ### Minor Changes

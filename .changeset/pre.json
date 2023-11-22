@@ -15,5 +15,11 @@
     "phecda-server": "3.1.0",
     "phecda-vue": "2.0.3"
   },
-  "changesets": []
+  "changesets": [
+    "kind-cherries-glow",
+    "new-donkeys-grow",
+    "shaggy-waves-grow",
+    "sour-panthers-cross",
+    "witty-icons-care"
+  ]
 }

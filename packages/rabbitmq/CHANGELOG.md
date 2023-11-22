@@ -1,5 +1,16 @@
 # phecda-rabbitmq
 
+## 2.0.1-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [fae8d80]
+- Updated dependencies [0b3c856]
+- Updated dependencies [7bca1f5]
+- Updated dependencies [fae8d80]
+- Updated dependencies [0b3c856]
+  - phecda-server@3.2.0-alpha.0
+
 ## 2.0.0
 
 ### Major Changes
