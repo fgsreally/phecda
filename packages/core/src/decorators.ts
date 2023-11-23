@@ -78,6 +78,8 @@ export function Pipe(v: ReturnType<typeof to>) {
 
 export function Tag(tag: string) {
   return (target: any) => {
+    init(target.prototype)
+
     target.prototype.__TAG__ = tag
   }
 }
@@ -113,7 +115,9 @@ export function Global(target: any) {
   })
 }
 
-export function Empty(_target: any) { }
+export function Empty(_target: any) {
+  init(_target.prototype)
+}
 
 export const DataMap = {} as InjectData
 

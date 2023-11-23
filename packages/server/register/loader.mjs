@@ -1,5 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'url'
 import { watch } from 'fs'
+import { isAbsolute, relative } from 'path'
 import ts from 'typescript'
 import { compile } from './compile.mjs'
 let port
@@ -25,9 +26,12 @@ export async function initialize(data) {
 const watchFiles = new Set()
 const filesRecord = new Map()
 const moduleGraph = {}
+
+let entryUrl
 export const resolve = async (specifier, context, nextResolve) => {
   // entrypoint
   if (!context.parentURL) {
+    entryUrl = specifier
     return {
       format: EXTENSIONS.some(ext => specifier.endsWith(ext))
         ? 'ts'
@@ -35,6 +39,11 @@ export const resolve = async (specifier, context, nextResolve) => {
       url: specifier,
       shortCircuit: true,
     }
+  }
+
+  if (context.parentURL.includes('/node_modules/phecda-server') && isAbsolute(specifier)) {
+    specifier = relative(fileURLToPath(entryUrl), specifier).replace(/\.ts$/, '').slice(1)
+    context.parentURL = entryUrl
   }
   // import/require from external library
   if (context.parentURL.includes('/node_modules/'))

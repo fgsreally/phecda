@@ -20,8 +20,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Meta[] = []
   const constructorMap = new Map()
-  const moduleGraph = new WeakMap()
-  const { dev = process.env.NODE_ENV === 'development', file = 'pmeta.js' } = opts
+  const moduleGraph = new Map<string, Set<string>>()
+  const { dev = process.env.NODE_ENV !== 'production', file = 'pmeta.js' } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
@@ -50,55 +50,58 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       if (meta[i].data.tag === tag)
         meta.splice(i, 1)
     }
-    const newModule = await buildNestModule(Module, moduleMap)
-    moduleGraph.get(instance)?.forEach((module: any) => {
-      for (const key in module) {
-        if (module[key] === instance)
-          module[key] = newModule
-      }
-    })
-    moduleGraph.get(instance)
+
+    const { instance: newModule } = await buildNestModule(Module)
+    if (moduleGraph.has(tag)) {
+      [...moduleGraph.get(tag)!].forEach((tag) => {
+        const module = moduleMap.get(tag)
+        for (const key in module) {
+          if (module[key] === instance)
+            module[key] = newModule
+        }
+      })
+    }
+
     moduleMap.set(tag, newModule)
   }
-  async function buildNestModule(Module: Construct, map: Map<string, InstanceType<Construct>>) {
+  async function buildNestModule(Module: Construct) {
     const paramtypes = getParamtypes(Module) as Construct[]
     let instance: InstanceType<Construct>
     const tag = Module.prototype?.__TAG__ || Module.name
-    if (map.has(tag)) {
-      instance = map.get(tag)
+    if (moduleMap.has(tag)) {
+      instance = moduleMap.get(tag)
       if (!instance)
         throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${tag}--[module] ${Module}`)
 
       if (constructorMap.get(tag) !== Module)
         warn(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`)
 
-      return instance
+      return { instance, tag }
     }
-    map.set(tag, undefined)
+    moduleMap.set(tag, undefined)
     if (paramtypes) {
       const paramtypesInstances = [] as any[]
-      for (const i in paramtypes)
-        paramtypesInstances[i] = await buildNestModule(paramtypes[i], map)
-
-      instance = new Module(...paramtypesInstances)
-      for (const i of paramtypesInstances) {
-        if (!moduleGraph.has(i))
-          moduleGraph.set(i, [])
-        moduleGraph.get(i).push(instance)
+      for (const i in paramtypes) {
+        const { instance: sub, tag: subTag } = await buildNestModule(paramtypes[i])
+        paramtypesInstances[i] = sub
+        if (!moduleGraph.has(subTag))
+          moduleGraph.set(subTag, new Set())
+        moduleGraph.get(subTag)!.add(tag)
       }
+      instance = new Module(...paramtypesInstances)
     }
     else {
       instance = new Module()
     }
     meta.push(...getMetaFromInstance(instance, tag, Module.name))
     await registerAsync(instance)
-    map.set(tag, instance)
+    moduleMap.set(tag, instance)
     constructorMap.set(tag, Module)
-    return instance
+    return { instance, tag }
   }
 
   for (const Module of Modules)
-    await buildNestModule(Module, moduleMap)
+    await buildNestModule(Module)
 
   function writeMeta() {
     debug('write metadata')

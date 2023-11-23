@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getExposeKey } from '../src/core'
-import { Assign, Bind, Effect, Expose, Ignore, Pipe, Rule, addDecoToClass, classToValue, getBind, injectProperty, plainToClass, registerAsync, to } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Pipe, Rule, Tag, addDecoToClass, classToValue, getBind, getExposeKey, injectProperty, isPhecda, plainToClass, registerAsync, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @Ignore
@@ -53,6 +52,25 @@ describe('validate&transform', () => {
     expect(err[0]).toBe('name should be short')
     expect(data.name).toBe('phecda11111')
     expect(classToValue(data)).toMatchSnapshot()
+  })
+
+  it('isPhecda', async () => {
+    @Tag('test')
+    class Test {
+    }
+
+    expect(isPhecda(Test)).toBe(true)
+
+    @Empty
+    class Test2 {
+    }
+
+    expect(isPhecda(Test2)).toBe(true)
+
+    class Test3 {
+    }
+
+    expect(isPhecda(Test3)).toBe(false)
   })
 
   it('use function to add decorator', () => {
