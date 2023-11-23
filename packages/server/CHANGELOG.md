@@ -1,5 +1,15 @@
 # phecda-server
 
+## 3.2.0-alpha.1
+
+### Patch Changes
+
+- 1dd0831: node-loader should handle dynamic import from phecda-server
+- 1dd0831: improve log
+- 1dd0831: moduleGraph should depends on tag(not class instance)
+- Updated dependencies [1dd0831]
+  - phecda-core@2.0.1-alpha.0
+
 ## 3.2.0-alpha.0
 
 ### Minor Changes
