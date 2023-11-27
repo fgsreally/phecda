@@ -32,7 +32,7 @@ export abstract class Context<Data = any> {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardsRecord)) {
-          if (process.env.PS_QUIRK)
+          if (process.env.PS_STRICT)
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
@@ -47,7 +47,7 @@ export abstract class Context<Data = any> {
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Context.interceptorsRecord)) {
-          if (process.env.PS_QUIRK)
+          if (process.env.PS_STRICT)
             throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
 
           continue

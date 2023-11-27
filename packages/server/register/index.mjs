@@ -32,14 +32,3 @@ function log(msg, color = 'green') {
   // eslint-disable-next-line no-console
   console.log(`${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc.magenta('[phecda-server]')} ${pc[color](msg)}`)
 }
-
-process.on('SIGTERM', () => {
-  console.log('收到 SIGINT 信号，开始优雅退出...')
-  process.exit(2)
-})
-process.on('beforeExit', () => {
-  console.log('收到 beforeExit 信号，开始优雅退出...')
-  process.exit(2)
-})
-
-console.log('这是子进程')

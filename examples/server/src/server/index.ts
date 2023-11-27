@@ -1,4 +1,4 @@
-import { Err, Factory, bindApp } from 'phecda-server'
+import { Factory, bindApp } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
@@ -17,6 +17,6 @@ app.use(express.json())
 bindApp(router, data)
 app.use('/base', router)
 
-app.listen('3020', () => {
+app.listen('3028', () => {
   console.log('start server..')
 })

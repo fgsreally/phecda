@@ -1,22 +1,20 @@
 const { exec } = require('child_process')
 const pc = require('picocolors')
-
+const kill = require('tree-kill')
 const cmd = process.argv.slice(2)[0]
 
 let child
 function startChild() {
   child = exec(`node --import phecda-server/register ${cmd}`, {
     env: process.env,
-    killSignal: 'SIGINT',
     // cwd: process.cwd(),
   })
   child.stderr.pipe(process.stderr)
   child.stdin.pipe(process.stdin)
   child.stdout.pipe(process.stdout)
 
-  child.on('exit', (code) => {
-    console.log(code)
-    if (![0, 1].includes(code)) {
+  child.once('exit', (code) => {
+    if (code >= 2) {
       log('relunch...')
       startChild()
     }
@@ -25,11 +23,19 @@ function startChild() {
 }
 
 process.on('SIGINT', () => {
-  if (child)
-    process.kill(child.pid)
-
-  process.exit(0)
+  process.exit()
 })
+
+function exit() {
+  if (child) {
+    kill(child.pid, () => {
+      process.exit(0)
+    })
+  }
+  else {
+    process.exit(0)
+  }
+}
 
 function log(msg, color = 'green') {
   const date = new Date()
@@ -39,17 +45,15 @@ function log(msg, color = 'green') {
 startChild()
 
 process.stdin.on('data', (data) => {
-  const input = data.toString().trim()
+  const input = data.toString().trim().toLocaleLowerCase()
   if (input === 'r') {
-    if (child)
-      process.kill(child.pid)
-
-    log('relunch...')
-    startChild()
+    if (child) {
+      kill(child.pid, () => {
+        log('relunch...')
+        startChild()
+      })
+    }
   }
-  if (input === 'e') {
-    if (child)
-      process.kill(child.pid)
-    process.exit(0)
-  }
+  if (input === 'e')
+    exit()
 })
