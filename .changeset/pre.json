@@ -16,10 +16,14 @@
     "phecda-vue": "2.0.3"
   },
   "changesets": [
+    "eighty-hotels-sit",
     "kind-cherries-glow",
     "new-donkeys-grow",
+    "ninety-garlics-grab",
+    "shaggy-falcons-occur",
     "shaggy-waves-grow",
     "sour-panthers-cross",
+    "swift-ravens-burn",
     "witty-icons-care"
   ]
 }

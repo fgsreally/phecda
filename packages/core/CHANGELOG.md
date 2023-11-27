@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.0.1-alpha.0
+
+### Patch Changes
+
+- 1dd0831: isPhecda should return true when class is decorated by any phecda-core decorator
+
 ## 2.0.0
 
 ### Major Changes
