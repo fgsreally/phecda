@@ -31,8 +31,11 @@ export abstract class Context<Data = any> {
   async useGuard(guards: string[], isMerge = false) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
-        if (!(guard in Context.guardsRecord))
-          throw new FrameworkException(`can't find guard named ${guard}`)
+        if (!(guard in Context.guardsRecord)) {
+          if (process.env.PS_QUIRK)
+            throw new FrameworkException(`can't find guard named '${guard}'`)
+          continue
+        }
         if (!await Context.guardsRecord[guard](this.data, isMerge))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
@@ -43,8 +46,12 @@ export abstract class Context<Data = any> {
     const ret = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
-        if (!(interceptor in Context.interceptorsRecord))
-          throw new FrameworkException(`can't find interceptor named ${interceptor}`)
+        if (!(interceptor in Context.interceptorsRecord)) {
+          if (process.env.PS_QUIRK)
+            throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
+
+          continue
+        }
         const post = await Context.interceptorsRecord[interceptor](this.data, isMerge)
         if (post)
           ret.push(post)

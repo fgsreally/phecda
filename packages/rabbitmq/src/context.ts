@@ -1,5 +1,5 @@
 import type { P } from 'phecda-server'
-import { Context, FrameworkException, defaultPipe } from 'phecda-server'
+import { Context, defaultPipe } from 'phecda-server'
 import { rabbitMqFilter } from './filter'
 import type { MQFilter } from './types'
 
@@ -8,16 +8,16 @@ export class RabbitMqContext extends Context {
   static filter = rabbitMqFilter
   static middlewareRecord: Record<string, (...params: any) => boolean> = {}
 
-  /**
-   * @deprecated it seems useless
-   */
-  static useMiddleware(middlewares: string[]) {
-    return middlewares.map((m) => {
-      if (!(m in RabbitMqContext.middlewareRecord))
-        throw new FrameworkException(`can't find middleware named ${m}`)
-      return RabbitMqContext.middlewareRecord[m]
-    })
-  }
+  // /**
+  //  * @deprecated it seems useless
+  //  */
+  // static useMiddleware(middlewares: string[]) {
+  //   return middlewares.map((m) => {
+  //     if (!(m in RabbitMqContext.middlewareRecord))
+  //       throw new FrameworkException(`can't find middleware named ${m}`)
+  //     return RabbitMqContext.middlewareRecord[m]
+  //   })
+  // }
 
   async usePipe(args: { arg: any; option?: any; type: string;key: string;index: number; reflect: any }[], tag: string) {
     return RabbitMqContext.pipe.transform?.(args, tag, this.data)

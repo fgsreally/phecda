@@ -17,6 +17,6 @@ app.use(express.json())
 bindApp(router, data)
 app.use('/base', router)
 
-app.listen('3010', () => {
+app.listen('3020', () => {
   console.log('start server..')
 })

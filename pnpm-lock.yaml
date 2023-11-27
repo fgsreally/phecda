@@ -258,8 +258,8 @@ importers:
         specifier: ^0.10.3
         version: 0.10.3
       phecda-server:
-        specifier: ^3.1.0
-        version: link:../server
+        specifier: ^3.2.0-alpha.0
+        version: registry.npmmirror.com/phecda-server@3.2.0-alpha.1
     devDependencies:
       '@types/amqplib':
         specifier: ^0.10.1
@@ -285,6 +285,9 @@ importers:
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.13
+      tree-kill:
+        specifier: ^1.2.2
+        version: registry.npmmirror.com/tree-kill@1.2.2
     devDependencies:
       '@swc-node/core':
         specifier: ^1.10.6
@@ -1976,11 +1979,6 @@ packages:
       url-parse: 1.5.10
     dev: true
 
-  /tree-kill@1.2.2:
-    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
-    hasBin: true
-    dev: true
-
   /tsup@6.5.0(@swc/core@1.3.51)(typescript@4.9.4):
     resolution: {integrity: sha512-36u82r7rYqRHFkD15R20Cd4ercPkbYmuvRkz3Q1LCm5BsiFNUgpo36zbjVhCOgvjyxNBWNKHsaD5Rl8SykfzNA==}
     engines: {node: '>=14'}
@@ -2011,7 +2009,7 @@ packages:
       rollup: 3.22.0
       source-map: 0.8.0-beta.0
       sucrase: 3.29.0
-      tree-kill: 1.2.2
+      tree-kill: registry.npmmirror.com/tree-kill@1.2.2
       typescript: registry.npmmirror.com/typescript@4.9.4
     transitivePeerDependencies:
       - supports-color
@@ -2048,7 +2046,7 @@ packages:
       rollup: 3.22.0
       source-map: 0.8.0-beta.0
       sucrase: 3.29.0
-      tree-kill: 1.2.2
+      tree-kill: registry.npmmirror.com/tree-kill@1.2.2
       typescript: registry.npmmirror.com/typescript@5.2.2
     transitivePeerDependencies:
       - supports-color
@@ -7487,6 +7485,26 @@ packages:
     version: 1.1.1
     dev: true
 
+  registry.npmmirror.com/phecda-core@2.0.1-alpha.0:
+    resolution: {integrity: sha512-mEK5QwJbjBVtzVvRlSIbClYE/LVtcQgqVElVOC7CsZkwhbMd46YSrQOkCxcIfhf70pA43ZrEgdei6ep8DJMYDw==, tarball: https://registry.npmmirror.com/phecda-core/-/phecda-core-2.0.1-alpha.0.tgz}
+    name: phecda-core
+    version: 2.0.1-alpha.0
+    dev: false
+
+  registry.npmmirror.com/phecda-server@3.2.0-alpha.1:
+    resolution: {integrity: sha512-0+45RXGCQoDj2wQvsnREG05S3Gu0gcMjCW6sQh3NzG+zSHbCKYOwWp97EOT63Giju94odSBr0DYE31VlW0IWSQ==, tarball: https://registry.npmmirror.com/phecda-server/-/phecda-server-3.2.0-alpha.1.tgz}
+    name: phecda-server
+    version: 3.2.0-alpha.1
+    hasBin: true
+    dependencies:
+      debug: registry.npmmirror.com/debug@4.3.4
+      phecda-core: registry.npmmirror.com/phecda-core@2.0.1-alpha.0
+      picocolors: registry.npmmirror.com/picocolors@1.0.0
+      reflect-metadata: registry.npmmirror.com/reflect-metadata@0.1.13
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   registry.npmmirror.com/picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/picocolors/-/picocolors-1.0.0.tgz}
     name: picocolors
@@ -8286,11 +8304,10 @@ packages:
     dev: true
 
   registry.npmmirror.com/tree-kill@1.2.2:
-    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/tree-kill/-/tree-kill-1.2.2.tgz}
+    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==, tarball: https://registry.npmmirror.com/tree-kill/-/tree-kill-1.2.2.tgz}
     name: tree-kill
     version: 1.2.2
     hasBin: true
-    dev: true
 
   registry.npmmirror.com/treemate@0.3.11:
     resolution: {integrity: sha512-M8RGFoKtZ8dF+iwJfAJTOH/SM4KluKOKRJpjCMhI8bG3qB74zrFoArKZ62ll0Fr3mqkMJiQOmWYkdYgDeITYQg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/treemate/-/treemate-0.3.11.tgz}
