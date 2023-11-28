@@ -11,7 +11,7 @@ register('./loader.mjs', {
 })
 
 port1.on('message', async (data) => {
-  if (!globalThis.__PHECDA_SERVER_HMR__)
+  if (!globalThis.__PS_HMR__)
     return
 
   const { type, files } = JSON.parse(data)
@@ -19,11 +19,11 @@ port1.on('message', async (data) => {
     log('reload module...')
 
     for (const file of files.reverse())
-      await globalThis.__PHECDA_SERVER_HMR__?.(file)
+      await globalThis.__PS_HMR__?.(file)
 
     log('reload done')
 
-    await globalThis.__PHECDA_SERVER_META__?.()
+    await globalThis.__PS_WRITEMETA__?.()
   }
 })
 

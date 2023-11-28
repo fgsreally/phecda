@@ -213,10 +213,10 @@ export function bindApp(app: Express | Router, { moduleMap, meta }: Awaited<Retu
   createRoute()
   if (dev) {
     // @ts-expect-error globalThis
-    const rawMetaHmr = globalThis.__PHECDA_SERVER_META__
+    const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis
 
-    globalThis.__PHECDA_SERVER_META__ = () => {
+    globalThis.__PS_WRITEMETA__ = () => {
       app.stack = app.stack.slice(0, 1)
       Context.metaDataRecord = {}
 

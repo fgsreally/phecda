@@ -111,7 +111,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   writeMeta()
   if (dev) {
     // @ts-expect-error globalThis
-    globalThis.__PHECDA_SERVER_HMR__ = async (file: string) => {
+    globalThis.__PS_HMR__ = async (file: string) => {
       debug(`reload file ${file}`)
       const module = await import(file)
       for (const i in module) {
@@ -120,7 +120,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       }
     }
     // @ts-expect-error globalThis
-    globalThis.__PHECDA_SERVER_META__ = writeMeta
+    globalThis.__PS_WRITEMETA__ = writeMeta
   }
 
   return {
