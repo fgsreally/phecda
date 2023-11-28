@@ -170,7 +170,11 @@ export function bindApp(app: Express | Router, { moduleMap, meta }: Awaited<Retu
       interceptors = [...globalInterceptors!, ...interceptors]
 
       if (route) {
-        (app as Express)[route.type](route.route, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
+        (app as Express)[route.type](route.route, (req, _res, next) => {
+          (req as any)[MODULE_SYMBOL] = moduleMap;
+          (req as any)[META_SYMBOL] = meta
+          next()
+        }, ...ServerContext.useMiddleware(middlewares), async (req, res) => {
           const instance = moduleMap.get(tag)!
           const contextData = {
             request: req,
