@@ -2,7 +2,7 @@ import type { Express, Router } from 'express'
 import { Context, ServerContext, parseMeta } from '../context'
 import { isObject } from '../utils'
 import { resolveDep } from '../helper'
-import { MERGE_SYMBOL, SERIES_SYMBOL } from '../common'
+import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
 import { BadRequestException } from '../exception'
 import type { Meta } from '../meta'
@@ -34,7 +34,10 @@ export function bindApp(app: Express | Router, { moduleMap, meta }: Awaited<Retu
 
   const contextMeta = {} as Record<string, Meta>
   (app as Express).post(route, (req, _res, next) => {
-    (req as any)[MERGE_SYMBOL] = true
+    (req as any)[MERGE_SYMBOL] = true;
+    (req as any)[MODULE_SYMBOL] = moduleMap;
+    (req as any)[META_SYMBOL] = meta
+
     next()
   }, ...ServerContext.useMiddleware(proMiddle), async (req, res) => {
     const { body: { category, data } } = req
