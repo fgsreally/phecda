@@ -1,5 +1,13 @@
 # phecda-server
 
+## 3.2.0-alpha.2
+
+### Patch Changes
+
+- 474587f: server still work even when specific interceptor/guard/middleware doesn't exist (set process.env.PS_STRICT will avoid it)
+- 9c023e7: rename symbol and global function. bind modulemap/metat to req
+- e43bc19: stdin can relunch/exit process (even in windows)
+
 ## 3.2.0-alpha.1
 
 ### Patch Changes
