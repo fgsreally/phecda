@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.2.3-alpha.0
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+
 ## 1.2.2
 
 ### Patch Changes
