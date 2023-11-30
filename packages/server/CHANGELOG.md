@@ -1,5 +1,11 @@
 # phecda-server
 
+## 3.2.0-alpha.3
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+
 ## 3.2.0-alpha.2
 
 ### Patch Changes
