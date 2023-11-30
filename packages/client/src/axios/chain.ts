@@ -1,7 +1,6 @@
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { P } from 'phecda-server'
 import { createParallelReq, createReq, isError } from './base'
-
 type ToAxios<R> = {
   [K in keyof R]: R[K] extends (...args: any) => any ? (...p: Parameters<R[K]>) => Promise<P.Res<Awaited<ReturnType<R[K]>>> > : R[K]
 }

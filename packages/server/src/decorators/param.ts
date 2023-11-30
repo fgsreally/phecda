@@ -16,6 +16,11 @@ export function BaseParam(type: string, key: string, option?: any): any {
 export function Body(key = '', pipeOpts?: any) {
   return BaseParam('body', key, pipeOpts)
 }
+// req.headers
+export function Head(key: string, pipeOpts?: any) {
+  return BaseParam('headers', key, pipeOpts)
+}
+
 export function Query(key = '', pipeOpts?: any) {
   return BaseParam('query', key, pipeOpts)
 }

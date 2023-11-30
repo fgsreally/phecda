@@ -8,8 +8,9 @@ const router = express.Router()
 
 const app = express()
 app.all('*', (req, res, next) => {
+  // console.log(req.headers)
   res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  res.header('Access-Control-Allow-Headers', '*')
   res.header('Access-Control-Allow-Methods', '*')
   next()
 })
@@ -17,6 +18,6 @@ app.use(express.json())
 bindApp(router, data)
 app.use('/base', router)
 
-app.listen('3028', () => {
+app.listen('3000', () => {
   console.log('start server..')
 })

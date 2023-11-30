@@ -1,4 +1,4 @@
-import { Base, Body, Controller, Define, Get, Param, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Base, Body, Controller, Define, Get, Head, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
 
 import { A } from './test.service'
 import { log } from './utils'
@@ -18,11 +18,19 @@ export class TestController extends Base {
   //   console.log('use mq', body)
   // }
 
+  // @Post('/:test')
+  // async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+  //   log(`controller-${test}-${name}1`)
+  //   this.fgs.fgs.run()
+  //   return `${test}-${name}-${id.id}`
+  // }
+
   @Post('/:test')
-  async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
-    log(`controller-${test}-${name}1`)
-    this.fgs.fgs.run()
-    return `${test}-${name}-${id.id}`
+  async headTest(@Param('test') test: string, @Body('name') name: string, @Head('x-bc') type: string) {
+    const { request } = this.context
+
+    console.log(request.headers, type)
+    return `${test}-${type}`
   }
 
   // @Get('/query')
