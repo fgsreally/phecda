@@ -9,7 +9,7 @@ const instance = axios.create({
 const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
-const { test, get, query, headTest } = useC(TestController)
+const { test, get, query } = useC(TestController)
 const $test = useC(TestController)
 
 const chain = createChainReq(instance, { $test }, { batch: true })

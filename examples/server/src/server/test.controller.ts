@@ -21,6 +21,8 @@ export class TestController extends Base {
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
     console.log(test, name)
+    if (test)
+      throw new Error('11')
 
     // this.fgs.fgs.run()
     return `${test}-${name}-${id.id}`
