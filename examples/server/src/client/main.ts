@@ -68,7 +68,7 @@ async function parallelRequest() {
     console.error(res2.message)
   else console.log(res2)
 }
-testFetch()
+// testFetch()
 request()
 chainRequest()
 

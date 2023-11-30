@@ -1,1 +1,1 @@
-export const SERIES_SYMBOL = '__symbol_series__'
+export const SERIES_SYMBOL = '__PS_SERIES__'

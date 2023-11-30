@@ -18,7 +18,7 @@ export function Body(key = '', pipeOpts?: any) {
 }
 // req.headers
 export function Head(key: string, pipeOpts?: any) {
-  return BaseParam('headers', key, pipeOpts)
+  return BaseParam('headers', key.toLowerCase(), pipeOpts)
 }
 
 export function Query(key = '', pipeOpts?: any) {

@@ -78,6 +78,7 @@ export function bindApp(app: Express | Router, { moduleMap, meta }: Awaited<Retu
       if (category === 'series') {
         for (const item of data) {
           const { tag } = item
+
           const [name, method] = tag.split('-')
           const {
             reflect,

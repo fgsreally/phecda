@@ -13,48 +13,41 @@ export class TestController extends Base {
     super()
   }
 
-  // @Post('/mq')
-  // async mq(@Body('') body: undefined) {
-  //   console.log('use mq', body)
-  // }
-
-  // @Post('/:test')
-  // async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
-  //   log(`controller-${test}-${name}1`)
-  //   this.fgs.fgs.run()
-  //   return `${test}-${name}-${id.id}`
-  // }
-
-  @Post('/:test')
-  async headTest(@Param('test') test: string, @Body('name') name: string, @Head('x-bc') type: string) {
-    const { request } = this.context
-
-    console.log(request.headers, type)
-    return `${test}-${type}`
+  @Post('/mq')
+  async mq(@Body('') body: undefined) {
+    console.log('use mq', body)
   }
 
-  // @Get('/query')
-  // async query(@Query('id') id: any[], @Query('name', Number) name = 10) {
-  //   return id
-  // }
+  @Post('/:test')
+  async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+    console.log(test, name)
 
-  // @Get('/send')
-  // async sendMsgToMQ(@Body('data') body: string) {
-  //   emitter.emit('watch', 1)
-  //   return 'send msg to mq'
-  // }
+    // this.fgs.fgs.run()
+    return `${test}-${name}-${id.id}`
+  }
 
-  // @Define('user', 'A')
-  // @Get('/get')
-  // async get() {
-  //   return {
-  //     data: Date.now(),
-  //   }
-  // }
+  @Get('/query')
+  async query(@Query('id') id: any[], @Query('name', Number) name = 10) {
+    return id
+  }
 
-  // @Watcher('watch', { once: true })
-  // watch() {
-  //   // publish()
-  // }
+  @Get('/send')
+  async sendMsgToMQ(@Body('data') body: string) {
+    emitter.emit('watch', 1)
+    return 'send msg to mq'
+  }
+
+  @Define('user', 'A')
+  @Get('/get')
+  async get() {
+    return {
+      data: Date.now(),
+    }
+  }
+
+  @Watcher('watch', { once: true })
+  watch() {
+    // publish()
+  }
 }
 // hmr works
