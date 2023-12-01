@@ -8,17 +8,31 @@
   "bin": {
     "phecda": "bin/cli.js"
   },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "node": "./dist/index.js"
     },
+    "./test": {
+      "import": "./dist/test.mjs",
+      "require": "./dist/test.js"
+    },
     "./register": "./register/index.mjs"
   },
-  "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup"
+  "typesVersions": {
+    "*": {
+      ".": [
+        "dist/index.d.ts"
+      ],
+      "test": [
+        "dist/test.d.ts"
+      ]
+    }
   },
   "keywords": [
     "server",

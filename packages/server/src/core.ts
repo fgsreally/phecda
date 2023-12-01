@@ -104,6 +104,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     await buildNestModule(Module)
 
   function writeMeta() {
+    if (!file)
+      return
     debug('write metadata')
     fs.promises.writeFile(file, JSON.stringify(meta.map(item => item.data)))
   }

@@ -2,7 +2,7 @@ import type { Express, Router } from 'express'
 import { Context, ServerContext, parseMeta } from '../context'
 import { isObject } from '../utils'
 import { resolveDep } from '../helper'
-import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../common'
+import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../common'
 import type { Factory } from '../core'
 import { BadRequestException } from '../exception'
 import type { Meta } from '../meta'
@@ -31,6 +31,7 @@ export interface Options {
 
 export function bindApp(app: Express | Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { dev = process.env.NODE_ENV !== 'production', globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const contextMeta = {} as Record<string, Meta>
   (app as Express).post(route, (req, _res, next) => {
