@@ -1,5 +1,13 @@
 # phecda-server
 
+## 3.2.0-alpha.4
+
+### Patch Changes
+
+- 738ef7a: add test utils
+- 738ef7a: bind modulemap and meta to express
+- 738ef7a: won't output metaFile if file is empty
+
 ## 3.2.0-alpha.3
 
 ### Patch Changes
