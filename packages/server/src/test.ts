@@ -39,14 +39,22 @@ export async function TestHttp(app: Express | Router, headers: Record<string, st
       return new Proxy({}, {
         get(_target, p) {
           const { data } = meta.find(({ data }) => data.name === Module.name && data.method === p && data.tag === tag)!
-          return (...args: any) => {
-            const ret = { body: {}, headers: {}, query: {}, params: {}, realParam: '', method: data.route!.type, url: data.route!.route }
+          return async (...args: any) => {
+            const ret = { body: {}, headers: {}, query: '', method: data.route!.type, url: data.route!.route }
 
             data.params.forEach((item) => {
               if (item.type === 'params') {
-                ret.realParam += `/${args[item.index]}`
+                ret.url = ret.url.replace(`:${item.key}`, args[item.index])
                 return
               }
+              if (item.type === 'query') {
+                if (!ret.query)
+                  ret.query = '?'
+                ret.query += `${item.key}=${args[item.index]}`
+                return
+              }
+
+              // body
               if (item.key)
               // @ts-expect-error miss
                 ret[item.type][item.key] = args[item.index]
@@ -55,7 +63,9 @@ export async function TestHttp(app: Express | Router, headers: Record<string, st
                 ret[item.type] = args[item.index]
             })
 
-            return request(app)[ret.method](ret.url + ret.realParam).set({ ...headers, ...ret.headers }).send(ret.body)
+            const res = await request(app)[ret.method](ret.url + ret.query).set({ ...headers, ...ret.headers }).send(ret.body)
+
+            return res.body
           }
         },
       }) as any
