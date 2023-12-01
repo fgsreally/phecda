@@ -1,1 +1,1 @@
-[{"route":{"route":"/:test","type":"post"},"name":"E","tag":"E","method":"test","params":[{"type":"params","key":"test","index":0}],"define":{},"header":{},"middlewares":[],"guards":["test"],"interceptors":["test"]}]
+[{"route":{"route":"/base/:test","type":"post"},"name":"B","tag":"B","method":"test","params":[{"type":"params","key":"test","index":0},{"type":"body","key":"name","index":1},{"type":"query","key":"id","index":2}],"define":{},"header":{},"middlewares":[],"guards":[],"interceptors":[]}]

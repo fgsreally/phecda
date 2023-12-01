@@ -6,6 +6,7 @@ import { bindApp } from '../src/server/express'
 import { Factory } from '../src/core'
 import { Body, Controller, Get, Guard, Interceptor, Param, Post, Query } from '../src/decorators'
 import { HttpException, addGuard, addInterceptor } from '../src'
+import { TestHttp } from '../src/test'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
     class A {
@@ -111,7 +112,7 @@ describe('express ', () => {
         return `${test}`
       }
     }
-    addGuard('test', ({ request }) => {
+    addGuard('test', ({ request }: any) => {
       if (request.params.test !== 'test')
         return false
       return true
@@ -200,5 +201,25 @@ describe('express ', () => {
     expect(Guardfn).toHaveBeenCalledTimes(2)
 
     expect(fn).toHaveBeenCalledTimes(4)
+  })
+
+  it('testHttp', async () => {
+    @Controller('/base')
+    class B {
+      context: any
+      @Post('/:test')
+      test(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
+        return { key: `${test}-${name}-${id}` }
+      }
+    }
+    const data = await Factory([B])
+    const app = express()
+    app.use(express.json())
+
+    bindApp(app, data)
+
+    const { get } = await TestHttp(app)
+
+    expect((await get(B).test('test', 'name', 'id')).key).toBe('test-name-id')
   })
 })

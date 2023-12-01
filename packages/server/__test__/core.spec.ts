@@ -3,6 +3,8 @@ import { Factory } from '../src/core'
 import { Body, Controller, Get, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
 import { Tag } from '../src'
+
+import { TestFactory } from '../src/test'
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', async () => {
     @Controller('/base')
@@ -89,5 +91,16 @@ describe('Factory ', () => {
     const { moduleMap } = await Factory([A, Service])
     expect(moduleMap.size).toBe(2)
     expect(moduleMap.get('A').test()).toBe('test')
+  })
+
+  it('TestFactory', async () => {
+    class X {
+      add(n1: number, n2: number) {
+        return n1 + n2
+      }
+    }
+    const { get } = await TestFactory(X)
+
+    expect(get(X).add(1, 1)).toBe(2)
   })
 })
