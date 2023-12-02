@@ -30,13 +30,13 @@ export class Compiler {
         type = 'get',
       } = {}, name, method, params, tag,
     } = args
-    const url = route.replace(/\/\:([^\/]*)/g, '')
+    const url = route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
     ${method}(${genParams(params)}){
-const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},realParam:'',method:"${type}",url:"${url}"}
-${params.reduce((p, c, i) => `${p}if(arg${i}!==undefined&&arg${i}!==null){ret.${c.type}${c.key ? `['${c.key}']` : ''}=arg${i}\n${c.type === 'params' ? `ret.realParam+='/'+arg${i}` : ''}}\n`, '')}
+const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},method:"${type}",url:"${url}"}
+${params.reduce((p, c, i) => `${p}if(arg${i}!==undefined&&arg${i}!==null){ret.${c.type}${c.key ? `['${c.key}']` : ''}=arg${i}\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',arg${i})}` : '}'}\n`, '')}
 return ret
     }
     `

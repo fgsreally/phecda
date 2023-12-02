@@ -12,6 +12,7 @@ describe('client ', () => {
         test: 'phecda',
         loc: 'loc',
       },
+      headers: {},
       body: {
         name: 'server',
       },
@@ -19,7 +20,6 @@ describe('client ', () => {
       method: 'post' as const,
       url: '/base',
       tag: 'A-test',
-      realParam: '/phecda/loc',
     }
     expect(toReq(data)).toMatchSnapshot()
   })
