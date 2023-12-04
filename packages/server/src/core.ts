@@ -20,6 +20,9 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Meta[] = []
   const constructorMap = new Map()
+
+  // only work for warn
+  const constructorSet = new WeakSet()
   const moduleGraph = new Map<string, Set<string>>()
   const { dev = process.env.NODE_ENV !== 'production', file = 'pmeta.js' } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
@@ -73,9 +76,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       if (!instance)
         throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${tag}--[module] ${Module}`)
 
-      if (constructorMap.get(tag) !== Module)
+      if (constructorMap.get(tag) !== Module && !constructorSet.has(Module)) {
+        constructorSet.add(Module)// a module will only warn once
         warn(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`)
-
+      }
       return { instance, tag }
     }
     moduleMap.set(tag, undefined)
