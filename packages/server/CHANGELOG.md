@@ -1,5 +1,17 @@
 # phecda-server
 
+## 3.2.0-alpha.5
+
+### Minor Changes
+
+- 33bc4b3: add cli command (in stdin); perf log
+
+### Patch Changes
+
+- 108bea7: add moduleResolute(NodeNext) to resolve ts
+- ce19faf: TestHttp can handle string/object response
+- 20fbfdb: a module will only warn once for synonym
+
 ## 3.2.0-alpha.4
 
 ### Patch Changes

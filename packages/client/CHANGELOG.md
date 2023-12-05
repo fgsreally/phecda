@@ -1,5 +1,11 @@
 # phecda-client
 
+## 1.2.3-alpha.1
+
+### Patch Changes
+
+- 20fbfdb: can resolve params correctly
+
 ## 1.2.3-alpha.0
 
 ### Patch Changes
