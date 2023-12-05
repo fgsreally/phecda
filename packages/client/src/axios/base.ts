@@ -14,11 +14,10 @@ export interface RequestArgs {
 type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'tag' | 'headers'>
 export function toReq(arg: RequestArgs) {
   let { body, query, method, url, headers } = arg
-  if (Object.keys(query).length > 0) {
+  if (Object.keys(query).length > 0)
     url += `?${Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&')}`
-  }
 
-  return { headers, method, url, body,    }
+  return { headers, method, url, body }
 }
 
 export const merge = (...args: RequestArgs[]) => {
@@ -36,7 +35,7 @@ export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Pa
 export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.Res<Awaited<R>>>> {
   // @ts-expect-error methods without route decorator won't send request
   return (arg: any, config?: AxiosRequestConfig) => {
-    const { url,   body, method, headers } = toReq(arg as RequestArgs)
+    const { url, body, method, headers } = toReq(arg as RequestArgs)
     if (!method) {
       console.warn('methods without route decorator won\'t send request')
       return

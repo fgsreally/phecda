@@ -5,10 +5,8 @@ exports[`client  > handle request data 1`] = `
   "body": {
     "name": "server",
   },
-  "headers": undefined,
+  "headers": {},
   "method": "post",
-  "params": "/phecda/loc",
-  "query": "?id=1&name=phecda",
-  "url": "/base",
+  "url": "/base?id=1&name=phecda",
 }
 `;
