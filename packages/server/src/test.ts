@@ -64,8 +64,11 @@ export async function TestHttp(app: Express | Router, headers: Record<string, st
             })
 
             const res = await request(app)[ret.method](ret.url + ret.query).set({ ...headers, ...ret.headers }).send(ret.body)
+            if (res.type.includes('text'))
+              return res.text
 
-            return res.body
+            if (res.type.includes('json'))
+              return res.body
           }
         },
       }) as any
