@@ -7,8 +7,10 @@ let port
 
 // this part is important or not?
 const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
-const tsconfig = {}
-tsconfig.module = ts.ModuleKind.ESNext
+const tsconfig = {
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.NodeNext,
+}
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
   x => x,
