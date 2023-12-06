@@ -53,8 +53,13 @@ export abstract class Context<Data = any> {
           continue
         }
         const post = await Context.interceptorsRecord[interceptor](this.data, isMerge)
-        if (post)
-          ret.push(post)
+        if (post) {
+          if (typeof post === 'function')
+            ret.push(post)
+
+          else
+            return ret
+        }
       }
     }
     this.post = ret
@@ -64,7 +69,7 @@ export abstract class Context<Data = any> {
     if (!this.post)
       return data
     for (const cb of this.post)
-      data = (await cb(data)) | data
+      data = (await cb(data)) || data
 
     return data
   }
