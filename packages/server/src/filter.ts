@@ -1,7 +1,7 @@
 import { HttpException, UndefinedException } from './exception'
-import type { ServerFilter } from './types'
+import type { P } from './types'
 
-export const serverFilter: ServerFilter = (e: any) => {
+export const defaultFilter: P.Filter = (e: any) => {
   if (!(e instanceof HttpException)) {
     console.error(e.stack)
     e = new UndefinedException(e.message || e)

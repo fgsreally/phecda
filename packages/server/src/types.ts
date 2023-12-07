@@ -16,14 +16,14 @@ export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options
 
 export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
 
-export interface ServerMergeCtx {
-  request: Request
-  response: Response
-  meta: Record<string, Meta>
-  moduleMap: Record<string, any>
-  isMerge: true
-  tags?: string[]
-}
+// export interface ServerMergeCtx {
+//   request: Request
+//   response: Response
+//   meta: Record<string, Meta>
+//   moduleMap: Record<string, any>
+//   isMerge: true
+//   tags?: string[]
+// }
 
 export interface ServerCtx {
   request: Request
@@ -35,10 +35,9 @@ export interface BaseError {
   error: true
   status: number
 }
-export type ServerFilter<E extends HttpException = any> = (err: E | Error, ctx: ServerMergeCtx | ServerCtx) => any
 
 export class Base {
-  context: ServerMergeCtx | ServerCtx
+  context: ServerCtx
 }
 
 export namespace P{
@@ -47,8 +46,13 @@ export namespace P{
   export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | Error }
 
   export type Res<T> = T
-  export type Guard = ((ctx: ServerCtx, isMerge?: false) => Promise<boolean> | boolean) | ((ctx: ServerMergeCtx, isMerge?: true) => Promise<boolean> | boolean)
-  export type Interceptor = ((ctx: ServerCtx, isMerge?: false) => any) | ((ctx: ServerMergeCtx, isMerge?: true) => any)
+  export type Guard = ((ctx: ServerCtx) => Promise<boolean> | boolean)
+
+  export type Interceptor = (ctx: ServerCtx) => any | ((ret: any) => any)
+
+  export type Pipe = (args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: ServerCtx) => Promise<any[]>
+  export type Filter<E extends HttpException = any> = (err: E | Error, ctx?: ServerCtx) => { message: string; description: string; status: number; error: true }
+
   export interface Handler {
     error?: (arg: any) => void
   }
@@ -67,9 +71,6 @@ export namespace P{
     method: string
     name: string
     tag: string
-  }
-  export interface Pipe {
-    transform(args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
   }
 
 }

@@ -1,12 +1,13 @@
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { P } from 'phecda-server'
+import { useC } from '..'
 import { createParallelReq, createReq, isError } from './base'
 type ToAxios<R> = {
   [K in keyof R]: R[K] extends (...args: any) => any ? (...p: Parameters<R[K]>) => Promise<P.Res<Awaited<ReturnType<R[K]>>> > : R[K]
 }
 
 export type ChainController<T extends Record<string, any>> = {
-  [K in keyof T]: ToAxios<T[K]>;
+  [K in keyof T]: ToAxios<InstanceType<T[K]>>;
 } & {
   options(config: AxiosRequestConfig): ChainController<T>
 }
@@ -29,8 +30,8 @@ export function createChainReq<C extends Record<string, any>>(instance: AxiosIns
     $r = createReq(instance)
 
   for (const key in controllers) {
-    const proxy = new Proxy(controllers[key], {
-      get(target, p) {
+    const proxy = new Proxy(useC(controllers[key]), {
+      get(target: any, p) {
         const generator = target[p]
         if (typeof generator !== 'function')
           throw new Error(`'${p as string}' on controller must be a function !`)

@@ -27,3 +27,8 @@ export function Query(key = '', pipeOpts?: any) {
 export function Param(key: string, pipeOpts?: any) {
   return BaseParam('params', key, pipeOpts)
 }
+
+// work for micro service
+export function Arg(pipeOpts?: any) {
+  return BaseParam('params', '', pipeOpts)
+}

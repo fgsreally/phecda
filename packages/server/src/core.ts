@@ -189,10 +189,3 @@ function initState(state: any) {
   if (!state.interceptors)
     state.interceptors = []
 }
-
-export class Dev {
-  [UNMOUNT_SYMBOL]: (() => void)[] = []
-  onUnmount(cb: () => void) {
-    this[UNMOUNT_SYMBOL].push(cb)
-  }
-}
