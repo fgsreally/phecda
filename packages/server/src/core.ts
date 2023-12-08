@@ -8,6 +8,7 @@ import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { warn } from './utils'
 import { UNMOUNT_SYMBOL } from './common'
+import { generateHTTPCode } from './compiler'
 
 const debug = Debug('phecda-server')
 // TODO: support both emitter types and origin emitter type in future
@@ -16,6 +17,7 @@ export const emitter: Emitter = new EventEmitter() as any
 export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   dev?: boolean
   file?: string
+  generateCode?: (meta: P.Meta[]) => string
 } = {}) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Meta[] = []
@@ -24,7 +26,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   // only work for warn
   const constructorSet = new WeakSet()
   const moduleGraph = new Map<string, Set<string>>()
-  const { dev = process.env.NODE_ENV !== 'production', file = 'pmeta.js' } = opts
+  const { dev = process.env.NODE_ENV !== 'production', file = 'pmeta.js', generateCode = generateHTTPCode } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
@@ -111,7 +113,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     if (!file)
       return
     debug('write metadata')
-    fs.promises.writeFile(file, JSON.stringify(meta.map(item => item.data)))
+    fs.promises.writeFile(file, generateCode(meta.map(item => item.data)))
   }
 
   writeMeta()

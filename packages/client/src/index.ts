@@ -34,4 +34,3 @@ export function useC<T extends new (...args: any) => any>(Module: T): ExcludeNot
 }
 
 export * from './axios'
-export * from './compiler'

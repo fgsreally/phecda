@@ -1,6 +1,6 @@
-import type { P } from 'phecda-server'
+import type { P } from '../types'
 
-export class Compiler {
+class Compiler {
   classMap: Record<string, { [key: string]: string }> = {}
   constructor() { }
 
@@ -16,12 +16,12 @@ export class Compiler {
     return content
   }
 
-  createRequest() {
-    let content = 'import {useC} from \'phecda-server\'\n'
-    for (const name in this.classMap)
-      content += `export const {${Object.keys(this.classMap[name]).join(',')}}=useC(${name})\n`
-    return content
-  }
+  // createRequest() {
+  //     let content = 'import {useC} from \'phecda-server\'\n'
+  //     for (const name in this.classMap)
+  //         content += `export const {${Object.keys(this.classMap[name]).join(',')}}=useC(${name})\n`
+  //     return content
+  // }
 
   addMethod(args: P.Meta) {
     const {
@@ -47,4 +47,12 @@ function genParams(decorators: any[]) {
   return decorators.map((_, i) => {
     return `${`arg${i}`}`
   }).join(',')
+}
+
+export function generateHTTPCode(meta: P.Meta[]) {
+  const compiler = new Compiler()
+
+  for (const i of meta)
+    compiler.addMethod(i)
+  return compiler.getContent()
 }

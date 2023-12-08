@@ -228,6 +228,9 @@ importers:
 
   packages/micro-service:
     dependencies:
+      etcd3:
+        specifier: ^1.1.2
+        version: registry.npmmirror.com/etcd3@1.1.2
       phecda-server:
         specifier: workspace:3.2.0-alpha.2
         version: link:../server
@@ -4137,6 +4140,16 @@ packages:
       '@types/node': registry.npmmirror.com/@types/node@18.11.18
     dev: false
 
+  registry.npmmirror.com/@grpc/grpc-js@1.9.12:
+    resolution: {integrity: sha512-Um5MBuge32TS3lAKX02PGCnFM4xPT996yLgZNb5H03pn6NyJ4Iwn5YcPq6Jj9yxGRk7WOgaZFtVRH5iTdYBeUg==, tarball: https://registry.npmmirror.com/@grpc/grpc-js/-/grpc-js-1.9.12.tgz}
+    name: '@grpc/grpc-js'
+    version: 1.9.12
+    engines: {node: ^8.13.0 || >=10.10.0}
+    dependencies:
+      '@grpc/proto-loader': registry.npmmirror.com/@grpc/proto-loader@0.7.10
+      '@types/node': registry.npmmirror.com/@types/node@18.11.18
+    dev: false
+
   registry.npmmirror.com/@grpc/proto-loader@0.6.13:
     resolution: {integrity: sha512-FjxPYDRTn6Ec3V0arm1FtSpmP6V50wuph2yILpyvTKzjc76oDdoihXqM1DzOW5ubvCC8GivfCnNtfaRE8myJ7g==, tarball: https://registry.npmmirror.com/@grpc/proto-loader/-/proto-loader-0.6.13.tgz}
     name: '@grpc/proto-loader'
@@ -5338,6 +5351,12 @@ packages:
       is-windows: registry.npmmirror.com/is-windows@1.0.2
     dev: true
 
+  registry.npmmirror.com/bignumber.js@9.1.2:
+    resolution: {integrity: sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==, tarball: https://registry.npmmirror.com/bignumber.js/-/bignumber.js-9.1.2.tgz}
+    name: bignumber.js
+    version: 9.1.2
+    dev: false
+
   registry.npmmirror.com/binary-decision-diagram@2.0.1:
     resolution: {integrity: sha512-ijgglbVBVOW+JtzBQSSjAHccFYx3m+6YEMRnLkfppMgkwyuJczx42eNhop95bRQmsuVHxpza1/E7KxZEvg9gNA==, tarball: https://registry.npmmirror.com/binary-decision-diagram/-/binary-decision-diagram-2.0.1.tgz}
     name: binary-decision-diagram
@@ -5640,6 +5659,13 @@ packages:
     version: 1.1.2
     engines: {node: '>=0.10.0'}
     dev: true
+
+  registry.npmmirror.com/cockatiel@3.1.1:
+    resolution: {integrity: sha512-zHMqBGvkZLfMKkBMD+0U8X1nW8zYwMtymgJ8CTknWOmTDpvjEwygtFN4QR9A1iFQDwCbg8g8+B/zVBoxvj1feQ==, tarball: https://registry.npmmirror.com/cockatiel/-/cockatiel-3.1.1.tgz}
+    name: cockatiel
+    version: 3.1.1
+    engines: {node: '>=16'}
+    dev: false
 
   registry.npmmirror.com/color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==, tarball: https://registry.npmmirror.com/color-convert/-/color-convert-1.9.3.tgz}
@@ -6978,6 +7004,18 @@ packages:
     version: 2.0.3
     engines: {node: '>=0.10.0'}
     dev: true
+
+  registry.npmmirror.com/etcd3@1.1.2:
+    resolution: {integrity: sha512-YIampCz1/OmrVo/tR3QltAVUtYCQQOSFoqmHKKeoHbalm+WdXe3l4rhLIylklu8EzR/I3PBiOF4dC847dDskKg==, tarball: https://registry.npmmirror.com/etcd3/-/etcd3-1.1.2.tgz}
+    name: etcd3
+    version: 1.1.2
+    engines: {node: '>=16'}
+    dependencies:
+      '@grpc/grpc-js': registry.npmmirror.com/@grpc/grpc-js@1.9.12
+      '@grpc/proto-loader': registry.npmmirror.com/@grpc/proto-loader@0.7.10
+      bignumber.js: registry.npmmirror.com/bignumber.js@9.1.2
+      cockatiel: registry.npmmirror.com/cockatiel@3.1.1
+    dev: false
 
   registry.npmmirror.com/event-reduce-js@3.1.2:
     resolution: {integrity: sha512-DATsZc4EpIRlcTgmyHjpn6l+U6GL/9FPsecguhNxE82usQmoZ40Mo8YxzoWCFIeXRBO9xGO3M4lknq0cXTHWZg==, tarball: https://registry.npmmirror.com/event-reduce-js/-/event-reduce-js-3.1.2.tgz}
@@ -9951,7 +9989,7 @@ packages:
     dev: false
 
   registry.npmmirror.com/strip-ansi@6.0.1:
-    resolution: {integrity: sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/strip-ansi/-/strip-ansi-6.0.1.tgz}
+    resolution: {integrity: sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==, tarball: https://registry.npmmirror.com/strip-ansi/-/strip-ansi-6.0.1.tgz}
     name: strip-ansi
     version: 6.0.1
     engines: {node: '>=8'}
@@ -10242,7 +10280,7 @@ packages:
       smartwrap: registry.npmmirror.com/smartwrap@2.0.2
       strip-ansi: registry.npmmirror.com/strip-ansi@6.0.1
       wcwidth: registry.npmmirror.com/wcwidth@1.0.1
-      yargs: registry.npmmirror.com/yargs@17.6.2
+      yargs: registry.npmmirror.com/yargs@17.7.2
     dev: true
 
   registry.npmmirror.com/turbo-darwin-64@1.8.2:
@@ -11227,21 +11265,6 @@ packages:
       yargs-parser: registry.npmmirror.com/yargs-parser@20.2.9
     dev: false
 
-  registry.npmmirror.com/yargs@17.6.2:
-    resolution: {integrity: sha512-1/9UrdHjDZc0eOU0HxOHoS78C69UD3JRMvzlJ7S79S2nTaWRA/whGCTV8o9e/N/1Va9YIV7Q4sOxD8VV4pCWOw==, tarball: https://registry.npmmirror.com/yargs/-/yargs-17.6.2.tgz}
-    name: yargs
-    version: 17.6.2
-    engines: {node: '>=12'}
-    dependencies:
-      cliui: registry.npmmirror.com/cliui@8.0.1
-      escalade: registry.npmmirror.com/escalade@3.1.1
-      get-caller-file: registry.npmmirror.com/get-caller-file@2.0.5
-      require-directory: registry.npmmirror.com/require-directory@2.1.1
-      string-width: registry.npmmirror.com/string-width@4.2.3
-      y18n: registry.npmmirror.com/y18n@5.0.8
-      yargs-parser: registry.npmmirror.com/yargs-parser@21.1.1
-    dev: true
-
   registry.npmmirror.com/yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==, tarball: https://registry.npmmirror.com/yargs/-/yargs-17.7.2.tgz}
     name: yargs
@@ -11255,7 +11278,6 @@ packages:
       string-width: registry.npmmirror.com/string-width@4.2.3
       y18n: registry.npmmirror.com/y18n@5.0.8
       yargs-parser: registry.npmmirror.com/yargs-parser@21.1.1
-    dev: false
 
   registry.npmmirror.com/yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/yocto-queue/-/yocto-queue-0.1.0.tgz}

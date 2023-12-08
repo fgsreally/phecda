@@ -1,12 +1,3 @@
-import type { RequestHandler } from 'express'
-import { ForbiddenException, FrameworkException } from '../exception'
-import { defaultPipe } from '../pipe'
-import { defaultFilter } from '../filter'
-import type { P, ServerCtx } from '../types'
-import type { Meta } from '../meta'
-import { warn } from '../utils'
-import { BaseContext } from './base'
-
 export class Context extends BaseContext<ServerCtx> {
   static pipe = defaultPipe
   static filter = defaultFilter
@@ -50,7 +41,7 @@ export class Context extends BaseContext<ServerCtx> {
     Context.interceptorsRecord[key] = handler
   }
 
-  async useGuard(guards: string[]) {
+  async useGuard(guards: string[], isMerge = false) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardsRecord)) {
@@ -58,7 +49,7 @@ export class Context extends BaseContext<ServerCtx> {
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
-        if (!await Context.guardsRecord[guard](this.data))
+        if (!await Context.guardsRecord[guard](this.data, isMerge))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
@@ -92,42 +83,5 @@ export class Context extends BaseContext<ServerCtx> {
       }
     }
     this.postInterceptors = ret
-  }
-}
-
-export function addMiddleware(key: string, handler: RequestHandler) {
-  Context.middlewareRecord[key] = handler
-}
-
-export function setPipe(pipe: P.Pipe) {
-  Context.pipe = pipe
-}
-
-export function setFilter(filter: P.Filter) {
-  Context.filter = filter
-}
-
-export function addGuard(key: string, handler: P.Guard) {
-  Context.registerGuard(key, handler)
-}
-
-export function addInterceptor(key: string, handler: P.Interceptor) {
-  Context.registerInterceptor(key, handler)
-}
-
-export function parseMeta(meta: Meta) {
-  const { data: { params, guards, interceptors, middlewares }, reflect, handlers } = meta
-
-  params.forEach(({ index, key }, i) => {
-    if (index !== i)
-      warn(`the ${i + 1}th argument on the method '${key}' require decorator`)
-  })
-  return {
-    guards,
-    reflect,
-    interceptors,
-    middlewares,
-    handlers,
-    params,
   }
 }

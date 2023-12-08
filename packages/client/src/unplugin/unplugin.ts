@@ -1,8 +1,6 @@
 import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
-import type { P } from 'phecda-server'
 import axios from 'axios'
-import { Compiler } from '../compiler'
 export const unplugin = createUnplugin((options: { localPath?: string; parseFile?: (id: string) => boolean; port?: string; interval?: number; split?: boolean } = {}) => {
   const { localPath = 'pmeta.js', parseFile = id => id.includes('.controller') || id.includes('.route'), port, interval = 3000, split = false } = options
 
@@ -39,19 +37,19 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
       if (parseFile(id))
         return metaPath
     },
-    transform(code) {
-      const meta = JSON.parse(code) as P.Meta[]
-      const compiler = new Compiler()
+    // transform(code) {
+    //   const meta = JSON.parse(code) as P.Meta[]
+    //   const compiler = new Compiler()
 
-      for (const i of meta)
-        compiler.addMethod(i)
+    //   for (const i of meta)
+    //     compiler.addMethod(i)
 
-      return { code: compiler.getContent() }
-    },
+    //   return { code: compiler.getContent() }
+    // },
 
-    transformInclude(id) {
-      return id === metaPath
-    },
+    // transformInclude(id) {
+    //   return id === metaPath
+    // },
 
   }
 })
