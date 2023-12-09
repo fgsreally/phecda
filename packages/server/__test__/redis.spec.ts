@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Factory, Rpc } from 'phecda-server'
-import { bind } from '../src/redis/bind'
-import { createClient } from '../src/redis/client'
+import { Arg, Factory, Rpc } from '../src'
+import { bind, createClient } from '../src/rpc/redis'
 
 function stop(time = 1000) {
   return new Promise<void>((resolve) => {
@@ -65,10 +64,9 @@ describe('redis rpc', () => {
     bind(redis, 'test2', data)
 
     const client = await createClient(pub, 'test2', {
-      test: Faker as unknown as TestRpc,
+      test: Faker as unknown as typeof TestRpc,
     })
 
-    // @ts-expect-error not matter
     expect(await client.test.run(1)).toBe(1)
 
     expect(fn).toHaveBeenCalled()

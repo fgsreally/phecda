@@ -5,7 +5,7 @@ import { APP_SYMBOL } from './common'
 
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
   const { moduleMap, constructorMap } = await Factory(Modules, {
-    file: '',
+
     dev: false,
   })
 

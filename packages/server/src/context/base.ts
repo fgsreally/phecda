@@ -15,15 +15,15 @@ export abstract class BaseContext<Data = any> {
   abstract interceptorsRecord: Record<string, P.Interceptor>
   postInterceptors: Function[]
 
-  constructor(public key: string, public data: Data) {
+  constructor(public tag: string, public data: Data) {
   }
 
-  usePipe(args: { arg: any; option?: any; type: string; key: string; index: number; reflect: any }[], tag: string) {
-    return this.singletonConf.pipe(args, tag, this.data)
+  usePipe(args: { arg: any; option?: any; type: string; key: string; index: number; reflect: any }[]) {
+    return this.singletonConf.pipe(args, this.tag, this.data)
   }
 
   useFilter(arg: any) {
-    return this.singletonConf.filter(arg, this.data)
+    return this.singletonConf.filter(arg, this.tag, this.data)
   }
 
   async useGuard(guards: string[]) {
@@ -34,7 +34,7 @@ export abstract class BaseContext<Data = any> {
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
-        if (!await this.guardsRecord[guard](this.data))
+        if (!await this.guardsRecord[guard](this.tag, this.data))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
@@ -57,7 +57,7 @@ export abstract class BaseContext<Data = any> {
 
           continue
         }
-        const postInterceptor = await this.interceptorsRecord[interceptor](this.data)
+        const postInterceptor = await this.interceptorsRecord[interceptor](this.tag, this.data)
         if (postInterceptor !== undefined) {
           if (typeof postInterceptor === 'function')
             ret.push(postInterceptor)

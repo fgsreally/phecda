@@ -1,5 +1,5 @@
 import { setFilter } from '../context'
-import type { HttpException } from '../exception'
+import type { Exception } from '../exception'
 import type { ServerCtx, ServerErr } from '../types'
 
 export abstract class ServerFilter {
@@ -7,5 +7,5 @@ export abstract class ServerFilter {
     setFilter(this.use.bind(this))
   }
 
-  abstract use< E extends HttpException >(error: Error | E, ctx?: ServerCtx): ServerErr | Promise<ServerErr>
+  abstract use< E extends Exception >(error: Error | E, tag?: string, ctx?: ServerCtx): ServerErr | Promise<ServerErr>
 }

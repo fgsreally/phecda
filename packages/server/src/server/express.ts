@@ -116,7 +116,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 }
 
                 return { arg, option, index, type, key, reflect: reflect[index] }
-              }), tag) as any
+              })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
 
@@ -169,7 +169,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 const args = await context.usePipe(params.map(({ type, key, option, index }) => {
                   const arg = resolveDep(item[type], key)
                   return { arg, type, key, option, index, reflect: reflect[index] }
-                }), tag) as any
+                })) as any
                 instance.context = contextData
                 const funcData = await moduleMap.get(name)[method](...args)
                 resolve(await context.usePostInterceptor(funcData))
@@ -227,7 +227,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             const args = await context.usePipe(params.map(({ type, key, option, index }) => {
               return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
-            }), methodTag)
+            }))
 
             instance.context = contextData
             const funcData = await instance[method](...args)

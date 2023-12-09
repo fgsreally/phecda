@@ -28,7 +28,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   // only work for warn
   const constructorSet = new WeakSet()
   const moduleGraph = new Map<string, Set<string>>()
-  const { dev = process.env.NODE_ENV !== 'production', http = 'pmeta.js', rpc } = opts
+  const { dev = process.env.NODE_ENV !== 'production', http, rpc } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 

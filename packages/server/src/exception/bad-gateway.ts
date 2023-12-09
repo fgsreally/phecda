@@ -1,6 +1,6 @@
-import { HttpException } from './base'
+import { Exception } from './base'
 
-export class BadGatewayException extends HttpException {
+export class BadGatewayException extends Exception {
   constructor(message: string) {
     super(message, 502, 'Bad Gatrway')
   }

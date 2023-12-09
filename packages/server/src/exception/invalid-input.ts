@@ -1,6 +1,6 @@
-import { HttpException } from './base'
+import { Exception } from './base'
 
-export class InvalidInputException extends HttpException {
+export class InvalidInputException extends Exception {
   constructor(message: string) {
     super(message, 502, 'Invalid Input')
   }

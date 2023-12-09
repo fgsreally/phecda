@@ -35,7 +35,7 @@ class Compiler {
     ${method}(){
       return {tag:'${tag}-${method}',rpc:[${rpc.reduce((p, c) => {
         return `${p}"${c}",`
-      })}]}
+      }, '')}]}
 
     }
     `

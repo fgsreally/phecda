@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Factory, Rpc } from 'phecda-server'
-import { bind } from '../src/rabbitmq/bind'
-import { createClient } from '../src/rabbitmq/client'
+import { Arg, Factory, Rpc } from '../src'
+import { bind, createClient } from '../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
   return new Promise<void>((resolve) => {
@@ -65,10 +64,9 @@ describe('rabbitmq rpc', () => {
     await bind(serverCh, 'test', data)
 
     const client = await createClient(clientCh, 'test', {
-      test: Faker as unknown as TestRpc,
+      test: Faker as unknown as typeof TestRpc,
     })
 
-    // @ts-expect-error not matter
     expect(await client.test.run(1)).toBe(1)
 
     expect(fn).toHaveBeenCalled()

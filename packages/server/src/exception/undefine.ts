@@ -1,6 +1,6 @@
-import { HttpException } from './base'
+import { Exception } from './base'
 
-export class UndefinedException extends HttpException {
+export class UndefinedException extends Exception {
   constructor(message: string) {
     super(message, 500, 'Undefined error')
   }
