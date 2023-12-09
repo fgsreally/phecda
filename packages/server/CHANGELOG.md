@@ -1,5 +1,19 @@
 # phecda-server
 
+## 4.0.0-alpha.6
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+- e719809: bk change to refactor Context/Pipe/Interceptor;
+  guard/interceptor/pipe will work for function(not request);
+  each function will has its own context(won't share)
+- f6096c3: add redis/rabbitmq
+
+### Patch Changes
+
+- f6096c3: client will throw error when invoke method which is not exposed or not allowed(in rpc)
+
 ## 3.2.0-alpha.5
 
 ### Minor Changes
