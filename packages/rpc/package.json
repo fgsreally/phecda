@@ -1,14 +1,36 @@
 {
   "name": "phecda-rpc",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsup --watch",
+    "build":"tsup"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "exports": {
+
+    "./redis": {
+      "import": "./dist/redis/index.mjs",
+      "require": "./dist/redis/index.js"
+    },
+    "./rabbitmq": {
+      "import": "./dist/rabbitmq/index.mjs",
+      "require": "./dist/rabbitmq/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "redis": [
+        "dist/redis/index.d.ts"
+      ],
+      "rabbitmq": [
+        "dist/rabbitmq/test.d.ts"
+      ]
+    }
+  },
   "dependencies": {
     "phecda-server": "workspace:3.2.0-alpha.2"
   },
