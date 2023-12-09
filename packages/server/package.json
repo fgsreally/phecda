@@ -22,6 +22,14 @@
       "import": "./dist/test.mjs",
       "require": "./dist/test.js"
     },
+    "./redis": {
+      "import": "./dist/rpc/redis/index.mjs",
+      "require": "./dist/rpc/redis/index.js"
+    },
+    "./rabbitmq": {
+      "import": "./dist/rpc/rabbitmq/index.mjs",
+      "require": "./dist/rpc/rabbitmq/index.js"
+    },
     "./register": "./register/index.mjs"
   },
   "typesVersions": {
@@ -31,6 +39,12 @@
       ],
       "test": [
         "dist/test.d.ts"
+      ],
+      "redis": [
+        "dist/rpc/redis/index.d.ts"
+      ],
+      "rabbitmq": [
+        "dist/rpc/rabbitmq/index.d.ts"
       ]
     }
   },
@@ -49,10 +63,15 @@
   "license": "MIT",
   "devDependencies": {
     "@swc-node/core": "^1.10.6",
+    "@types/amqplib": "^0.10.1",
     "@types/debug": "^4.1.12",
     "@types/express": "^4.17.17",
     "@types/supertest": "^2.0.12",
+    "amqplib": "^0.10.3",
     "express": "^4.18.2",
+    "ioredis": "^5.3.2",
+    "ioredis-mock": "^8.9.0",
+    "mock-amqplib": "^1.8.2",
     "supertest": "^6.3.3",
     "tsup": "^6.5.0",
     "typescript": "^5.2.2",

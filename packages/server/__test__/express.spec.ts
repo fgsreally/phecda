@@ -5,7 +5,7 @@ import { Rule } from 'phecda-core'
 import { bindApp } from '../src/server/express'
 import { Factory } from '../src/core'
 import { Body, Controller, Get, Guard, Interceptor, Param, Post, Query } from '../src/decorators'
-import { HttpException, addGuard, addInterceptor } from '../src'
+import { Exception, addGuard, addInterceptor } from '../src'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
     class A {
@@ -66,7 +66,7 @@ describe('express ', () => {
     class C {
       @Get('/test')
       test() {
-        throw new HttpException('test error', 500)
+        throw new Exception('test error', 500)
       }
     }
     const data = await Factory([C])
@@ -111,7 +111,7 @@ describe('express ', () => {
         return `${test}`
       }
     }
-    addGuard('test', ({ request }: any) => {
+    addGuard('test', (_tag, { request }: any) => {
       if (request.params.test !== 'test')
         return false
       return true

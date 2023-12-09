@@ -1,96 +1,72 @@
 import { ForbiddenException, FrameworkException } from '../exception'
 import { Histroy } from '../history'
-
-import type { Meta } from '../meta'
 import type { P } from '../types'
-import { warn } from '../utils'
 
-export abstract class Context<Data = any> {
+export abstract class BaseContext<Data = any> {
   method: string
   params: string[]
-
-  static metaRecord: Record<string, Meta> = {}
-  static metaDataRecord: Record<string, ReturnType<typeof parseMeta>> = {}
-  static guardsRecord: Record<string, any> = {}
-  static interceptorsRecord: Record<string, any > = {}
-  // static serverRecord: Record<string, Context> = {}
-  post: ((...params: any) => any)[]
   history = new Histroy()
-
-  constructor(public key: string, public data: Data) {
+  abstract singletonConf: {
+    filter: P.Filter
+    pipe: P.Pipe
   }
 
-  static registerGuard(key: string, handler: any) {
-    Context.guardsRecord[key] = handler
+  abstract guardsRecord: Record<string, P.Guard>
+  abstract interceptorsRecord: Record<string, P.Interceptor>
+  postInterceptors: Function[]
+
+  constructor(public tag: string, public data: Data) {
   }
 
-  static registerInterceptor(key: string, handler: any) {
-    Context.interceptorsRecord[key] = handler
+  usePipe(args: { arg: any; option?: any; type: string; key: string; index: number; reflect: any }[]) {
+    return this.singletonConf.pipe(args, this.tag, this.data)
   }
 
-  async useGuard(guards: string[], isMerge = false) {
+  useFilter(arg: any) {
+    return this.singletonConf.filter(arg, this.tag, this.data)
+  }
+
+  async useGuard(guards: string[]) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
-        if (!(guard in Context.guardsRecord)) {
+        if (!(guard in this.guardsRecord)) {
           if (process.env.PS_STRICT)
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
-        if (!await Context.guardsRecord[guard](this.data, isMerge))
+        if (!await this.guardsRecord[guard](this.tag, this.data))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
   }
 
-  async useInterceptor(interceptors: string[], isMerge = false) {
+  async usePostInterceptor(ret: any) {
+    for (const cb of this.postInterceptors)
+      ret = await cb(ret) || ret
+
+    return ret
+  }
+
+  async useInterceptor(interceptors: string[]) {
     const ret = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
-        if (!(interceptor in Context.interceptorsRecord)) {
+        if (!(interceptor in this.interceptorsRecord)) {
           if (process.env.PS_STRICT)
             throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
 
           continue
         }
-        const post = await Context.interceptorsRecord[interceptor](this.data, isMerge)
-        if (post)
-          ret.push(post)
+        const postInterceptor = await this.interceptorsRecord[interceptor](this.tag, this.data)
+        if (postInterceptor !== undefined) {
+          if (typeof postInterceptor === 'function')
+            ret.push(postInterceptor)
+
+          else
+            return true
+        }
       }
     }
-    this.post = ret
-  }
-
-  async usePost(data: any) {
-    if (!this.post)
-      return data
-    for (const cb of this.post)
-      data = (await cb(data)) | data
-
-    return data
-  }
-}
-
-export function addGuard(key: string, handler: P.Guard) {
-  Context.registerGuard(key, handler)
-}
-
-export function addInterceptor(key: string, handler: P.Interceptor) {
-  Context.registerInterceptor(key, handler)
-}
-
-export function parseMeta(meta: Meta) {
-  const { data: { params, guards, interceptors, middlewares }, reflect, handlers } = meta
-
-  params.forEach(({ index, key }, i) => {
-    if (index !== i)
-      warn(`the ${i + 1}th argument on the method '${key}' require decorator`)
-  })
-  return {
-    guards,
-    reflect,
-    interceptors,
-    middlewares,
-    handlers,
-    params,
+    this.postInterceptors = ret
   }
 }

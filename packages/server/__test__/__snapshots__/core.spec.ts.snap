@@ -6,6 +6,10 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/base/test",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test",
     "middlewares": [],
@@ -24,10 +28,6 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/base/test",
-      "type": "get",
-    },
     "tag": "A",
   },
 ]
@@ -39,6 +39,10 @@ exports[`Factory  > In extended case 1`] = `
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/B/testB",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test2",
     "middlewares": [],
@@ -57,16 +61,16 @@ exports[`Factory  > In extended case 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/B/testB",
-      "type": "get",
-    },
     "tag": "B",
   },
   {
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/B/testA",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test",
     "middlewares": [],
@@ -85,10 +89,6 @@ exports[`Factory  > In extended case 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/B/testA",
-      "type": "get",
-    },
     "tag": "B",
   },
 ]
@@ -100,6 +100,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/B/testB",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test2",
     "middlewares": [],
@@ -118,16 +122,16 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/B/testB",
-      "type": "get",
-    },
     "tag": "B",
   },
   {
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/B/testA",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test",
     "middlewares": [],
@@ -146,16 +150,16 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/B/testA",
-      "type": "get",
-    },
     "tag": "B",
   },
   {
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/C/testC",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test3",
     "middlewares": [],
@@ -174,16 +178,16 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/C/testC",
-      "type": "get",
-    },
     "tag": "C",
   },
   {
     "define": {},
     "guards": [],
     "header": {},
+    "http": {
+      "route": "/C/testA",
+      "type": "get",
+    },
     "interceptors": [],
     "method": "test",
     "middlewares": [],
@@ -202,10 +206,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "route": {
-      "route": "/C/testA",
-      "type": "get",
-    },
     "tag": "C",
   },
 ]

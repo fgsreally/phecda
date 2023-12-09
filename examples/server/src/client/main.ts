@@ -3,16 +3,15 @@ import { $S, createChainReq, createParallelReq, createReq, createSeriesReq, isEr
 import axios from 'axios'
 import { TestController } from '../server/test.controller'
 const instance = axios.create({
-  baseURL: 'http://localhost:3000/base',
+  baseURL: 'http://localhost:3001/base',
 })
 // const beacon = createBeacon('http://localhost:3699')
 const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
 const { test, get, query } = useC(TestController)
-const $test = useC(TestController)
 
-const chain = createChainReq(instance, { $test }, { batch: true })
+const chain = createChainReq(instance, { $test: TestController }, { batch: true })
 
 async function chainRequest() {
   const data = await Promise.all([chain.options({

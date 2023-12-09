@@ -1,6 +1,6 @@
-import { HttpException } from './base'
+import { Exception } from './base'
 
-export class ConflictException extends HttpException {
+export class ConflictException extends Exception {
   constructor(message: string) {
     super(message, 409, 'Conflict')
   }
