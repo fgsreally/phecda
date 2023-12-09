@@ -25,15 +25,18 @@ class Compiler {
 
   addMethod(args: P.Meta) {
     const {
-      route: {
-        route = '/',
-      } = {}, name, method, tag,
+      rpc, name, method, tag,
     } = args
+    if (!rpc)
+      return
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
-    ${method}(...args){
-return {args,service:'${tag}-${method}',route:'${route}'}
+    ${method}(){
+      return {tag:'${tag}-${method}',rpc:[${rpc.reduce((p, c) => {
+        return `${p}"${c}",`
+      })}]}
+
     }
     `
   }

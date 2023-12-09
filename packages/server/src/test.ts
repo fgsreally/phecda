@@ -40,7 +40,7 @@ export async function TestHttp(app: Express | Router, headers: Record<string, st
         get(_target, p) {
           const { data } = meta.find(({ data }) => data.name === Module.name && data.method === p && data.tag === tag)!
           return async (...args: any) => {
-            const ret = { body: {}, headers: {}, query: '', method: data.route!.type, url: data.route!.route }
+            const ret = { body: {}, headers: {}, query: '', method: data.http!.type, url: data.http!.route }
 
             data.params.forEach((item) => {
               if (item.type === 'params') {

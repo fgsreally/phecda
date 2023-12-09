@@ -1,5 +1,5 @@
 import type { Express, Router } from 'express'
-import { Context, parseMeta } from '../context'
+import { Context, singletonConf } from '../context'
 import { isObject } from '../utils'
 import { resolveDep } from '../helper'
 import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../common'
@@ -42,7 +42,17 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   const { dev = process.env.NODE_ENV !== 'production', globalGuards, globalInterceptors, route, middlewares: proMiddle, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
-  const contextMeta = {} as Record<string, Meta>
+  const metaMap = new Map<string, Meta>()
+  function handleMeta() {
+    metaMap.clear()
+    for (const item of meta) {
+      const { tag, method, http } = item.data
+      if (!http?.type)
+        continue
+      const methodTag = `${tag}-${method}`
+      metaMap.set(methodTag, item)
+    }
+  }
 
   async function createRoute() {
     (app as Express).post(route, (req, _res, next) => {
@@ -55,7 +65,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { body: { category, data } } = req
 
       async function errorHandler(e: any) {
-        const error = await Context.filter(e)
+        const error = await singletonConf.filter(e)
         return res.status(error.status).json(error)
       }
 
@@ -75,25 +85,28 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const { tag } = item
             const contextData = {
               request: req,
-              meta: Context.metaRecord[tag],
+              meta: metaMap.get(tag)!,
               response: res,
               moduleMap,
+
             }
             const context = new Context(tag, contextData)
             try {
               const [name, method] = tag.split('-')
               const {
                 reflect,
-                params,
-                guards,
-                interceptors,
-              } = Context.metaDataRecord[tag]
+                data: {
+                  params,
+                  guards,
+                  interceptors,
+                },
+              } = contextData.meta
               const instance = moduleMap.get(name)
               if (!params)
                 throw new BadRequestException(`"${tag}" doesn't exist`)
 
               await context.useGuard([...globalGuards, ...guards])
-              if (await context.useInterceptor([...globalInterceptors, ...interceptors], true)
+              if (await context.useInterceptor([...globalInterceptors, ...interceptors])
               ) return
               const args = await context.usePipe(params.map(({ type, key, option, index }) => {
                 const arg = resolveDep(item[type], key)
@@ -110,7 +123,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               ret.push(await context.usePostInterceptor(funcData))
             }
             catch (e: any) {
-              const m = Context.metaRecord[tag]
+              const m = metaMap.get(tag)!
               m.handlers.forEach(handler => handler.error?.(e))
               ret.push(await context.useFilter(e))
             }
@@ -128,7 +141,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               const { tag } = item
               const contextData = {
                 request: req,
-                meta: Context.metaRecord[tag],
+                meta: metaMap.get(tag)!,
                 response: res,
                 moduleMap,
               }
@@ -136,10 +149,14 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               const [name, method] = tag.split('-')
               const {
                 reflect,
-                params,
+
                 handlers,
-                guards, interceptors,
-              } = Context.metaDataRecord[tag]
+
+                data: {
+                  params,
+                  guards, interceptors,
+                },
+              } = metaMap.get(tag)!
 
               const instance = moduleMap.get(name)
 
@@ -147,7 +164,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 if (!params)
                   throw new BadRequestException(`"${tag}" doesn't exist`)
                 await context.useGuard([...globalGuards, ...guards])
-                if (await context.useInterceptor([...globalInterceptors, ...interceptors], true)
+                if (await context.useInterceptor([...globalInterceptors, ...interceptors])
                 ) return
                 const args = await context.usePipe(params.map(({ type, key, option, index }) => {
                   const arg = resolveDep(item[type], key)
@@ -172,25 +189,22 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       }
     })
     for (const i of meta) {
-      const { method, route, header, tag } = i.data
+      const { method, http, header, tag } = i.data
       const methodTag = `${tag}-${method}`
-      contextMeta[methodTag] = i
-      Context.metaRecord[methodTag] = i
-
-      let {
-        guards,
+      const {
         reflect,
-        interceptors,
-        params,
         handlers,
-        middlewares,
-      } = Context.metaDataRecord[methodTag] ? Context.metaDataRecord[methodTag] : (Context.metaDataRecord[methodTag] = parseMeta(i))
+        data: {
+          interceptors,
+          guards,
 
-      guards = [...globalGuards!, ...guards]
-      interceptors = [...globalInterceptors!, ...interceptors]
+          params,
+          middlewares,
+        },
+      } = metaMap.get(methodTag)!
 
-      if (route) {
-        (app as Express)[route.type](route.route, (req, _res, next) => {
+      if (http?.type) {
+        (app as Express)[http.type](http.route, (req, _res, next) => {
           (req as any)[MODULE_SYMBOL] = moduleMap;
           (req as any)[META_SYMBOL] = meta
           next()
@@ -234,6 +248,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
+  handleMeta()
   createRoute()
   if (dev) {
     // @ts-expect-error globalThis
@@ -242,7 +257,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
     globalThis.__PS_WRITEMETA__ = () => {
       app.stack = []// app.stack.slice(0, 1)
-      Context.metaDataRecord = {}
+      handleMeta()
 
       createRoute()
       rawMetaHmr?.()

@@ -1,15 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`compiler generate code > generate RPC request 1`] = `
-"
-        export class A{
-            
-    test(...args){
-return {args,service:'A-test',route:'/base/test'}
-    }
-    
-            }"
-`;
+exports[`compiler generate code > generate RPC request 1`] = `""`;
 
 exports[`compiler generate code > generate http request 1`] = `
 "

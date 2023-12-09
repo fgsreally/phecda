@@ -31,6 +31,8 @@ export interface ServerCtx {
   meta: Meta
   moduleMap: Record<string, any>
 }
+
+export interface ServerErr { message: string; description: string; status: number; error: true }
 export interface BaseError {
   error: true
   status: number
@@ -40,28 +42,28 @@ export class Base {
   context: ServerCtx
 }
 
-export namespace P{
-  export interface Error extends BaseError { message: string; description: string}
+export namespace P {
+  export interface Error extends BaseError { message: string; description: string }
 
-  export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | Error }
+  export type ResOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
 
   export type Res<T> = T
-  export type Guard = ((ctx: ServerCtx) => Promise<boolean> | boolean)
+  export type Guard<C = any> = ((ctx: C) => Promise<boolean> | boolean)
 
-  export type Interceptor = (ctx: ServerCtx) => any | ((ret: any) => any)
+  export type Interceptor<C = any> = (ctx: C) =>(any | ((ret: any) => any))
 
-  export type Pipe = (args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: ServerCtx) => Promise<any[]>
-  export type Filter<E extends HttpException = any> = (err: E | Error, ctx?: ServerCtx) => { message: string; description: string; status: number; error: true }
+  export type Pipe<C = any> = (args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: C) => Promise<any[]>
+  export type Filter<C = any, R = any, E extends HttpException = any > = (err: E | Error, ctx?: C) => R | Promise<R>
 
   export interface Handler {
     error?: (arg: any) => void
   }
   export interface Meta {
-    route?: {
+    http?: {
       type: RequestType
       route: string
     }
-
+    rpc?: string[]
     define?: any
     header: Record<string, string>
     params: { type: string; index: number; key: string; option?: any }[]

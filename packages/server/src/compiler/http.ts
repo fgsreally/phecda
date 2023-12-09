@@ -25,17 +25,16 @@ class Compiler {
 
   addMethod(args: P.Meta) {
     const {
-      route: {
-        route = '/',
-        type = 'get',
-      } = {}, name, method, params, tag,
+      http, name, method, params, tag,
     } = args
-    const url = route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
+    if (!http)
+      return
+    const url = http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
     ${method}(${genParams(params)}){
-const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},method:"${type}",url:"${url}"}
+const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}"}
 ${params.reduce((p, c, i) => `${p}if(arg${i}!==undefined&&arg${i}!==null){ret.${c.type}${c.key ? `['${c.key}']` : ''}=arg${i}\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',arg${i})}` : '}'}\n`, '')}
 return ret
     }

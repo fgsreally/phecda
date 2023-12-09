@@ -1,4 +1,5 @@
 import pc from 'picocolors'
+import type { Meta } from './meta'
 export const isUndefined = (obj: any): obj is undefined =>
   typeof obj === 'undefined'
 export const isNil = (obj: any): obj is null | undefined =>

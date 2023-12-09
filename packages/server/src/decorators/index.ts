@@ -31,3 +31,4 @@ export function Define(key: string, value: any) {
 
 export * from './param'
 export * from './route'
+export * from './aop'

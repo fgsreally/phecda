@@ -9,7 +9,7 @@ export function Route(route: string, type?: string): any {
     setModelVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
-    state.route = {
+    state.http = {
       route,
       type,
     }
@@ -35,10 +35,16 @@ export function Delete(route: string) {
   return Route(route, 'delete')
 }
 
-export function Rpc(route: string) {
-  return Route(route, 'rpc')
-}
-
 export function Controller(route: string) {
   return Route(route)
+}
+
+export function Rpc(...rpc: string[]) {
+  return (target: any, key: PropertyKey) => {
+    setModelVar(target, key)
+    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    state.rpc = rpc
+
+    setState(target, key, state)
+  }
 }

@@ -8,7 +8,7 @@ import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { warn } from './utils'
 import { UNMOUNT_SYMBOL } from './common'
-import { generateHTTPCode } from './compiler'
+import { generateHTTPCode, generateRPCCode } from './compiler'
 
 const debug = Debug('phecda-server')
 // TODO: support both emitter types and origin emitter type in future
@@ -16,8 +16,10 @@ export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   dev?: boolean
-  file?: string
-  generateCode?: (meta: P.Meta[]) => string
+  // HTTP generate code path
+  http?: string
+  // rpc generate code path
+  rpc?: string
 } = {}) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
   const meta: Meta[] = []
@@ -26,7 +28,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   // only work for warn
   const constructorSet = new WeakSet()
   const moduleGraph = new Map<string, Set<string>>()
-  const { dev = process.env.NODE_ENV !== 'production', file = 'pmeta.js', generateCode = generateHTTPCode } = opts
+  const { dev = process.env.NODE_ENV !== 'production', http = 'pmeta.js', rpc } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
@@ -110,10 +112,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     await buildNestModule(Module)
 
   function writeMeta() {
-    if (!file)
-      return
     debug('write metadata')
-    fs.promises.writeFile(file, generateCode(meta.map(item => item.data)))
+
+    http && fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
+    rpc && fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
   }
 
   writeMeta()
@@ -148,12 +150,15 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     const meta = {} as P.Meta
     const state = (getState(instance, i) || {}) as P.Meta
     initState(state)
-    if (state.route) {
-      meta.route = {
-        route: (baseState.route?.route || '') + (state.route.route),
-        type: state.route.type,
+    if (state.http) {
+      meta.http = {
+        route: (baseState.http?.route || '') + (state.http.route),
+        type: state.http.type,
       }
     }
+    if (state.rpc)
+      meta.rpc = state.rpc
+
     meta.name = name
     meta.tag = tag
     meta.method = i as string

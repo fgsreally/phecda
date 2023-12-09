@@ -1,22 +1,29 @@
 import type { RequestHandler } from 'express'
-import { ForbiddenException, FrameworkException } from '../exception'
+import { FrameworkException } from '../exception'
 import { defaultPipe } from '../pipe'
 import { defaultFilter } from '../filter'
-import type { P, ServerCtx } from '../types'
-import type { Meta } from '../meta'
-import { warn } from '../utils'
+import type { P, ServerCtx, ServerErr } from '../types'
+
 import { BaseContext } from './base'
 
+export const guardsRecord = {} as Record<string, P.Guard<ServerCtx>>
+
+export const interceptorsRecord = {} as Record<string, P.Interceptor<ServerCtx>>
+
+export const middlewareRecord = {} as Record<string, (...params: any) => any>
+
+export const singletonConf = {
+  pipe: defaultPipe,
+  filter: defaultFilter,
+}
 export class Context extends BaseContext<ServerCtx> {
-  static pipe = defaultPipe
-  static filter = defaultFilter
+  singletonConf = singletonConf
+  // static metaRecord: Record<string, Meta> = {}
+  // static metaDataRecord: Record<string, ReturnType<typeof parseMeta>> = {}
 
-  static metaRecord: Record<string, Meta> = {}
-  static metaDataRecord: Record<string, ReturnType<typeof parseMeta>> = {}
-
-  static middlewareRecord: Record<string, (...params: any) => any> = {}
-  static guardsRecord: Record<string, any> = {}
-  static interceptorsRecord: Record<string, any > = {}
+  static middlewareRecord = middlewareRecord
+  guardsRecord = guardsRecord
+  interceptorsRecord = interceptorsRecord
 
   postInterceptors: Function[]
 
@@ -33,101 +40,24 @@ export class Context extends BaseContext<ServerCtx> {
     }
     return ret
   }
-
-  usePipe(args: { arg: any; option?: any; type: string; key: string; index: number; reflect: any }[], tag: string) {
-    return Context.pipe(args, tag, this.data)
-  }
-
-  useFilter(arg: any) {
-    return Context.filter(arg, this.data)
-  }
-
-  static registerGuard(key: string, handler: any) {
-    Context.guardsRecord[key] = handler
-  }
-
-  static registerInterceptor(key: string, handler: any) {
-    Context.interceptorsRecord[key] = handler
-  }
-
-  async useGuard(guards: string[]) {
-    for (const guard of guards) {
-      if (this.history.record(guard, 'guard')) {
-        if (!(guard in Context.guardsRecord)) {
-          if (process.env.PS_STRICT)
-            throw new FrameworkException(`can't find guard named '${guard}'`)
-          continue
-        }
-        if (!await Context.guardsRecord[guard](this.data))
-          throw new ForbiddenException(`Guard exception--${guard}`)
-      }
-    }
-  }
-
-  async usePostInterceptor(ret: any) {
-    for (const cb of this.postInterceptors)
-      ret = await cb(ret) || ret
-
-    return ret
-  }
-
-  async useInterceptor(interceptors: string[], isMerge = false) {
-    const ret = []
-    for (const interceptor of interceptors) {
-      if (this.history.record(interceptor, 'interceptor')) {
-        if (!(interceptor in Context.interceptorsRecord)) {
-          if (process.env.PS_STRICT)
-            throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
-
-          continue
-        }
-        const postInterceptor = await Context.interceptorsRecord[interceptor](this.data, isMerge)
-        if (postInterceptor !== undefined) {
-          if (typeof postInterceptor === 'function')
-            ret.push(postInterceptor)
-
-          else
-            return true
-        }
-      }
-    }
-    this.postInterceptors = ret
-  }
 }
 
 export function addMiddleware(key: string, handler: RequestHandler) {
-  Context.middlewareRecord[key] = handler
+  middlewareRecord[key] = handler
 }
 
-export function setPipe(pipe: P.Pipe) {
-  Context.pipe = pipe
+export function setPipe(pipe: P.Pipe<ServerCtx>) {
+  singletonConf.pipe = pipe
 }
 
-export function setFilter(filter: P.Filter) {
-  Context.filter = filter
+export function setFilter(filter: P.Filter<ServerCtx, ServerErr>) {
+  singletonConf.filter = filter
 }
 
-export function addGuard(key: string, handler: P.Guard) {
-  Context.registerGuard(key, handler)
+export function addGuard(key: string, handler: P.Guard<ServerCtx>) {
+  guardsRecord[key] = handler
 }
 
-export function addInterceptor(key: string, handler: P.Interceptor) {
-  Context.registerInterceptor(key, handler)
-}
-
-export function parseMeta(meta: Meta) {
-  const { data: { params, guards, interceptors, middlewares }, reflect, handlers } = meta
-
-  params.forEach(({ index, key }, i) => {
-    if (index !== i)
-      warn(`the ${i + 1}th argument on the method '${key}' require decorator`)
-  })
-  return {
-    guards,
-    reflect,
-    interceptors,
-    middlewares,
-    handlers,
-    params,
-  }
+export function addInterceptor(key: string, handler: P.Interceptor<ServerCtx>) {
+  interceptorsRecord[key] = handler
 }

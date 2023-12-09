@@ -1,4 +1,4 @@
-import type amqplib from 'amqplib'
+import Redis from 'ioredis'
 import type { Factory, Meta } from 'phecda-server'
 import { Context } from './context'
 
@@ -8,10 +8,10 @@ export interface Options {
   dev?: boolean
 }
 
-export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
+export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const metaMap = new Map<string, Meta>()
 
-  const existQueue = new Set<string>()
+  const pub = new Redis(redis.options)
   const { dev = process.env.NODE_ENV !== 'production', globalGuards = [], globalInterceptors = [] } = opts || {}
   function handleMeta() {
     for (const item of meta) {
@@ -24,14 +24,12 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
 
   handleMeta()
 
-  await ch.assertQueue(queue)
+  redis.subscribe(channel)
 
-  ch.consume(queue, async (msg) => {
+  redis.on('message', async (_, msg) => {
     if (msg) {
-      const { tag, args, queue, id } = JSON.parse(msg.content.toString())
+      const { tag, args, id, queue } = JSON.parse(msg)
       const context = new Context(tag, null)
-      if (!existQueue.has(queue))
-        await ch.assertQueue(queue)
 
       try {
         if (!metaMap.has(tag))
@@ -53,17 +51,16 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
         }), tag)
 
         const funcData = await moduleMap.get(name)[method](...handleArgs)
-        const ret = await context.usePostInterceptor(funcData)
-        if (queue)
-          ch.sendToQueue(queue, Buffer.from(JSON.stringify({ data: ret, id })))
+        const res = await context.usePostInterceptor(funcData)
+
+        pub.publish(queue, JSON.stringify({ data: res, id }))
       }
       catch (e) {
-        const err = await context.useFilter(e)
-        if (queue)
-          ch.sendToQueue(queue, Buffer.from(JSON.stringify(err)))
+        pub.publish(queue, JSON.stringify({
+          data: await context.useFilter(e),
+          id,
+        }))
       }
-
-      ch.ack(msg)
     }
   })
 
