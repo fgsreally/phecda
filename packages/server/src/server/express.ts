@@ -190,61 +190,63 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     })
     for (const i of meta) {
       const { method, http, header, tag } = i.data
+
+      if (!http?.type)
+        continue
+
       const methodTag = `${tag}-${method}`
+
       const {
         reflect,
         handlers,
         data: {
           interceptors,
           guards,
-
           params,
           middlewares,
         },
-      } = metaMap.get(methodTag)!
+      } = metaMap.get(methodTag)!;
 
-      if (http?.type) {
-        (app as Express)[http.type](http.route, (req, _res, next) => {
-          (req as any)[MODULE_SYMBOL] = moduleMap;
-          (req as any)[META_SYMBOL] = meta
-          next()
-        }, ...Context.useMiddleware(middlewares), async (req, res) => {
-          const instance = moduleMap.get(tag)!
-          const contextData = {
-            request: req,
-            meta: i,
-            response: res,
-            moduleMap,
-          }
-          const context = new Context(methodTag, contextData)
+      (app as Express)[http.type](http.route, (req, _res, next) => {
+        (req as any)[MODULE_SYMBOL] = moduleMap;
+        (req as any)[META_SYMBOL] = meta
+        next()
+      }, ...Context.useMiddleware(middlewares), async (req, res) => {
+        const instance = moduleMap.get(tag)!
+        const contextData = {
+          request: req,
+          meta: i,
+          response: res,
+          moduleMap,
+        }
+        const context = new Context(methodTag, contextData)
 
-          try {
-            for (const name in header)
-              res.set(name, header[name])
-            await context.useGuard([...globalGuards, ...guards])
-            if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
-              return
+        try {
+          for (const name in header)
+            res.set(name, header[name])
+          await context.useGuard([...globalGuards, ...guards])
+          if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
+            return
 
-            const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-              return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
-            }))
+          const args = await context.usePipe(params.map(({ type, key, option, index }) => {
+            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
+          }))
 
-            instance.context = contextData
-            const funcData = await instance[method](...args)
-            const ret = await context.usePostInterceptor(funcData)
+          instance.context = contextData
+          const funcData = await instance[method](...args)
+          const ret = await context.usePostInterceptor(funcData)
 
-            if (isObject(ret))
-              res.json(ret)
-            else
-              res.send(String(ret))
-          }
-          catch (e: any) {
-            handlers.forEach(handler => handler.error?.(e))
-            const err = await context.useFilter(e)
-            res.status(err.status).json(err)
-          }
-        })
-      }
+          if (isObject(ret))
+            res.json(ret)
+          else
+            res.send(String(ret))
+        }
+        catch (e: any) {
+          handlers.forEach(handler => handler.error?.(e))
+          const err = await context.useFilter(e)
+          res.status(err.status).json(err)
+        }
+      })
     }
   }
 
