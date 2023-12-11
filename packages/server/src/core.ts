@@ -15,7 +15,7 @@ const debug = Debug('phecda-server')
 export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(Modules: (new (...args: any) => any)[], opts: {
-  dev?: boolean
+
   // HTTP generate code path
   http?: string
   // rpc generate code path
@@ -28,7 +28,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   // only work for warn
   const constructorSet = new WeakSet()
   const moduleGraph = new Map<string, Set<string>>()
-  const { dev = process.env.NODE_ENV !== 'production', http, rpc } = opts
+  const { http, rpc } = opts
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
@@ -119,7 +119,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   }
 
   writeMeta()
-  if (dev) {
+  if (process.env.NODE_ENV === 'development') {
     // @ts-expect-error globalThis
     globalThis.__PS_HMR__ = async (file: string) => {
       debug(`reload file ${file}`)

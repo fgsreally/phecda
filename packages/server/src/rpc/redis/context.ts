@@ -15,7 +15,8 @@ export const singletonConf = {
 }
 
 export interface RedisCtx {
-  meta: Meta
+  type: 'redis'
+  meta?: Meta
   moduleMap: Record<string, any>
   redis: Redis
   msg: string

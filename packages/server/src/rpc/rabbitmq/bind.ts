@@ -7,14 +7,13 @@ import { Context } from './context'
 export interface Options {
   globalGuards?: string[]
   globalInterceptors?: string[]
-  dev?: boolean
 }
 
 export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const metaMap = new Map<string, Meta>()
 
   const existQueue = new Set<string>()
-  const { dev = process.env.NODE_ENV !== 'production', globalGuards = [], globalInterceptors = [] } = opts || {}
+  const { globalGuards = [], globalInterceptors = [] } = opts || {}
   function handleMeta() {
     for (const item of meta) {
       const { data: { rpc, method, name } } = item
@@ -30,8 +29,16 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
 
   ch.consume(queue, async (msg) => {
     if (msg) {
-      const { tag, args, queue, id } = JSON.parse(msg.content.toString())
-      const context = new Context(tag, null)
+      const data = JSON.parse(msg.content.toString())
+      const { tag, args, queue, id } = data
+      const context = new Context(tag, {
+        type: 'rabbitmq',
+        moduleMap,
+        meta: metaMap.get(tag),
+        data,
+        ch,
+        msg,
+      })
       if (!existQueue.has(queue))
         await ch.assertQueue(queue)
 
@@ -72,7 +79,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
     }
   }, { noAck: true })
 
-  if (dev) {
+  if (process.env.NODE_ENV === 'development') {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis

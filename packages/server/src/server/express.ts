@@ -9,7 +9,6 @@ import type { Meta } from '../meta'
 
 export interface Options {
 
-  dev?: boolean
   /**
  * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
  */
@@ -39,7 +38,7 @@ export interface Options {
 }
 
 export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { dev = process.env.NODE_ENV !== 'production', globalGuards, globalInterceptors, route, middlewares: proMiddle, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  const { globalGuards, globalInterceptors, route, middlewares: proMiddle, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
@@ -84,6 +83,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           for (const item of data) {
             const { tag } = item
             const contextData = {
+              type: 'express',
               request: req,
               meta: metaMap.get(tag)!,
               response: res,
@@ -140,6 +140,8 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             return new Promise(async (resolve) => {
               const { tag } = item
               const contextData = {
+                type: 'express',
+
                 request: req,
                 meta: metaMap.get(tag)!,
                 response: res,
@@ -214,6 +216,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       }, ...Context.useMiddleware(middlewares), async (req, res) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
+          type: 'express',
           request: req,
           meta: i,
           response: res,
@@ -252,7 +255,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
   handleMeta()
   createRoute()
-  if (dev) {
+  if (process.env.NODE_ENV === 'development') {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis

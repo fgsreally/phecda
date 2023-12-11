@@ -4,10 +4,7 @@ import type { Construct } from './types'
 import { APP_SYMBOL } from './common'
 
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
-  const { moduleMap, constructorMap } = await Factory(Modules, {
-
-    dev: false,
-  })
+  const { moduleMap, constructorMap } = await Factory(Modules)
 
   return {
     get<C extends T[number]>(Module: C): InstanceType<C> {

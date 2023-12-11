@@ -1,11 +1,11 @@
-import { Base, Body, Controller, Define, Get, Head, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Get, Head, Param, Post, Put, Query, ServerBase, Tag, Watcher, emitter } from 'phecda-server'
 
 import { A } from './test.service'
 import { log } from './utils'
 
 @Controller('/base')
 @Tag('test')
-export class TestController extends Base {
+export class TestController extends ServerBase {
   static age = 12
   age = 1
   constructor(public fgs: A) {
