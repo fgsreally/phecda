@@ -16,6 +16,8 @@ export abstract class BaseContext<Data = any> {
   postInterceptors: Function[]
 
   constructor(public tag: string, public data: Data) {
+    // @ts-expect-error work for debug
+    data._context = this
   }
 
   usePipe(args: { arg: any; option?: any; type: string; key: string; index: number; reflect: any }[]) {

@@ -43,9 +43,9 @@ export interface BaseError {
   status: number
 }
 
-export class Base {
-  context: ServerCtx
-}
+// export class Base {
+//   context: ServerCtx
+// }
 
 export namespace P {
   export interface Error extends BaseError { message: string; description: string }

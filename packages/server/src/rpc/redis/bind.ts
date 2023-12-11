@@ -28,10 +28,18 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
 
   redis.subscribe(channel)
 
-  redis.on('message', async (_, msg) => {
+  redis.on('message', async (channel, msg) => {
     if (msg) {
-      const { tag, args, id, queue } = JSON.parse(msg)
-      const context = new Context(tag, null)
+      const data = JSON.parse(msg)
+      const { tag, args, id, queue } = data
+      const context = new Context(tag, {
+        moduleMap,
+        redis,
+        meta: metaMap.get(tag)!,
+        msg,
+        channel,
+        data,
+      })
 
       try {
         if (!metaMap.has(tag))
