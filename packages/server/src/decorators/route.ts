@@ -39,7 +39,7 @@ export function Controller(route: string) {
   return Route(route)
 }
 
-export function Rpc(...rpc: string[]) {
+export function Rpc(...rpc: ('mq'|'redis'|string)[]) {
   return (target: any, key: PropertyKey) => {
     setModelVar(target, key)
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}

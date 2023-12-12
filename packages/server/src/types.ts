@@ -30,6 +30,7 @@ export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof
 // }
 
 export interface ServerCtx {
+  type: string
   request: Request
   response: Response
   meta: Meta
@@ -43,7 +44,7 @@ export interface BaseError {
   status: number
 }
 
-export class Base {
+export class ServerBase {
   context: ServerCtx
 }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Factory, Rpc } from '../src'
-import { bind, createClient } from '../src/rpc/rabbitmq'
+import { Arg, Exception, Factory, Guard, Interceptor, Rpc, defaultPipe } from '../src'
+import { addGuard, addInterceptor, bind, createClient, setFilter, setPipe } from '../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
   return new Promise<void>((resolve) => {
@@ -9,6 +9,15 @@ function stop(time = 1000) {
   })
 }
 describe('rabbitmq rpc', () => {
+  class Faker {
+    run() {
+      return {
+        tag: 'TestRpc-run',
+        rpc: ['mq'],
+      }
+    }
+  }
+
   it('create server', async () => {
     const fn = vi.fn()
     class TestRpc {
@@ -46,15 +55,6 @@ describe('rabbitmq rpc', () => {
       }
     }
 
-    class Faker {
-      run() {
-        return {
-          tag: 'TestRpc-run',
-          rpc: ['mq'],
-        }
-      }
-    }
-
     const data = await Factory([TestRpc])
     const conn = await amqp.connect('amqp://localhost')
 
@@ -70,5 +70,127 @@ describe('rabbitmq rpc', () => {
     expect(await client.test.run(1)).toBe(1)
 
     expect(fn).toHaveBeenCalled()
+  })
+
+  it('guard', async () => {
+    addGuard('g1', (tag) => {
+      expect(tag).toBe('TestRpc-run')
+
+      return true
+    })
+    class TestRpc {
+      @Rpc('mq')
+      @Guard('g1')
+      run(@Arg() arg: number) {
+        expect(arg).toBe(1)
+        return ++arg
+      }
+    }
+
+    const data = await Factory([TestRpc])
+    const conn = await amqp.connect('amqp://localhost')
+
+    const clientCh = await conn.createChannel()
+    const serverCh = await conn.createChannel()
+
+    await bind(serverCh, 'test', data)
+
+    const client = await createClient(clientCh, 'test', {
+      test: Faker as unknown as typeof TestRpc,
+    })
+
+    expect(await client.test.run(1)).toBe(2)
+  })
+
+  it('interceptor', async () => {
+    addInterceptor('i1', (tag) => {
+      expect(tag).toBe('TestRpc-run')
+      return (ret: number) => {
+        expect(ret).toBe(2)
+        return ++ret
+      }
+    })
+    class TestRpc {
+      @Rpc('mq')
+      @Interceptor('i1')
+      run(@Arg() arg: number) {
+        expect(arg).toBe(1)
+        return ++arg
+      }
+    }
+
+    const data = await Factory([TestRpc])
+    const conn = await amqp.connect('amqp://localhost')
+
+    const clientCh = await conn.createChannel()
+    const serverCh = await conn.createChannel()
+
+    await bind(serverCh, 'test', data)
+
+    const client = await createClient(clientCh, 'test', {
+      test: Faker as unknown as typeof TestRpc,
+    })
+
+    expect(await client.test.run(1)).toBe(3)
+  })
+
+  it('pipe', async () => {
+    setPipe(async (args) => {
+      const ret = args.map(({ arg }) => arg)
+
+      expect(ret).toEqual([1])
+      return ret.map(i => String(i))
+    })
+    class TestRpc {
+      @Rpc('mq')
+      run(@Arg() arg: number) {
+        expect(arg).toBe('1')
+        return arg
+      }
+    }
+
+    const data = await Factory([TestRpc])
+    const conn = await amqp.connect('amqp://localhost')
+
+    const clientCh = await conn.createChannel()
+    const serverCh = await conn.createChannel()
+
+    await bind(serverCh, 'test', data)
+
+    const client = await createClient(clientCh, 'test', {
+      test: Faker as unknown as typeof TestRpc,
+    })
+
+    expect(await client.test.run(1)).toBe('1')
+  })
+
+  it('filter', async () => {
+    setPipe(defaultPipe)
+
+    setFilter((e) => {
+      expect(e.message).toBe('just for test')
+      return {
+        error: true,
+        info: 'rpc error',
+      }
+    })
+    class TestRpc {
+      @Rpc('mq')
+      run() {
+        throw new Exception('just for test', 0)
+      }
+    }
+    const data = await Factory([TestRpc])
+    const conn = await amqp.connect('amqp://localhost')
+
+    const clientCh = await conn.createChannel()
+    const serverCh = await conn.createChannel()
+
+    await bind(serverCh, 'test', data)
+
+    const client = await createClient(clientCh, 'test', {
+      test: Faker as unknown as typeof TestRpc,
+    })
+    await expect(client.test.run()).rejects.toEqual({ error: true, info: 'rpc error' })
   })
 })

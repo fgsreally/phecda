@@ -1,13 +1,10 @@
-import type { Express, Router } from 'express'
+import type { Router } from 'express'
 import { Factory } from './core'
 import type { Construct } from './types'
 import { APP_SYMBOL } from './common'
 
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
-  const { moduleMap, constructorMap } = await Factory(Modules, {
-
-    dev: false,
-  })
+  const { moduleMap, constructorMap } = await Factory(Modules)
 
   return {
     get<C extends T[number]>(Module: C): InstanceType<C> {
@@ -25,7 +22,7 @@ export async function TestFactory<T extends Construct[]>(...Modules: T) {
   }
 }
 
-export async function TestHttp(app: Express | Router, headers: Record<string, string> = {}) {
+export async function TestHttp(app: Router, headers: Record<string, string> = {}) {
   const { moduleMap, meta } = (app as any)[APP_SYMBOL] as Awaited<ReturnType<typeof Factory>>
   const { default: request } = await import('supertest')
   return {

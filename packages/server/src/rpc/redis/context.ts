@@ -1,7 +1,9 @@
+import type Redis from 'ioredis'
 import { BaseContext } from '../../context'
 import type { P } from '../../types'
 import { defaultFilter } from '../../filter'
 import { defaultPipe } from '../../pipe'
+import type { Meta } from '../../meta'
 
 export const guardsRecord = {} as Record<string, P.Guard<void>>
 
@@ -11,7 +13,18 @@ export const singletonConf = {
   pipe: defaultPipe,
   filter: defaultFilter,
 }
-export class Context extends BaseContext<null> {
+
+export interface RedisCtx {
+  type: 'redis'
+  meta?: Meta
+  moduleMap: Record<string, any>
+  redis: Redis
+  msg: string
+  channel: string
+  // JSON parse msg
+  data: any
+}
+export class Context extends BaseContext<RedisCtx> {
   singletonConf = singletonConf
   interceptorsRecord = interceptorsRecord
   guardsRecord = guardsRecord
