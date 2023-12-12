@@ -1,5 +1,13 @@
 # phecda-server
 
+## 4.0.0-alpha.7
+
+### Patch Changes
+
+- 95a0564: contextData includes type(express/redis/rabbitmq)
+- f8d38b5: server only create route when http.type is defined(with any http decorator) in express
+- 95a0564: add context to rpc
+
 ## 4.0.0-alpha.6
 
 ### Major Changes
