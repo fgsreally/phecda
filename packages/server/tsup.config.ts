@@ -1,11 +1,14 @@
 import type { Options } from 'tsup'
 
 export const tsup: Options = {
-  entry: ['src/index.ts', 'src/test.ts', 'src/rpc/rabbitmq/index.ts', 'src/rpc/redis/index.ts'],
+  entry: ['src/index.ts', 'src/test.ts',
+    'src/server/express/index.ts',
+    'src/server/fastify/index.ts',
+    'src/rpc/rabbitmq/index.ts', 'src/rpc/redis/index.ts'],
   format: ['cjs', 'esm'],
   dts: true,
   splitting: false,
   shims: false,
   sourcemap: true,
-  external: ['amqplib', 'ioredis'],
+  external: ['amqplib', 'ioredis', 'express', 'fastify'],
 }

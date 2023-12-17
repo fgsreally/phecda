@@ -1,6 +1,6 @@
-import { ForbiddenException, FrameworkException } from '../exception'
-import { Histroy } from '../history'
-import type { P } from '../types'
+import { ForbiddenException, FrameworkException } from './exception'
+import { Histroy } from './history'
+import type { P } from './types'
 
 export abstract class BaseContext<Data = any> {
   method: string

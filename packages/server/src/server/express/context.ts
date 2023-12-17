@@ -1,14 +1,27 @@
-import type { RequestHandler } from 'express'
-import { FrameworkException } from '../exception'
-import { defaultPipe } from '../pipe'
-import { defaultFilter } from '../filter'
-import type { P, ServerCtx, ServerErr } from '../types'
+import type { Request, RequestHandler, Response } from 'express'
+import { FrameworkException } from '../../exception'
+import { defaultPipe } from '../../pipe'
+import { defaultFilter } from '../../filter'
+import type { P, ServerErr } from '../../types'
 
-import { BaseContext } from './base'
+import { BaseContext } from '../../context'
+import type { Meta } from '../../meta'
 
-export const guardsRecord = {} as Record<string, P.Guard<ServerCtx>>
+export const guardsRecord = {} as Record<string, P.Guard<ExpressCtx>>
 
-export const interceptorsRecord = {} as Record<string, P.Interceptor<ServerCtx>>
+export const interceptorsRecord = {} as Record<string, P.Interceptor<ExpressCtx>>
+
+export interface ExpressCtx {
+  type: 'express'
+  request: Request
+  response: Response
+  meta: Meta
+  moduleMap: Record<string, any>
+}
+
+export class ExpressBase {
+  context: ExpressCtx
+}
 
 export const middlewareRecord = {} as Record<string, (...params: any) => any>
 
@@ -16,7 +29,7 @@ export const singletonConf = {
   pipe: defaultPipe,
   filter: defaultFilter,
 }
-export class Context extends BaseContext<ServerCtx> {
+export class Context extends BaseContext<ExpressCtx> {
   singletonConf = singletonConf
   // static metaRecord: Record<string, Meta> = {}
   // static metaDataRecord: Record<string, ReturnType<typeof parseMeta>> = {}
@@ -46,18 +59,18 @@ export function addMiddleware(key: string, handler: RequestHandler) {
   middlewareRecord[key] = handler
 }
 
-export function setPipe(pipe: P.Pipe<ServerCtx>) {
+export function setPipe(pipe: P.Pipe<ExpressCtx>) {
   singletonConf.pipe = pipe
 }
 
-export function setFilter(filter: P.Filter<ServerCtx, ServerErr>) {
+export function setFilter(filter: P.Filter<ExpressCtx, ServerErr>) {
   singletonConf.filter = filter
 }
 
-export function addGuard(key: string, handler: P.Guard<ServerCtx>) {
+export function addGuard(key: string, handler: P.Guard<ExpressCtx>) {
   guardsRecord[key] = handler
 }
 
-export function addInterceptor(key: string, handler: P.Interceptor<ServerCtx>) {
+export function addInterceptor(key: string, handler: P.Interceptor<ExpressCtx>) {
   interceptorsRecord[key] = handler
 }

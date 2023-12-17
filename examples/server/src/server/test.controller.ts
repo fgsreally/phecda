@@ -1,15 +1,17 @@
-import { Body, Controller, Define, Get, Head, Param, Post, Put, Query, ServerBase, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Get, Head, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
+import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
 import { log } from './utils'
 
 @Controller('/base')
 @Tag('test')
-export class TestController extends ServerBase {
+export class TestController {
   static age = 12
   age = 1
+  context: ExpressCtx
   constructor(public fgs: A) {
-    super()
+
   }
 
   @Post('/mq')

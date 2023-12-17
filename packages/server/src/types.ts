@@ -1,6 +1,4 @@
-import type { Request, Response } from 'express'
 import type { Events } from 'phecda-core'
-import type { Meta } from './meta'
 import type { Exception } from './exception'
 export type Construct<T = any> = new (...args: any[]) => T
 
@@ -29,23 +27,11 @@ export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof
 //   tags?: string[]
 // }
 
-export interface ServerCtx {
-  type: string
-  request: Request
-  response: Response
-  meta: Meta
-  moduleMap: Record<string, any>
-}
-
 export interface ServerErr { message: string; description: string; status: number; error: boolean }
 
 export interface BaseError {
   error: true
   status: number
-}
-
-export class ServerBase {
-  context: ServerCtx
 }
 
 export namespace P {
