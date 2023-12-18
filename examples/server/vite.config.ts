@@ -5,6 +5,12 @@ import plugin from 'phecda-client/vite'
 import swc from 'unplugin-swc'
 
 export default defineConfig({
+
+  server: {
+    proxy: {
+      '/base': 'http://localhost:3003',
+    },
+  },
   plugins: [swc.vite(), plugin({ split: true })],
   resolve: {
     alias: {

@@ -1,6 +1,5 @@
 export * from './context'
 export * from './types'
-export * from './server/express'
 export * from './core'
 export * from './decorators'
 export * from './exception'

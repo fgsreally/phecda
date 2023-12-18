@@ -1,8 +1,7 @@
 import { addGuard } from '../context'
-import type { ServerCtx } from '../types'
 
-export abstract class ServerGuard {
-  abstract use(tag: string, ctx: ServerCtx): Promise<boolean> | boolean
+export abstract class PGuard {
+  abstract use<C>(tag: string, ctx: C): Promise<boolean> | boolean
 
   constructor(tag: string) {
     addGuard(tag, this.use.bind(this))

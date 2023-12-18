@@ -1,6 +1,7 @@
 import express from 'express'
 import { describe, expect, it } from 'vitest'
-import { Body, Controller, Factory, Param, Post, Put, Query, bindApp } from '../src'
+import { Body, Controller, Factory, Param, Post, Put, Query } from '../src'
+import { bindApp } from '../src/server/express'
 import { TestFactory, TestHttp } from '../src/test'
 
 describe('test utils', () => {

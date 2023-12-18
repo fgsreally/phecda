@@ -3,9 +3,7 @@ import request from 'supertest'
 import express from 'express'
 import { Rule } from 'phecda-core'
 import { bindApp } from '../src/server/express'
-import { Factory } from '../src/core'
-import { Body, Controller, Get, Guard, Interceptor, Param, Post, Query } from '../src/decorators'
-import { Exception, addGuard, addInterceptor } from '../src'
+import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Param, Post, Query, addGuard, addInterceptor } from '../src'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
     class A {

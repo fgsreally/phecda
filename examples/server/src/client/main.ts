@@ -3,7 +3,7 @@ import { $S, createChainReq, createParallelReq, createReq, createSeriesReq, isEr
 import axios from 'axios'
 import { TestController } from '../server/test.controller'
 const instance = axios.create({
-  baseURL: 'http://localhost:3001/base',
+  baseURL: '/base',
 })
 // const beacon = createBeacon('http://localhost:3699')
 const useRequest = createReq(instance)
@@ -23,7 +23,9 @@ async function chainRequest() {
 }
 
 async function request() {
-  const { data } = await useRequest(test('110', 'server', { id: '1', name: 'test' }))
+  // const { data } = await useRequest(test('110', 'server', { id: '1', name: 'test' }))
+  const { data } = await useRequest(get())
+
   console.log('[normal request]:')
 
   console.log(data)

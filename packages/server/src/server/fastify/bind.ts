@@ -1,12 +1,18 @@
-import type { Express, Router } from 'express'
-import { Context, singletonConf } from '../context'
-import { isObject } from '../utils'
-import { resolveDep } from '../helper'
-import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../common'
-import type { Factory } from '../core'
-import { BadRequestException, FrameworkException } from '../exception'
-import type { Meta } from '../meta'
+import type { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
+import { resolveDep } from '../../helper'
+import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../../common'
+import type { Factory } from '../../core'
+import { BadRequestException, FrameworkException } from '../../exception'
+import type { Meta } from '../../meta'
+import { Context } from '../../context'
 
+export interface FastifyCtx {
+  type: string
+  request: FastifyRequest
+  response: FastifyReply
+  meta: Meta
+  moduleMap: Record<string, any>
+}
 export interface Options {
 
   /**
@@ -21,10 +27,6 @@ export interface Options {
  * 全局拦截器
  */
   globalInterceptors?: string[]
-  /**
- * 专用路由的中间件(work for merge request)，全局中间件请在bindApp以外设置
- */
-  middlewares?: string[]
 
   /**
    * allow parallel request,default is true
@@ -37,9 +39,9 @@ export interface Options {
   series?: boolean
 }
 
-export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, middlewares: proMiddle, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
-  (app as any)[APP_SYMBOL] = { moduleMap, meta }
+export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
+  const { globalGuards, globalInterceptors, route, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  //   (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
   function handleMeta() {
@@ -53,19 +55,21 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
-  async function createRoute() {
-    (app as Express).post(route, (req, _res, next) => {
-      (req as any)[MERGE_SYMBOL] = true;
-      (req as any)[MODULE_SYMBOL] = moduleMap;
-      (req as any)[META_SYMBOL] = meta
+  handleMeta()
 
-      next()
-    }, ...Context.useMiddleware(proMiddle), async (req, res) => {
-      const { body: { category, data } } = req
+  return (fastify, _, done) => {
+    (fastify as any)[APP_SYMBOL] = {
+      moduleMap, meta,
+    }
+    fastify.decorateRequest(MODULE_SYMBOL, null)
+    fastify.decorateRequest(META_SYMBOL, null)
+    fastify.decorateRequest(MERGE_SYMBOL, false)
+    fastify.post(route, async (req, res) => {
+      const { body: { category, data } } = req as any
 
       async function errorHandler(e: any) {
-        const error = await singletonConf.filter(e)
-        return res.status(error.status).json(error)
+        const error = await Context.filter(e)
+        return res.status(error.status).send(error)
       }
 
       if (!Array.isArray(data))
@@ -83,7 +87,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           for (const item of data) {
             const { tag } = item
             const contextData = {
-              type: 'express',
+              type: 'fastify',
               request: req,
               meta: metaMap.get(tag)!,
               response: res,
@@ -129,7 +133,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             }
           }
 
-          return res.json(ret)
+          return res.send(ret)
         }
         if (category === 'parallel') {
           if (!parallel)
@@ -140,7 +144,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             return new Promise(async (resolve) => {
               const { tag } = item
               const contextData = {
-                type: 'express',
+                type: 'fastify',
 
                 request: req,
                 meta: metaMap.get(tag)!,
@@ -182,7 +186,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               }
             })
           })).then((ret) => {
-            res.json(ret)
+            res.send(ret)
           })
         }
       }
@@ -205,18 +209,16 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           interceptors,
           guards,
           params,
-          middlewares,
-        },
-      } = metaMap.get(methodTag)!;
 
-      (app as Express)[http.type](http.route, (req, _res, next) => {
+        },
+      } = metaMap.get(methodTag)!
+
+      fastify[http.type](http.route, async (req, res) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
-        next()
-      }, ...Context.useMiddleware(middlewares), async (req, res) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
-          type: 'express',
+          type: 'fastify',
           request: req,
           meta: i,
           response: res,
@@ -226,7 +228,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
         try {
           for (const name in header)
-            res.set(name, header[name])
+            res.header(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
           if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
             return
@@ -239,33 +241,28 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           const funcData = await instance[method](...args)
           const ret = await context.usePostInterceptor(funcData)
 
-          if (isObject(ret))
-            res.json(ret)
-          else
-            res.send(String(ret))
+          res.send(ret)
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e)
-          res.status(err.status).json(err)
+          res.status(err.status).send(err)
         }
       })
     }
-  }
 
-  handleMeta()
-  createRoute()
-  if (process.env.NODE_ENV === 'development') {
-    // @ts-expect-error globalThis
-    const rawMetaHmr = globalThis.__PS_WRITEMETA__
-    // @ts-expect-error globalThis
+    done()
 
-    globalThis.__PS_WRITEMETA__ = () => {
-      app.stack = []// app.stack.slice(0, 1)
-      handleMeta()
+    // if (process.env.NODE_ENV === 'development') {
+    //   // @ts-expect-error globalThis
+    //   const rawMetaHmr = globalThis.__PS_WRITEMETA__
+    //   // @ts-expect-error globalThis
 
-      createRoute()
-      rawMetaHmr?.()
-    }
+    //   globalThis.__PS_WRITEMETA__ = () => {
+    //     handleMeta()
+
+    //     rawMetaHmr?.()
+    //   }
+    // }
   }
 }

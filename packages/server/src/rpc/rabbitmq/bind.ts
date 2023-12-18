@@ -2,11 +2,20 @@ import type amqplib from 'amqplib'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
-import { Context } from './context'
+import { Context } from '../../context'
 
 export interface Options {
   globalGuards?: string[]
   globalInterceptors?: string[]
+}
+export interface RabbitmqCtx {
+  type: 'rabbitmq'
+  meta?: Meta
+  moduleMap: Record<string, any>
+  ch: amqplib.Channel
+  msg: amqplib.ConsumeMessage
+  // JSON parse msg.content
+  data: any
 }
 
 export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {

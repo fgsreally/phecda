@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Exception, Factory, Guard, Interceptor, Rpc, defaultPipe } from '../src'
-import { addGuard, addInterceptor, bind, createClient, setFilter, setPipe } from '../src/rpc/rabbitmq'
+import { Arg, Exception, Factory, Guard, Interceptor, Rpc, addGuard, addInterceptor, defaultPipe, setFilter, setPipe } from '../src'
+import { bind, createClient } from '../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
   return new Promise<void>((resolve) => {
