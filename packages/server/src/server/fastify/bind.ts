@@ -1,11 +1,18 @@
-import type { FastifyPluginCallback } from 'fastify'
+import type { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException, FrameworkException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context, singletonConf } from './context'
+import { Context } from '../../context'
 
+export interface FastifyCtx {
+  type: string
+  request: FastifyRequest
+  response: FastifyReply
+  meta: Meta
+  moduleMap: Record<string, any>
+}
 export interface Options {
 
   /**
@@ -49,18 +56,6 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
   }
 
   handleMeta()
-  // if (process.env.NODE_ENV === 'development') {
-  //   // @ts-expect-error globalThis
-  //   const rawMetaHmr = globalThis.__PS_WRITEMETA__
-  //   // @ts-expect-error globalThis
-
-  //   globalThis.__PS_WRITEMETA__ = () => {
-  //     handleMeta()
-
-  //     createRoute()
-  //     rawMetaHmr?.()
-  //   }
-  // }
 
   return (fastify, _, done) => {
     (fastify as any)[APP_SYMBOL] = {
@@ -73,7 +68,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
       const { body: { category, data } } = req as any
 
       async function errorHandler(e: any) {
-        const error = await singletonConf.filter(e)
+        const error = await Context.filter(e)
         return res.status(error.status).send(error)
       }
 
@@ -246,7 +241,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           const funcData = await instance[method](...args)
           const ret = await context.usePostInterceptor(funcData)
 
-          res.send(String(ret))
+          res.send(ret)
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
@@ -254,8 +249,20 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           res.status(err.status).send(err)
         }
       })
-
-      done()
     }
+
+    done()
+
+    // if (process.env.NODE_ENV === 'development') {
+    //   // @ts-expect-error globalThis
+    //   const rawMetaHmr = globalThis.__PS_WRITEMETA__
+    //   // @ts-expect-error globalThis
+
+    //   globalThis.__PS_WRITEMETA__ = () => {
+    //     handleMeta()
+
+    //     rawMetaHmr?.()
+    //   }
+    // }
   }
 }

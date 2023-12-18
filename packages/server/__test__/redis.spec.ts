@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Exception, Factory, Guard, Interceptor, Rpc, defaultPipe } from '../src'
-import { addGuard, addInterceptor, bind, createClient, setFilter, setPipe } from '../src/rpc/redis'
+import { Arg, Exception, Factory, Guard, Interceptor, Rpc, addGuard, addInterceptor, defaultPipe, setFilter, setPipe } from '../src'
+import { bind, createClient } from '../src/rpc/redis'
 
 function stop(time = 500) {
   return new Promise<void>((resolve) => {

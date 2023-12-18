@@ -2,9 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { Rule } from 'phecda-core'
-import { addGuard, addInterceptor, bindApp } from '../src/server/express'
-import { Exception, Factory } from '../src'
-import { Body, Controller, Get, Guard, Interceptor, Param, Post, Query } from '../src/decorators'
+import { bindApp } from '../src/server/express'
+import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Param, Post, Query, addGuard, addInterceptor } from '../src'
 describe('express ', () => {
   it('express app will bind phecda-middleware', async () => {
     class A {

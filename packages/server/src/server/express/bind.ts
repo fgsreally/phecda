@@ -5,8 +5,15 @@ import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } f
 import type { Factory } from '../../core'
 import { BadRequestException, FrameworkException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context, singletonConf } from './context'
+import { Context } from '../../context'
 
+export interface ExpressCtx {
+  type: string
+  request: Request
+  response: Response
+  meta: Meta
+  moduleMap: Record<string, any>
+}
 export interface Options {
 
   /**
@@ -64,7 +71,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { body: { category, data } } = req
 
       async function errorHandler(e: any) {
-        const error = await singletonConf.filter(e)
+        const error = await Context.filter(e)
         return res.status(error.status).json(error)
       }
 
@@ -206,9 +213,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           params,
           middlewares,
         },
-      } = metaMap.get(methodTag)!
-
-      console.log(reflect);
+      } = metaMap.get(methodTag)!;
 
       (app as Express)[http.type](http.route, (req, _res, next) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;

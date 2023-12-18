@@ -2,12 +2,23 @@ import Redis from 'ioredis'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
-import { Context } from './context'
+import { Context } from '../../context'
 
 export interface Options {
   globalGuards?: string[]
   globalInterceptors?: string[]
 
+}
+
+export interface RedisCtx {
+  type: 'redis'
+  meta?: Meta
+  moduleMap: Record<string, any>
+  redis: Redis
+  msg: string
+  channel: string
+  // JSON parse msg
+  data: any
 }
 
 export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
