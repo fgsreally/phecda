@@ -1,5 +1,15 @@
 # phecda-server
 
+## 4.0.0-alpha.8
+
+### Minor Changes
+
+- 9b2ac7a: support fastify
+
+### Patch Changes
+
+- 9b2ac7a: rpc and server use the same namespace. it means that guards/interceptor/pipe/filter will be shared
+
 ## 4.0.0-alpha.7
 
 ### Patch Changes
