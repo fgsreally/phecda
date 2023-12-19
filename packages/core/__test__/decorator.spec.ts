@@ -2,9 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { Assign, Bind, Effect, Empty, Expose, Ignore, Pipe, Rule, Tag, addDecoToClass, classToValue, getBind, getExposeKey, injectProperty, isPhecda, plainToClass, registerAsync, to } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
+    prefix = '2'
+
     @Ignore
-    @Rule('phecda', k => `${k} should be phecda`)
-    @Pipe(to((name: string) => `${name}1`)
+    @Rule('phecda', (k, tag) => `${tag}.${k} should be phecda`)
+    @Pipe(to((name: string, instance: Parent) => `${instance.prefix}${name}1`)
       .to(name => `${name}1`)
       .to(name => `${name}1`))
     name: string
@@ -23,11 +25,11 @@ describe('validate&transform', () => {
     const { err } = await plainToClass(Parent, { name: 'phecda11' })
     expect(err.length).toBe(1)
 
-    expect(err[0]).toBe('name should be phecda')
+    expect(err[0]).toBe('Parent.name should be phecda')
 
     const { data } = await plainToClass(Parent, { name: 'phecda' })
-    expect(data.name).toBe('phecda111')
-    expect(data.fullname).toBe('phecda111-core')
+    expect(data.name).toBe('2phecda111')
+    expect(data.fullname).toBe('2phecda111-core')
 
     data.changeName()
 
@@ -50,7 +52,7 @@ describe('validate&transform', () => {
     const { err, data } = await plainToClass(Child, { name: 'phecda11', age: '1' }, { transform: true, collectError: true })
     expect(err.length).toBe(2)
     expect(err[0]).toBe('name should be short')
-    expect(data.name).toBe('phecda11111')
+    expect(data.name).toBe('2phecda11111')
     expect(classToValue(data)).toMatchSnapshot()
   })
 

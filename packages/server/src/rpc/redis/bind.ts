@@ -30,7 +30,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
     for (const item of meta) {
       const { data: { rpc, method, name } } = item
 
-      if (rpc && rpc.includes('mq'))
+      if (rpc?.type && rpc.type.includes('mq'))
         metaMap.set(`${name}-${method}`, item)
     }
   }
@@ -61,7 +61,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
           data: {
             guards, interceptors, params, name, method,
           },
-          reflect,
+          paramsType,
         } = metaMap.get(tag)!
 
         await context.useGuard([...globalGuards, ...guards])
@@ -69,17 +69,17 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
           return
 
         const handleArgs = await context.usePipe(params.map(({ type, key, option, index }, i) => {
-          return { arg: args[i], option, key, type, index, reflect: reflect[index] }
+          return { arg: args[i], option, key, type, index, reflect: paramsType[index] }
         }))
 
         const funcData = await moduleMap.get(name)[method](...handleArgs)
         const res = await context.usePostInterceptor(funcData)
 
-        pub.publish(queue, JSON.stringify({ data: res, id }))
+        queue && pub.publish(queue, JSON.stringify({ data: res, id }))
       }
       catch (e) {
         const ret = await context.useFilter(e)
-        pub.publish(queue, JSON.stringify({
+        queue && pub.publish(queue, JSON.stringify({
           data: ret,
           error: ret.error,
           id,

@@ -23,7 +23,7 @@ export function Bind(value: any) {
 }
 
 export function Rule(rule: RegExp | string | ((arg: any) => boolean | 'ok') | number,
-  info: string | ((k: string) => string),
+  info: string | ((k: string, tag: string) => string),
   meta?: any) {
   return (obj: any, key: PropertyKey) => {
     setModelVar(obj, key)
@@ -70,7 +70,7 @@ export function Pipe(v: ReturnType<typeof to>) {
       async pipe(instance: any) {
         const tasks = v.value
         for (const task of tasks)
-          instance[key] = await task(instance[key])
+          instance[key] = await task(instance[key], instance)
       },
     })
   }

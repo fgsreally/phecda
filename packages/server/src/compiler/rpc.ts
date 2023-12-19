@@ -16,24 +16,17 @@ class Compiler {
     return content
   }
 
-  // createRequest() {
-  //     let content = 'import {useC} from \'phecda-server\'\n'
-  //     for (const name in this.classMap)
-  //         content += `export const {${Object.keys(this.classMap[name]).join(',')}}=useC(${name})\n`
-  //     return content
-  // }
-
   addMethod(args: P.Meta) {
     const {
       rpc, name, method, tag,
     } = args
-    if (!rpc)
+    if (!rpc || !rpc.type)
       return
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
     ${method}(){
-      return {tag:'${tag}-${method}',rpc:[${rpc.reduce((p, c) => {
+      return {tag:'${tag}-${method}',isEvent:${!!rpc.isEvent},rpc:[${rpc.type.reduce((p, c) => {
         return `${p}"${c}",`
       }, '')}]}
 

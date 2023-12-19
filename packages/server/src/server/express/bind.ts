@@ -101,7 +101,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             try {
               const [name, method] = tag.split('-')
               const {
-                reflect,
+                paramsType,
                 data: {
                   params,
                   guards,
@@ -119,10 +119,10 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 const arg = resolveDep(item[type], key)
                 if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
                   const [, argIndex, argKey] = arg.split('@')
-                  return { arg: resolveDep(ret[Number(argIndex)], argKey || key), option, index, type, key, reflect: reflect[index] }
+                  return { arg: resolveDep(ret[Number(argIndex)], argKey || key), option, index, type, key, reflect: paramsType[index] }
                 }
 
-                return { arg, option, index, type, key, reflect: reflect[index] }
+                return { arg, option, index, type, key, reflect: paramsType[index] }
               })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
@@ -156,7 +156,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               const context = new Context(tag, contextData)
               const [name, method] = tag.split('-')
               const {
-                reflect,
+                paramsType,
 
                 handlers,
 
@@ -176,7 +176,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 ) return
                 const args = await context.usePipe(params.map(({ type, key, option, index }) => {
                   const arg = resolveDep(item[type], key)
-                  return { arg, type, key, option, index, reflect: reflect[index] }
+                  return { arg, type, key, option, index, reflect: paramsType[index] }
                 })) as any
                 instance.context = contextData
                 const funcData = await moduleMap.get(name)[method](...args)
@@ -205,7 +205,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const methodTag = `${tag}-${method}`
 
       const {
-        reflect,
+        paramsType,
         handlers,
         data: {
           interceptors,
@@ -238,7 +238,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             return
 
           const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: reflect[index] }
+            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: paramsType[index] }
           }))
 
           instance.context = contextData

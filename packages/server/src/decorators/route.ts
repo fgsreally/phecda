@@ -39,12 +39,31 @@ export function Controller(route: string) {
   return Route(route)
 }
 
-export function Rpc(...rpc: ('mq'|'redis'|string)[]) {
-  return (target: any, key: PropertyKey) => {
+export function Rpc(...types: ('mq' | 'redis' | string)[]) {
+  return (target: any, key?: PropertyKey) => {
+    if (!key)
+      key = '__CLASS'
+    target = key === '__CLASS' ? target.prototype : target
     setModelVar(target, key)
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
-    state.rpc = rpc
+    if (!state.rpc)
+      state.rpc = {}
 
+    state.rpc.type = types
+    setState(target, key, state)
+  }
+}
+export function Event(isEvent = true) {
+  return (target: any, key?: PropertyKey) => {
+    if (!key)
+      key = '__CLASS'
+    target = key === '__CLASS' ? target.prototype : target
+    setModelVar(target, key)
+    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    if (!state.rpc)
+      state.rpc = {}
+
+    state.rpc.isEvent = isEvent
     setState(target, key, state)
   }
 }

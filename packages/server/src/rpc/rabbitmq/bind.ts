@@ -27,7 +27,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
     for (const item of meta) {
       const { data: { rpc, method, name } } = item
 
-      if (rpc && rpc.includes('mq'))
+      if (rpc?.type && rpc.type.includes('mq'))
         metaMap.set(`${name}-${method}`, item)
     }
   }
@@ -59,7 +59,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
           data: {
             guards, interceptors, params, name, method,
           },
-          reflect,
+          paramsType,
         } = metaMap.get(tag)!
 
         await context.useGuard([...globalGuards, ...guards])
@@ -67,7 +67,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
           return
 
         const handleArgs = await context.usePipe(params.map(({ type, key, option, index }, i) => {
-          return { arg: args[i], option, key, type, index, reflect: reflect[index] }
+          return { arg: args[i], option, key, type, index, reflect: paramsType[index] }
         }))
 
         const funcData = await moduleMap.get(name)[method](...handleArgs)

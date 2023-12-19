@@ -22,7 +22,7 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-        const { tag, rpc } = target[p]()
+        const { tag, rpc, isEvent } = target[p]()
         if (!rpc.includes('mq'))
           throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
         return (...args: any) => {
@@ -32,10 +32,12 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
                 id,
                 tag,
                 args,
-                queue: uniQueue,
+                queue: isEvent ? undefined : uniQueue,
               },
             ),
           ))
+          if (isEvent)
+            return null
 
           return new Promise((resolve, reject) => {
             emitter.once(id, (data: any, error: boolean) => {

@@ -24,9 +24,19 @@ export function createClient<S extends Record<string, any>>(redis: Redis, queue:
           if (typeof target[p] !== 'function')
             throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-          const { tag, rpc } = target[p]()
+          const { tag, rpc, isEvent } = target[p]()
           if (!rpc.includes('redis'))
             throw new Error(`"${p}" in "${i}" doesn't support redis`)
+
+          redis.publish(queue, JSON.stringify({
+            args,
+            id,
+            tag,
+            queue: isEvent ? undefined : uniQueue,
+
+          }))
+          if (isEvent)
+            return null
 
           return new Promise((resolve, reject) => {
             emitter.once(id, (data, error) => {
@@ -36,13 +46,6 @@ export function createClient<S extends Record<string, any>>(redis: Redis, queue:
               else
                 resolve(data)
             })
-
-            redis.publish(queue, JSON.stringify({
-              args,
-              id,
-              tag,
-              queue: uniQueue,
-            }))
           })
         }
       },

@@ -1,6 +1,6 @@
 import { getExposeKey, getHandler, getModelState, getState } from './core'
 import type { ClassValue, Phecda, UsePipeOptions } from './types'
-import { validate } from './utils'
+import { getTag, validate } from './utils'
 
 export function getBind<M extends new (...args: any) => any>(Model: M) {
   const instance = new Model() as Phecda
@@ -17,6 +17,7 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
 
 export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
   const data: InstanceType<M> = new Model()
+  const tag = getTag(Model) || Model.name
   const err: string[] = []
   const stateVars = getModelState(data) as PropertyKey[]
   for (const item of stateVars) {
@@ -33,7 +34,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
           if (ret === 'ok')
             break
           if (rule && !ret) {
-            err.push(typeof handler.info === 'function' ? handler.info(item) : handler.info)
+            err.push(typeof handler.info === 'function' ? handler.info(item, tag) : handler.info)
             if (!options.collectError)
               break
           }
@@ -61,10 +62,10 @@ export function classToValue<M>(instance: M): ClassValue<M> {
   return data
 }
 
-export function to<T extends (...args: any) => any>(task: T, oldTasks?: Function[]) {
+export function to<T extends (...args: any) => any>(task: T, intance?: any, oldTasks?: Function[]) {
   const tasks: Function[] = oldTasks || []
   tasks.push(task)
-  return { to: <R extends (arg: ReturnType<T>) => any>(task: R) => to<R>(task, tasks), value: tasks }
+  return { to: <R extends (arg: ReturnType<T>) => any>(task: R) => to<R>(task, intance, tasks), value: tasks }
 }
 
 export function snapShot<T extends new (...args: any) => any>(data: InstanceType<T>) {

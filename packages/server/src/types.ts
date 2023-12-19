@@ -55,7 +55,10 @@ export namespace P {
       type: RequestType
       route: string
     }
-    rpc?: string[]
+    rpc?: {
+      type: string[]
+      isEvent: boolean
+    }
     define?: any
     header: Record<string, string>
     params: { type: string; index: number; key: string; option?: any }[]

@@ -35,7 +35,7 @@ export class TestController {
   }
 
   @Get('/send')
-  async sendMsgToMQ(@Body('data') body: string) {
+  sendMsgToMQ(@Body('data') body: string): string {
     emitter.emit('watch', 1)
     return 'send msg to mq'
   }
