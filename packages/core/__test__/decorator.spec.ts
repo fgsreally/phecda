@@ -1,14 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Pipe, Rule, Tag, addDecoToClass, classToValue, getBind, getExposeKey, injectProperty, isPhecda, plainToClass, registerAsync, to } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipe, Tag, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     prefix = '2'
 
     @Ignore
-    @Rule('phecda', (k, tag) => `${tag}.${k} should be phecda`)
-    @Pipe(to((name: string, instance: Parent) => `${instance.prefix}${name}1`)
-      .to(name => `${name}1`)
-      .to(name => `${name}1`))
+    @Pipe((p, i, k) => {
+      if (p !== 'phecda')
+        throw new Error(`${getSymbol(i)}.${k} should be phecda`)
+
+      return p + 1
+    })
     name: string
 
     @Expose
@@ -22,38 +24,43 @@ describe('validate&transform', () => {
   }
   it('plainToClass', async () => {
     // false
-    const { err } = await plainToClass(Parent, { name: 'phecda11' })
-    expect(err.length).toBe(1)
-
+    const instance = plainToClass(Parent, { name: 'phecda11' })
+    const err = await transformClass(instance)
     expect(err[0]).toBe('Parent.name should be phecda')
 
-    const { data } = await plainToClass(Parent, { name: 'phecda' })
-    expect(data.name).toBe('2phecda111')
-    expect(data.fullname).toBe('2phecda111-core')
+    const instance2 = plainToClass(Parent, { name: 'phecda' })
 
-    data.changeName()
+    await transformClass(instance2)
+    expect(instance2.name).toBe('phecda1')
+    expect(instance2.fullname).toBe('phecda1-core')
 
-    expect(data.name).toBe('phecda-changed')
-    expect(data.fullname).toBe('phecda-changed-core')
+    instance2.changeName()
+
+    expect(instance2.name).toBe('phecda-changed')
+    expect(instance2.fullname).toBe('phecda-changed-core')
   })
 
-  it('classToValue', async () => {
-    const { data } = await plainToClass(Parent, { name: 'phecda' })
-    expect(classToValue(data)).toMatchSnapshot()
+  it('classToValue', () => {
+    const instance = plainToClass(Parent, { name: 'phecda' })
+    expect(classToValue(instance)).toMatchSnapshot()
   })
 
   it('extend', async () => {
     class Child extends Parent {
-      @Rule((str: string) => str.length < 5, 'name should be short')
+      @Pipe((str: string) => {
+        if (str.length >= 5)
+          throw new Error('name should be short')
+
+        return str
+      })
       @Ignore
       name: string
     }
-
-    const { err, data } = await plainToClass(Child, { name: 'phecda11', age: '1' }, { transform: true, collectError: true })
+    const instance = plainToClass(Child, { name: 'phecda11', age: '1' })
+    const err = await transformClass(instance, true)
     expect(err.length).toBe(2)
     expect(err[0]).toBe('name should be short')
-    expect(data.name).toBe('2phecda11111')
-    expect(classToValue(data)).toMatchSnapshot()
+    expect(classToValue(instance)).toMatchSnapshot()
   })
 
   it('isPhecda', async () => {
@@ -120,5 +127,26 @@ describe('validate&transform', () => {
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveReturnedWith(20)
     expect(instance.key).toBe(20)
+  })
+
+  it('Nested', async () => {
+    class B {
+      @Pipe(v => v + 1)
+      b: number
+
+      change() {
+        this.b++
+      }
+    }
+    class A {
+      @Nested(B)
+      b: B
+    }
+
+    const instance = plainToClass(A, { b: { b: 0 } })
+    await transformClass(instance)
+    expect(instance.b.b).toBe(1)
+    instance.b.change()
+    expect(instance.b.b).toBe(2)
   })
 })

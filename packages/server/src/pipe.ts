@@ -1,7 +1,8 @@
-import { isPhecda, plainToClass } from 'phecda-core'
+import { isPhecda } from 'phecda-core'
 import { ValidateException } from './exception/validate'
 
 import type { P } from './types'
+import { plainToNestedClass } from './utils'
 
 export const defaultPipe: P.Pipe = async (args: any[]) => {
   for (const i in args) {
@@ -16,10 +17,10 @@ export const defaultPipe: P.Pipe = async (args: any[]) => {
     }
 
     if (isPhecda(reflect)) {
-      const ret = await plainToClass(reflect, arg, { transform: true })
+      const ret = await plainToNestedClass(reflect, arg)
       if (ret.err.length > 0)
         throw new ValidateException(ret.err[0])
-      args[i].arg = ret.data
+      args[i].arg = ret.instance
     }
     else {
       if ([Number, Boolean].includes(reflect)) {

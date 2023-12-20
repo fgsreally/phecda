@@ -1,6 +1,14 @@
 import { getExposeKey, getHandler, getModelState, getState } from './core'
 import type { ClassValue, Phecda } from './types'
-import { getTag, validate } from './utils'
+
+export function getTag<M extends new (...args: any) => any>(Model: M) {
+  return (Model as any).prototype?.__TAG__
+}
+
+export function getSymbol<M extends new (...args: any) => any>(instance: InstanceType<M>) {
+  const Model = instance.constructor
+  return getTag(Model) || Model.name
+}
 
 export function getBind<M extends new (...args: any) => any>(Model: M) {
   const instance = new Model() as Phecda
@@ -15,7 +23,7 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
   return ret
 }
 
-export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data) {
+export function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data) {
   const instance: InstanceType<M> = new Model()
 
   const stateVars = getModelState(instance) as PropertyKey[]
@@ -25,42 +33,28 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
   return instance
 }
 
-export async function validateClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
+export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
   const err: string[] = []
-  const tag = getTag(instance) || instance.name
 
   const stateVars = getModelState(instance) as PropertyKey[]
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
     if (handlers) {
       for (const handler of handlers) {
-        const rule = handler.rule
-        const ret = await validate(rule, instance[item])
-        // 当rule为函数，且返回'ok'时，不会进行其他验证
-        if (ret === 'ok')
-          break
-        if (rule && !ret) {
-          err.push(typeof handler.info === 'function' ? handler.info(item, tag) : handler.info)
+        const pipe = handler.pipe
+
+        try {
+          await pipe(instance)
+        }
+        catch (e) {
+          err.push((e as Error).message)
           if (!force)
-            break
+            return err
         }
       }
     }
   }
   return err
-}
-
-// work for @Pipe
-export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>) {
-  const stateVars = getModelState(instance) as PropertyKey[]
-  for (const item of stateVars) {
-    const handlers = getHandler(instance, item)
-    if (handlers) {
-      for (const handler of handlers)
-        await handler.pipe?.(instance)
-    }
-  }
-  return instance
 }
 
 export function classToValue<M>(instance: M): ClassValue<M> {
@@ -71,12 +65,6 @@ export function classToValue<M>(instance: M): ClassValue<M> {
     data[item] = (instance as any)[item]
 
   return data
-}
-
-export function to<T extends (...args: any) => any>(task: T, intance?: any, oldTasks?: Function[]) {
-  const tasks: Function[] = oldTasks || []
-  tasks.push(task)
-  return { to: <R extends (arg: ReturnType<T>) => any>(task: R) => to<R>(task, intance, tasks), value: tasks }
 }
 
 export function snapShot<T extends new (...args: any) => any>(data: InstanceType<T>) {
