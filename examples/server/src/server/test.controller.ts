@@ -7,6 +7,10 @@ import { log } from './utils'
 class Child {
   @Expose
 name: string
+
+  fullname() {
+    return ''
+  }
 }
 
 class Parent {
