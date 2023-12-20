@@ -1,5 +1,15 @@
 # phecda-server
 
+## 4.0.0-alpha.9
+
+### Patch Changes
+
+- de7cf57: support event mode in rpc
+- Updated dependencies [4c4c45a]
+- Updated dependencies [de7cf57]
+- Updated dependencies [de7cf57]
+  - phecda-core@2.1.0-alpha.1
+
 ## 4.0.0-alpha.8
 
 ### Minor Changes

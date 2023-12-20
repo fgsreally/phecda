@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.0-alpha.3
+
+### Patch Changes
+
+- 2314083: replace query with axios params
+
 ## 2.0.0-alpha.2
 
 ### Major Changes
