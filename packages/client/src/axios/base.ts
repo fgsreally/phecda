@@ -13,11 +13,9 @@ export interface RequestArgs {
 }
 type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'tag' | 'headers'>
 export function toReq(arg: RequestArgs) {
-  let { body, query, method, url, headers } = arg
-  if (Object.keys(query).length > 0)
-    url += `?${Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&')}`
+  const { body, query, method, url, headers } = arg
 
-  return { headers, method, url, body }
+  return { headers, method, url, body, query }
 }
 
 export const merge = (...args: RequestArgs[]) => {
@@ -35,16 +33,18 @@ export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Pa
 export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.Res<Awaited<R>>>> {
   // @ts-expect-error methods without route decorator won't send request
   return (arg: any, config?: AxiosRequestConfig) => {
-    const { url, body, method, headers } = toReq(arg as RequestArgs)
+    const { url, body, method, headers, query } = toReq(arg as RequestArgs)
     if (!method) {
       console.warn('methods without route decorator won\'t send request')
       return
     }
 
     const ret = [url] as any[]
-    body && ret.push(body)
 
-    ret.push(addHeadersToConfig(config, headers))
+    if (Object.keys(body).length > 0)
+      ret.push(body)
+
+    ret.push(addToConfig(config, { headers, params: query }))
     // @ts-expect-error misdirction
     return instance[method](...ret)
   }
@@ -87,15 +87,25 @@ export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<t
   }
 }
 
-function addHeadersToConfig(config: any, headers: Record<string, string>) {
-  if (config) {
-    if (config.headers)
-      config.headers = { ...config.headers, ...headers }
-    else config.headers = headers
+function addToConfig(origin: any, config: Record<string, any>) {
+  // if (origin) {
+  //   for (const key in config) {
+  //     if (origin[key])
+  //       origin[key] = { ...origin[key], ...config[key] }
+
+  //     else
+  //       origin[key] = config[key]
+  //   }
+  // }
+  // else {
+  //   origin = config
+  // }
+  if (origin) {
+    for (const key in config)
+      origin[key] = config[key]
   }
   else {
-    config = { headers }
+    origin = config
   }
-
-  return config
+  return origin
 }

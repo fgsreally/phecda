@@ -72,7 +72,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     moduleMap.set(tag, newModule)
   }
   async function buildNestModule(Module: Construct) {
-    const paramtypes = getParamtypes(Module) as Construct[]
+    const paramtypes = getParamTypes(Module) as Construct[]
     let instance: InstanceType<Construct>
     const tag = Module.prototype?.__TAG__ || Module.name
     if (moduleMap.has(tag)) {
@@ -156,8 +156,14 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
         type: state.http.type,
       }
     }
-    if (state.rpc)
-      meta.rpc = state.rpc
+    if (baseState.rpc)
+      meta.rpc = baseState.rpc
+    if (state.rpc) {
+      meta.rpc = {
+        ...meta.rpc,
+        ...state.rpc,
+      }
+    }
 
     meta.name = name
     meta.tag = tag
@@ -176,11 +182,11 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Meta(meta as unknown as P.Meta, getHandler(instance, i), getParamtypes(instance, i as string) || [])
+    return new Meta(meta as unknown as P.Meta, getHandler(instance, i), getParamTypes(instance, i as string) || [])
   })
 }
 
-function getParamtypes(Module: any, key?: string | symbol) {
+function getParamTypes(Module: any, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Module, key!)
 }
 

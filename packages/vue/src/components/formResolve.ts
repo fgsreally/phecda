@@ -1,5 +1,22 @@
-import { getExposeKey, getHandler, validate } from 'phecda-core'
+import { getExposeKey, getHandler } from 'phecda-core'
 
+async function validate(
+  p: RegExp | string | Function | Object | Number,
+  v: any,
+) {
+  if (typeof p === 'string' || typeof p === 'number') {
+    if (v === p)
+      return true
+  }
+
+  if (typeof p === 'function')
+    return (p as Function)(v)
+
+  if (p instanceof RegExp)
+    return p.test(v)
+
+  return false
+}
 export function getElementPlusRules<M, O extends object>(Model: M, options: O = {} as any): any {
   const stateVars = getExposeKey(Model as any) as string[]
   const ret: { [key: string]: { validator: Function; [key: string]: any }[] } = {}

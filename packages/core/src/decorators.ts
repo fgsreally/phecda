@@ -1,4 +1,4 @@
-import type { to } from './helper'
+import { plainToClass, transformClass } from './helper'
 import { init, regisHandler, setExposeKey, setIgnoreKey, setModelVar, setState } from './core'
 import type { InjectData } from './types'
 
@@ -22,18 +22,18 @@ export function Bind(value: any) {
   }
 }
 
-export function Rule(rule: RegExp | string | ((arg: any) => boolean | 'ok') | number,
-  info: string | ((k: string) => string),
-  meta?: any) {
-  return (obj: any, key: PropertyKey) => {
-    setModelVar(obj, key)
-    regisHandler(obj, key, {
-      rule,
-      info,
-      meta,
-    })
-  }
-}
+// export function Rule(rule: RegExp | string | ((arg: any) => Promise<boolean> | boolean | 'ok') | number,
+//   info: string | ((k: string, tag: string) => string),
+//   meta?: any) {
+//   return (obj: any, key: PropertyKey) => {
+//     setModelVar(obj, key)
+//     regisHandler(obj, key, {
+//       rule,
+//       info,
+//       meta,
+//     })
+//   }
+// }
 
 export function Ignore(target: any, key: PropertyKey) {
   setIgnoreKey(target, key)
@@ -63,14 +63,12 @@ export function Expose(target: any, key: PropertyKey) {
   setExposeKey(target, key)
 }
 
-export function Pipe(v: ReturnType<typeof to>) {
+export function Pipe(cb: (arg: any, instance: any, key: string) => any) {
   return (obj: any, key: PropertyKey) => {
     setModelVar(obj, key)
     regisHandler(obj, key, {
       async pipe(instance: any) {
-        const tasks = v.value
-        for (const task of tasks)
-          instance[key] = await task(instance[key])
+        instance[key] = await cb(instance[key], instance, key as string)
       },
     })
   }
@@ -132,4 +130,16 @@ const EmptyProxy: any = new Proxy(Empty, {
 })
 export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
   return DataMap[key] || EmptyProxy/** work for @Inject(x)(...) */
+}
+
+export function Nested<M extends new (...args: any) => any>(Model: M) {
+  return Pipe(async (property) => {
+    const instance = plainToClass(Model, property)
+
+    const err = await transformClass(instance)
+    if (err.length > 0)
+      throw new Error(err[0])
+
+    return instance
+  })
 }

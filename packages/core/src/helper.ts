@@ -1,6 +1,14 @@
 import { getExposeKey, getHandler, getModelState, getState } from './core'
-import type { ClassValue, Phecda, UsePipeOptions } from './types'
-import { validate } from './utils'
+import type { ClassValue, Phecda } from './types'
+
+export function getTag<M extends new (...args: any) => any>(Model: M) {
+  return (Model as any).prototype?.__TAG__
+}
+
+export function getSymbol<M extends new (...args: any) => any>(instance: InstanceType<M>) {
+  const Model = instance.constructor
+  return getTag(Model) || Model.name
+}
 
 export function getBind<M extends new (...args: any) => any>(Model: M) {
   const instance = new Model() as Phecda
@@ -15,40 +23,37 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
   return ret
 }
 
-export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
-  const data: InstanceType<M> = new Model()
-  const err: string[] = []
-  const stateVars = getModelState(data) as PropertyKey[]
-  for (const item of stateVars) {
-    data[item] = input[item]
+export function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data) {
+  const instance: InstanceType<M> = new Model()
 
-    const handlers = getHandler(data, item)
+  const keys = getExposeKey(instance) as PropertyKey[]
+  for (const item of keys)
+    instance[item] = input[item]
+  return instance
+}
+
+export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
+  const err: string[] = []
+
+  const stateVars = getModelState(instance) as PropertyKey[]
+  for (const item of stateVars) {
+    const handlers = getHandler(instance, item)
     if (handlers) {
-      // work for @Rule
-      if (options.collectError !== false) {
-        for (const handler of handlers) {
-          const rule = handler.rule
-          const ret = await validate(rule, data[item])
-          // 当rule为函数，且返回'ok'时，不会进行其他验证
-          if (ret === 'ok')
-            break
-          if (rule && !ret) {
-            err.push(typeof handler.info === 'function' ? handler.info(item) : handler.info)
-            if (!options.collectError)
-              break
-          }
+      for (const handler of handlers) {
+        const pipe = handler.pipe
+
+        try {
+          await pipe(instance)
         }
-      }
-      if (err.length > 0 && !options.transform)
-        return { err, data }
-      // work for @Pipe
-      if (options.transform !== false) {
-        for (const handler of handlers)
-          await handler.pipe?.(data)
+        catch (e) {
+          err.push((e as Error).message)
+          if (!force)
+            return err
+        }
       }
     }
   }
-  return { data, err }
+  return err
 }
 
 export function classToValue<M>(instance: M): ClassValue<M> {
@@ -59,12 +64,6 @@ export function classToValue<M>(instance: M): ClassValue<M> {
     data[item] = (instance as any)[item]
 
   return data
-}
-
-export function to<T extends (...args: any) => any>(task: T, oldTasks?: Function[]) {
-  const tasks: Function[] = oldTasks || []
-  tasks.push(task)
-  return { to: <R extends (arg: ReturnType<T>) => any>(task: R) => to<R>(task, tasks), value: tasks }
 }
 
 export function snapShot<T extends new (...args: any) => any>(data: InstanceType<T>) {

@@ -11,6 +11,10 @@ export async function start() {
   })
   const ret = await client.test.run('xx')
   console.log(`return with ${ret}`)
+
+  const nullRet = client.test.event('event')
+
+  console.log(`return with ${nullRet}`)
 }
 
 start()

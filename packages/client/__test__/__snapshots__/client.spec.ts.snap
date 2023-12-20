@@ -7,6 +7,10 @@ exports[`client  > handle request data 1`] = `
   },
   "headers": {},
   "method": "post",
-  "url": "/base?id=1&name=phecda",
+  "query": {
+    "id": "1",
+    "name": "phecda",
+  },
+  "url": "/base",
 }
 `;

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { Rule } from 'phecda-core'
+import { Pipe } from 'phecda-core'
 import { bindApp } from '../src/server/express'
 import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Param, Post, Query, addGuard, addInterceptor } from '../src'
 describe('express ', () => {
@@ -78,7 +78,11 @@ describe('express ', () => {
   })
   it('pipe will validate data', async () => {
     class Info {
-      @Rule('phecda', 'name should be phecda')
+      @Pipe((p) => {
+        if (p !== 'phecda')
+          throw new Error('name should be phecda')
+        return p
+      })
       name: string
     }
     class D {

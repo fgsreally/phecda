@@ -1,8 +1,22 @@
-import { Body, Controller, Define, Get, Head, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Expose, Get, Head, Nested, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
 import { log } from './utils'
+
+class Child {
+  @Expose
+name: string
+
+  fullname() {
+    return ''
+  }
+}
+
+class Parent {
+  @Nested(Child)
+  child: Child
+}
 
 @Controller('/base')
 @Tag('test')
@@ -35,7 +49,7 @@ export class TestController {
   }
 
   @Get('/send')
-  async sendMsgToMQ(@Body('data') body: string) {
+  sendMsgToMQ(@Body('data') body: string): string {
     emitter.emit('watch', 1)
     return 'send msg to mq'
   }
@@ -46,6 +60,12 @@ export class TestController {
     return {
       data: Date.now(),
     }
+  }
+
+  @Get('/params')
+  async params(@Query() query: Parent) {
+    console.log(query, 'query')
+    return query
   }
 
   @Watcher('watch', { once: true })
