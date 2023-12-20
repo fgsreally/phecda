@@ -3,7 +3,7 @@ export interface NameSpace {
 }
 
 export interface UsePipeOptions {
-  transform?: boolean
+  transform?: boolean | 'force'
   collectError?: boolean
 }
 

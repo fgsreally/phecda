@@ -19,6 +19,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
   const data: InstanceType<M> = new Model()
   const tag = getTag(Model) || Model.name
   const err: string[] = []
+  const { transform = true, collectError = true } = options
   const stateVars = getModelState(data) as PropertyKey[]
   for (const item of stateVars) {
     data[item] = input[item]
@@ -26,7 +27,7 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
     const handlers = getHandler(data, item)
     if (handlers) {
       // work for @Rule
-      if (options.collectError !== false) {
+      if (collectError) {
         for (const handler of handlers) {
           const rule = handler.rule
           const ret = await validate(rule, data[item])
@@ -40,10 +41,10 @@ export async function plainToClass<M extends new (...args: any) => any, Data ext
           }
         }
       }
-      if (err.length > 0 && !options.transform)
+      if (err.length > 0 && transform !== 'force')
         return { err, data }
       // work for @Pipe
-      if (options.transform !== false) {
+      if (transform) {
         for (const handler of handlers)
           await handler.pipe?.(data)
       }
