@@ -20,6 +20,7 @@ export const defaultPipe: P.Pipe = async (args: any[]) => {
       const err = await transformClass(instance)
       if (err.length > 0)
         throw new ValidateException(err[0])
+
       args[i].arg = instance
     }
     else {

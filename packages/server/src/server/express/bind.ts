@@ -236,7 +236,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           await context.useGuard([...globalGuards, ...guards])
           if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
             return
-
           const args = await context.usePipe(params.map(({ type, key, option, index }) => {
             return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: paramsType[index] }
           }))

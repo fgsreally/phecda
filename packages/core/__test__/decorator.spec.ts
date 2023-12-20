@@ -2,9 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipe, Tag, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
-    prefix = '2'
-
-    @Ignore
     @Pipe((p, i, k) => {
       if (p !== 'phecda')
         throw new Error(`${getSymbol(i)}.${k} should be phecda`)
@@ -13,7 +10,6 @@ describe('validate&transform', () => {
     })
     name: string
 
-    @Expose
     get fullname() {
       return `${this.name}-core`
     }

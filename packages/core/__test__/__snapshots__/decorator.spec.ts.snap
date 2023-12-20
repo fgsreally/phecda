@@ -2,13 +2,13 @@
 
 exports[`validate&transform > classToValue 1`] = `
 {
-  "fullname": "phecda-core",
+  "name": "phecda",
 }
 `;
 
 exports[`validate&transform > extend 1`] = `
 {
-  "fullname": "phecda11-core",
+  "name": "phecda11",
 }
 `;
 

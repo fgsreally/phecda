@@ -1,8 +1,18 @@
-import { Body, Controller, Define, Get, Head, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Expose, Get, Head, Nested, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
 import { log } from './utils'
+
+class Child {
+  @Expose
+name: string
+}
+
+class Parent {
+  @Nested(Child)
+  child: Child
+}
 
 @Controller('/base')
 @Tag('test')
@@ -46,6 +56,12 @@ export class TestController {
     return {
       data: Date.now(),
     }
+  }
+
+  @Get('/params')
+  async params(@Query() query: Parent) {
+    console.log(query, 'query')
+    return query
   }
 
   @Watcher('watch', { once: true })

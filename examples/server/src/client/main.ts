@@ -9,7 +9,7 @@ const instance = axios.create({
 const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
 const useSeriesReq = createSeriesReq(instance)
-const { test, get, query } = useC(TestController)
+const { test, get, query, params } = useC(TestController)
 
 const chain = createChainReq(instance, { $test: TestController }, { batch: true })
 
@@ -24,7 +24,7 @@ async function chainRequest() {
 
 async function request() {
   // const { data } = await useRequest(test('110', 'server', { id: '1', name: 'test' }))
-  const { data } = await useRequest(get())
+  const { data } = await useRequest(params({ child: { name: 'child' } }))
 
   console.log('[normal request]:')
 

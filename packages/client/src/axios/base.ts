@@ -40,7 +40,9 @@ export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRe
     }
 
     const ret = [url] as any[]
-    body && ret.push(body)
+
+    if (Object.keys(body).length > 0)
+      ret.push(body)
 
     ret.push(addToConfig(config, { headers, params: query }))
     // @ts-expect-error misdirction
@@ -105,5 +107,5 @@ function addToConfig(origin: any, config: Record<string, any>) {
   else {
     origin = config
   }
-  return config
+  return origin
 }

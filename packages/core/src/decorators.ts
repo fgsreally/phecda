@@ -135,6 +135,7 @@ export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
 export function Nested<M extends new (...args: any) => any>(Model: M) {
   return Pipe(async (property) => {
     const instance = plainToClass(Model, property)
+
     const err = await transformClass(instance)
     if (err.length > 0)
       throw new Error(err[0])

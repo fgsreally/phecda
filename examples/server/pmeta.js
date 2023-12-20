@@ -45,4 +45,12 @@ const ret={tag:"test-get",body:{},headers:{},query:{},params:{},method:"get",url
 return ret
     }
     
+    params(arg0){
+const ret={tag:"test-params",body:{},headers:{},query:{},params:{},method:"get",url:"/base/params"}
+if(arg0!==undefined&&arg0!==null){ret.query=arg0
+}
+
+return ret
+    }
+    
             }

@@ -26,10 +26,9 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
 export function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data) {
   const instance: InstanceType<M> = new Model()
 
-  const stateVars = getModelState(instance) as PropertyKey[]
-  for (const item of stateVars)
+  const keys = getExposeKey(instance) as PropertyKey[]
+  for (const item of keys)
     instance[item] = input[item]
-
   return instance
 }
 
