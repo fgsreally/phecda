@@ -1,4 +1,4 @@
-import type { to } from './helper'
+import { to } from './helper'
 import { init, regisHandler, setExposeKey, setIgnoreKey, setModelVar, setState } from './core'
 import type { InjectData } from './types'
 
@@ -22,7 +22,7 @@ export function Bind(value: any) {
   }
 }
 
-export function Rule(rule: RegExp | string | ((arg: any) => boolean | 'ok') | number,
+export function Rule(rule: RegExp | string | ((arg: any) => Promise<boolean> | boolean | 'ok') | number,
   info: string | ((k: string, tag: string) => string),
   meta?: any) {
   return (obj: any, key: PropertyKey) => {
@@ -63,14 +63,12 @@ export function Expose(target: any, key: PropertyKey) {
   setExposeKey(target, key)
 }
 
-export function Pipe(v: ReturnType<typeof to>) {
+export function Pipe<T extends (arg: any) => any>(cb: T) {
   return (obj: any, key: PropertyKey) => {
     setModelVar(obj, key)
     regisHandler(obj, key, {
       async pipe(instance: any) {
-        const tasks = v.value
-        for (const task of tasks)
-          instance[key] = await task(instance[key], instance)
+        instance[key] = await cb(instance[key], instance)
       },
     })
   }
@@ -132,4 +130,18 @@ const EmptyProxy: any = new Proxy(Empty, {
 })
 export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
   return DataMap[key] || EmptyProxy/** work for @Inject(x)(...) */
+}
+
+export function Ref<T>(Model: Construct<T>, info: string | ((k: string, tag: string) => string)) {
+  return (target: any, v: any) => {
+    Rule(async (v: any) => {
+      const { err } = await plainToClass(Model, v, { transform: false })
+      return err.length === 0
+    }, info)(target, v)
+
+    Pipe(to(async (v: any) => {
+      const { data } = await plainToClass(Model, v, { collectError: false })
+      return data
+    }))(target, v)
+  }
 }

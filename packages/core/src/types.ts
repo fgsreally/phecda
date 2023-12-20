@@ -2,11 +2,6 @@ export interface NameSpace {
   [name: string]: Phecda
 }
 
-export interface UsePipeOptions {
-  transform?: boolean | 'force'
-  collectError?: boolean
-}
-
 export interface InjectData {
   [key: string]: any
 

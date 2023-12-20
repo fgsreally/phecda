@@ -1,5 +1,5 @@
 import { getExposeKey, getHandler, getModelState, getState } from './core'
-import type { ClassValue, Phecda, UsePipeOptions } from './types'
+import type { ClassValue, Phecda } from './types'
 import { getTag, validate } from './utils'
 
 export function getBind<M extends new (...args: any) => any>(Model: M) {
@@ -15,42 +15,52 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
   return ret
 }
 
-export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data, options: UsePipeOptions = {}) {
-  const data: InstanceType<M> = new Model()
-  const tag = getTag(Model) || Model.name
-  const err: string[] = []
-  const { transform = true, collectError = true } = options
-  const stateVars = getModelState(data) as PropertyKey[]
-  for (const item of stateVars) {
-    data[item] = input[item]
+export async function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data) {
+  const instance: InstanceType<M> = new Model()
 
-    const handlers = getHandler(data, item)
+  const stateVars = getModelState(instance) as PropertyKey[]
+  for (const item of stateVars)
+    instance[item] = input[item]
+
+  return instance
+}
+
+export async function validateClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
+  const err: string[] = []
+  const tag = getTag(instance) || instance.name
+
+  const stateVars = getModelState(instance) as PropertyKey[]
+  for (const item of stateVars) {
+    const handlers = getHandler(instance, item)
     if (handlers) {
-      // work for @Rule
-      if (collectError) {
-        for (const handler of handlers) {
-          const rule = handler.rule
-          const ret = await validate(rule, data[item])
-          // 当rule为函数，且返回'ok'时，不会进行其他验证
-          if (ret === 'ok')
+      for (const handler of handlers) {
+        const rule = handler.rule
+        const ret = await validate(rule, instance[item])
+        // 当rule为函数，且返回'ok'时，不会进行其他验证
+        if (ret === 'ok')
+          break
+        if (rule && !ret) {
+          err.push(typeof handler.info === 'function' ? handler.info(item, tag) : handler.info)
+          if (!force)
             break
-          if (rule && !ret) {
-            err.push(typeof handler.info === 'function' ? handler.info(item, tag) : handler.info)
-            if (!options.collectError)
-              break
-          }
         }
-      }
-      if (err.length > 0 && transform !== 'force')
-        return { err, data }
-      // work for @Pipe
-      if (transform) {
-        for (const handler of handlers)
-          await handler.pipe?.(data)
       }
     }
   }
-  return { data, err }
+  return err
+}
+
+// work for @Pipe
+export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>) {
+  const stateVars = getModelState(instance) as PropertyKey[]
+  for (const item of stateVars) {
+    const handlers = getHandler(instance, item)
+    if (handlers) {
+      for (const handler of handlers)
+        await handler.pipe?.(instance)
+    }
+  }
+  return instance
 }
 
 export function classToValue<M>(instance: M): ClassValue<M> {
