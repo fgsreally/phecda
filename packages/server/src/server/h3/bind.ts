@@ -1,4 +1,6 @@
-import type { Express, Router } from 'express'
+import { eventHandler, fromNodeMiddleware } from 'h3'
+import type { NodeMiddleware, Router } from 'h3'
+import type { RequestHandler } from 'express'
 import { isObject } from '../../utils'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../../common'
@@ -7,13 +9,12 @@ import { BadRequestException, FrameworkException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context } from '../../context'
 
-export interface ExpressCtx {
-  type: 'express'
+export interface H3Ctx {
+  type: 'h3'
   request: Request
   response: Response
   meta: Meta
   moduleMap: Record<string, any>
-  [key: string]: any
 }
 export interface Options {
 
@@ -45,9 +46,9 @@ export interface Options {
   series?: boolean
 }
 
-export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
+export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, middlewares: proMiddle, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
-  (app as any)[APP_SYMBOL] = { moduleMap, meta }
+  (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
   function handleMeta() {
@@ -62,13 +63,18 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    (app as Express).post(route, (req, _res, next) => {
+    router.post(route, fromNodeMiddleware((req, _res, next) => {
       (req as any)[MERGE_SYMBOL] = true;
       (req as any)[MODULE_SYMBOL] = moduleMap;
       (req as any)[META_SYMBOL] = meta
 
       next()
-    }, ...Context.useMiddleware(proMiddle), async (req, res) => {
+    }))
+    proMiddle.forEach((m) => {
+      router.post(route, fromNodeMiddleware(Context.useMiddleware([m])[0] as NodeMiddleware))
+    })
+
+    router.post(route, eventHandler(async (event) => {
       const { body: { category, data } } = req
 
       async function errorHandler(e: any) {
@@ -158,9 +164,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               const [name, method] = tag.split('-')
               const {
                 paramsType,
-
                 handlers,
-
                 data: {
                   params,
                   guards, interceptors,
@@ -196,7 +200,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       catch (e) {
         return errorHandler(e)
       }
-    })
+    }))
     for (const i of meta) {
       const { method, http, header, tag } = i.data
 
@@ -214,9 +218,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           params,
           middlewares,
         },
-      } = metaMap.get(methodTag)!;
+      } = metaMap.get(methodTag)!
 
-      (app as Express)[http.type](http.route, (req, _res, next) => {
+      router.post(http.route, (req, _res, next) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
         next()
@@ -267,7 +271,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     // @ts-expect-error globalThis
 
     globalThis.__PS_WRITEMETA__ = () => {
-      app.stack = []// app.stack.slice(0, 1)
       handleMeta()
       createRoute()
       rawMetaHmr?.()

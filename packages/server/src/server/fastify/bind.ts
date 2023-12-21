@@ -7,11 +7,12 @@ import type { Meta } from '../../meta'
 import { Context } from '../../context'
 
 export interface FastifyCtx {
-  type: string
+  type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
   meta: Meta
   moduleMap: Record<string, any>
+  [key: string]: any
 }
 export interface Options {
 

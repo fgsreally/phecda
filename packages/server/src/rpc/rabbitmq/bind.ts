@@ -16,6 +16,8 @@ export interface RabbitmqCtx {
   msg: amqplib.ConsumeMessage
   // JSON parse msg.content
   data: any
+  [key: string]: any
+
 }
 
 export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {

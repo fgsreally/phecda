@@ -22,10 +22,15 @@
       "import": "./dist/test.mjs",
       "require": "./dist/test.js"
     },
+    "./h3": {
+      "import": "./dist/server/h3/index.mjs",
+      "require": "./dist/server/h3/index.js"
+    },
     "./express": {
       "import": "./dist/server/express/index.mjs",
       "require": "./dist/server/express/index.js"
     },
+
     "./fastify": {
       "import": "./dist/server/fastify/index.mjs",
       "require": "./dist/server/fastify/index.js"
@@ -47,6 +52,9 @@
       ],
       "test": [
         "dist/test.d.ts"
+      ],
+      "h3": [
+        "dist/server/h3/index.d.ts"
       ],
       "express": [
         "dist/server/express/index.d.ts"
@@ -84,6 +92,7 @@
     "amqplib": "^0.10.3",
     "express": "^4.18.2",
     "fastify": "^4.25.1",
+    "h3": "^1.9.0",
     "ioredis": "^5.3.2",
     "ioredis-mock": "^8.9.0",
     "koa": "^2.14.2",
