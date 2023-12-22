@@ -14,12 +14,12 @@ const fastify = Fastify({
 fastify.register(bindApp(data), {
   prefix: '/base',
 })
-fastify.listen({ port: 3003 }, (err, address) => {
+fastify.listen({ port: 3005 }, (err, address) => {
   if (err) {
     fastify.log.error(err)
     process.exit(1)
   }
 
   // eslint-disable-next-line no-console
-  console.log('start listening...')
+  console.log('start listening..')
 })

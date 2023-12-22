@@ -1,11 +1,10 @@
-import { eventHandler, fromNodeMiddleware } from 'h3'
+import { eventHandler, fromNodeMiddleware, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
 import type { NodeMiddleware, Router } from 'h3'
-import type { RequestHandler } from 'express'
-import { isObject } from '../../utils'
+
 import { resolveDep } from '../../helper'
-import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, SERIES_SYMBOL } from '../../common'
+import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
-import { BadRequestException, FrameworkException } from '../../exception'
+import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context } from '../../context'
 
@@ -35,19 +34,10 @@ export interface Options {
  */
   middlewares?: string[]
 
-  /**
-   * allow parallel request,default is true
-   */
-  parallel?: boolean
-
-  /**
-   * allow series request,default is true
-   */
-  series?: boolean
 }
 
 export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, middlewares: proMiddle, parallel = true, series = true } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
   (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
@@ -75,128 +65,63 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
     })
 
     router.post(route, eventHandler(async (event) => {
-      const { body: { category, data } } = req
-
+      const body = await readBody(event, { strict: true })
       async function errorHandler(e: any) {
         const error = await Context.filter(e)
-        return res.status(error.status).json(error)
+        setResponseStatus(event, error.status)
+        return error
       }
 
-      if (!Array.isArray(data))
+      if (!Array.isArray(body))
         return errorHandler(new BadRequestException('data format should be an array'))
 
-      if (category !== 'series' && category !== 'parallel')
-        return errorHandler(new BadRequestException('category should be \'parallel\' or \'series\''))
-
-      const ret = [] as any[]
       try {
-        if (category === 'series') {
-          if (!series)
-            return errorHandler(new FrameworkException('series request is not allowed'))
-
-          for (const item of data) {
+        return Promise.all(body.map((item: any) => {
+          // eslint-disable-next-line no-async-promise-executor
+          return new Promise(async (resolve) => {
             const { tag } = item
-            const contextData = {
-              type: 'express' as const,
-              request: req,
-              meta: metaMap.get(tag)!,
-              response: res,
-              moduleMap,
+            const meta = metaMap.get(tag)!
+            if (!meta)
+              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
 
+            const contextData = {
+              type: 'h3' as const,
+              event,
+              meta,
+              moduleMap,
             }
             const context = new Context(tag, contextData)
-            try {
-              const [name, method] = tag.split('-')
-              const {
-                paramsType,
-                data: {
-                  params,
-                  guards,
-                  interceptors,
-                },
-              } = contextData.meta
-              const instance = moduleMap.get(name)
-              if (!params)
-                throw new BadRequestException(`"${tag}" doesn't exist`)
+            const [name, method] = tag.split('-')
+            const {
+              paramsType,
+              handlers,
+              data: {
+                params,
+                guards, interceptors,
+              },
+            } = metaMap.get(tag)!
 
+            const instance = moduleMap.get(name)
+
+            try {
               await context.useGuard([...globalGuards, ...guards])
               if (await context.useInterceptor([...globalInterceptors, ...interceptors])
               ) return
               const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-                const arg = resolveDep(item[type], key)
-                if (typeof arg === 'string' && arg.startsWith(SERIES_SYMBOL)) {
-                  const [, argIndex, argKey] = arg.split('@')
-                  return { arg: resolveDep(ret[Number(argIndex)], argKey || key), option, index, type, key, reflect: paramsType[index] }
-                }
-
-                return { arg, option, index, type, key, reflect: paramsType[index] }
+                return { arg: item.args[index], type, key, option, index, reflect: paramsType[index] }
               })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
-
-              ret.push(await context.usePostInterceptor(funcData))
+              resolve(await context.usePostInterceptor(funcData))
             }
             catch (e: any) {
-              const m = metaMap.get(tag)!
-              m.handlers.forEach(handler => handler.error?.(e))
-              ret.push(await context.useFilter(e))
+              handlers.forEach(handler => handler.error?.(e))
+              resolve(await context.useFilter(e))
             }
-          }
-
-          return res.json(ret)
-        }
-        if (category === 'parallel') {
-          if (!parallel)
-            return errorHandler(new FrameworkException('parallel request is not allowed'))
-
-          return Promise.all(data.map((item: any) => {
-            // eslint-disable-next-line no-async-promise-executor
-            return new Promise(async (resolve) => {
-              const { tag } = item
-              const contextData = {
-                type: 'express' as const,
-                request: req,
-                meta: metaMap.get(tag)!,
-                response: res,
-                moduleMap,
-              }
-              const context = new Context(tag, contextData)
-              const [name, method] = tag.split('-')
-              const {
-                paramsType,
-                handlers,
-                data: {
-                  params,
-                  guards, interceptors,
-                },
-              } = metaMap.get(tag)!
-
-              const instance = moduleMap.get(name)
-
-              try {
-                if (!params)
-                  throw new BadRequestException(`"${tag}" doesn't exist`)
-                await context.useGuard([...globalGuards, ...guards])
-                if (await context.useInterceptor([...globalInterceptors, ...interceptors])
-                ) return
-                const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-                  const arg = resolveDep(item[type], key)
-                  return { arg, type, key, option, index, reflect: paramsType[index] }
-                })) as any
-                instance.context = contextData
-                const funcData = await moduleMap.get(name)[method](...args)
-                resolve(await context.usePostInterceptor(funcData))
-              }
-              catch (e: any) {
-                handlers.forEach(handler => handler.error?.(e))
-                resolve(await context.useFilter(e))
-              }
-            })
-          })).then((ret) => {
-            res.json(ret)
           })
-        }
+        }))
       }
+
       catch (e) {
         return errorHandler(e)
       }
@@ -220,46 +145,65 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         },
       } = metaMap.get(methodTag)!
 
-      router.post(http.route, (req, _res, next) => {
+      router[http.type](http.route, fromNodeMiddleware((req, _res, next) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
         next()
-      }, ...Context.useMiddleware(middlewares), async (req, res) => {
+      }))
+
+      for (const m of middlewares)
+        router[http.type](http.route, fromNodeMiddleware(Context.useMiddleware([m])[0]))
+
+      router[http.type](http.route, eventHandler(async (event) => {
         const instance = moduleMap.get(tag)!
+
         const contextData = {
-          type: 'express' as const,
-          request: req,
+          type: 'h3' as const,
           meta: i,
-          response: res,
+          event,
           moduleMap,
         }
         const context = new Context(methodTag, contextData)
 
         try {
-          for (const name in header)
-            res.set(name, header[name])
+          setHeaders(event, header)
           await context.useGuard([...globalGuards, ...guards])
           if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
             return
+          const body = params.some(item => item.type === 'body') ? await readBody(event, { strict: true }) : undefined
           const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: paramsType[index] }
+            let arg: any
+
+            switch (type) {
+              case 'params':
+                arg = getRouterParams(event)
+                break
+              case 'query':
+                arg = getQuery(event)
+                break
+              case 'header':
+                arg = getRequestHeaders(event)
+                break
+              default:
+                arg = body
+            }
+
+            return { arg: resolveDep(arg, key), option, key, type, index, reflect: paramsType[index] }
           }))
 
           instance.context = contextData
           const funcData = await instance[method](...args)
           const ret = await context.usePostInterceptor(funcData)
 
-          if (isObject(ret))
-            res.json(ret)
-          else
-            res.send(String(ret))
+          return ret
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e)
-          res.status(err.status).json(err)
+          setResponseStatus(event, err.status)
+          return err
         }
-      })
+      }))
     }
   }
 
@@ -272,7 +216,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
     globalThis.__PS_WRITEMETA__ = () => {
       handleMeta()
-      createRoute()
+      // createRoute()
       rawMetaHmr?.()
     }
   }

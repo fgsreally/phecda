@@ -1,6 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { P, RequestType } from 'phecda-server'
-import { SERIES_SYMBOL } from '../common'
 
 export interface RequestArgs {
   body: Record<string, any>
@@ -10,6 +9,7 @@ export interface RequestArgs {
   method: RequestType
   url: string
   tag: string
+  args: any[]
 }
 type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'tag' | 'headers'>
 export function toReq(arg: RequestArgs) {
@@ -50,32 +50,15 @@ export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRe
   }
 }
 
-export function createSeriesReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.ResOrErr<P.Res<R>>>> {
-  // @ts-expect-error misdirction
-  return (args: RequestArgs[], config?: AxiosRequestConfig) => {
-    return instance.post(key, {
-      category: 'series',
-      data: merge(...args),
-    }, config)
-  }
-}
-
 export function createParallelReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.ResOrErr<P.Res<R>>>> {
   // @ts-expect-error misdirction
   return (args: RequestArgs[], config?: AxiosRequestConfig) => {
-    return instance.post(key, {
-      category: 'parallel',
-      data: merge(...args),
-    }, config)
+    return instance.post(key, args, config)
   }
 }
 
 export function isError<T = any>(data: T | P.Error): data is P.Error {
   return typeof data === 'object' && (data as any).error
-}
-
-export function $S(index: number, key = ''): any {
-  return `${SERIES_SYMBOL}@${index}@${key}`
 }
 
 // work for vue-request
@@ -88,18 +71,6 @@ export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<t
 }
 
 function addToConfig(origin: any, config: Record<string, any>) {
-  // if (origin) {
-  //   for (const key in config) {
-  //     if (origin[key])
-  //       origin[key] = { ...origin[key], ...config[key] }
-
-  //     else
-  //       origin[key] = config[key]
-  //   }
-  // }
-  // else {
-  //   origin = config
-  // }
   if (origin) {
     for (const key in config)
       origin[key] = config[key]

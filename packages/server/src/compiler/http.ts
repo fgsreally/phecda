@@ -33,19 +33,14 @@ class Compiler {
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
-    ${method}(${genParams(params)}){
-const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}"}
-${params.reduce((p, c, i) => `${p}if(arg${i}!==undefined&&arg${i}!==null){ret.${c.type}${c.key ? `['${c.key}']` : ''}=arg${i}\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',arg${i})}` : '}'}\n`, '')}
+    ${method}(...args){
+const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
+
+${params.reduce((p, c, i) => `${p}ret.${c.type}${c.key ? `['${c.key}']` : ''}=args[${i}]\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',args[${i}])` : ''}\n`, '')}
 return ret
     }
     `
   }
-}
-
-function genParams(decorators: any[]) {
-  return decorators.map((_, i) => {
-    return `${`arg${i}`}`
-  }).join(',')
 }
 
 export function generateHTTPCode(meta: P.Meta[]) {

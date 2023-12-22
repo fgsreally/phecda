@@ -6,12 +6,13 @@ exports[`compiler generate code > generate http request 1`] = `
 "
         export class A{
             
-    test(arg0,arg1){
-const ret={tag:\\"A-test\\",body:{},headers:{},query:{},params:{},method:\\"get\\",url:\\"/base/test\\"}
-if(arg0!==undefined&&arg0!==null){ret.query['id']=arg0
-}
-if(arg1!==undefined&&arg1!==null){ret.body['name']=arg1
-}
+    test(...args){
+const ret={tag:\\"A-test\\",body:{},headers:{},query:{},params:{},method:\\"get\\",url:\\"/base/test\\",args}
+
+ret.query['id']=args[0]
+
+ret.body['name']=args[1]
+
 
 return ret
     }
