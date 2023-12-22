@@ -6,7 +6,6 @@
     "dev": "vite",
     "express": "phecda src/server/express.ts",
     "h3": "phecda src/server/h3.ts",
-
     "fastify": "phecda src/server/fastify.ts",
     "redis": "phecda src/rpc/sub/redis.ts",
     "rabbitmq": "phecda src/rpc/sub/rabbitmq.ts",

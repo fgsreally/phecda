@@ -1,5 +1,16 @@
 # phecda-server
 
+## 4.0.0-alpha.10
+
+### Minor Changes
+
+- da1a0bb: remove series request and refactor parallel request
+
+### Patch Changes
+
+- da1a0bb: support h3
+- da1a0bb: http compiler will pass args
+
 ## 4.0.0-alpha.9
 
 ### Patch Changes
