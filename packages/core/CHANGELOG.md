@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.1.0-alpha.2
+
+### Patch Changes
+
+- ec66a44: rename Pipe to To
+
 ## 2.1.0-alpha.1
 
 ### Minor Changes
