@@ -1,5 +1,13 @@
 # phecda-server
 
+## 4.0.0-alpha.11
+
+### Patch Changes
+
+- ec66a44: support multple pipe
+- Updated dependencies [ec66a44]
+  - phecda-core@2.1.0-alpha.2
+
 ## 4.0.0-alpha.10
 
 ### Minor Changes
