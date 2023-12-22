@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "4.0.0-alpha.9",
+  "version": "4.0.0-alpha.10",
   "description": "provide express middlewares, `nestjs` format",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -30,7 +30,6 @@
       "import": "./dist/server/express/index.mjs",
       "require": "./dist/server/express/index.js"
     },
-
     "./fastify": {
       "import": "./dist/server/fastify/index.mjs",
       "require": "./dist/server/fastify/index.js"

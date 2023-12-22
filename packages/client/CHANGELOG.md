@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.0-alpha.4
+
+### Minor Changes
+
+- da1a0bb: remove series request and refactor parallel request
+
 ## 2.0.0-alpha.3
 
 ### Patch Changes
