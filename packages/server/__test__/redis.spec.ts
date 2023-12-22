@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Exception, Factory, Guard, Interceptor, Rpc, addGuard, addInterceptor, defaultPipe, setFilter, setPipe } from '../src'
+import { Arg, Exception, Factory, Guard, Interceptor, Pipe, Rpc, addGuard, addInterceptor, addPipe, setFilter } from '../src'
 import { bind, createClient } from '../src/rpc/redis'
 
 function stop(time = 500) {
@@ -134,15 +134,13 @@ describe('redis rpc', () => {
   })
 
   it('pipe', async () => {
-    setPipe(async (args) => {
-      const ret = args.map(({ arg }) => arg)
-
-      expect(ret).toEqual([1])
-      return ret.map(i => String(i))
+    addPipe('test', async ({ arg }) => {
+      expect(arg).toEqual(1)
+      return String(arg)
     })
     class TestRpc {
       @Rpc('mq')
-      run(@Arg() arg: number) {
+      run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
       }
@@ -163,8 +161,6 @@ describe('redis rpc', () => {
   })
 
   it('filter', async () => {
-    setPipe(defaultPipe)
-
     setFilter((e) => {
       expect(e.message).toBe('just for test')
       return {

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipe, Tag, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, To, Tag, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
-    @Pipe((p, i, k) => {
+    @To((p, i, k) => {
       if (p !== 'phecda')
         throw new Error(`${getSymbol(i)}.${k} should be phecda`)
 
@@ -43,7 +43,7 @@ describe('validate&transform', () => {
 
   it('extend', async () => {
     class Child extends Parent {
-      @Pipe((str: string) => {
+      @To((str: string) => {
         if (str.length >= 5)
           throw new Error('name should be short')
 
@@ -127,7 +127,7 @@ describe('validate&transform', () => {
 
   it('Nested', async () => {
     class B {
-      @Pipe(v => v + 1)
+      @To(v => v + 1)
       b: number
 
       change() {

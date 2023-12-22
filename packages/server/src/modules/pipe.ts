@@ -1,9 +1,9 @@
-import { setPipe } from '../context'
+import { addPipe } from '../context'
 
 export abstract class PPipe {
-  constructor() {
-    setPipe(this.use.bind(this))
+  constructor(key: string) {
+    addPipe(key, this.use.bind(this))
   }
 
-  abstract use<C>(args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: C): Promise<any[]>
+  abstract use<C>(args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C): Promise<any>
 }

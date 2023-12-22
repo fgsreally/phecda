@@ -63,7 +63,7 @@ export function Expose(target: any, key: PropertyKey) {
   setExposeKey(target, key)
 }
 
-export function Pipe(cb: (arg: any, instance: any, key: string) => any) {
+export function To(cb: (arg: any, instance: any, key: string) => any) {
   return (obj: any, key: PropertyKey) => {
     setModelVar(obj, key)
     regisHandler(obj, key, {
@@ -133,7 +133,7 @@ export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
 }
 
 export function Nested<M extends new (...args: any) => any>(Model: M) {
-  return Pipe(async (property) => {
+  return To(async (property) => {
     const instance = plainToClass(Model, property)
 
     const err = await transformClass(instance)

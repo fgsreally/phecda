@@ -107,8 +107,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               await context.useGuard([...globalGuards, ...guards])
               if (await context.useInterceptor([...globalInterceptors, ...interceptors])
               ) return
-              const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-                return { arg: item.args[index], type, key, option, index, reflect: paramsType[index] }
+              const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
+                return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
               })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
@@ -171,7 +171,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
             return
           const body = params.some(item => item.type === 'body') ? await readBody(event, { strict: true }) : undefined
-          const args = await context.usePipe(params.map(({ type, key, option, index }) => {
+          const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
             let arg: any
 
             switch (type) {
@@ -188,7 +188,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 arg = body
             }
 
-            return { arg: resolveDep(arg, key), option, key, type, index, reflect: paramsType[index] }
+            return { arg: resolveDep(arg, key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
           }))
 
           instance.context = contextData
