@@ -74,7 +74,7 @@ describe('express ', () => {
     }
     class D {
       @Post('/:test')
-      test(@Pipe('add') @Param('test') test: string, @Body('info') info: Info) {
+      test(@Param('test') @Pipe('add') test: string, @Body('info') info: Info) {
         return `${test}-${info.name}`
       }
     }

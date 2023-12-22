@@ -33,7 +33,6 @@ function exit() {
   log('process exit')
 
   if (child) {
-    console.log('kill')
     kill(child.pid, () => {
       process.exit(0)
     })
