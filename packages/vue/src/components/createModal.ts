@@ -2,6 +2,9 @@ import type { Component } from 'vue'
 import { defineComponent, h, render, shallowRef } from 'vue'
 import { interval } from '../vue/phecda'
 
+/**
+ * @deprecated
+ */
 // similar to createLayer
 export const createModal: <T1, T2 >(wrapComp: Component<T1>, comp: Component<T2>, opts?: {
   modelKey?: string
