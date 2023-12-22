@@ -1,5 +1,16 @@
 # phecda-core
 
+## 2.1.0-alpha.1
+
+### Minor Changes
+
+- 4c4c45a: bind Rule to Pipe
+- de7cf57: add tag to Rule; add instance to Pipe
+
+### Patch Changes
+
+- de7cf57: add tag to rule preset
+
 ## 2.0.1-alpha.0
 
 ### Patch Changes

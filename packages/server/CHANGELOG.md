@@ -1,5 +1,25 @@
 # phecda-server
 
+## 4.0.0-alpha.9
+
+### Patch Changes
+
+- de7cf57: support event mode in rpc
+- Updated dependencies [4c4c45a]
+- Updated dependencies [de7cf57]
+- Updated dependencies [de7cf57]
+  - phecda-core@2.1.0-alpha.1
+
+## 4.0.0-alpha.8
+
+### Minor Changes
+
+- 9b2ac7a: support fastify
+
+### Patch Changes
+
+- 9b2ac7a: rpc and server use the same namespace. it means that guards/interceptor/pipe/filter will be shared
+
 ## 4.0.0-alpha.7
 
 ### Patch Changes
