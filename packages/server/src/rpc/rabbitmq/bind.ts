@@ -68,8 +68,8 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
         if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
           return
 
-        const handleArgs = await context.usePipe(params.map(({ type, key, option, index }, i) => {
-          return { arg: args[i], option, key, type, index, reflect: paramsType[index] }
+        const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
+          return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
         }))
 
         const funcData = await moduleMap.get(name)[method](...handleArgs)

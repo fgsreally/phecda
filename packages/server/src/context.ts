@@ -12,7 +12,10 @@ export class Context<Data = any> {
   history = new Histroy()
 
   static filter: P.Filter = defaultFilter
-  static pipe: P.Pipe = defaultPipe
+  static pipeRecord: Record<string, P.Pipe> = {
+    default: defaultPipe,
+  }
+
   static guardsRecord: Record<string, P.Guard> = {}
   static interceptorsRecord: Record<string, P.Interceptor> = {}
 
@@ -21,12 +24,14 @@ export class Context<Data = any> {
 
   constructor(public tag: string, public data: Data) {
     if (process.env.NODE_ENV === 'development')
-    // @ts-expect-error work for debug
+      // @ts-expect-error work for debug
       data._context = this
   }
 
-  usePipe(args: { arg: any; option?: any; type: string; key: string; index: number; reflect: any }[]) {
-    return Context.pipe(args, this.tag, this.data)
+  usePipe(args: { arg: any; pipe?: string; pipeOpts?: any; type: string; key: string; index: number; reflect: any }[]) {
+    return Promise.all(args.map((item) => {
+      return Context.pipeRecord[item.pipe || 'default'](item, this.tag, this.data)
+    }))
   }
 
   useFilter(arg: any) {
@@ -95,8 +100,8 @@ export function addMiddleware(key: string, handler: (...params: any) => any) {
   Context.middlewareRecord[key] = handler
 }
 
-export function setPipe(pipe: P.Pipe) {
-  Context.pipe = pipe
+export function addPipe(key: string, pipe: P.Pipe) {
+  Context.pipeRecord[key] = pipe
 }
 
 export function setFilter(filter: P.Filter) {

@@ -14,7 +14,7 @@ const fastify = Fastify({
 fastify.register(bindApp(data), {
   prefix: '/base',
 })
-fastify.listen({ port: 3005 }, (err, address) => {
+fastify.listen({ port: 3007 }, (err) => {
   if (err) {
     fastify.log.error(err)
     process.exit(1)

@@ -44,7 +44,7 @@ export namespace P {
 
   export type Interceptor<C = any> = (tag: string, ctx: C) =>(any | ((ret: any) => any))
 
-  export type Pipe<C = any> = (args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }[], tag: string, ctx: C) => Promise<any[]>
+  export type Pipe<C = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C) => Promise<any>
   export type Filter<C = any, R = any, E extends Exception = any > = (err: E | Error, tag?: string, ctx?: C) => R | Promise<R>
 
   export interface Handler {
@@ -61,7 +61,7 @@ export namespace P {
     }
     define?: any
     header: Record<string, string>
-    params: { type: string; index: number; key: string; option?: any }[]
+    params: { type: string; index: number; key: string; pipe?: string; pipeOpts?: any }[]
     guards: string[]
     interceptors: string[]
     middlewares: string[]

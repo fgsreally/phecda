@@ -18,13 +18,11 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],
@@ -51,13 +49,11 @@ exports[`Factory  > In extended case 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],
@@ -79,13 +75,11 @@ exports[`Factory  > In extended case 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],
@@ -112,13 +106,11 @@ exports[`Factory  > multple class extends the same class 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],
@@ -140,13 +132,11 @@ exports[`Factory  > multple class extends the same class 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],
@@ -168,13 +158,11 @@ exports[`Factory  > multple class extends the same class 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],
@@ -196,13 +184,11 @@ exports[`Factory  > multple class extends the same class 1`] = `
       {
         "index": 0,
         "key": "id",
-        "option": undefined,
         "type": "query",
       },
       {
         "index": 1,
         "key": "name",
-        "option": undefined,
         "type": "body",
       },
     ],

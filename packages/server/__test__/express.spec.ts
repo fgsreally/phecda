@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { Pipe } from 'phecda-core'
+import { To } from 'phecda-core'
 import { bindApp } from '../src/server/express'
-import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Middle, Param, Post, Query, addGuard, addInterceptor, addMiddleware } from '../src'
+import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Middle, Param, Pipe, Post, Query, addGuard, addInterceptor, addMiddleware, addPipe } from '../src'
 describe('express ', () => {
   it('simple request', async () => {
     class A {
@@ -63,9 +63,9 @@ describe('express ', () => {
     const res1 = await request(app).get('/test')
     expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, error: true })
   })
-  it('validate pipe', async () => {
+  it('Pipe', async () => {
     class Info {
-      @Pipe((p) => {
+      @To((p) => {
         if (p !== 'phecda')
           throw new Error('name should be phecda')
         return p
@@ -74,11 +74,13 @@ describe('express ', () => {
     }
     class D {
       @Post('/:test')
-      test(@Param('test') test: string, @Body('info') info: Info) {
+      test(@Pipe('add') @Param('test') test: string, @Body('info') info: Info) {
         return `${test}-${info.name}`
       }
     }
-
+    addPipe('add', ({ arg }) => {
+      return arg + 1
+    })
     const data = await Factory([D])
     const app = express()
     app.use(express.json())
@@ -86,6 +88,9 @@ describe('express ', () => {
     bindApp(app, data)
     const res1 = await request(app).post('/test').send({ info: { name: '' } })
     expect(res1.body).toMatchObject({ message: 'name should be phecda', error: true })
+
+    const res2 = await request(app).post('/test').send({ info: { name: 'phecda' } })
+    expect(res2.text).toBe('test1-phecda')
   })
 
   it('middleware', async () => {

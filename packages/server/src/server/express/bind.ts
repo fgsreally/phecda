@@ -103,8 +103,8 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               await context.useGuard([...globalGuards, ...guards])
               if (await context.useInterceptor([...globalInterceptors, ...interceptors])
               ) return
-              const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-                return { arg: item.args[index], type, key, option, index, reflect: paramsType[index] }
+              const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
+                return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
@@ -163,8 +163,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           await context.useGuard([...globalGuards, ...guards])
           if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
             return
-          const args = await context.usePipe(params.map(({ type, key, option, index }) => {
-            return { arg: resolveDep((req as any)[type], key), option, key, type, index, reflect: paramsType[index] }
+
+          const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
+            return { arg: resolveDep((req as any)[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
 
           instance.context = contextData
