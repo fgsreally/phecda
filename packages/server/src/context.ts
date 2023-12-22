@@ -88,7 +88,7 @@ export class Context<Data = any> {
       }
       ret.push(Context.middlewareRecord[m])
     }
-    return ret
+    return ret as any[]
   }
 }
 export function addMiddleware(key: string, handler: (...params: any) => any) {

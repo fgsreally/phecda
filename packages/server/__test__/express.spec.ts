@@ -3,9 +3,9 @@ import request from 'supertest'
 import express from 'express'
 import { Pipe } from 'phecda-core'
 import { bindApp } from '../src/server/express'
-import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Param, Post, Query, addGuard, addInterceptor } from '../src'
+import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Middle, Param, Post, Query, addGuard, addInterceptor, addMiddleware } from '../src'
 describe('express ', () => {
-  it('express app will bind phecda-middleware', async () => {
+  it('simple request', async () => {
     class A {
       @Get('/test')
       test() {
@@ -19,11 +19,8 @@ describe('express ', () => {
     bindApp(app, data)
     const res1 = await request(app).get('/test')
     expect(res1.body.msg).toBe('test')
-
-    const res2 = await request(app).post('/__PHECDA_SERVER__').send({ category: 'series', data: [{ tag: 'A-test' }] })
-    expect(res2.body[0]).toEqual({ msg: 'test' })
   })
-  it('express app will fill params', async () => {
+  it('complex request', async () => {
     @Controller('/base')
     class B {
       @Post('/:test')
@@ -40,27 +37,17 @@ describe('express ', () => {
     const res1 = await request(app).post('/base/phecda?id=1').send({ name: 'server' })
     expect(res1.text).toBe('phecda-server-1')
 
-    const res2 = await request(app).post('/__PHECDA_SERVER__').send({
-      category: 'series',
-      data: [
-        {
-          query: {
-            id: '1',
-          },
-          params: {
-            test: 'phecda',
-          },
-          body: {
-            name: 'server',
-          },
-          tag: 'B-test',
-        },
-      ],
-    })
+    const res2 = await request(app).post('/__PHECDA_SERVER__').send([
+      {
+        tag: 'B-test',
+        args: ['phecda', 'server', '1'],
+      },
+
+    ])
     expect(res2.body[0]).toEqual('phecda-server-1')
   })
 
-  it('express app will handle exception and error', async () => {
+  it('exception filter', async () => {
     class C {
       @Get('/test')
       test() {
@@ -76,7 +63,7 @@ describe('express ', () => {
     const res1 = await request(app).get('/test')
     expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, error: true })
   })
-  it('pipe will validate data', async () => {
+  it('validate pipe', async () => {
     class Info {
       @Pipe((p) => {
         if (p !== 'phecda')
@@ -100,7 +87,38 @@ describe('express ', () => {
     const res1 = await request(app).post('/test').send({ info: { name: '' } })
     expect(res1.body).toMatchObject({ message: 'name should be phecda', error: true })
   })
-  it('guard/interceptor will work', async () => {
+
+  it('middleware', async () => {
+    const fn = vi.fn()
+
+    class A {
+      @Get('/test')
+      @Middle('test')
+      test() {
+        return { msg: 'test' }
+      }
+    }
+
+    addMiddleware('test', (_req, _res, next) => {
+      fn()
+      next()
+    })
+    const data = await Factory([A])
+    const app = express()
+    app.use(express.json())
+
+    bindApp(app, data, { middlewares: ['test'] })
+    await request(app).get('/test')
+    expect(fn).toHaveBeenCalledTimes(1)
+    await request(app).post('/__PHECDA_SERVER__').send([{
+      tag: 'A-test',
+      args: [],
+    }])
+
+    expect(fn).toHaveBeenCalledTimes(2)
+  })
+
+  it('guard/interceptor', async () => {
     const fn = vi.fn((str: string) => str)
     @Interceptor('test')
     class E {
@@ -143,7 +161,7 @@ describe('express ', () => {
     expect(fn).toHaveBeenCalledTimes(4)
   })
 
-  it('guard/interceptor in parallel', async () => {
+  it('guard/interceptor(parallel request)', async () => {
     const fn = vi.fn((str: string) => str)
     const Guardfn = vi.fn((str: string) => str)
 
@@ -151,7 +169,6 @@ describe('express ', () => {
     class E {
       @Guard('test')
       @Interceptor('test')
-
       @Post('/:test')
       test(@Param('test') test: string) {
         return `${test}`
@@ -183,24 +200,22 @@ describe('express ', () => {
       globalGuards: ['test2'],
       globalInterceptors: ['test2'],
     })
-    await request(app).post('/__PHECDA_SERVER__').send({
-      category: 'parallel',
-      data: [
+    await request(app).post('/__PHECDA_SERVER__').send(
+      [
         {
-          query: {
-          },
-          params: {
-            test: 'phecda',
-          },
-          body: {
-          },
           tag: 'E-test',
+          args: ['test1'],
+        },
+        {
+          tag: 'E-test',
+          args: ['test2'],
         },
       ],
-    })
 
-    expect(Guardfn).toHaveBeenCalledTimes(2)
+    )
 
-    expect(fn).toHaveBeenCalledTimes(4)
+    expect(Guardfn).toHaveBeenCalledTimes(4)
+
+    expect(fn).toHaveBeenCalledTimes(8)
   })
 })

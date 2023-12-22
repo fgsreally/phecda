@@ -19,6 +19,7 @@ export interface RedisCtx {
   channel: string
   // JSON parse msg
   data: any
+  [key: string]: any
 }
 
 export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {

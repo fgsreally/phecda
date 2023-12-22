@@ -20,6 +20,7 @@ describe('client ', () => {
       method: 'post' as const,
       url: '/base',
       tag: 'A-test',
+      args: [],
     }
     expect(toReq(data)).toMatchSnapshot()
   })

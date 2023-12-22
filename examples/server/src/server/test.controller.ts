@@ -35,12 +35,11 @@ export class TestController {
 
   @Post('/:test')
   async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
-    console.log(test, name)
     // if (test)
-    //   throw new Error('11')
+    //   throw new Erro r('11')
 
     // this.fgs.fgs.run()
-    return `${test}-${name}-${id.id}`
+    return `${test}-${name}-${id.id}-4542`
   }
 
   @Get('/query')
@@ -63,8 +62,7 @@ export class TestController {
   }
 
   @Get('/params')
-  async params(@Query() query: Parent) {
-    console.log(query, 'query')
+  async params(@Query() query: any) {
     return query
   }
 

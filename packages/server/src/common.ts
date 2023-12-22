@@ -1,4 +1,3 @@
-export const SERIES_SYMBOL = '__PS_SERIES__'
 export const MERGE_SYMBOL = '__PS_MERGE__'
 export const UNMOUNT_SYMBOL = '__PS_UNMOUNT__'
 export const MODULE_SYMBOL = '__PS_MODULE__'
