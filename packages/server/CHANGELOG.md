@@ -1,5 +1,53 @@
 # phecda-server
 
+## 4.0.0-alpha.7
+
+### Patch Changes
+
+- 95a0564: contextData includes type(express/redis/rabbitmq)
+- f8d38b5: server only create route when http.type is defined(with any http decorator) in express
+- 95a0564: add context to rpc
+
+## 4.0.0-alpha.6
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+- e719809: bk change to refactor Context/Pipe/Interceptor;
+  guard/interceptor/pipe will work for function(not request);
+  each function will has its own context(won't share)
+- f6096c3: add redis/rabbitmq
+
+### Patch Changes
+
+- f6096c3: client will throw error when invoke method which is not exposed or not allowed(in rpc)
+
+## 3.2.0-alpha.5
+
+### Minor Changes
+
+- 33bc4b3: add cli command (in stdin); perf log
+
+### Patch Changes
+
+- 108bea7: add moduleResolute(NodeNext) to resolve ts
+- ce19faf: TestHttp can handle string/object response
+- 20fbfdb: a module will only warn once for synonym
+
+## 3.2.0-alpha.4
+
+### Patch Changes
+
+- 738ef7a: add test utils
+- 738ef7a: bind modulemap and meta to express
+- 738ef7a: won't output metaFile if file is empty
+
+## 3.2.0-alpha.3
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+
 ## 3.2.0-alpha.2
 
 ### Patch Changes

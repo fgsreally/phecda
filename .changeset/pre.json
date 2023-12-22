@@ -13,20 +13,37 @@
     "phecda-prompt": "1.0.1",
     "phecda-rabbitmq": "2.0.0",
     "phecda-server": "3.1.0",
-    "phecda-vue": "2.0.3"
+    "phecda-vue": "2.0.3",
+    "phecda-rxdb": "1.0.0"
   },
   "changesets": [
+    "beige-suns-wait",
+    "curly-schools-serve",
+    "dry-chefs-design",
+    "dry-shrimps-cheat",
     "eighty-hotels-sit",
+    "fair-dodos-pay",
+    "fair-horses-itch",
+    "famous-wolves-exercise",
     "kind-bikes-heal",
     "kind-cherries-glow",
+    "kind-elephants-drive",
+    "nasty-sheep-smash",
     "new-donkeys-grow",
     "ninety-garlics-grab",
+    "seven-cows-enjoy",
     "shaggy-falcons-occur",
     "shaggy-waves-grow",
+    "six-insects-breathe",
+    "sixty-pets-shop",
     "sour-panthers-cross",
+    "sweet-bananas-invent",
     "swift-ravens-burn",
+    "ten-panthers-fix",
+    "tidy-pigs-itch",
     "tricky-countries-hang",
     "violet-swans-visit",
+    "weak-beds-pay",
     "witty-icons-care"
   ]
 }

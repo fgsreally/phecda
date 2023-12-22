@@ -1,5 +1,23 @@
 # phecda-client
 
+## 2.0.0-alpha.2
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+
+## 1.2.3-alpha.1
+
+### Patch Changes
+
+- 20fbfdb: can resolve params correctly
+
+## 1.2.3-alpha.0
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+
 ## 1.2.2
 
 ### Patch Changes
