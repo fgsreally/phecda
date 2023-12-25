@@ -2,7 +2,7 @@
 
 对比只基于同类功能的对比，不会拿`PS`的类型复用去跟`nest`去比较，因为其没有相应的功能
 
-## express
+## express/fastify
 `PS`本质上，只是为一个`Router`提供了一系列中间件
 
 严格来说，倒和`express`没啥区别

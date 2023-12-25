@@ -32,12 +32,12 @@ export interface Options {
   /**
  * 专用路由的中间件(work for merge request)，全局中间件请在bindApp以外设置
  */
-  middlewares?: string[]
+  plugins?: string[]
 
 }
 
 export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
@@ -60,8 +60,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
       next()
     }))
-    proMiddle.forEach((m) => {
-      router.post(route, fromNodeMiddleware(Context.useMiddleware([m])[0] as NodeMiddleware))
+    plugins.forEach((p) => {
+      router.post(route, fromNodeMiddleware(Context.usePlugin([p])[0] as NodeMiddleware))
     })
 
     router.post(route, eventHandler(async (event) => {
@@ -141,7 +141,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           interceptors,
           guards,
           params,
-          middlewares,
+          plugins,
         },
       } = metaMap.get(methodTag)!
 
@@ -151,8 +151,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         next()
       }))
 
-      for (const m of middlewares)
-        router[http.type](http.route, fromNodeMiddleware(Context.useMiddleware([m])[0]))
+      for (const p of plugins)
+        router[http.type](http.route, fromNodeMiddleware(Context.usePlugin([p])[0]))
 
       router[http.type](http.route, eventHandler(async (event) => {
         const instance = moduleMap.get(tag)!

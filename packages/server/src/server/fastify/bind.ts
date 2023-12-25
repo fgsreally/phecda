@@ -1,6 +1,6 @@
 import type { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import { resolveDep } from '../../helper'
-import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
+import { APP_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -29,10 +29,15 @@ export interface Options {
  */
   globalInterceptors?: string[]
 
+  /**
+ * 专用路由的插件(work for merge request)，
+ */
+  plugins?: string[]
+
 }
 
 export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
-  const { globalGuards, globalInterceptors, route } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   //   (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
@@ -53,10 +58,10 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
     (fastify as any)[APP_SYMBOL] = {
       moduleMap, meta,
     }
-    fastify.decorateRequest(MODULE_SYMBOL, null)
-    fastify.decorateRequest(META_SYMBOL, null)
-    fastify.decorateRequest(MERGE_SYMBOL, false)
-    fastify.post(route, async (req, res) => {
+    // fastify.decorateRequest(MODULE_SYMBOL, null)
+    // fastify.decorateRequest(META_SYMBOL, null)
+    // fastify.decorateRequest(MERGE_SYMBOL, false)
+    const professionRoute = fastify.post(route, async (req, res) => {
       const { body } = req as any
 
       async function errorHandler(e: any) {
@@ -126,6 +131,12 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
         return errorHandler(e)
       }
     })
+
+    plugins.forEach((p) => {
+      const plugin = Context.usePlugin([p])[0]
+      plugin && professionRoute.register(plugin)
+    })
+
     for (const i of meta) {
       const { method, http, header, tag } = i.data
 
@@ -141,11 +152,11 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           interceptors,
           guards,
           params,
-
+          plugins,
         },
       } = metaMap.get(methodTag)!
 
-      fastify[http.type](http.route, async (req, res) => {
+      const route = fastify[http.type](http.route, async (req, res) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
         const instance = moduleMap.get(tag)!
@@ -180,6 +191,9 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           const err = await context.useFilter(e)
           res.status(err.status).send(err)
         }
+      })
+      Context.usePlugin(plugins).forEach((p) => {
+        route.register(p)
       })
     }
 

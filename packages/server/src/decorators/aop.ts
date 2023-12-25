@@ -16,7 +16,7 @@ export function Guard(...guards: string[]): any {
   }
 }
 
-export function Middle(...middlewares: string[]): any {
+export function Plugin(...plugins: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (!key)
       key = '__CLASS'
@@ -25,9 +25,9 @@ export function Middle(...middlewares: string[]): any {
     setModelVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
-    if (!state.middlewares)
-      state.middlewares = []
-    state.middlewares.push(...middlewares)
+    if (!state.plugins)
+      state.plugins = []
+    state.plugins.push(...plugins)
     setState(target, key, state)
   }
 }

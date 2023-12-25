@@ -19,7 +19,7 @@ export class Context<Data = any> {
   static guardsRecord: Record<string, P.Guard> = {}
   static interceptorsRecord: Record<string, P.Interceptor> = {}
 
-  static middlewareRecord: Record<string, (...params: any) => any> = {}
+  static pluginRecord: Record<string, any> = {}
   postInterceptors: Function[]
 
   constructor(public tag: string, public data: Data) {
@@ -82,22 +82,22 @@ export class Context<Data = any> {
     this.postInterceptors = ret
   }
 
-  static useMiddleware(middlewares: string[]) {
+  static usePlugin(plugins: string[]) {
     const ret = []
-    for (const m of middlewares) {
-      if (!(m in Context.middlewareRecord)) {
+    for (const m of plugins) {
+      if (!(m in Context.pluginRecord)) {
         if (process.env.PS_STRICT)
           throw new FrameworkException(`can't find middleware named '${m}'`)
 
         continue
       }
-      ret.push(Context.middlewareRecord[m])
+      ret.push(Context.pluginRecord[m])
     }
     return ret as any[]
   }
 }
-export function addMiddleware(key: string, handler: (...params: any) => any) {
-  Context.middlewareRecord[key] = handler
+export function addPlugin<C>(key: string, handler: C) {
+  Context.pluginRecord[key] = handler
 }
 
 export function addPipe(key: string, pipe: P.Pipe) {

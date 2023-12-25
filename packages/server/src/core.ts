@@ -2,14 +2,16 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
-import { getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
+import { Empty, getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import Debug from 'debug'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { warn } from './utils'
 import { UNMOUNT_SYMBOL } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
-
+export function Injectable() {
+  return (target: any) => Empty(target)
+}
 const debug = Debug('phecda-server')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
@@ -178,7 +180,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     meta.params = params
     meta.define = { ...baseState.define, ...state.define }
     meta.header = { ...baseState.header, ...state.header }
-    meta.middlewares = [...new Set([...baseState.middlewares, ...state.middlewares])]
+    meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
@@ -195,8 +197,8 @@ function initState(state: any) {
     state.define = {}
   if (!state.header)
     state.header = {}
-  if (!state.middlewares)
-    state.middlewares = []
+  if (!state.plugins)
+    state.plugins = []
   if (!state.guards)
     state.guards = []
   if (!state.interceptors)
