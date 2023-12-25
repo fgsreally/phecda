@@ -8,9 +8,9 @@ import { AppModule } from './app.module'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), { logger: false })
-  await app.listen(3005, () => {
+  await app.listen(process.env.PORT!, () => {
     console.timeEnd('cold-start')
-    console.log('Nestjs started on port 3005')
+    console.log(`Nestjs started on port ${process.env.PORT}`)
   })
 }
 bootstrap()

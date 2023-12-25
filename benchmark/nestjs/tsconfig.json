@@ -4,7 +4,7 @@
       "target": "es2022",
       "incremental": true,
       "tsBuildInfoFile": "../dist/nestjs/build.tsbuildinfo",
-      "outDir": "./dist"
+      "outDir": "../dist/nestjs"
     },
     "include": ["./**/*.ts"]
   }
