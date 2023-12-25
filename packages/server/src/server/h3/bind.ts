@@ -105,8 +105,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              if (await context.useInterceptor([...globalInterceptors, ...interceptors])
-              ) return
+              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (cache !== undefined)
+                return resolve(cache)
               const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
                 return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
               })) as any
@@ -168,8 +169,10 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         try {
           setHeaders(event, header)
           await context.useGuard([...globalGuards, ...guards])
-          if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
-            return
+          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (cache !== undefined)
+            return cache
+
           const body = params.some(item => item.type === 'body') ? await readBody(event, { strict: true }) : undefined
           const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
             let arg: any

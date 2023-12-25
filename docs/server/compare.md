@@ -5,7 +5,7 @@
 ## express/fastify
 `PS`本质上，只是为一个`Router`提供了一系列中间件
 
-严格来说，倒和`express`没啥区别
+严格来说，｀ｐｓ｀只是
 
 ## nestjs
 既然长得和`nest`近似，为什么不直接使用`nest`?

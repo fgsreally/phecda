@@ -84,7 +84,6 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
 
             const contextData = {
               type: 'fastify',
-
               request: req,
               meta,
               response: res,
@@ -109,8 +108,11 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
               if (!params)
                 throw new BadRequestException(`"${tag}" doesn't exist`)
               await context.useGuard([...globalGuards, ...guards])
-              if (await context.useInterceptor([...globalInterceptors, ...interceptors])
-              ) return
+              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (cache !== undefined)
+
+                return resolve(cache)
+
               const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
                 return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
               })) as any
@@ -173,8 +175,10 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           for (const name in header)
             res.header(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
-          if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
-            return
+          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (cache !== undefined)
+
+            return cache
 
           const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
             return { arg: resolveDep((req as any)[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
@@ -184,7 +188,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           const funcData = await instance[method](...args)
           const ret = await context.usePostInterceptor(funcData)
 
-          res.send(ret)
+          return ret
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))

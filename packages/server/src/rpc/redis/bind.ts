@@ -66,8 +66,13 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         } = metaMap.get(tag)!
 
         await context.useGuard([...globalGuards, ...guards])
-        if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
+        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (cache !== undefined) {
+          if (queue)
+            ch.sendToQueue(queue, Buffer.from(JSON.stringify({ data: cache, id })))
+
           return
+        }
 
         const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }

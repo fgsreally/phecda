@@ -1,5 +1,4 @@
 import type { Express, Router } from 'express'
-import { isObject } from '../../utils'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -101,8 +100,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              if (await context.useInterceptor([...globalInterceptors, ...interceptors])
-              ) return
+              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (cache !== undefined)
+                return resolve(cache)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
                 return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
@@ -161,9 +161,16 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           for (const name in header)
             res.set(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
-          if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
-            return
+          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (cache !== undefined) {
+            if (typeof cache === 'string')
+              res.send(cache)
 
+            else
+              res.json(cache)
+
+            return
+          }
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep((req as any)[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
@@ -172,10 +179,11 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           const funcData = await instance[method](...args)
           const ret = await context.usePostInterceptor(funcData)
 
-          if (isObject(ret))
-            res.json(ret)
+          if (typeof ret === 'string')
+            res.send(ret)
+
           else
-            res.send(String(ret))
+            res.json(ret)
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))

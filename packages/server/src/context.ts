@@ -75,7 +75,7 @@ export class Context<Data = any> {
             ret.push(postInterceptor)
 
           else
-            return true
+            return postInterceptor
         }
       }
     }
