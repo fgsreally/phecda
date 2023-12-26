@@ -61,82 +61,90 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
     // fastify.decorateRequest(MODULE_SYMBOL, null)
     // fastify.decorateRequest(META_SYMBOL, null)
     // fastify.decorateRequest(MERGE_SYMBOL, false)
-    const professionRoute = fastify.post(route, async (req, res) => {
-      const { body } = req as any
 
-      async function errorHandler(e: any) {
-        const error = await Context.filter(e)
-        return res.status(error.status).send(error)
-      }
+    fastify.register((fastify, _opts, done) => {
+      plugins.forEach((p) => {
+        const plugin = Context.usePlugin([p])[0]
+        if (plugin) {
+          plugin[Symbol.for('skip-override')] = true
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+          fastify.register(plugin)
+        }
+      })
+      fastify.post(route, async (req, res) => {
+        const { body } = req as any
 
-      try {
-        return Promise.all(body.map((item: any) => {
-          // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag } = item
-            const meta = metaMap.get(tag)
+        async function errorHandler(e: any) {
+          const error = await Context.filter(e)
+          return res.status(error.status).send(error)
+        }
 
-            if (!meta)
-              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
 
-            const contextData = {
-              type: 'fastify',
-              request: req,
-              meta,
-              response: res,
-              moduleMap,
-            }
-            const context = new Context(tag, contextData)
-            const [name, method] = tag.split('-')
-            const {
-              paramsType,
+        try {
+          return Promise.all(body.map((item: any) => {
+            // eslint-disable-next-line no-async-promise-executor
+            return new Promise(async (resolve) => {
+              const { tag } = item
+              const meta = metaMap.get(tag)
 
-              handlers,
+              if (!meta)
+                return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              data: {
-                params,
-                guards, interceptors,
-              },
-            } = meta
+              const contextData = {
+                type: 'fastify',
+                request: req,
+                meta,
+                response: res,
+                moduleMap,
+              }
+              const context = new Context(tag, contextData)
+              const [name, method] = tag.split('-')
+              const {
+                paramsType,
 
-            const instance = moduleMap.get(name)
+                handlers,
 
-            try {
-              if (!params)
-                throw new BadRequestException(`"${tag}" doesn't exist`)
-              await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined)
+                data: {
+                  params,
+                  guards, interceptors,
+                },
+              } = meta
 
-                return resolve(cache)
+              const instance = moduleMap.get(name)
 
-              const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-                return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
-              })) as any
-              instance.context = contextData
-              const funcData = await moduleMap.get(name)[method](...args)
-              resolve(await context.usePostInterceptor(funcData))
-            }
-            catch (e: any) {
-              handlers.forEach(handler => handler.error?.(e))
-              resolve(await context.useFilter(e))
-            }
+              try {
+                if (!params)
+                  throw new BadRequestException(`"${tag}" doesn't exist`)
+                await context.useGuard([...globalGuards, ...guards])
+                const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+                if (cache !== undefined)
+
+                  return resolve(cache)
+
+                const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
+                  return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
+                })) as any
+                instance.context = contextData
+                const funcData = await moduleMap.get(name)[method](...args)
+                resolve(await context.usePostInterceptor(funcData))
+              }
+              catch (e: any) {
+                handlers.forEach(handler => handler.error?.(e))
+                resolve(await context.useFilter(e))
+              }
+            })
+          })).then((ret) => {
+            res.send(ret)
           })
-        })).then((ret) => {
-          res.send(ret)
-        })
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
 
-    plugins.forEach((p) => {
-      const plugin = Context.usePlugin([p])[0]
-      plugin && professionRoute.register(plugin)
+      done()
     })
 
     for (const i of meta) {
@@ -158,46 +166,51 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
         },
       } = metaMap.get(methodTag)!
 
-      const route = fastify[http.type](http.route, async (req, res) => {
-        (req as any)[MODULE_SYMBOL] = moduleMap;
-        (req as any)[META_SYMBOL] = meta
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'fastify',
-          request: req,
-          meta: i,
-          response: res,
-          moduleMap,
-        }
-        const context = new Context(methodTag, contextData)
+      fastify.register((fastify, _opts, done) => {
+        Context.usePlugin(plugins).forEach((p) => {
+          p[Symbol.for('skip-override')] = true
 
-        try {
-          for (const name in header)
-            res.header(name, header[name])
-          await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined)
+          fastify.register(p)
+        })
+        fastify[http.type](http.route, async (req, res) => {
+          (req as any)[MODULE_SYMBOL] = moduleMap;
+          (req as any)[META_SYMBOL] = meta
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'fastify',
+            request: req,
+            meta: i,
+            response: res,
+            moduleMap,
+          }
+          const context = new Context(methodTag, contextData)
 
-            return cache
+          try {
+            for (const name in header)
+              res.header(name, header[name])
+            await context.useGuard([...globalGuards, ...guards])
+            const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (cache !== undefined)
 
-          const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-            return { arg: resolveDep((req as any)[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
-          }))
+              return cache
 
-          instance.context = contextData
-          const funcData = await instance[method](...args)
-          const ret = await context.usePostInterceptor(funcData)
+            const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
+              return { arg: resolveDep((req as any)[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+            }))
 
-          return ret
-        }
-        catch (e: any) {
-          handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
-          res.status(err.status).send(err)
-        }
-      })
-      Context.usePlugin(plugins).forEach((p) => {
-        route.register(p)
+            instance.context = contextData
+            const funcData = await instance[method](...args)
+            const ret = await context.usePostInterceptor(funcData)
+
+            return ret
+          }
+          catch (e: any) {
+            handlers.forEach(handler => handler.error?.(e))
+            const err = await context.useFilter(e)
+            res.status(err.status).send(err)
+          }
+        })
+        done()
       })
     }
 

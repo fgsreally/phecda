@@ -11,25 +11,20 @@ const fastify = Fastify({
   logger: false,
 })
 
-addPlugin('test',(fastify)=>{
-  fastify.addHook('onRequest', (request, reply, done) => {
-    // 通过 options 配置项传递自定义头部的值
-    const customHeaderValue =  'Default-Value';
+addPlugin('test', (fastify, _, done) => {
+  fastify.addHook('onRequest', (_request, reply, done) => {
+    reply.header('X-Custom-Header', 'default')
 
-    // 设置自定义头部
-    reply.header('X-Custom-Header', customHeaderValue);
-
-    // 继续处理请求
-    done();
-  });
+    done()
+  })
+  done()
 })
-
-
 
 fastify.register(bindApp(data), {
   prefix: '/base',
 })
-fastify.listen({ port: 3007 }, (err) => {
+
+fastify.listen({ port: 3008 }, (err) => {
   if (err) {
     fastify.log.error(err)
     process.exit(1)

@@ -99,7 +99,7 @@ export const load = async (url, context, nextLoad) => {
         if (type === 'change') {
           try {
             const files = [...findTopScope(url, Date.now())]
-
+            console.log(files)
             port.postMessage(
               JSON.stringify({
                 type: 'change',

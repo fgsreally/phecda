@@ -3,9 +3,9 @@ import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
 
-addPipe('test', () => {
-  throw new BadRequestException('111')
-})
+// addPipe('test', () => {
+//   throw new BadRequestException('111')
+// })
 
 @Controller('/base')
 @Tag('test')
@@ -24,7 +24,7 @@ export class TestController {
 
   @Plugin('test')
   @Post('/:test')
-  async test(@Param('test') @Pipe('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+  async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
     // if (test)
     //   throw new Erro r('11')
 
