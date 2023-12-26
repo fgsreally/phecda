@@ -3,7 +3,7 @@ import request from 'supertest'
 import express from 'express'
 import { To } from 'phecda-core'
 import { bindApp } from '../src/server/express'
-import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Middle, Param, Pipe, Post, Query, addGuard, addInterceptor, addMiddleware, addPipe } from '../src'
+import { Body, Controller, Exception, Factory, Get, Guard, Interceptor, Param, Pipe, Plugin, Post, Query, addGuard, addInterceptor, addPipe, addPlugin } from '../src'
 describe('express ', () => {
   it('simple request', async () => {
     class A {
@@ -93,18 +93,18 @@ describe('express ', () => {
     expect(res2.text).toBe('test1-phecda')
   })
 
-  it('middleware', async () => {
+  it('plugin', async () => {
     const fn = vi.fn()
 
     class A {
       @Get('/test')
-      @Middle('test')
+      @Plugin('test')
       test() {
         return { msg: 'test' }
       }
     }
 
-    addMiddleware('test', (_req, _res, next) => {
+    addPlugin('test', (_req, _res, next) => {
       fn()
       next()
     })
@@ -112,7 +112,7 @@ describe('express ', () => {
     const app = express()
     app.use(express.json())
 
-    bindApp(app, data, { middlewares: ['test'] })
+    bindApp(app, data, { plugins: ['test'] })
     await request(app).get('/test')
     expect(fn).toHaveBeenCalledTimes(1)
     await request(app).post('/__PHECDA_SERVER__').send([{

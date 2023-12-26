@@ -12,7 +12,6 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
     },
     "interceptors": [],
     "method": "test",
-    "middlewares": [],
     "name": "A",
     "params": [
       {
@@ -26,6 +25,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "A",
   },
 ]
@@ -43,7 +43,6 @@ exports[`Factory  > In extended case 1`] = `
     },
     "interceptors": [],
     "method": "test2",
-    "middlewares": [],
     "name": "B",
     "params": [
       {
@@ -57,6 +56,7 @@ exports[`Factory  > In extended case 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "B",
   },
   {
@@ -69,7 +69,6 @@ exports[`Factory  > In extended case 1`] = `
     },
     "interceptors": [],
     "method": "test",
-    "middlewares": [],
     "name": "B",
     "params": [
       {
@@ -83,6 +82,7 @@ exports[`Factory  > In extended case 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "B",
   },
 ]
@@ -100,7 +100,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
     },
     "interceptors": [],
     "method": "test2",
-    "middlewares": [],
     "name": "B",
     "params": [
       {
@@ -114,6 +113,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "B",
   },
   {
@@ -126,7 +126,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
     },
     "interceptors": [],
     "method": "test",
-    "middlewares": [],
     "name": "B",
     "params": [
       {
@@ -140,6 +139,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "B",
   },
   {
@@ -152,7 +152,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
     },
     "interceptors": [],
     "method": "test3",
-    "middlewares": [],
     "name": "C",
     "params": [
       {
@@ -166,6 +165,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "C",
   },
   {
@@ -178,7 +178,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
     },
     "interceptors": [],
     "method": "test",
-    "middlewares": [],
     "name": "C",
     "params": [
       {
@@ -192,6 +191,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
+    "plugins": [],
     "tag": "C",
   },
 ]
