@@ -1,5 +1,59 @@
 # phecda-server
 
+## 4.0.0
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+- e719809: bk change to refactor Context/Pipe/Interceptor;
+  guard/interceptor/pipe will work for function(not request);
+  each function will has its own context(won't share)
+- f6096c3: add redis/rabbitmq
+
+### Minor Changes
+
+- da1a0bb: remove series request and refactor parallel request
+- ba96778: refactor Middle to Plugin
+- 0b3c856: refactor Factory to support hmr
+- 90b0534: interceptor can provide cache function
+- 33bc4b3: add cli command (in stdin); perf log
+- 9b2ac7a: support fastify
+- 0b3c856: add node loader to support hmr
+
+### Patch Changes
+
+- 108bea7: add moduleResolute(NodeNext) to resolve ts
+- 9b2ac7a: rpc and server use the same namespace. it means that guards/interceptor/pipe/filter will be shared
+- cdbd666: support @Head to input request header
+- ce19faf: TestHttp can handle string/object response
+- 1dd0831: node-loader should handle dynamic import from phecda-server
+- 738ef7a: add test utils
+- 95a0564: contextData includes type(express/redis/rabbitmq)
+- f8d38b5: server only create route when http.type is defined(with any http decorator) in express
+- de7cf57: support event mode in rpc
+- da1a0bb: support h3
+- 474587f: server still work even when specific interceptor/guard/middleware doesn't exist (set process.env.PS_STRICT will avoid it)
+- fae8d80: add cli command to run a child process for entry file hmr
+- f6096c3: client will throw error when invoke method which is not exposed or not allowed(in rpc)
+- 20fbfdb: a module will only warn once for synonym
+- 1dd0831: improve log
+- 738ef7a: bind modulemap and meta to express
+- 1dd0831: moduleGraph should depends on tag(not class instance)
+- 7bca1f5: add debug and log to help debug
+- fae8d80: bindApp in express support hmr
+- 738ef7a: won't output metaFile if file is empty
+- 95a0564: add context to rpc
+- 9c023e7: rename symbol and global function. bind modulemap/metat to req
+- e43bc19: stdin can relunch/exit process (even in windows)
+- ec66a44: support multple pipe
+- da1a0bb: http compiler will pass args
+- Updated dependencies [4c4c45a]
+- Updated dependencies [ec66a44]
+- Updated dependencies [de7cf57]
+- Updated dependencies [de7cf57]
+- Updated dependencies [1dd0831]
+  - phecda-core@2.1.0
+
 ## 4.0.0-alpha.11
 
 ### Patch Changes

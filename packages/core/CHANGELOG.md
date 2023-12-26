@@ -1,5 +1,18 @@
 # phecda-core
 
+## 2.1.0
+
+### Minor Changes
+
+- 4c4c45a: bind Rule to Pipe
+- de7cf57: add tag to Rule; add instance to Pipe
+
+### Patch Changes
+
+- ec66a44: rename Pipe to To
+- de7cf57: add tag to rule preset
+- 1dd0831: isPhecda should return true when class is decorated by any phecda-core decorator
+
 ## 2.1.0-alpha.2
 
 ### Patch Changes
