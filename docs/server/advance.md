@@ -1,4 +1,10 @@
 # advanced
+## 命名规范
+ `x.controller.ts`是http接口
+`x.service.ts`是给对应`Controller`的服务
+`x.rpc.ts`是暴露给rpc的服务
+`x.guard/interceptor/pipe/filter.ts`是aop相关的模块
+`x.module.ts`供给上述所有的服务
 ## phecda-core
 有些功能来自phecda-core
 
@@ -42,19 +48,16 @@ class Guard {
 
 
 ```ts
-
 @Tag('A')
-class SercieA{
-//不能直接操作
+class SercieA {
+// 不能直接操作
 }
 
-class ServiceAA extends ServiceA{
+class ServiceAA extends ServiceA {
 
 }
 
-
-const data=await Factory([ServiceAA...])
-
+const data = await Factory([ServiceAA/** ... */])
 ```
 
 或者
@@ -65,9 +68,7 @@ class ServiceB {
 
 }
 
-
-const data=await Factory([ServiceB...])
-
+const data = await Factory([ServiceB/** ... */])
 ```
 
 原因是：`PS`根据`Tag`or类名 做标记来判断的，如果两个模块有一样的标记，就使用最先被实例化的，

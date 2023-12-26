@@ -238,19 +238,21 @@ export const defaultFilter: P.Filter = (e: any) => {
 
 > 注意，过滤器是处理**错误**的，意味着请求没有被成功处理，状态码不为 2 开头，过滤器不要去`忽略`错误
 
-### 中间件
+### 插件
+这其实对应着中间件，但有些框架没有or不方便实现中间件，故改个名字
 
-中间件显然是完全无法跨框架的,nest 搞的那么复杂也只能支持 express+fastify，这还需要一大堆其他依赖来兼容处理
-所以使用了注入的模式，不同框架中注入不同中间件，
+这个角色显然是完全无法跨框架的,nest 搞的那么复杂也只能支持 express+fastify，这还需要一大堆其他依赖来兼容处理
+所以使用了注入的模式，根据不同框架中注入不同插件，
 
-在 express/h3/koa 中对应中间件,fastify 中对应 register 的插件
+在 express/h3 中对应express中间件,koa对应koa 中间件，fastify 中对应 register 的插件，rpc中忽略
+
 
 ```ts
 
-addMiddleware('auth',()=>false)
+addPlugin('auth',/**根据server不同，注入不同的东西 */)
 
 //...
-@Middle('test')
+@Plugin('test')
 @Get()
 get(){
 

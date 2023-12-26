@@ -69,7 +69,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
           if (queue)
-            ch.sendToQueue(queue, Buffer.from(JSON.stringify({ data: cache, id })))
+            pub.publish(queue, JSON.stringify({ data: cache, id }))
 
           return
         }

@@ -8,8 +8,7 @@ export class AppController {
 
   @Post('/hello')
   getHello(@Body() body: string): string {
-    const { request: { headers } } = this.context
     this.appService.getHello()
-    return body + headers['X-Custom-Header']
+    return body
   }
 }
