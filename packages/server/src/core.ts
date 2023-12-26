@@ -6,9 +6,10 @@ import { Empty, getExposeKey, getHandler, getState, injectProperty, isPhecda, re
 import Debug from 'debug'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
-import { warn } from './utils'
-import { UNMOUNT_SYMBOL } from './common'
+import { log } from './utils'
+import { UNMOUNT_SYMBOL ,IS_DEV} from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
+import pc from 'picocolors'
 export function Injectable() {
   return (target: any) => Empty(target)
 }
@@ -53,6 +54,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       for (const cb of instance[UNMOUNT_SYMBOL])
         await cb()
     }
+    log(`Unmount module: Module ${pc.yellow(`[${tag}]`)} unmount`)
     moduleMap.delete(tag)
     constructorMap.delete(tag)
     for (let i = meta.length - 1; i >= 0; i--) {
@@ -84,7 +86,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
       if (constructorMap.get(tag) !== Module && !constructorSet.has(Module)) {
         constructorSet.add(Module)// a module will only warn once
-        warn(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`)
+        log(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`,'warn')
       }
       return { instance, tag }
     }
@@ -106,6 +108,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     meta.push(...getMetaFromInstance(instance, tag, Module.name))
     await registerAsync(instance)
     moduleMap.set(tag, instance)
+    log(`Mount module: Module ${pc.yellow(`[${tag}]`)} mount"`)
     constructorMap.set(tag, Module)
     return { instance, tag }
   }
@@ -113,15 +116,15 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   for (const Module of Modules)
     await buildNestModule(Module)
 
-  function writeMeta() {
-    debug('write metadata')
+  function writeCode() {
+    debug('write code')
 
     http && fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
     rpc && fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
   }
 
-  writeMeta()
-  if (process.env.NODE_ENV === 'development') {
+  writeCode()
+  if (IS_DEV) {
     // @ts-expect-error globalThis
     globalThis.__PS_HMR__ = async (file: string) => {
       debug(`reload file ${file}`)
@@ -132,7 +135,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       }
     }
     // @ts-expect-error globalThis
-    globalThis.__PS_WRITEMETA__ = writeMeta
+    globalThis.__PS_WRITEMETA__ = writeCode
   }
 
   return {

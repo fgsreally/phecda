@@ -3,6 +3,7 @@ import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
+import { IS_DEV } from '../../common'
 
 export interface Options {
   globalGuards?: string[]
@@ -94,7 +95,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
     }
   })
 
-  if (process.env.NODE_ENV === 'development') {
+  if (IS_DEV) {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis

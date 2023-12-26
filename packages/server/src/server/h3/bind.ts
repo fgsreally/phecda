@@ -2,7 +2,7 @@ import { eventHandler, fromNodeMiddleware, getQuery, getRequestHeaders, getRoute
 import type { NodeMiddleware, Router } from 'h3'
 
 import { resolveDep } from '../../helper'
-import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
+import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -212,7 +212,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
   handleMeta()
   createRoute()
-  if (process.env.NODE_ENV === 'development') {
+  if (IS_DEV) {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis

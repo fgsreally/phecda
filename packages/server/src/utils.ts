@@ -1,14 +1,10 @@
 import pc from 'picocolors'
 
-export const isUndefined = (obj: any): obj is undefined =>
-  typeof obj === 'undefined'
-export const isNil = (obj: any): obj is null | undefined =>
-  isUndefined(obj) || obj === null
 
-export const isObject = (fn: any): fn is object =>
-  !isNil(fn) && typeof fn === 'object'
 
-export function warn(msg: string, color = 'yellow') {
-  // @ts-expect-error no matter
-  console.warn(`${pc.magenta('[phecda-server]')} ${pc[color](msg)}`)
+
+export function log(msg: string, level: 'error' | 'info' | 'warn'='info') {
+  const color = ({ 'error': 'red', 'info': 'green', 'warn': 'yellow' } as const)[level]
+  const date = new Date()
+  console.log(`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)}`)
 }

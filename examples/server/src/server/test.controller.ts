@@ -1,22 +1,11 @@
-import { Body, Controller, Define, Expose, Get, Head, Nested, Param, Post, Put, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Expose, Get, Head, Nested, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
-import { log } from './utils'
 
-class Child {
-  @Expose
-name: string
-
-  fullname() {
-    return ''
-  }
-}
-
-class Parent {
-  @Nested(Child)
-  child: Child
-}
+addPipe('test', () => {
+  throw new Error('111')
+})
 
 @Controller('/base')
 @Tag('test')
@@ -33,8 +22,9 @@ export class TestController {
     console.log('use mq', body)
   }
 
+  @Plugin('test')
   @Post('/:test')
-  async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+  async test(@Param('test') @Pipe('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
     // if (test)
     //   throw new Erro r('11')
 
