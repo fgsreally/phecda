@@ -1,10 +1,10 @@
-import { Body, Controller, Define, Expose, Get, Head, Nested, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
+import { BadRequestException, Body, Controller, Define, Expose, Get, Head, Nested, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
 
 addPipe('test', () => {
-  throw new Error('111')
+  throw new BadRequestException('111')
 })
 
 @Controller('/base')

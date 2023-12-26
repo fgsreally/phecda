@@ -3,7 +3,7 @@ import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { P } from './types'
-import {IS_DEV} from './common'
+import { IS_DEV } from './common'
 
 export const guardsRecord = {} as Record<string, P.Guard>
 
@@ -31,7 +31,6 @@ export class Context<Data = any> {
 
   usePipe(args: { arg: any; pipe?: string; pipeOpts?: any; type: string; key: string; index: number; reflect: any }[]) {
     return Promise.all(args.map((item) => {
-      console.log(item.pipe, Context.pipeRecord)
       return Context.pipeRecord[item.pipe || 'default'](item, this.tag, this.data)
     }))
   }
@@ -104,8 +103,6 @@ export function addPlugin<C>(key: string, handler: C) {
 
 export function addPipe(key: string, pipe: P.Pipe) {
   Context.pipeRecord[key] = pipe
-
-  console.log(Context.pipeRecord)
 }
 
 export function setFilter(filter: P.Filter) {

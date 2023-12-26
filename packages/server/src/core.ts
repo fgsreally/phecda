@@ -4,12 +4,12 @@ import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
 import { Empty, getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import Debug from 'debug'
+import pc from 'picocolors'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { log } from './utils'
-import { UNMOUNT_SYMBOL ,IS_DEV} from './common'
+import { IS_DEV, UNMOUNT_SYMBOL } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
-import pc from 'picocolors'
 export function Injectable() {
   return (target: any) => Empty(target)
 }
@@ -54,7 +54,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       for (const cb of instance[UNMOUNT_SYMBOL])
         await cb()
     }
-    log(`Unmount module: Module ${pc.yellow(`[${tag}]`)} unmount`)
+    log(`Module ${pc.yellow(`[${tag}]`)} unmount`)
     moduleMap.delete(tag)
     constructorMap.delete(tag)
     for (let i = meta.length - 1; i >= 0; i--) {
@@ -86,7 +86,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
       if (constructorMap.get(tag) !== Module && !constructorSet.has(Module)) {
         constructorSet.add(Module)// a module will only warn once
-        log(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`,'warn')
+        log(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`, 'warn')
       }
       return { instance, tag }
     }
@@ -108,7 +108,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     meta.push(...getMetaFromInstance(instance, tag, Module.name))
     await registerAsync(instance)
     moduleMap.set(tag, instance)
-    log(`Mount module: Module ${pc.yellow(`[${tag}]`)} mount"`)
+    log(`Module ${pc.yellow(`[${tag}]`)} mount"`)
     constructorMap.set(tag, Module)
     return { instance, tag }
   }
