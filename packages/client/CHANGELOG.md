@@ -1,5 +1,21 @@
 # phecda-client
 
+## 2.0.0
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+
+### Minor Changes
+
+- da1a0bb: remove series request and refactor parallel request
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+- 20fbfdb: can resolve params correctly
+- 2314083: replace query with axios params
+
 ## 2.0.0-alpha.4
 
 ### Minor Changes

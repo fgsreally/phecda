@@ -1,5 +1,20 @@
 # phecda-vue
 
+## 2.1.0
+
+### Minor Changes
+
+- 222465a: not responsible for table/form/other component-lib any more
+
+### Patch Changes
+
+- Updated dependencies [4c4c45a]
+- Updated dependencies [ec66a44]
+- Updated dependencies [de7cf57]
+- Updated dependencies [de7cf57]
+- Updated dependencies [1dd0831]
+  - phecda-core@2.1.0
+
 ## 2.0.4-alpha.2
 
 ### Patch Changes
