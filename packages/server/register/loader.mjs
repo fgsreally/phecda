@@ -1,162 +1,168 @@
-import { fileURLToPath, pathToFileURL } from "url";
-import { watch } from "fs";
-import { isAbsolute, relative } from "path";
-import ts from "typescript";
-import { compile } from "./compile.mjs";
-let port;
+import { fileURLToPath, pathToFileURL } from 'url'
+import { watch } from 'fs'
+import { isAbsolute, relative } from 'path'
+import ts from 'typescript'
+import { compile } from './compile.mjs'
+let port
 
 // this part is important or not?
-const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts];
+const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
 const tsconfig = {
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.NodeNext,
-};
+}
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
-  (x) => x,
-  tsconfig
-);
+  x => x,
+  tsconfig,
+)
 const host = {
   fileExists: ts.sys.fileExists,
   readFile: ts.sys.readFile,
-};
-
-export async function initialize(data) {
-  port = data.port;
 }
 
-const watchFiles = new Set();
-const filesRecord = new Map();
-const moduleGraph = {};
+export async function initialize(data) {
+  port = data.port
+}
 
-let entryUrl;
+const watchFiles = new Set()
+const filesRecord = new Map()
+const moduleGraph = {}
+
+let entryUrl
 export const resolve = async (specifier, context, nextResolve) => {
   // entrypoint
   if (!context.parentURL) {
-    entryUrl = specifier;
+    entryUrl = specifier
     return {
-      format: EXTENSIONS.some((ext) => specifier.endsWith(ext))
-        ? "ts"
+      format: EXTENSIONS.some(ext => specifier.endsWith(ext))
+        ? 'ts'
         : undefined,
       url: specifier,
       shortCircuit: true,
-    };
+    }
   }
 
   if (
-    context.parentURL.includes("/node_modules/phecda-server") &&
-    isAbsolute(specifier)
+    context.parentURL.includes('/node_modules/phecda-server')
+    && isAbsolute(specifier)
   ) {
     specifier = relative(fileURLToPath(entryUrl), specifier)
-      .replace(/\.ts$/, "")
-      .slice(1);
-    context.parentURL = entryUrl;
+      .replace(/\.ts$/, '')
+      .slice(1)
+    context.parentURL = entryUrl
   }
   // import/require from external library
-  if (context.parentURL.includes("/node_modules/"))
-    return nextResolve(specifier);
+  if (context.parentURL.includes('/node_modules/'))
+    return nextResolve(specifier)
 
   const { resolvedModule } = ts.resolveModuleName(
     specifier,
     fileURLToPath(context.parentURL),
     tsconfig,
     host,
-    moduleResolutionCache
-  );
+    moduleResolutionCache,
+  )
   // import from local project to local project TS file
   if (
-    resolvedModule &&
-    !resolvedModule.resolvedFileName.includes("/node_modules/") &&
-    EXTENSIONS.includes(resolvedModule.extension)
+    resolvedModule
+    && !resolvedModule.resolvedFileName.includes('/node_modules/')
+    && EXTENSIONS.includes(resolvedModule.extension)
   ) {
-    const url = pathToFileURL(resolvedModule.resolvedFileName).href;
+    const url = pathToFileURL(resolvedModule.resolvedFileName).href
 
-    if (!(url in moduleGraph)) moduleGraph[url] = new Set();
+    if (!(url in moduleGraph))
+      moduleGraph[url] = new Set()
 
-    moduleGraph[url].add(context.parentURL.split("?")[0]);
+    moduleGraph[url].add(context.parentURL.split('?')[0])
     return {
-      format: "ts",
-      url: url + (filesRecord.has(url) ? `?t=${filesRecord.get(url)}` : ""),
+      format: 'ts',
+      url: url + (filesRecord.has(url) ? `?t=${filesRecord.get(url)}` : ''),
       shortCircuit: true,
-    };
+    }
   }
-  return nextResolve(specifier);
-};
+  return nextResolve(specifier)
+}
 
 export const load = async (url, context, nextLoad) => {
-  url = url.split("?")[0];
+  url = url.split('?')[0]
   if (
-    !url.includes("/node_modules/") &&
-    url.startsWith("file://") &&
-    !watchFiles.has(url)
+    !url.includes('/node_modules/')
+    && url.startsWith('file://')
+    && !watchFiles.has(url)
   ) {
-    watchFiles.add(url);
+    watchFiles.add(url)
 
     watch(
       fileURLToPath(url),
       debounce((type) => {
-        if (type === "change") {
+        if (type === 'change') {
           try {
-            const files = [...findTopScope(url, Date.now())];
+            const files = [...findTopScope(url, Date.now())]
 
             port.postMessage(
               JSON.stringify({
-                type: "change",
+                type: 'change',
                 files,
-              })
-            );
-          } catch (e) {
-            process.exit(3);
+              }),
+            )
+          }
+          catch (e) {
+            process.exit(3)
           }
         }
-      })
-    );
+      }),
+    )
   }
 
-  if (context.format === "ts") {
-    const { source } = await nextLoad(url, context);
-    const code =
-      typeof source === "string" ? source : Buffer.from(source).toString();
-    const compiled = await compile(code, url);
+  if (context.format === 'ts') {
+    const { source } = await nextLoad(url, context)
+    const code
+      = typeof source === 'string' ? source : Buffer.from(source).toString()
+    const compiled = await compile(code, url)
     return {
-      format: "module",
+      format: 'module',
       source: compiled,
       shortCircuit: true,
-    };
-  } else {
-    return nextLoad(url, context);
+    }
   }
-};
+  else {
+    return nextLoad(url, context)
+  }
+}
 
 function findTopScope(url, time, modules = new Set()) {
-  filesRecord.set(url, time);
+  filesRecord.set(url, time)
   if (
-    url.endsWith(".controller.ts") ||
-    url.endsWith(".service.ts") ||
-    url.endsWith(".route.ts") ||
-    url.endsWith(".module.ts") ||
-    url.endsWith(".rpc.ts") ||
-    url.endsWith(".guard.ts") ||
-    url.endsWith(".interceptor.ts") ||
-    url.endsWith(".pipe.ts")
+    url.endsWith('.controller.ts')
+    || url.endsWith('.service.ts')
+    || url.endsWith('.route.ts')
+    || url.endsWith('.module.ts')
+    || url.endsWith('.rpc.ts')
+    || url.endsWith('.guard.ts')
+    || url.endsWith('.interceptor.ts')
+    || url.endsWith('.pipe.ts')
   ) {
-    modules.add(fileURLToPath(url));
-  } else {
-    if (!moduleGraph[url]) throw new Error("root file update");
-    for (const i of [...moduleGraph[url]]) findTopScope(i, time, modules);
+    modules.add(fileURLToPath(url))
+  }
+  else {
+    if (!moduleGraph[url])
+      throw new Error('root file update')
+    for (const i of [...moduleGraph[url]]) findTopScope(i, time, modules)
   }
 
-  return modules;
+  return modules
 }
 
 function debounce(cb, timeout = 500) {
-  let timer;
+  let timer
   return (...args) => {
-    if (timer) return;
+    if (timer)
+      return
 
     timer = setTimeout(() => {
-      cb(...args);
-      timer = undefined;
-    }, timeout);
-  };
+      cb(...args)
+      timer = undefined
+    }, timeout)
+  }
 }

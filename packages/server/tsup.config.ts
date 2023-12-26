@@ -6,12 +6,11 @@ export const tsup: Options = {
     'src/server/express/index.ts',
     'src/server/fastify/index.ts',
     'src/server/h3/index.ts',
-
     'src/rpc/rabbitmq/index.ts',
     'src/rpc/redis/index.ts'],
   format: ['cjs', 'esm'],
   dts: true,
-  splitting: false,
+  splitting: true,
   shims: false,
   sourcemap: true,
   external: ['amqplib', 'ioredis', 'express', 'fastify', 'h3', 'koa'],

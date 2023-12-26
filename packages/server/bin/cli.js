@@ -44,7 +44,7 @@ function exit() {
 
 function log(msg, color = 'green') {
   const date = new Date()
-  console.log(`${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc.magenta('[phecda-server]')} ${pc[color](msg)}`)
+  console.log(`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)}`)
 }
 
 startChild()
