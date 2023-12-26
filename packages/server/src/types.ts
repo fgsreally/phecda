@@ -64,7 +64,7 @@ export namespace P {
     params: { type: string; index: number; key: string; pipe?: string; pipeOpts?: any }[]
     guards: string[]
     interceptors: string[]
-    middlewares: string[]
+    plugins: string[]
     method: string
     name: string
     tag: string

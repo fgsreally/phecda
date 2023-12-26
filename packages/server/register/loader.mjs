@@ -43,8 +43,13 @@ export const resolve = async (specifier, context, nextResolve) => {
     }
   }
 
-  if (context.parentURL.includes('/node_modules/phecda-server') && isAbsolute(specifier)) {
-    specifier = relative(fileURLToPath(entryUrl), specifier).replace(/\.ts$/, '').slice(1)
+  if (
+    context.parentURL.includes('/node_modules/phecda-server')
+    && isAbsolute(specifier)
+  ) {
+    specifier = relative(fileURLToPath(entryUrl), specifier)
+      .replace(/\.ts$/, '')
+      .slice(1)
     context.parentURL = entryUrl
   }
   // import/require from external library
@@ -88,23 +93,26 @@ export const load = async (url, context, nextLoad) => {
   ) {
     watchFiles.add(url)
 
-    watch(fileURLToPath(url), debounce((type) => {
-      if (type === 'change') {
-        try {
-          const files = [...findTopScope(url, Date.now())]
-
-          port.postMessage(
-            JSON.stringify({
-              type: 'change',
-              files,
-            }),
-          )
+    watch(
+      fileURLToPath(url),
+      debounce((type) => {
+        if (type === 'change') {
+          try {
+            const files = [...findTopScope(url, Date.now())]
+            console.log(files)
+            port.postMessage(
+              JSON.stringify({
+                type: 'change',
+                files,
+              }),
+            )
+          }
+          catch (e) {
+            process.exit(3)
+          }
         }
-        catch (e) {
-          process.exit(3)
-        }
-      }
-    }))
+      }),
+    )
   }
 
   if (context.format === 'ts') {
@@ -130,6 +138,10 @@ function findTopScope(url, time, modules = new Set()) {
     || url.endsWith('.service.ts')
     || url.endsWith('.route.ts')
     || url.endsWith('.module.ts')
+    || url.endsWith('.rpc.ts')
+    || url.endsWith('.guard.ts')
+    || url.endsWith('.interceptor.ts')
+    || url.endsWith('.pipe.ts')
   ) {
     modules.add(fileURLToPath(url))
   }

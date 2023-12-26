@@ -3,6 +3,7 @@ import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
+import { IS_DEV } from '../../common'
 
 export interface Options {
   globalGuards?: string[]
@@ -66,8 +67,13 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         } = metaMap.get(tag)!
 
         await context.useGuard([...globalGuards, ...guards])
-        if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
+        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (cache !== undefined) {
+          if (queue)
+            pub.publish(queue, JSON.stringify({ data: cache, id }))
+
           return
+        }
 
         const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
@@ -89,7 +95,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
     }
   })
 
-  if (process.env.NODE_ENV === 'development') {
+  if (IS_DEV) {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis

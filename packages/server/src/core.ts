@@ -2,14 +2,17 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
-import { getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
+import { Empty, getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import Debug from 'debug'
+import pc from 'picocolors'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
-import { warn } from './utils'
-import { UNMOUNT_SYMBOL } from './common'
+import { log } from './utils'
+import { IS_DEV, UNMOUNT_SYMBOL } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
-
+export function Injectable() {
+  return (target: any) => Empty(target)
+}
 const debug = Debug('phecda-server')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
@@ -51,6 +54,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       for (const cb of instance[UNMOUNT_SYMBOL])
         await cb()
     }
+    log(`Module ${pc.yellow(`[${tag}]`)} unmount`)
     moduleMap.delete(tag)
     constructorMap.delete(tag)
     for (let i = meta.length - 1; i >= 0; i--) {
@@ -82,7 +86,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
       if (constructorMap.get(tag) !== Module && !constructorSet.has(Module)) {
         constructorSet.add(Module)// a module will only warn once
-        warn(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`)
+        log(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`, 'warn')
       }
       return { instance, tag }
     }
@@ -104,6 +108,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     meta.push(...getMetaFromInstance(instance, tag, Module.name))
     await registerAsync(instance)
     moduleMap.set(tag, instance)
+    log(`Module ${pc.yellow(`[${tag}]`)} mount"`)
     constructorMap.set(tag, Module)
     return { instance, tag }
   }
@@ -111,15 +116,15 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   for (const Module of Modules)
     await buildNestModule(Module)
 
-  function writeMeta() {
-    debug('write metadata')
+  function writeCode() {
+    debug('write code')
 
     http && fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
     rpc && fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
   }
 
-  writeMeta()
-  if (process.env.NODE_ENV === 'development') {
+  writeCode()
+  if (IS_DEV) {
     // @ts-expect-error globalThis
     globalThis.__PS_HMR__ = async (file: string) => {
       debug(`reload file ${file}`)
@@ -130,7 +135,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       }
     }
     // @ts-expect-error globalThis
-    globalThis.__PS_WRITEMETA__ = writeMeta
+    globalThis.__PS_WRITEMETA__ = writeCode
   }
 
   return {
@@ -178,7 +183,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     meta.params = params
     meta.define = { ...baseState.define, ...state.define }
     meta.header = { ...baseState.header, ...state.header }
-    meta.middlewares = [...new Set([...baseState.middlewares, ...state.middlewares])]
+    meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
@@ -195,8 +200,8 @@ function initState(state: any) {
     state.define = {}
   if (!state.header)
     state.header = {}
-  if (!state.middlewares)
-    state.middlewares = []
+  if (!state.plugins)
+    state.plugins = []
   if (!state.guards)
     state.guards = []
   if (!state.interceptors)

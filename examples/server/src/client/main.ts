@@ -23,7 +23,6 @@ async function chainRequest() {
 
 async function request() {
   const { data } = await useRequest(test('110', 'server', { id: '1', name: 'test' }))
-
   console.log('[normal request]:')
 
   console.log(data)
@@ -50,4 +49,4 @@ async function parallelRequest() {
 request()
 chainRequest()
 
-// parallelRequest()
+parallelRequest()

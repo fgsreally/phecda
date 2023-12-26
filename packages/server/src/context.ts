@@ -3,6 +3,7 @@ import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { P } from './types'
+import { IS_DEV } from './common'
 
 export const guardsRecord = {} as Record<string, P.Guard>
 
@@ -19,11 +20,11 @@ export class Context<Data = any> {
   static guardsRecord: Record<string, P.Guard> = {}
   static interceptorsRecord: Record<string, P.Interceptor> = {}
 
-  static middlewareRecord: Record<string, (...params: any) => any> = {}
+  static pluginRecord: Record<string, any> = {}
   postInterceptors: Function[]
 
   constructor(public tag: string, public data: Data) {
-    if (process.env.NODE_ENV === 'development')
+    if (IS_DEV)
       // @ts-expect-error work for debug
       data._context = this
   }
@@ -75,29 +76,29 @@ export class Context<Data = any> {
             ret.push(postInterceptor)
 
           else
-            return true
+            return postInterceptor
         }
       }
     }
     this.postInterceptors = ret
   }
 
-  static useMiddleware(middlewares: string[]) {
+  static usePlugin(plugins: string[]) {
     const ret = []
-    for (const m of middlewares) {
-      if (!(m in Context.middlewareRecord)) {
+    for (const m of plugins) {
+      if (!(m in Context.pluginRecord)) {
         if (process.env.PS_STRICT)
           throw new FrameworkException(`can't find middleware named '${m}'`)
 
         continue
       }
-      ret.push(Context.middlewareRecord[m])
+      ret.push(Context.pluginRecord[m])
     }
     return ret as any[]
   }
 }
-export function addMiddleware(key: string, handler: (...params: any) => any) {
-  Context.middlewareRecord[key] = handler
+export function addPlugin<C>(key: string, handler: C) {
+  Context.pluginRecord[key] = handler
 }
 
 export function addPipe(key: string, pipe: P.Pipe) {

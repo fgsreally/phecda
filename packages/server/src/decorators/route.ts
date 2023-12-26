@@ -35,7 +35,7 @@ export function Delete(route: string) {
   return Route(route, 'delete')
 }
 
-export function Controller(route: string) {
+export function Controller(route = '') {
   return Route(route)
 }
 

@@ -1,0 +1,39 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b phecda-server/tsconfig.json && tsc -b nestjs/tsconfig.json",
+    "start:express": "cross-env PORT=3000 node express.js ",
+    "start:koa": "cross-env PORT=3001 node koa.js ",
+    "start:restify": "cross-env PORT=3002 node restify.js",
+    "start:fastify": "cross-env PORT=3003 node fastify.js",
+    "start:nestjs-express": "cross-env PORT=3004 node dist/nestjs/express.js ",
+    "start:nestjs-fastify": "cross-env PORT=3005 node dist/nestjs/fastify.js ",
+    "start:phecda-express": "cross-env PORT=3006 node dist/phecda-server/express.js ",
+    "start:phecda-fastify": "cross-env PORT=3007 node dist/phecda-server/fastify.js ",
+    "start:phecda-h3": "cross-env PORT=3008 node dist/phecda-server/h3.js "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/router": "^12.0.1",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/platform-fastify": "^10.3.0",
+    "express": "^4.18.2",
+    "fastify": "^4.25.1",
+    "h3": "^1.9.0",
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
+    "phecda-server": "workspace:4.0.0-alpha.9",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "autocannon": "^7.14.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -2,7 +2,7 @@ import { eventHandler, fromNodeMiddleware, getQuery, getRequestHeaders, getRoute
 import type { NodeMiddleware, Router } from 'h3'
 
 import { resolveDep } from '../../helper'
-import { APP_SYMBOL, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
+import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -32,12 +32,12 @@ export interface Options {
   /**
  * 专用路由的中间件(work for merge request)，全局中间件请在bindApp以外设置
  */
-  middlewares?: string[]
+  plugins?: string[]
 
 }
 
 export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, middlewares: proMiddle } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], middlewares: [], ...options } as Required<Options>
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
@@ -60,8 +60,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
       next()
     }))
-    proMiddle.forEach((m) => {
-      router.post(route, fromNodeMiddleware(Context.useMiddleware([m])[0] as NodeMiddleware))
+    plugins.forEach((p) => {
+      router.post(route, fromNodeMiddleware(Context.usePlugin([p])[0] as NodeMiddleware))
     })
 
     router.post(route, eventHandler(async (event) => {
@@ -105,8 +105,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              if (await context.useInterceptor([...globalInterceptors, ...interceptors])
-              ) return
+              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (cache !== undefined)
+                return resolve(cache)
               const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
                 return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
               })) as any
@@ -141,7 +142,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           interceptors,
           guards,
           params,
-          middlewares,
+          plugins,
         },
       } = metaMap.get(methodTag)!
 
@@ -151,8 +152,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         next()
       }))
 
-      for (const m of middlewares)
-        router[http.type](http.route, fromNodeMiddleware(Context.useMiddleware([m])[0]))
+      for (const p of plugins)
+        router[http.type](http.route, fromNodeMiddleware(Context.usePlugin([p])[0]))
 
       router[http.type](http.route, eventHandler(async (event) => {
         const instance = moduleMap.get(tag)!
@@ -168,8 +169,10 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         try {
           setHeaders(event, header)
           await context.useGuard([...globalGuards, ...guards])
-          if (await context.useInterceptor([...globalInterceptors, ...interceptors]))
-            return
+          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (cache !== undefined)
+            return cache
+
           const body = params.some(item => item.type === 'body') ? await readBody(event, { strict: true }) : undefined
           const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
             let arg: any
@@ -209,7 +212,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
   handleMeta()
   createRoute()
-  if (process.env.NODE_ENV === 'development') {
+  if (IS_DEV) {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
     // @ts-expect-error globalThis
