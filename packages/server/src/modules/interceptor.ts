@@ -4,10 +4,13 @@ import { Dev } from './dev'
 export abstract class PInterceptor extends Dev {
   abstract use<C>(tag: string, ctx: C): ((arg: any) => any) | void
 
-  constructor(key: string) {
+  constructor() {
     super()
+
+    const key = getSymbol(this)
+
     this.onUnmount(() => {
-      addInterceptor(key, null as any)
+      delete Context.interceptorRecord[key]
     })
     addInterceptor(key, this.use.bind(this))
   }

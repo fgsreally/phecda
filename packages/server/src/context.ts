@@ -5,7 +5,7 @@ import { Histroy } from './history'
 import type { P } from './types'
 import { IS_DEV } from './common'
 
-export const guardsRecord = {} as Record<string, P.Guard>
+export const guardRecord = {} as Record<string, P.Guard>
 
 export class Context<Data = any> {
   method: string
@@ -17,8 +17,8 @@ export class Context<Data = any> {
     default: defaultPipe,
   }
 
-  static guardsRecord: Record<string, P.Guard> = {}
-  static interceptorsRecord: Record<string, P.Interceptor> = {}
+  static guardRecord: Record<string, P.Guard> = {}
+  static interceptorRecord: Record<string, P.Interceptor> = {}
 
   static pluginRecord: Record<string, any> = {}
   postInterceptors: Function[]
@@ -42,12 +42,12 @@ export class Context<Data = any> {
   async useGuard(guards: string[]) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
-        if (!(guard in Context.guardsRecord)) {
+        if (!(guard in Context.guardRecord)) {
           if (process.env.PS_STRICT)
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
-        if (!await Context.guardsRecord[guard](this.tag, this.data))
+        if (!await Context.guardRecord[guard](this.tag, this.data))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
@@ -64,13 +64,13 @@ export class Context<Data = any> {
     const ret = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
-        if (!(interceptor in Context.interceptorsRecord)) {
+        if (!(interceptor in Context.interceptorRecord)) {
           if (process.env.PS_STRICT)
             throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
 
           continue
         }
-        const postInterceptor = await Context.interceptorsRecord[interceptor](this.tag, this.data)
+        const postInterceptor = await Context.interceptorRecord[interceptor](this.tag, this.data)
         if (postInterceptor !== undefined) {
           if (typeof postInterceptor === 'function')
             ret.push(postInterceptor)
@@ -110,9 +110,9 @@ export function setFilter(filter: P.Filter) {
 }
 
 export function addGuard(key: string, handler: P.Guard) {
-  Context.guardsRecord[key] = handler
+  Context.guardRecord[key] = handler
 }
 
 export function addInterceptor(key: string, handler: P.Interceptor) {
-  Context.interceptorsRecord[key] = handler
+  Context.interceptorRecord[key] = handler
 }
