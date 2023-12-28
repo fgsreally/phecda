@@ -36,6 +36,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
 
+    // work for hmr
+    instance[UNMOUNT_SYMBOL]?.push(()=>{
+      emitter.off(eventName as any,fn)
+    })
 
     if (options?.once)
       (emitter as any).once(eventName, fn)
