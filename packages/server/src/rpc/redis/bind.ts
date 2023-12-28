@@ -2,7 +2,7 @@ import Redis from 'ioredis'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
-import { Context } from '../../context'
+import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
 
 export interface Options {
@@ -28,6 +28,11 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
 
   const pub = new Redis(redis.options)
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
+
+  isAopDepInject(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
   function handleMeta() {
     for (const item of meta) {
       const { data: { rpc, method, name } } = item

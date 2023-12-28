@@ -1,19 +1,18 @@
-import { addGuard } from '../context'
+import { getSymbol } from 'phecda-core'
+import { Context, addGuard } from '../context'
 import { Dev } from './dev'
-import {getSymbol} from 'phecda-core' 
 
 export abstract class PGuard extends Dev {
   abstract use<C>(tag: string, ctx: C): Promise<boolean> | boolean
 
   constructor() {
     super()
-    const key=getSymbol(this)
+    const key = getSymbol(this)
 
     addGuard(key, this.use.bind(this))
 
     this.onUnmount(() => {
       delete Context.guardRecord[key]
-
     })
   }
 }

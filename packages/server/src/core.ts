@@ -35,10 +35,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
-
     // work for hmr
-    instance[UNMOUNT_SYMBOL]?.push(()=>{
-      emitter.off(eventName as any,fn)
+    instance[UNMOUNT_SYMBOL]?.push(() => {
+      console.log('remove event', eventName)
+      emitter.off(eventName as any, fn)
     })
 
     if (options?.once)

@@ -1,10 +1,12 @@
+import pc from 'picocolors'
 import { defaultPipe } from './pipe'
 import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { P } from './types'
-import { IS_DEV } from './common'
-
+import { IS_DEV, IS_STRICT } from './common'
+import type { Meta } from './meta'
+import { log } from './utils'
 export const guardRecord = {} as Record<string, P.Guard>
 
 export class Context<Data = any> {
@@ -31,6 +33,14 @@ export class Context<Data = any> {
 
   usePipe(args: { arg: any; pipe?: string; pipeOpts?: any; type: string; key: string; index: number; reflect: any }[]) {
     return Promise.all(args.map((item) => {
+      if (item.pipe && !Context.pipeRecord[item.pipe]) {
+        if (IS_STRICT)
+          throw new FrameworkException(`can't find pipe named '${item.pipe}'`)
+
+        else
+          return Context.pipeRecord.default(item, this.tag, this.data)
+      }
+
       return Context.pipeRecord[item.pipe || 'default'](item, this.tag, this.data)
     }))
   }
@@ -43,7 +53,7 @@ export class Context<Data = any> {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardRecord)) {
-          if (process.env.PS_STRICT)
+          if (IS_STRICT)
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
@@ -65,7 +75,7 @@ export class Context<Data = any> {
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Context.interceptorRecord)) {
-          if (process.env.PS_STRICT)
+          if (IS_STRICT)
             throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
 
           continue
@@ -87,7 +97,7 @@ export class Context<Data = any> {
     const ret = []
     for (const m of plugins) {
       if (!(m in Context.pluginRecord)) {
-        if (process.env.PS_STRICT)
+        if (IS_STRICT)
           throw new FrameworkException(`can't find middleware named '${m}'`)
 
         continue
@@ -102,6 +112,8 @@ export function addPlugin<C>(key: string, handler: C) {
 }
 
 export function addPipe(key: string, pipe: P.Pipe) {
+  console.log('pipe', Context.pipeRecord[key])
+
   Context.pipeRecord[key] = pipe
 }
 
@@ -110,9 +122,50 @@ export function setFilter(filter: P.Filter) {
 }
 
 export function addGuard(key: string, handler: P.Guard) {
+  console.log('guard', Context.guardRecord[key])
+
   Context.guardRecord[key] = handler
 }
 
 export function addInterceptor(key: string, handler: P.Interceptor) {
+  console.log('interceptor', Context.interceptorRecord[key])
   Context.interceptorRecord[key] = handler
+}
+
+export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: {
+  guards?: string[]
+  interceptors?: string[]
+  plugins?: string[]
+} = {}) {
+  const pluginSet = new Set<string>(plugins)
+
+  const guardSet = new Set<string>(guards)
+  const interceptorSet = new Set<string>(interceptors)
+  const pipeSet = new Set<string>()
+  meta.forEach(({ data }) => {
+    data.interceptors.forEach(i => interceptorSet.add(i))
+    data.guards.forEach(i => guardSet.add(i))
+    data.plugins.forEach(i => pluginSet.add(i))
+    data.params.forEach((i) => {
+      if (i.pipe)
+        pipeSet.add(i.pipe)
+    })
+  });
+
+  [...pluginSet].forEach((i) => {
+    if (!Context.pluginRecord[i])
+      log(`plugin ${pc.white(`[${i}]`)} doesn't exist`, 'warn')
+  });
+  [...guardSet].forEach((i) => {
+    if (!Context.guardRecord[i])
+      log(`guard ${pc.red(`[${i}]`)} doesn't exist`, 'warn')
+  });
+  [...interceptorSet].forEach((i) => {
+    if (!Context.interceptorRecord[i])
+      log(`interceptor ${pc.blue(`[${i}]`)} doesn't exist`, 'warn')
+  });
+  [...pipeSet].forEach((i) => {
+    if (!Context.pipeRecord[i])
+      log(`pipe ${pc.cyan(`[${i}]`)} doesn't exist`, 'warn')
+  })
 }
