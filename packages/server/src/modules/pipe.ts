@@ -8,7 +8,7 @@ export abstract class PPipe<C = any> extends Dev {
     const key=getSymbol(this)
     addPipe(key, this.use.bind(this))
     this.onUnmount(() => {
-      delete Context.guardRecord[key]
+      delete Context.pipeRecord[key]
 
     })
   }

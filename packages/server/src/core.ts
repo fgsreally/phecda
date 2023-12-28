@@ -35,6 +35,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
     const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
+
+
     if (options?.once)
       (emitter as any).once(eventName, fn)
 

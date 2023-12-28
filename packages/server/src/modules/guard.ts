@@ -1,5 +1,6 @@
 import { addGuard } from '../context'
 import { Dev } from './dev'
+import {getSymbol} from 'phecda-core' 
 
 export abstract class PGuard extends Dev {
   abstract use<C>(tag: string, ctx: C): Promise<boolean> | boolean
