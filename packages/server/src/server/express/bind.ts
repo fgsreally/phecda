@@ -4,7 +4,7 @@ import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '..
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context } from '../../context'
+import { Context, isAopDepInject } from '../../context'
 
 export interface ExpressCtx {
   type: 'express'
@@ -37,6 +37,12 @@ export interface Options {
 
 export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
+  isAopDepInject(meta, {
+    plugins,
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  });
+
   (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()

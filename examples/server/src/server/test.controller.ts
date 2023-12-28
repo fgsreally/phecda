@@ -1,20 +1,20 @@
-import { BadRequestException, Body, Controller, Define, Expose, Get, Head, Nested, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
+import { BadRequestException, Body, Controller, Define, Dev, Get, Head, Nested, PPipe, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
 
-// addPipe('test', () => {
-//   throw new BadRequestException('111')
-// })
+export class TestPipe extends Dev {
+
+}
 
 @Controller('/base')
 @Tag('test')
-export class TestController {
+export class TestController extends Dev {
   static age = 12
   age = 1
   context: ExpressCtx
   constructor(public fgs: A) {
-
+    super()
   }
 
   @Post('/mq')
@@ -24,7 +24,7 @@ export class TestController {
 
   @Plugin('test')
   @Post('/:test')
-  async test(@Param('test') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+  async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
     // if (test)
     //   throw new Erro r('11')
 
@@ -56,7 +56,7 @@ export class TestController {
     return query
   }
 
-  @Watcher('watch', { once: true })
+  @Watcher('watch')
   watch() {
     // publish()
   }

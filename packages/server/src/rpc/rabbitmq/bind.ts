@@ -2,7 +2,7 @@ import type amqplib from 'amqplib'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
-import { Context } from '../../context'
+import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
 
 export interface Options {
@@ -26,6 +26,12 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
 
   const existQueue = new Set<string>()
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
+
+  isAopDepInject(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
+
   function handleMeta() {
     for (const item of meta) {
       const { data: { rpc, method, name } } = item

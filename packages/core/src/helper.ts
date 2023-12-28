@@ -1,10 +1,10 @@
 import { getExposeKey, getHandler, getModelState, getState } from './core'
 import type { ClassValue, Phecda } from './types'
-
+// from class
 export function getTag<M extends new (...args: any) => any>(Model: M) {
   return (Model as any).prototype?.__TAG__
 }
-
+// from instance
 export function getSymbol<M extends new (...args: any) => any>(instance: InstanceType<M>) {
   const Model = instance.constructor
   return getTag(Model) || Model.name

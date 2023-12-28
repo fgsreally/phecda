@@ -1,12 +1,14 @@
-import { addPipe } from '../context'
+import { getSymbol } from 'phecda-core'
+import { Context, addPipe } from '../context'
 import { Dev } from './dev'
-
 export abstract class PPipe<C = any> extends Dev {
-  constructor(key: string) {
+  constructor() {
     super()
+
+    const key = getSymbol(this)
     addPipe(key, this.use.bind(this))
     this.onUnmount(() => {
-      addPipe(key, null as any)
+      delete Context.pipeRecord[key]
     })
   }
 
