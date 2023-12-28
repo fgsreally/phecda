@@ -37,7 +37,6 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     // work for hmr
     instance[UNMOUNT_SYMBOL]?.push(() => {
-      console.log('remove event', eventName)
       emitter.off(eventName as any, fn)
     })
 

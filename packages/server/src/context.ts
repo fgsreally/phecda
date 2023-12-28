@@ -112,8 +112,6 @@ export function addPlugin<C>(key: string, handler: C) {
 }
 
 export function addPipe(key: string, pipe: P.Pipe) {
-  console.log('pipe', Context.pipeRecord[key])
-
   Context.pipeRecord[key] = pipe
 }
 
@@ -122,13 +120,10 @@ export function setFilter(filter: P.Filter) {
 }
 
 export function addGuard(key: string, handler: P.Guard) {
-  console.log('guard', Context.guardRecord[key])
-
   Context.guardRecord[key] = handler
 }
 
 export function addInterceptor(key: string, handler: P.Interceptor) {
-  console.log('interceptor', Context.interceptorRecord[key])
   Context.interceptorRecord[key] = handler
 }
 
@@ -154,18 +149,18 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
 
   [...pluginSet].forEach((i) => {
     if (!Context.pluginRecord[i])
-      log(`plugin ${pc.white(`[${i}]`)} doesn't exist`, 'warn')
+      log(`${pc.white(`Plugin [${i}]`)} doesn't exist`, 'warn')
   });
   [...guardSet].forEach((i) => {
     if (!Context.guardRecord[i])
-      log(`guard ${pc.red(`[${i}]`)} doesn't exist`, 'warn')
+      log(`${pc.red(`Guard [${i}]`)} doesn't exist`, 'warn')
   });
   [...interceptorSet].forEach((i) => {
     if (!Context.interceptorRecord[i])
-      log(`interceptor ${pc.blue(`[${i}]`)} doesn't exist`, 'warn')
+      log(`${pc.cyan(`Interceptor [${i}]`)} doesn't exist`, 'warn')
   });
   [...pipeSet].forEach((i) => {
     if (!Context.pipeRecord[i])
-      log(`pipe ${pc.cyan(`[${i}]`)} doesn't exist`, 'warn')
+      log(`${pc.blue(`Pipe [${i}]`)} doesn't exist`, 'warn')
   })
 }
