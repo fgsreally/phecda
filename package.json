@@ -15,6 +15,7 @@
   "license": "MIT",
   "devDependencies": {
     "@antfu/eslint-config": "^0.34.1",
+    "cross-env": "^7.0.3",
     "@changesets/cli": "^2.26.0",
     "@swc/core": "^1.3.51",
     "@types/node": "^18.11.12",
@@ -25,8 +26,5 @@
     "typescript": "^4.9.4",
     "unplugin-swc": "^1.3.2",
     "vitest": "^0.34.6"
-  },
-  "dependencies": {
-    "cross-env": "^7.0.3"
   }
 }

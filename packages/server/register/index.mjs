@@ -32,5 +32,5 @@ port1.on('message', async (data) => {
 function log(msg, color = 'green') {
   const date = new Date()
   // eslint-disable-next-line no-console
-  console.log(`${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc.magenta('[phecda-server]')} ${pc[color](msg)}`)
+  console.log(`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)}`)
 }
