@@ -1,14 +1,15 @@
 import type Router from '@koa/router'
+import type { RouterParamContext } from '@koa/router'
+import type { DefaultContext, DefaultState } from 'koa'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
-
 export interface KoaCtx {
   type: 'koa'
-  ctx: any
+  ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
   meta: Meta
   moduleMap: Record<string, any>
   [key: string]: any
@@ -57,12 +58,12 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    app.post(route, (ctx, next) => {
+    app.post(route, async (ctx, next) => {
       ctx[MERGE_SYMBOL] = true
       ctx[MODULE_SYMBOL] = moduleMap
       ctx[META_SYMBOL] = meta
 
-      next()
+      await next()
     }, ...Context.usePlugin(plugins), async (ctx) => {
       const { body } = ctx.request as any
 
@@ -146,11 +147,10 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           plugins,
         },
       } = metaMap.get(methodTag)!
-
-      app[http.type](http.route, (ctx, next) => {
+      app[http.type](http.route, async (ctx, next) => {
         ctx[MODULE_SYMBOL] = moduleMap
         ctx[META_SYMBOL] = meta
-        next()
+        await next()
       }, ...Context.usePlugin(plugins), async (ctx) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
@@ -197,9 +197,10 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   if (IS_DEV) {
     // @ts-expect-error globalThis
     const rawMetaHmr = globalThis.__PS_WRITEMETA__
+
     // @ts-expect-error globalThis
     globalThis.__PS_WRITEMETA__ = () => {
-      console.log(app)
+      app.stack = []
       handleMeta()
       createRoute()
       rawMetaHmr?.()
