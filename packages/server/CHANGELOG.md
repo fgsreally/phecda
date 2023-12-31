@@ -1,5 +1,15 @@
 # phecda-server
 
+## 4.0.1
+
+### Patch Changes
+
+- 47c806c: Watcher will auto remove eventlistener when unmount even without Dev
+- c0c623f: constructor on module should only work for DI
+- d95a596: add isAopDepInject
+- 325a774: named pipe will throw Error when pipe is not exists in strict mode(like guard/interceptor)
+- d95a596: add Empty to aop module(to make sure those class is phecda module)
+
 ## 4.0.0
 
 ### Major Changes
