@@ -4,8 +4,9 @@ import { emitter } from '../core'
 
 @Empty
 export class Dev {
-  emitter=emitter
-  [UNMOUNT_SYMBOL]: (() => void)[] = []
+  protected readonly emitter = emitter
+  private readonly [UNMOUNT_SYMBOL]: (() => void)[] = []
+
   onUnmount(cb: () => void) {
     this[UNMOUNT_SYMBOL].push(cb)
   }

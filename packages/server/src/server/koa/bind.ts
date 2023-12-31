@@ -1,4 +1,4 @@
-import type { Router } from '@koa/router'
+import type Router from '@koa/router'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -57,14 +57,14 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    app.post(route, (req, _res, next) => {
-      (req as any)[MERGE_SYMBOL] = true;
-      (req as any)[MODULE_SYMBOL] = moduleMap;
-      (req as any)[META_SYMBOL] = meta
+    app.post(route, (ctx, next) => {
+      ctx[MERGE_SYMBOL] = true
+      ctx[MODULE_SYMBOL] = moduleMap
+      ctx[META_SYMBOL] = meta
 
       next()
     }, ...Context.usePlugin(plugins), async (ctx) => {
-      const { body } = ctx.request
+      const { body } = ctx.request as any
 
       async function errorHandler(e: any) {
         const error = await Context.filter(e)
@@ -172,6 +172,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             return
           }
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
+            // @ts-expect-error any request types
             return { arg: resolveDep(ctx.request[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
 

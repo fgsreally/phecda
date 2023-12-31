@@ -79,7 +79,7 @@ importers:
         specifier: ^6.0.1
         version: registry.npmmirror.com/koa-body@6.0.1
       phecda-server:
-        specifier: workspace:4.0.0-alpha.9
+        specifier: workspace:*
         version: link:../packages/server
       rxjs:
         specifier: ^7.8.1
@@ -129,7 +129,7 @@ importers:
   examples/module:
     dependencies:
       phecda-module:
-        specifier: workspace:^1.0.2-alpha.1
+        specifier: workspace:^1.0.2
         version: link:../../packages/module
     devDependencies:
       typescript:
@@ -191,7 +191,7 @@ importers:
   examples/vue:
     dependencies:
       phecda-vue:
-        specifier: workspace:^2.0.4-alpha.1
+        specifier: workspace:^2.1.0
         version: link:../../packages/vue
       vue:
         specifier: ^3.2.45
@@ -303,6 +303,9 @@ importers:
       '@types/express':
         specifier: ^4.17.17
         version: 4.17.17
+      '@types/koa__router':
+        specifier: ^12.0.4
+        version: registry.npmmirror.com/@types/koa__router@12.0.4
       '@types/supertest':
         specifier: ^2.0.12
         version: 2.0.12
@@ -341,7 +344,7 @@ importers:
         version: registry.npmmirror.com/typescript@5.2.2
       vite:
         specifier: ^4.0.0
-        version: 4.2.0(@types/node@18.11.18)
+        version: 4.2.0
 
   packages/vue:
     dependencies:
@@ -1908,6 +1911,39 @@ packages:
       vite: 4.2.0(@types/node@18.11.18)
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /vite@4.2.0:
+    resolution: {integrity: sha512-AbDTyzzwuKoRtMIRLGNxhLRuv1FpRgdIw+1y6AQG73Q5+vtecmvzKo/yk8X/vrHDpETRTx01ABijqUHIzBXi0g==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.17.12
+      postcss: 8.4.21
+      resolve: 1.22.1
+      rollup: 3.20.0
+    optionalDependencies:
+      fsevents: registry.npmmirror.com/fsevents@2.3.2
     dev: true
 
   /vite@4.2.0(@types/node@18.11.18):
@@ -3791,7 +3827,6 @@ packages:
     version: 1.3.7
     dependencies:
       '@types/node': registry.npmmirror.com/@types/node@18.11.18
-    dev: false
 
   registry.npmmirror.com/@types/amqplib@0.10.1:
     resolution: {integrity: sha512-j6ANKT79ncUDnAs/+9r9eDujxbeJoTjoVu33gHHcaPfmLQaMhvfbH2GqSe8KUM444epAp1Vl3peVOQfZk3UIqA==, tarball: https://registry.npmmirror.com/@types/amqplib/-/amqplib-0.10.1.tgz}
@@ -3843,7 +3878,6 @@ packages:
     resolution: {integrity: sha512-QVSSvno3dE0MgO76pJhmv4Qyi/j0Yk9pBp0Y7TJ2Tlj+KCgJWY6qX7nnxCOLkZ3VYRSIk1WTxCvwUSdx6CCLdg==, tarball: https://registry.npmmirror.com/@types/content-disposition/-/content-disposition-0.5.8.tgz}
     name: '@types/content-disposition'
     version: 0.5.8
-    dev: false
 
   registry.npmmirror.com/@types/cookies@0.7.10:
     resolution: {integrity: sha512-hmUCjAk2fwZVPPkkPBcI7jGLIR5mg4OVoNMBwU6aVsMm/iNPY7z9/R+x2fSwLt/ZXoGua6C5Zy2k5xOo9jUyhQ==, tarball: https://registry.npmmirror.com/@types/cookies/-/cookies-0.7.10.tgz}
@@ -3854,7 +3888,6 @@ packages:
       '@types/express': registry.npmmirror.com/@types/express@4.17.18
       '@types/keygrip': registry.npmmirror.com/@types/keygrip@1.0.6
       '@types/node': registry.npmmirror.com/@types/node@18.11.18
-    dev: false
 
   registry.npmmirror.com/@types/debug@4.1.12:
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==, tarball: https://registry.npmmirror.com/@types/debug/-/debug-4.1.12.tgz}
@@ -3893,7 +3926,6 @@ packages:
       '@types/express-serve-static-core': registry.npmmirror.com/@types/express-serve-static-core@4.17.33
       '@types/qs': registry.npmmirror.com/@types/qs@6.9.7
       '@types/serve-static': registry.npmmirror.com/@types/serve-static@1.15.1
-    dev: false
 
   registry.npmmirror.com/@types/formidable@2.0.6:
     resolution: {integrity: sha512-L4HcrA05IgQyNYJj6kItuIkXrInJvsXTPC5B1i64FggWKKqSL+4hgt7asiSNva75AoLQjq29oPxFfU4GAQ6Z2w==, tarball: https://registry.npmmirror.com/@types/formidable/-/formidable-2.0.6.tgz}
@@ -3907,13 +3939,11 @@ packages:
     resolution: {integrity: sha512-4+tE/lwdAahgZT1g30Jkdm9PzFRde0xwxBNUyRsCitRvCQB90iuA2uJYdUnhnANRcqGXaWOGY4FEoxeElNAK2g==, tarball: https://registry.npmmirror.com/@types/http-assert/-/http-assert-1.5.5.tgz}
     name: '@types/http-assert'
     version: 1.5.5
-    dev: false
 
   registry.npmmirror.com/@types/http-errors@2.0.4:
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==, tarball: https://registry.npmmirror.com/@types/http-errors/-/http-errors-2.0.4.tgz}
     name: '@types/http-errors'
     version: 2.0.4
-    dev: false
 
   registry.npmmirror.com/@types/ioredis-mock@8.2.5:
     resolution: {integrity: sha512-cZyuwC9LGtg7s5G9/w6rpy3IOZ6F/hFR0pQlWYZESMo1xQUYbDpa6haqB4grTePjsGzcB/YLBFCjqRunK5wieg==, tarball: https://registry.npmmirror.com/@types/ioredis-mock/-/ioredis-mock-8.2.5.tgz}
@@ -3956,7 +3986,6 @@ packages:
     resolution: {integrity: sha512-lZuNAY9xeJt7Bx4t4dx0rYCDqGPW8RXhQZK1td7d4H6E9zYbLoOtjBvfwdTKpsyxQI/2jv+armjX/RW+ZNpXOQ==, tarball: https://registry.npmmirror.com/@types/keygrip/-/keygrip-1.0.6.tgz}
     name: '@types/keygrip'
     version: 1.0.6
-    dev: false
 
   registry.npmmirror.com/@types/koa-compose@3.2.8:
     resolution: {integrity: sha512-4Olc63RY+MKvxMwVknCUDhRQX1pFQoBZ/lXcRLP69PQkEpze/0cr8LNqJQe5NFb/b19DWi2a5bTi2VAlQzhJuA==, tarball: https://registry.npmmirror.com/@types/koa-compose/-/koa-compose-3.2.8.tgz}
@@ -3964,7 +3993,6 @@ packages:
     version: 3.2.8
     dependencies:
       '@types/koa': registry.npmmirror.com/@types/koa@2.13.12
-    dev: false
 
   registry.npmmirror.com/@types/koa@2.13.12:
     resolution: {integrity: sha512-vAo1KuDSYWFDB4Cs80CHvfmzSQWeUb909aQib0C0aFx4sw0K9UZFz2m5jaEP+b3X1+yr904iQiruS0hXi31jbw==, tarball: https://registry.npmmirror.com/@types/koa/-/koa-2.13.12.tgz}
@@ -3979,7 +4007,14 @@ packages:
       '@types/keygrip': registry.npmmirror.com/@types/keygrip@1.0.6
       '@types/koa-compose': registry.npmmirror.com/@types/koa-compose@3.2.8
       '@types/node': registry.npmmirror.com/@types/node@18.11.18
-    dev: false
+
+  registry.npmmirror.com/@types/koa__router@12.0.4:
+    resolution: {integrity: sha512-Y7YBbSmfXZpa/m5UGGzb7XadJIRBRnwNY9cdAojZGp65Cpe5MAP3mOZE7e3bImt8dfKS4UFcR16SLH8L/z7PBw==, tarball: https://registry.npmmirror.com/@types/koa__router/-/koa__router-12.0.4.tgz}
+    name: '@types/koa__router'
+    version: 12.0.4
+    dependencies:
+      '@types/koa': registry.npmmirror.com/@types/koa@2.13.12
+    dev: true
 
   registry.npmmirror.com/@types/lodash-es@4.17.6:
     resolution: {integrity: sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@types/lodash-es/-/lodash-es-4.17.6.tgz}

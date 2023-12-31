@@ -3,7 +3,7 @@ import type { Exception } from '../exception'
 import { defaultFilter } from '../filter'
 import { Dev } from './dev'
 
-export abstract class PFilter extends Dev {
+export abstract class PFilter<C = any, S = any, E extends Exception > extends Dev {
   constructor() {
     super()
     setFilter(this.use.bind(this))
@@ -12,5 +12,5 @@ export abstract class PFilter extends Dev {
     })
   }
 
-  abstract use< C, S, E extends Exception >(error: Error | E, tag?: string, ctx?: C): S
+  abstract use(error: Error | E, tag?: string, ctx?: C): S
 }
