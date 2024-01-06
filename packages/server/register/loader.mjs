@@ -141,6 +141,9 @@ function findTopScope(url, time, modules = new Set()) {
     || url.endsWith('.guard.ts')
     || url.endsWith('.interceptor.ts')
     || url.endsWith('.pipe.ts')
+    || url.endsWith('.plugin.ts')
+    || url.endsWith('.filter.ts')
+
   ) {
     modules.add(fileURLToPath(url))
   }
