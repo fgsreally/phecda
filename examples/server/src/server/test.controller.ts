@@ -30,8 +30,7 @@ export class TestController extends Dev {
     //   throw new Erro r('11')
 
     // this.fgs.fgs.run()
-    const { event } = this.context
-    send(event, '111')
+
     return `${test}-${name}-${id.id}-4542`
   }
 
