@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Define, Dev, Get, Head, Nested, PPipe, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
+import { send } from 'h3'
 import { A } from './test.service'
 
 export class TestPipe extends Dev {
@@ -29,8 +30,8 @@ export class TestController extends Dev {
     //   throw new Erro r('11')
 
     // this.fgs.fgs.run()
-    const { ctx } = this.context
-    // ctx.res.end('11')
+    const { event } = this.context
+    send(event, '111')
     return `${test}-${name}-${id.id}-4542`
   }
 

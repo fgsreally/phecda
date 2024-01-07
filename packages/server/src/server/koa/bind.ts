@@ -159,7 +159,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           type: 'koa' as const,
           ctx,
           meta: i,
-
           moduleMap,
         }
         const context = new Context(methodTag, contextData)
@@ -183,7 +182,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           const ret = await context.usePostInterceptor(funcData)
           if (ctx.res.writableEnded)
             return
-
           ctx.body = ret
         }
         catch (e: any) {
