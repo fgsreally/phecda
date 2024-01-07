@@ -47,6 +47,6 @@ async function parallelRequest() {
 }
 // testFetch()
 request()
-chainRequest()
+// chainRequest()
 
-parallelRequest()
+// parallelRequest()

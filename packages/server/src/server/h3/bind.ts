@@ -68,7 +68,10 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
       next()
     }))
     plugins.forEach((p) => {
-      router.post(route, fromNodeMiddleware(Context.usePlugin([p])[0] as NodeMiddleware))
+      const middleware = Context.usePlugin([p])[0] as NodeMiddleware
+      if (!middleware)
+        return
+      router.post(route, fromNodeMiddleware(middleware))
     })
 
     router.post(route, eventHandler(async (event) => {
@@ -96,6 +99,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               event,
               meta,
               moduleMap,
+              parallel: true,
+
             }
             const context = new Context(tag, contextData)
             const [name, method] = tag.split('-')
@@ -159,8 +164,13 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         next()
       }))
 
-      for (const p of plugins)
-        router[http.type](http.route, fromNodeMiddleware(Context.usePlugin([p])[0]))
+      for (const p of plugins) {
+        const middleware = Context.usePlugin([p])[0]
+        if (!middleware)
+          continue
+
+        router[http.type](http.route, fromNodeMiddleware(middleware))
+      }
 
       router[http.type](http.route, eventHandler(async (event) => {
         const instance = moduleMap.get(tag)!

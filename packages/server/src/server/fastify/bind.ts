@@ -104,6 +104,8 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
                 meta,
                 response: res,
                 moduleMap,
+                parallel: true,
+
               }
               const context = new Context(tag, contextData)
               const [name, method] = tag.split('-')
@@ -207,6 +209,8 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
             instance.context = contextData
             const funcData = await instance[method](...args)
             const ret = await context.usePostInterceptor(funcData)
+            if (res.sent)
+              return
 
             return ret
           }

@@ -65,6 +65,11 @@ process.stdin.on('data', (data) => {
         startChild()
       })
     }
+    else {
+      log('relunch...')
+
+      startChild()
+    }
   }
   if (input === 'e')
     exit()
