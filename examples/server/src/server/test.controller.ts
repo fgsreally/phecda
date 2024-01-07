@@ -29,6 +29,8 @@ export class TestController extends Dev {
     //   throw new Erro r('11')
 
     // this.fgs.fgs.run()
+    const { ctx } = this.context
+    // ctx.res.end('11')
     return `${test}-${name}-${id.id}-4542`
   }
 

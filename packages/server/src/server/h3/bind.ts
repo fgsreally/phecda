@@ -96,6 +96,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               event,
               meta,
               moduleMap,
+              parallel: true,
+
             }
             const context = new Context(tag, contextData)
             const [name, method] = tag.split('-')
