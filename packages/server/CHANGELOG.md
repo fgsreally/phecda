@@ -1,5 +1,11 @@
 # phecda-server
 
+## 4.0.3
+
+### Patch Changes
+
+- 67b18e3: add more files accept hmr
+- 05e3e1b: server won't auto response if it response manually before
 
 ## 4.0.2
 
@@ -8,7 +14,6 @@
 - beb4651: add plugin module(but types support is not strong)
 - 9353ac8: support koa
 - 3bf4785: add emitter to Dev Module
-
 
 ## 4.0.1
 
