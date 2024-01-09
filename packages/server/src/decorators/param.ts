@@ -24,7 +24,8 @@ export function Pipe(key?: string, opts?: any) {
 
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
 
-    if (!state.params) state.params = []
+    if (!state.params)
+      state.params = []
 
     const existItem = state.params.find((item: any) => item.index === index)
     if (existItem)

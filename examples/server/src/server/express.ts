@@ -2,6 +2,7 @@ import { bindApp } from 'phecda-server/express'
 import { Factory, addPlugin } from 'phecda-server'
 import express from 'express'
 import { TestController, TestPipe } from './test.controller'
+
 const data = await Factory([TestPipe, TestController], {
   http: 'pmeta.js',
 })
