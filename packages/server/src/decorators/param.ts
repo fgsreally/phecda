@@ -23,6 +23,9 @@ export function Pipe(key?: string, opts?: any) {
     setModelVar(target, k)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+
+    if (!state.params) state.params = []
+
     const existItem = state.params.find((item: any) => item.index === index)
     if (existItem)
       Object.assign(existItem, { pipe: key, pipeOpts: opts })
