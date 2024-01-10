@@ -33,4 +33,11 @@ export function useC<T extends new (...args: any) => any>(Module: T): ExcludeNot
   return new Module()
 }
 
+export type PickKeysByValue<Type, Value> = { [Key in keyof Type]: Type[Key] extends Value ? Key : never }[keyof Type]
+
+export type OmitFunction<T> = Omit<T, PickKeysByValue<T, (...args: any) => any>>
+export function toClass<T>(data: OmitFunction<T>) {
+  return data as T
+}
+
 export * from './axios'

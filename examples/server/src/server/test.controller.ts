@@ -4,8 +4,13 @@ import type { ExpressCtx } from 'phecda-server/express'
 import { send } from 'h3'
 import { A } from './test.service'
 
-export class TestPipe extends Dev {
+export class Tester {
+  id: string
+  name: string
 
+  run() {
+    return this.id + this.name
+  }
 }
 
 @Controller('/base')
@@ -25,7 +30,7 @@ export class TestController extends Dev {
 
   @Plugin('test')
   @Post('/:test')
-  async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: { id: string; name: string }) {
+  async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
     // if (test)
     //   throw new Erro r('11')
 
