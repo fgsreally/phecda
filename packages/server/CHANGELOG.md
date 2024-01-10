@@ -1,5 +1,13 @@
 # phecda-server
 
+## 4.0.4
+
+### Patch Changes
+
+- a917678: refactor hmr to support multple factory
+- 46e66e7: fix Pipe
+- 1797c5a: register can handle .ts file from dynamic import(file url import)
+
 ## 4.0.3
 
 ### Patch Changes
