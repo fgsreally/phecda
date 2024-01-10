@@ -40,16 +40,6 @@ function addUrlToGraph(url, parent) {
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
-  if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
-    const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
-
-    return {
-      format: 'ts',
-      url,
-      shortCircuit: true,
-    }
-  }
-
   // entrypoint
   if (!context.parentURL) {
     entryUrl = specifier
@@ -58,6 +48,16 @@ export const resolve = async (specifier, context, nextResolve) => {
         ? 'ts'
         : undefined,
       url: specifier,
+      shortCircuit: true,
+    }
+  }
+
+  if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
+    const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
+
+    return {
+      format: 'ts',
+      url,
       shortCircuit: true,
     }
   }
@@ -113,7 +113,7 @@ export const load = async (url, context, nextLoad) => {
       debounce((type) => {
         if (type === 'change') {
           try {
-            const files = [...findTopScope(url, Date.now())]
+            const files = [...findTopScope(url, Date.now())].reverse()
             port.postMessage(
               JSON.stringify({
                 type: 'change',

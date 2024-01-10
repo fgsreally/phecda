@@ -20,12 +20,10 @@ port1.on('message', async (data) => {
   if (type === 'change') {
     log('reload module...')
 
-    for (const file of files.reverse())
-      await globalThis.__PS_HMR__?.(file)
+    for (const cb of globalThis.__PS_HMR__)
+      await cb(files)
 
     log('reload done')
-
-    await globalThis.__PS_WRITEMETA__?.()
   }
 })
 

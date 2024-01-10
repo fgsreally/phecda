@@ -133,17 +133,20 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
   writeCode()
   if (IS_DEV) {
-    // @ts-expect-error globalThis
-    globalThis.__PS_HMR__ = async (file: string) => {
-      debug(`reload file ${file}`)
-      const module = await import(file)
-      for (const i in module) {
-        if (isPhecda(module[i]))
-          await update(module[i])
+    if (!globalThis.__PS_HMR__)
+      globalThis.__PS_HMR__ = []
+
+    globalThis.__PS_HMR__?.push(async (files: string[]) => {
+      for (const file of files) {
+        debug(`reload file ${file}`)
+        const module = await import(file)
+        for (const i in module) {
+          if (isPhecda(module[i]))
+            await update(module[i])
+        }
       }
-    }
-    // @ts-expect-error globalThis
-    globalThis.__PS_WRITEMETA__ = writeCode
+      writeCode()
+    })
   }
 
   return {
