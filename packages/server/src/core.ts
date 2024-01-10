@@ -50,11 +50,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       (emitter as any).on(eventName, fn)
   })
 
-  async function update(Module: Construct) {
-    const tag = Module.prototype?.__TAG__ || Module.name
+  // only del direct module
+  async function del(tag: string) {
     if (!moduleMap.has(tag))
       return
-    debug(`update module "${tag}"`)
 
     const instance = moduleMap.get(tag)
 
@@ -62,6 +61,9 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       for (const cb of instance[UNMOUNT_SYMBOL])
         await cb()
     }
+
+    debug(`del module "${tag}"`)
+
     log(`Module ${pc.yellow(`[${tag}]`)} unmount`)
     moduleMap.delete(tag)
     constructorMap.delete(tag)
@@ -70,12 +72,22 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
         meta.splice(i, 1)
     }
 
+    return instance
+  }
+
+  async function add(Module: Construct) {
+    const tag = Module.prototype?.__TAG__ || Module.name
+    const oldInstance = await del(tag)
+
     const { instance: newModule } = await buildNestModule(Module)
-    if (moduleGraph.has(tag)) {
+
+    debug(`add module "${tag}"`)
+
+    if (oldInstance) {
       [...moduleGraph.get(tag)!].forEach((tag) => {
         const module = moduleMap.get(tag)
         for (const key in module) {
-          if (module[key] === instance)
+          if (module[key] === oldInstance)
             module[key] = newModule
         }
       })
@@ -142,7 +154,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
         const module = await import(file)
         for (const i in module) {
           if (isPhecda(module[i]))
-            await update(module[i])
+            await add(module[i])
         }
       }
       writeCode()
@@ -153,7 +165,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     moduleMap,
     meta,
     constructorMap,
-    update,
+    add,
+    del,
   }
 }
 

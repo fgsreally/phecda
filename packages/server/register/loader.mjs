@@ -51,7 +51,6 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
-
   if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
     const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
 

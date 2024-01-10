@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, To, Tag, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
