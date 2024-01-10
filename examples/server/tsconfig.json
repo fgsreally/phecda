@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "module": "esnext",
     "lib": ["esnext", "DOM"],
+    "strictPropertyInitialization": false,
     "moduleResolution": "Node",
     "strict": true,
     "resolveJsonModule": true,

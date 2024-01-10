@@ -1,8 +1,10 @@
 import { bindApp } from 'phecda-server/express'
-import { Factory, addPlugin } from 'phecda-server'
+import { Factory } from 'phecda-server'
 import express from 'express'
-import { TestController, TestPipe } from './test.controller'
-const data = await Factory([TestPipe, TestController], {
+
+import { TestController } from './test.controller'
+
+const data = await Factory([TestController], {
   http: 'pmeta.js',
 })
 const router = express.Router()
@@ -23,5 +25,5 @@ bindApp(router, data, {
 app.use('/base', router)
 
 app.listen('3008', () => {
-  console.log('start server..')
+  console.log('start express server..')
 })

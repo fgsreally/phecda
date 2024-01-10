@@ -1,6 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'url'
 import { watch } from 'fs'
-import { isAbsolute, relative } from 'path'
+import { extname, isAbsolute, relative } from 'path'
 import ts from 'typescript'
 import { compile } from './compile.mjs'
 let port
@@ -30,6 +30,15 @@ const filesRecord = new Map()
 const moduleGraph = {}
 
 let entryUrl
+
+function addUrlToGraph(url, parent) {
+  if (!(url in moduleGraph))
+    moduleGraph[url] = new Set()
+
+  moduleGraph[url].add(parent)
+  return url + (filesRecord.has(url) ? `?t=${filesRecord.get(url)}` : '')
+}
+
 export const resolve = async (specifier, context, nextResolve) => {
   // entrypoint
   if (!context.parentURL) {
@@ -39,6 +48,16 @@ export const resolve = async (specifier, context, nextResolve) => {
         ? 'ts'
         : undefined,
       url: specifier,
+      shortCircuit: true,
+    }
+  }
+
+  if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
+    const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
+
+    return {
+      format: 'ts',
+      url,
       shortCircuit: true,
     }
   }
@@ -69,15 +88,11 @@ export const resolve = async (specifier, context, nextResolve) => {
     && !resolvedModule.resolvedFileName.includes('/node_modules/')
     && EXTENSIONS.includes(resolvedModule.extension)
   ) {
-    const url = pathToFileURL(resolvedModule.resolvedFileName).href
+    const url = addUrlToGraph(pathToFileURL(resolvedModule.resolvedFileName).href, context.parentURL.split('?')[0])
 
-    if (!(url in moduleGraph))
-      moduleGraph[url] = new Set()
-
-    moduleGraph[url].add(context.parentURL.split('?')[0])
     return {
       format: 'ts',
-      url: url + (filesRecord.has(url) ? `?t=${filesRecord.get(url)}` : ''),
+      url,
       shortCircuit: true,
     }
   }
@@ -98,7 +113,7 @@ export const load = async (url, context, nextLoad) => {
       debounce((type) => {
         if (type === 'change') {
           try {
-            const files = [...findTopScope(url, Date.now())]
+            const files = [...findTopScope(url, Date.now())].reverse()
             port.postMessage(
               JSON.stringify({
                 type: 'change',

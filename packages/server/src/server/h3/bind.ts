@@ -230,14 +230,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
   handleMeta()
   createRoute()
   if (IS_DEV) {
-    // @ts-expect-error globalThis
-    const rawMetaHmr = globalThis.__PS_WRITEMETA__
-    // @ts-expect-error globalThis
-
-    globalThis.__PS_WRITEMETA__ = () => {
+    globalThis.__PS_HMR__?.push(async () => {
       handleMeta()
-      // createRoute()
-      rawMetaHmr?.()
-    }
+    })
   }
 }

@@ -102,13 +102,8 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
   }, { noAck: true })
 
   if (IS_DEV) {
-    // @ts-expect-error globalThis
-    const rawMetaHmr = globalThis.__PS_WRITEMETA__
-    // @ts-expect-error globalThis
-
-    globalThis.__PS_WRITEMETA__ = () => {
+    globalThis.__PS_HMR__?.push(async () => {
       handleMeta()
-      rawMetaHmr?.()
-    }
+    })
   }
 }
