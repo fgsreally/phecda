@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { bindApp } from 'phecda-server/express'
 import { Factory } from 'phecda-server'
 import express from 'express'

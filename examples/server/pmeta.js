@@ -11,7 +11,7 @@ return ret
     }
     
     test(...args){
-const ret={tag:"test-test",body:{},headers:{},query:{},params:{},method:"post",url:"/base/{{test}}",args}
+const ret={tag:"test-test",body:{},headers:{},query:{},params:{},method:"post",url:"/base/{{test}}/a",args}
 
 ret.params['test']=args[0]
 ret.url=ret.url.replace('{{test}}',args[0])

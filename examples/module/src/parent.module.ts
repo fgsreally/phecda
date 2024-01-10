@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Tag } from 'phecda-module'
 import { Child } from './child.module'
 @Tag('parent')

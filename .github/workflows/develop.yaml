@@ -24,6 +24,7 @@ jobs:
           run_install: |
             - recursive: true
               args: [--no-frozen-lockfile]
+      - run: npm run lint    
       - run: npm run build
       - run: npm run test
 

@@ -5,7 +5,7 @@ import { HomeModel } from './home'
 export class AboutModel extends PV {
   change_home_name() {
     useV(HomeModel).changeName()
-    console.log(this.tag)
+    // console.log(this.tag)
   }
 
   emit_update() {
