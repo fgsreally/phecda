@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Arg, Event, Rpc } from 'phecda-server'
 
 @Rpc('redis', 'mq')

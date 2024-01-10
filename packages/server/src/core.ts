@@ -50,7 +50,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       (emitter as any).on(eventName, fn)
   })
 
-  // only del direct module
+  // only remove module in moduleMap(won't remove indiect module)
   async function del(tag: string) {
     if (!moduleMap.has(tag))
       return
@@ -83,7 +83,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`add module "${tag}"`)
 
-    if (oldInstance) {
+    if (oldInstance && moduleGraph.has(tag)) {
       [...moduleGraph.get(tag)!].forEach((tag) => {
         const module = moduleMap.get(tag)
         for (const key in module) {

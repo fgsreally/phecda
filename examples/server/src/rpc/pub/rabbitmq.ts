@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createClient } from 'phecda-server/rabbitmq'
 import amqp from 'amqplib'
 import type { TestRpc } from '../test.controller'

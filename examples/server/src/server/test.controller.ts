@@ -1,7 +1,6 @@
-import { BadRequestException, Body, Controller, Define, Dev, Get, Head, Nested, PPipe, Param, Pipe, Plugin, Post, Put, Query, Tag, Watcher, addPipe, emitter } from 'phecda-server'
+import { Body, Controller, Define, Dev, Get, Param, Pipe, Plugin, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
-import { send } from 'h3'
 import { A } from './test.service'
 
 export class Tester {
@@ -25,29 +24,24 @@ export class TestController extends Dev {
 
   @Post('/mq')
   async mq(@Body('') body: undefined) {
-    console.log('use mq', body)
+    return body
   }
 
   @Plugin('test')
   @Post('/:test')
   async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
-    // if (test)
-    //   throw new Erro r('11')
-
-    // this.fgs.fgs.run()
-
     return `${test}-${name}-${id.id}-4542`
   }
 
   @Get('/query')
-  async query(@Query('id') id: any[], @Query('name', Number) name = 10) {
-    return id
+  async query(@Query('id') id: any[], @Query('name') name = 10) {
+    return [id, name]
   }
 
   @Get('/send')
   sendMsgToMQ(@Body('data') body: string): string {
     emitter.emit('watch', 1)
-    return 'send msg to mq'
+    return `send msg to mq ${body}`
   }
 
   @Define('user', 'A')

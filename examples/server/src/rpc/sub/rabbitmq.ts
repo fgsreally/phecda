@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import amqp from 'amqplib'
 import { bind } from 'phecda-server/rabbitmq'
 import { Factory } from 'phecda-server'

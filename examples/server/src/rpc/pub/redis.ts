@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createClient } from 'phecda-server/redis'
 import Redis from 'ioredis'
 import type { TestRpc } from '../test.controller'

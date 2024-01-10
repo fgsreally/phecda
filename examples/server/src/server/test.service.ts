@@ -1,7 +1,7 @@
 import { Dev, Empty, Init } from 'phecda-server'
 import { log } from './utils'
 
-class c {
+class C {
   run() {
     log('cc2')
 
@@ -13,11 +13,10 @@ abstract class BaseService<T extends new (...args: any) => any> extends Dev {
 
   @Init
   init() {
-    console.log('initxx')
     this.fgs.run()
-    this.onUnmount(() => {
-      console.log('unmount')
-    })
+    // this.onUnmount(() => {
+    //   console.log('unmount')
+    // })
   }
 
   find() {
@@ -26,6 +25,6 @@ abstract class BaseService<T extends new (...args: any) => any> extends Dev {
 }
 
 @Empty
-export class A extends BaseService<typeof c> {
-  fgs = new c()
+export class A extends BaseService<typeof C> {
+  fgs = new C()
 }

@@ -5,7 +5,7 @@ export class Base {
   name = 'base'
   @Init
   run() {
-    console.log('run')
+    // console.log('run')
   }
 }
 @Global
@@ -30,7 +30,7 @@ export class HomeModel<T> extends Base {
   }
 
   changeName() {
-    console.log(this)
+    // console.log(this)
 
     this.name = 'fgs'
   }

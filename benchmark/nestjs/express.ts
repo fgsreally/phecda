@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable import/first */
 console.time('cold-start')
 
