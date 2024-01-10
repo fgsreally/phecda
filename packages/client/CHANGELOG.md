@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.1
+
+### Patch Changes
+
+- 8d7f7f2: add toClass
+
 ## 2.0.0
 
 ### Major Changes
