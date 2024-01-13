@@ -12,6 +12,7 @@ export interface KoaCtx {
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
   [key: string]: any
 }
 export interface Options {
@@ -93,7 +94,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               parallel: true,
 
             }
-            const context = new Context(tag, contextData)
+            const context = new Context<KoaCtx>(tag, contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -160,8 +161,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           ctx,
           meta: i,
           moduleMap,
+          parallel: false,
         }
-        const context = new Context(methodTag, contextData)
+        const context = new Context<KoaCtx>(methodTag, contextData)
 
         try {
           for (const name in header)

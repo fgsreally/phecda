@@ -1,4 +1,4 @@
-import type { Express, Router } from 'express'
+import type { Express, Request, Response, Router } from 'express'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -12,6 +12,7 @@ export interface ExpressCtx {
   response: Response
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
   [key: string]: any
 }
 export interface Options {
@@ -92,7 +93,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               moduleMap,
               parallel: true,
             }
-            const context = new Context(tag, contextData)
+            const context = new Context<ExpressCtx>(tag, contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -161,8 +162,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           meta: i,
           response: res,
           moduleMap,
+          parallel: false,
         }
-        const context = new Context(methodTag, contextData)
+        const context = new Context<ExpressCtx>(methodTag, contextData)
 
         try {
           for (const name in header)

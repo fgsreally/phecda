@@ -1,5 +1,5 @@
 import { eventHandler, fromNodeMiddleware, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
-import type { NodeMiddleware, Router } from 'h3'
+import type { H3Event, NodeMiddleware, Router } from 'h3'
 
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
@@ -10,10 +10,11 @@ import { Context, isAopDepInject } from '../../context'
 
 export interface H3Ctx {
   type: 'h3'
-  request: Request
-  response: Response
+  event: H3Event
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
+  [key: string]: any
 }
 export interface Options {
 
@@ -102,7 +103,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               parallel: true,
 
             }
-            const context = new Context(tag, contextData)
+            const context = new Context<H3Ctx>(tag, contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -180,8 +181,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           meta: i,
           event,
           moduleMap,
+          parallel: false,
         }
-        const context = new Context(methodTag, contextData)
+        const context = new Context<H3Ctx>(methodTag, contextData)
 
         try {
           setHeaders(event, header)

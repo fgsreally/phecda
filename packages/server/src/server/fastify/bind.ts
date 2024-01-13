@@ -12,6 +12,7 @@ export interface FastifyCtx {
   response: FastifyReply
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
   [key: string]: any
 }
 export interface Options {
@@ -99,7 +100,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
                 return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
 
               const contextData = {
-                type: 'fastify',
+                type: 'fastify' as const,
                 request: req,
                 meta,
                 response: res,
@@ -107,7 +108,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
                 parallel: true,
 
               }
-              const context = new Context(tag, contextData)
+              const context = new Context<FastifyCtx>(tag, contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -185,13 +186,14 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           (req as any)[META_SYMBOL] = meta
           const instance = moduleMap.get(tag)!
           const contextData = {
-            type: 'fastify',
+            type: 'fastify' as const,
             request: req,
             meta: i,
             response: res,
             moduleMap,
+            parallel: false,
           }
-          const context = new Context(methodTag, contextData)
+          const context = new Context<FastifyCtx>(methodTag, contextData)
 
           try {
             for (const name in header)
