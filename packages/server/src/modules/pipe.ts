@@ -2,10 +2,10 @@ import { getSymbol } from 'phecda-core'
 import { Context, addPipe } from '../context'
 import { Dev } from './dev'
 export abstract class PPipe<C = any> extends Dev {
-  constructor() {
+  constructor(tag?: string) {
     super()
 
-    const key = getSymbol(this)
+    const key = tag || getSymbol(this)
     addPipe(key, this.use.bind(this))
     this.onUnmount(() => {
       delete Context.pipeRecord[key]

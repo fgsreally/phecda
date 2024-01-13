@@ -19,10 +19,10 @@ export interface PModule<C = any> {
 }
 
 export class PModule extends Dev {
-  constructor() {
+  constructor(tag?: string) {
     super()
 
-    const key = getSymbol(this)
+    const key = tag || getSymbol(this)
 
     if (this.pipe) {
       addPipe(key, this.pipe.bind(this))

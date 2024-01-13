@@ -3,9 +3,9 @@ import { Context, addPlugin } from '../context'
 import { Dev } from '../modules/dev'
 
 export abstract class PPlugin extends Dev {
-  constructor() {
+  constructor(tag?: string) {
     super()
-    const key = getSymbol(this)
+    const key = tag || getSymbol(this)
 
     addPlugin(key, this.use.bind(this))
 
