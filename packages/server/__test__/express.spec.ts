@@ -61,7 +61,7 @@ describe('express ', () => {
     bindApp(app, data)
 
     const res1 = await request(app).get('/test')
-    expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, error: true })
+    expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, __PS_ERROR__: true })
   })
   it('Pipe', async () => {
     class Info {
@@ -87,7 +87,7 @@ describe('express ', () => {
 
     bindApp(app, data)
     const res1 = await request(app).post('/test').send({ info: { name: '' } })
-    expect(res1.body).toMatchObject({ message: 'name should be phecda', error: true })
+    expect(res1.body).toMatchObject({ message: 'name should be phecda', __PS_ERROR__: true })
 
     const res2 = await request(app).post('/test').send({ info: { name: 'phecda' } })
     expect(res2.text).toBe('test1-phecda')
@@ -160,7 +160,7 @@ describe('express ', () => {
     expect(res1.body).toMatchObject({
       message: 'Guard exception--test',
       status: 403,
-      error: true,
+      __PS_ERROR__: true,
     })
     await request(app).post('/test')
     expect(fn).toHaveBeenCalledTimes(4)
