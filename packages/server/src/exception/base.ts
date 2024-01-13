@@ -4,6 +4,6 @@ export class Exception extends Error {
   }
 
   get data() {
-    return { message: this.message, description: this.description, status: this.status, error: true }
+    return { message: this.message, description: this.description, status: this.status, __PS_ERROR__: true }
   }
 }

@@ -2,7 +2,7 @@ import { Exception, UndefinedException } from './exception'
 import type { P } from './types'
 import { log } from './utils'
 
-export const defaultFilter: P.Filter = (e: any) => {
+export const defaultFilter: P.Filter = (e) => {
   if (!(e instanceof Exception)) {
     log(e.message, 'error')
     console.error(e.stack)

@@ -93,7 +93,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         const ret = await context.useFilter(e)
         queue && pub.publish(queue, JSON.stringify({
           data: ret,
-          error: ret.error,
+          error: true,
           id,
         }))
       }

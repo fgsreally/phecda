@@ -93,7 +93,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
         if (queue) {
           ch.sendToQueue(queue, Buffer.from(JSON.stringify({
             data: ret,
-            error: ret.error,
+            error: true,
             id,
           })))
         }
