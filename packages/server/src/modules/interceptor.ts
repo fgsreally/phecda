@@ -3,7 +3,7 @@ import { Context, addInterceptor } from '../context'
 import { Dev } from './dev'
 
 export abstract class PInterceptor<C = any> extends Dev {
-  abstract use(tag: string, ctx: C): ((arg: any) => any) | void
+  abstract use(tag: string, ctx: C): Function | Promise<Function> | any
 
   constructor() {
     super()

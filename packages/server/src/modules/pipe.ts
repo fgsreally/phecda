@@ -12,5 +12,5 @@ export abstract class PPipe<C = any> extends Dev {
     })
   }
 
-  abstract use(args: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C): Promise<any>
+  abstract use(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C): any
 }

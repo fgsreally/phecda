@@ -16,19 +16,6 @@ export type ToInstance<T = any> = {
 
 export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
-export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
-
-// export interface ServerMergeCtx {
-//   request: Request
-//   response: Response
-//   meta: Record<string, Meta>
-//   moduleMap: Record<string, any>
-//   isMerge: true
-//   tags?: string[]
-// }
-
-export interface ServerErr { message: string; description: string; status: number; error: boolean }
-
 export interface BaseError {
   error: true
   status: number
