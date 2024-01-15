@@ -4,15 +4,15 @@ import { Dev } from './dev'
 
 export abstract class PGuard<C = any> extends Dev {
   abstract use(tag: string, ctx: C): Promise<boolean> | boolean
-
-  constructor() {
+  readonly key: string
+  constructor(tag?: string) {
     super()
-    const key = getSymbol(this)
+    this.key = tag || getSymbol(this)
 
-    addGuard(key, this.use.bind(this))
+    addGuard(this.key, this.use.bind(this))
 
     this.onUnmount(() => {
-      delete Context.guardRecord[key]
+      delete Context.guardRecord[this.key]
     })
   }
 }

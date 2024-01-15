@@ -1,5 +1,5 @@
 import { eventHandler, fromNodeMiddleware, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
-import type { NodeMiddleware, Router } from 'h3'
+import type { H3Event, NodeMiddleware, Router } from 'h3'
 
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
@@ -10,10 +10,11 @@ import { Context, isAopDepInject } from '../../context'
 
 export interface H3Ctx {
   type: 'h3'
-  request: Request
-  response: Response
+  event: H3Event
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
+  [key: string]: any
 }
 export interface Options {
 
@@ -77,7 +78,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
     router.post(route, eventHandler(async (event) => {
       const body = await readBody(event, { strict: true })
       async function errorHandler(e: any) {
-        const error = await Context.filter(e)
+        const error = await Context.filterRecord.default(e)
         setResponseStatus(event, error.status)
         return error
       }
@@ -92,7 +93,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             const { tag } = item
             const meta = metaMap.get(tag)!
             if (!meta)
-              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+              return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
             const contextData = {
               type: 'h3' as const,
@@ -102,14 +103,15 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               parallel: true,
 
             }
-            const context = new Context(tag, contextData)
+            const context = new Context<H3Ctx>(tag, contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
               handlers,
               data: {
                 params,
-                guards, interceptors,
+                guards,
+                interceptors, filter,
               },
             } = metaMap.get(tag)!
 
@@ -129,7 +131,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             }
             catch (e: any) {
               handlers.forEach(handler => handler.error?.(e))
-              resolve(await context.useFilter(e))
+              resolve(await context.useFilter(e, filter))
             }
           })
         }))
@@ -155,6 +157,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!
 
@@ -180,8 +183,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           meta: i,
           event,
           moduleMap,
+          parallel: false,
         }
-        const context = new Context(methodTag, contextData)
+        const context = new Context<H3Ctx>(methodTag, contextData)
 
         try {
           setHeaders(event, header)
@@ -219,7 +223,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
+          const err = await context.useFilter(e, filter)
           setResponseStatus(event, err.status)
           return err
         }
@@ -231,6 +235,11 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
   createRoute()
   if (IS_DEV) {
     globalThis.__PS_HMR__?.push(async () => {
+      isAopDepInject(meta, {
+        plugins,
+        guards: globalGuards,
+        interceptors: globalInterceptors,
+      })
       handleMeta()
     })
   }

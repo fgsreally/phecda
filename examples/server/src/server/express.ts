@@ -2,13 +2,24 @@
 import { bindApp } from 'phecda-server/express'
 import { Factory } from 'phecda-server'
 import express from 'express'
-
 import { TestController } from './test.controller'
 
 const data = await Factory([TestController], {
   http: 'pmeta.js',
 })
 const router = express.Router()
+
+// addFilter('test', (e, tag, ctx) => {
+//   const readableStream = fs.createReadStream('./index.html')
+//   readableStream.pipe(ctx.response)
+
+//   return new Promise((resolve) => {
+//     readableStream.on('finish', () => {
+//     // 当数据流传输完成时，中止后续中间件的执行
+//       resolve({ error: false })
+//     })
+//   })
+// })
 
 const app = express()
 app.all('*', (req, res, next) => {

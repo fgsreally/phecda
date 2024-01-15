@@ -1,16 +1,20 @@
-import { setFilter } from '../context'
+import { getSymbol } from 'phecda-core'
+import { Context, addFilter } from '../context'
 import type { Exception } from '../exception'
-import { defaultFilter } from '../filter'
+import type { P } from '../types'
 import { Dev } from './dev'
 
-export abstract class PFilter<C = any, S = any, E extends Exception = Exception > extends Dev {
-  constructor() {
+export abstract class PFilter<C = any, E extends Exception = Exception > extends Dev {
+  readonly key: string
+  constructor(tag?: string) {
     super()
-    setFilter(this.use.bind(this))
+    this.key = tag || getSymbol(this)
+
+    addFilter(this.key, this.use.bind(this))
     this.onUnmount(() => {
-      setFilter(defaultFilter)
+      delete Context.filterRecord[this.key]
     })
   }
 
-  abstract use(error: Error | E, tag?: string, ctx?: C): S
+  abstract use(error: Error | E, tag?: string, ctx?: C): P.Error
 }

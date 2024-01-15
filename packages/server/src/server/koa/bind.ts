@@ -12,6 +12,7 @@ export interface KoaCtx {
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
   [key: string]: any
 }
 export interface Options {
@@ -68,7 +69,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { body } = ctx.request as any
 
       async function errorHandler(e: any) {
-        const error = await Context.filter(e)
+        const error = await Context.filterRecord.default(e)
         ctx.status = error.status
         ctx.body = error
       }
@@ -83,7 +84,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const { tag } = item
             const meta = metaMap.get(tag)
             if (!meta)
-              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+              return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
             const contextData = {
               type: 'koa' as const,
@@ -93,7 +94,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               parallel: true,
 
             }
-            const context = new Context(tag, contextData)
+            const context = new Context<KoaCtx>(tag, contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -101,6 +102,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               data: {
                 params,
                 guards, interceptors,
+                filter,
               },
             } = meta
 
@@ -120,7 +122,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             }
             catch (e: any) {
               handlers.forEach(handler => handler.error?.(e))
-              resolve(await context.useFilter(e))
+              resolve(await context.useFilter(e, filter))
             }
           })
         })).then((ret) => {
@@ -147,6 +149,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!
       app[http.type](http.route, async (ctx, next) => {
@@ -160,8 +163,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           ctx,
           meta: i,
           moduleMap,
+          parallel: false,
         }
-        const context = new Context(methodTag, contextData)
+        const context = new Context<KoaCtx>(methodTag, contextData)
 
         try {
           for (const name in header)
@@ -186,7 +190,10 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
+          const err = await context.useFilter(e, filter)
+
+          if (ctx.res.writableEnded)
+            return
           ctx.status = err.status
           ctx.body = err
         }
@@ -198,6 +205,12 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   createRoute()
   if (IS_DEV) {
     globalThis.__PS_HMR__?.push(async () => {
+      isAopDepInject(meta, {
+        plugins,
+        guards: globalGuards,
+        interceptors: globalInterceptors,
+      })
+
       app.stack = []// app.stack.slice(0, 1)
       handleMeta()
       createRoute()

@@ -1,6 +1,6 @@
 import { bindApp } from 'phecda-server/fastify'
 
-import { Factory, addPlugin } from 'phecda-server'
+import { Factory } from 'phecda-server'
 import Fastify from 'fastify'
 import { TestController } from './test.controller'
 
@@ -8,17 +8,27 @@ const data = await Factory([TestController], {
   http: 'pmeta.js',
 })
 const fastify = Fastify({
-  logger: false,
+  logger: true,
 })
 
-addPlugin('test', (fastify, _, done) => {
-  fastify.addHook('onRequest', (_request, reply, done) => {
-    reply.header('X-Custom-Header', 'default')
+// addFilter('test', (e, tag, ctx) => {
+//   const readableStream = fs.createReadStream('./index.html')
+//   ctx.response.send(readableStream)
 
-    done()
-  })
-  done()
-})
+//   return new Promise((resolve) => {
+//     ctx.response.raw.on('finish', () => {
+//       resolve()
+//     })
+//   })
+// })
+// addPlugin('test', (fastify, _, done) => {
+//   fastify.addHook('onRequest', (_request, reply, done) => {
+//     reply.header('X-Custom-Header', 'default')
+
+//     done()
+//   })
+//   done()
+// })
 
 fastify.register(bindApp(data), {
   prefix: '/base',

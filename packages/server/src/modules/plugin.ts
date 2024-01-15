@@ -3,14 +3,15 @@ import { Context, addPlugin } from '../context'
 import { Dev } from '../modules/dev'
 
 export abstract class PPlugin extends Dev {
-  constructor() {
+  readonly key: string
+  constructor(tag?: string) {
     super()
-    const key = getSymbol(this)
+    this.key = tag || getSymbol(this)
 
-    addPlugin(key, this.use.bind(this))
+    addPlugin(this.key, this.use.bind(this))
 
     this.onUnmount(() => {
-      delete Context.pluginRecord[key]
+      delete Context.pluginRecord[this.key]
     })
   }
 

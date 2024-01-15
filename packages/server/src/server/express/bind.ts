@@ -1,4 +1,4 @@
-import type { Express, Router } from 'express'
+import type { Express, Request, Response, Router } from 'express'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -12,6 +12,7 @@ export interface ExpressCtx {
   response: Response
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
   [key: string]: any
 }
 export interface Options {
@@ -68,7 +69,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { body } = req
 
       async function errorHandler(e: any) {
-        const error = await Context.filter(e)
+        const error = await Context.filterRecord.default(e)
         return res.status(error.status).json(error)
       }
 
@@ -82,7 +83,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const { tag } = item
             const meta = metaMap.get(tag)
             if (!meta)
-              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+              return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
             const contextData = {
               type: 'express' as const,
@@ -92,7 +93,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               moduleMap,
               parallel: true,
             }
-            const context = new Context(tag, contextData)
+            const context = new Context<ExpressCtx>(tag, contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -100,6 +101,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               data: {
                 params,
                 guards, interceptors,
+                filter,
               },
             } = meta
 
@@ -119,7 +121,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             }
             catch (e: any) {
               handlers.forEach(handler => handler.error?.(e))
-              resolve(await context.useFilter(e))
+              resolve(await context.useFilter(e, filter))
             }
           })
         })).then((ret) => {
@@ -146,6 +148,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!;
 
@@ -161,8 +164,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           meta: i,
           response: res,
           moduleMap,
+          parallel: false,
         }
-        const context = new Context(methodTag, contextData)
+        const context = new Context<ExpressCtx>(methodTag, contextData)
 
         try {
           for (const name in header)
@@ -187,7 +191,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           const ret = await context.usePostInterceptor(funcData)
 
           if (res.writableEnded)
-            return true
+            return
 
           if (typeof ret === 'string')
             res.send(ret)
@@ -197,7 +201,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
+          const err = await context.useFilter(e, filter)
+          if (res.writableEnded)
+            return
           res.status(err.status).json(err)
         }
       })
@@ -208,6 +214,11 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   createRoute()
   if (IS_DEV) {
     globalThis.__PS_HMR__?.push(async () => {
+      isAopDepInject(meta, {
+        plugins,
+        guards: globalGuards,
+        interceptors: globalInterceptors,
+      })
       app.stack = []// app.stack.slice(0, 1)
       handleMeta()
       createRoute()

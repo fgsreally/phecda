@@ -58,7 +58,7 @@ export function createParallelReq(instance: AxiosInstance, key = '/__PHECDA_SERV
 }
 
 export function isError<T = any>(data: T | P.Error): data is P.Error {
-  return typeof data === 'object' && (data as any).error
+  return typeof data === 'object' && (data as any).__PS_ERROR__
 }
 
 // work for vue-request

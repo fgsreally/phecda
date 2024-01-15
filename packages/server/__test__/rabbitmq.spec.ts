@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Exception, Factory, Guard, Interceptor, Pipe, Rpc, addGuard, addInterceptor, addPipe, setFilter } from '../src'
+import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../src'
 import { bind, createClient } from '../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
@@ -163,7 +163,7 @@ describe('rabbitmq rpc', () => {
   })
 
   it('filter', async () => {
-    setFilter((e) => {
+    addFilter('test', (e) => {
       expect(e.message).toBe('just for test')
       return {
         error: true,
@@ -172,6 +172,7 @@ describe('rabbitmq rpc', () => {
     })
     class TestRpc {
       @Rpc('mq')
+      @Filter('test')
       run() {
         throw new Exception('just for test', 0)
       }

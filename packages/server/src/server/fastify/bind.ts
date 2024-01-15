@@ -12,6 +12,7 @@ export interface FastifyCtx {
   response: FastifyReply
   meta: Meta
   moduleMap: Record<string, any>
+  parallel: boolean
   [key: string]: any
 }
 export interface Options {
@@ -81,7 +82,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
         const { body } = req as any
 
         async function errorHandler(e: any) {
-          const error = await Context.filter(e)
+          const error = await Context.filterRecord.default(e)
           return res.status(error.status).send(error)
         }
 
@@ -96,10 +97,10 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
               const meta = metaMap.get(tag)
 
               if (!meta)
-                return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
               const contextData = {
-                type: 'fastify',
+                type: 'fastify' as const,
                 request: req,
                 meta,
                 response: res,
@@ -107,7 +108,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
                 parallel: true,
 
               }
-              const context = new Context(tag, contextData)
+              const context = new Context<FastifyCtx>(tag, contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -116,7 +117,9 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
 
                 data: {
                   params,
-                  guards, interceptors,
+                  guards,
+                  interceptors,
+                  filter,
                 },
               } = meta
 
@@ -140,7 +143,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
               }
               catch (e: any) {
                 handlers.forEach(handler => handler.error?.(e))
-                resolve(await context.useFilter(e))
+                resolve(await context.useFilter(e, filter))
               }
             })
           })).then((ret) => {
@@ -171,6 +174,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!
 
@@ -185,13 +189,14 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           (req as any)[META_SYMBOL] = meta
           const instance = moduleMap.get(tag)!
           const contextData = {
-            type: 'fastify',
+            type: 'fastify' as const,
             request: req,
             meta: i,
             response: res,
             moduleMap,
+            parallel: false,
           }
-          const context = new Context(methodTag, contextData)
+          const context = new Context<FastifyCtx>(methodTag, contextData)
 
           try {
             for (const name in header)
@@ -216,7 +221,10 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           }
           catch (e: any) {
             handlers.forEach(handler => handler.error?.(e))
-            const err = await context.useFilter(e)
+            const err = await context.useFilter(e, filter)
+
+            if (res.sent)
+              return
             res.status(err.status).send(err)
           }
         })
@@ -228,6 +236,11 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
 
     if (IS_DEV) {
       globalThis.__PS_HMR__?.push(async () => {
+        isAopDepInject(meta, {
+          plugins,
+          guards: globalGuards,
+          interceptors: globalInterceptors,
+        })
         handleMeta()
       })
     }

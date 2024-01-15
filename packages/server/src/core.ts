@@ -4,7 +4,6 @@ import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
 import { Empty, getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import Debug from 'debug'
-import pc from 'picocolors'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
 import { log } from './utils'
@@ -57,6 +56,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     const instance = moduleMap.get(tag)
 
+    debug(`unmount module "${tag}"`)
+
     if (instance?.[UNMOUNT_SYMBOL]) {
       for (const cb of instance[UNMOUNT_SYMBOL])
         await cb()
@@ -64,7 +65,6 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`del module "${tag}"`)
 
-    log(`Module ${pc.yellow(`[${tag}]`)} unmount`)
     moduleMap.delete(tag)
     constructorMap.delete(tag)
     for (let i = meta.length - 1; i >= 0; i--) {
@@ -81,9 +81,9 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     const { instance: newModule } = await buildNestModule(Module)
 
-    debug(`add module "${tag}"`)
-
     if (oldInstance && moduleGraph.has(tag)) {
+      debug(`replace module "${tag}"`);
+
       [...moduleGraph.get(tag)!].forEach((tag) => {
         const module = moduleMap.get(tag)
         for (const key in module) {
@@ -92,8 +92,6 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
         }
       })
     }
-
-    moduleMap.set(tag, newModule)
   }
   async function buildNestModule(Module: Construct) {
     const paramtypes = getParamTypes(Module) as Construct[]
@@ -120,15 +118,24 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
           moduleGraph.set(subTag, new Set())
         moduleGraph.get(subTag)!.add(tag)
       }
+      debug(`instantiate module "${tag}"`)
+
       instance = new Module(...paramtypesInstances)
     }
     else {
+      debug(`instantiate module "${tag}"`)
+
       instance = new Module()
     }
     meta.push(...getMetaFromInstance(instance, tag, Module.name))
+
+    debug(`init module "${tag}"`)
+
     await registerAsync(instance)
+
+    debug(`add module "${tag}"`)
+
     moduleMap.set(tag, instance)
-    log(`Module ${pc.yellow(`[${tag}]`)} mount"`)
     constructorMap.set(tag, Module)
     return { instance, tag }
   }
@@ -137,10 +144,15 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     await buildNestModule(Module)
 
   function writeCode() {
-    debug('write code')
+    if (http) {
+      debug(`write http code to ${http}`)
+      fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
+    }
+    if (rpc) {
+      debug(`write rpc code to ${rpc}`)
 
-    http && fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
-    rpc && fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
+      fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
+    }
   }
 
   writeCode()
@@ -149,8 +161,9 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       globalThis.__PS_HMR__ = []
 
     globalThis.__PS_HMR__?.push(async (files: string[]) => {
+      debug('reload files ')
+
       for (const file of files) {
-        debug(`reload file ${file}`)
         const module = await import(file)
         for (const i in module) {
           if (isPhecda(module[i]))
@@ -205,6 +218,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     }
 
     meta.params = params
+    meta.filter = state.filter || baseState.filter
     meta.define = { ...baseState.define, ...state.define }
     meta.header = { ...baseState.header, ...state.header }
     meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]

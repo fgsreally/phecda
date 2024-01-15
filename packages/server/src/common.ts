@@ -5,3 +5,4 @@ export const META_SYMBOL = '__PS_META__'
 export const APP_SYMBOL = '__PS__'
 export const IS_DEV = process.env.NODE_ENV === 'development'
 export const IS_STRICT = !!process.env.PS_STRICT
+export const ERROR_SYMBOL = '__PS_ERROR__'

@@ -1,5 +1,6 @@
 import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
+import type { ERROR_SYMBOL } from './common'
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface Emitter {
@@ -16,26 +17,14 @@ export type ToInstance<T = any> = {
 
 export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
-export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
-
-// export interface ServerMergeCtx {
-//   request: Request
-//   response: Response
-//   meta: Record<string, Meta>
-//   moduleMap: Record<string, any>
-//   isMerge: true
-//   tags?: string[]
-// }
-
-export interface ServerErr { message: string; description: string; status: number; error: boolean }
-
-export interface BaseError {
-  error: true
-  status: number
-}
-
 export namespace P {
-  export interface Error extends BaseError { message: string; description: string }
+  export interface Error {
+    // as a symbol
+    [ERROR_SYMBOL]: true
+    status: number
+    message: string
+    description: string
+  }
 
   export type ResOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
 
@@ -45,7 +34,7 @@ export namespace P {
   export type Interceptor<C = any> = (tag: string, ctx: C) =>(any | ((ret: any) => any))
 
   export type Pipe<C = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C) => Promise<any>
-  export type Filter<C = any, R = any, E extends Exception = any > = (err: E | Error, tag?: string, ctx?: C) => R | Promise<R>
+  export type Filter<C = any, E extends Exception = any > = (err: E | Error, tag?: string, ctx?: C) => Error
 
   export interface Handler {
     error?: (arg: any) => void
@@ -63,6 +52,7 @@ export namespace P {
     header: Record<string, string>
     params: { type: string; index: number; key: string; pipe?: string; pipeOpts?: any }[]
     guards: string[]
+    filter?: string
     interceptors: string[]
     plugins: string[]
     method: string
