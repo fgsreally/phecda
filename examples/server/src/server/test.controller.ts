@@ -30,14 +30,9 @@ export class TestController extends Dev {
     return body
   }
 
-  @Plugin('aa')
-  @Plugin('test')
   @Post('/:test')
   @Filter('test')
   async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
-    if (test)
-      throw new Error('error from test')
-
     return `${test}-${name}-${id.id}-4542`
   }
 
