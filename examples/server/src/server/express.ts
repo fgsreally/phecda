@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
-import fs from 'fs'
 import { bindApp } from 'phecda-server/express'
-import { Factory, addFilter } from 'phecda-server'
+import { Factory } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 

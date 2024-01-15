@@ -1,7 +1,6 @@
-import fs from 'fs'
 import { bindApp } from 'phecda-server/fastify'
 
-import { Factory, addFilter, addPlugin } from 'phecda-server'
+import { Factory } from 'phecda-server'
 import Fastify from 'fastify'
 import { TestController } from './test.controller'
 
