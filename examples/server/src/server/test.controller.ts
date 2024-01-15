@@ -1,4 +1,4 @@
-import { Body, Controller, Define, Dev, Filter, Get, Param, Pipe, Plugin, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Dev, Filter, Get, Param, Pipe, Plugin, Post, Query, Tag, Watcher, addGuard, addPlugin, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
@@ -20,6 +20,9 @@ export class TestController extends Dev {
   context: ExpressCtx
   constructor(public fgs: A) {
     super()
+
+    addGuard('a', () => true)
+    addPlugin('aa', () => {})
   }
 
   @Post('/mq')

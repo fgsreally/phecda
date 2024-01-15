@@ -137,6 +137,7 @@ export function addInterceptor(key: string, handler: P.Interceptor) {
   Context.interceptorRecord[key] = handler
 }
 
+// detect whether plugin/filter/pipe/guard/intercept is injected
 export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]

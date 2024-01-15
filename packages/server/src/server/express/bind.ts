@@ -214,6 +214,11 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   createRoute()
   if (IS_DEV) {
     globalThis.__PS_HMR__?.push(async () => {
+      isAopDepInject(meta, {
+        plugins,
+        guards: globalGuards,
+        interceptors: globalInterceptors,
+      })
       app.stack = []// app.stack.slice(0, 1)
       handleMeta()
       createRoute()
