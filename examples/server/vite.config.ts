@@ -8,7 +8,7 @@ export default defineConfig({
 
   server: {
     proxy: {
-      '/base': 'http://localhost:3008',
+      '/base': 'http://localhost:3009',
     },
   },
   plugins: [swc.vite(), plugin({ split: true })],
