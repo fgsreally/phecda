@@ -147,7 +147,12 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
   const guardSet = new Set<string>(guards)
   const interceptorSet = new Set<string>(interceptors)
   const pipeSet = new Set<string>()
+
+  const filterSet = new Set<string>()
   meta.forEach(({ data }) => {
+    if (data.filter)
+      filterSet.add(data.filter)
+
     data.interceptors.forEach(i => interceptorSet.add(i))
     data.guards.forEach(i => guardSet.add(i))
     data.plugins.forEach(i => pluginSet.add(i))
@@ -155,22 +160,25 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
       if (i.pipe)
         pipeSet.add(i.pipe)
     })
-  });
-
-  [...pluginSet].forEach((i) => {
-    if (!Context.pluginRecord[i])
-      log(`${pc.white(`Plugin [${i}]`)} doesn't exist`, 'warn')
-  });
-  [...guardSet].forEach((i) => {
-    if (!Context.guardRecord[i])
-      log(`${pc.red(`Guard [${i}]`)} doesn't exist`, 'warn')
-  });
-  [...interceptorSet].forEach((i) => {
-    if (!Context.interceptorRecord[i])
-      log(`${pc.cyan(`Interceptor [${i}]`)} doesn't exist`, 'warn')
-  });
-  [...pipeSet].forEach((i) => {
-    if (!Context.pipeRecord[i])
-      log(`${pc.blue(`Pipe [${i}]`)} doesn't exist`, 'warn')
   })
+
+  const missPlugins = [...pluginSet].filter(i => !Context.pluginRecord[i])
+  const missGuards = [...guardSet].filter(i => !Context.guardRecord[i])
+  const missInterceptors = [...interceptorSet].filter(i => !Context.interceptorRecord[i])
+  const missPipes = [...pipeSet].filter(i => !Context.pipeRecord[i])
+  const missFilters = [...filterSet].filter(i => !Context.filterRecord[i])
+
+  if (missPlugins.length)
+    log(`${pc.white(`Plugin [${missPlugins.join(',')}]`)} doesn't exist`, 'warn')
+  if (missGuards.length)
+    log(`${pc.magenta(`Guard [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
+
+  if (missInterceptors.length)
+    log(`${pc.cyan(`Interceptor [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
+
+  if (missPipes.length)
+    log(`${pc.blue(`Pipe [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
+
+  if (missFilters.length)
+    log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
 }

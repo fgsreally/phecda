@@ -27,6 +27,7 @@ export class TestController extends Dev {
     return body
   }
 
+  @Plugin('aa')
   @Plugin('test')
   @Post('/:test')
   @Filter('test')
