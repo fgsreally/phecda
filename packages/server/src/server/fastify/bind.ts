@@ -219,6 +219,9 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           catch (e: any) {
             handlers.forEach(handler => handler.error?.(e))
             const err = await context.useFilter(e)
+
+            if (res.sent)
+              return
             res.status(err.status).send(err)
           }
         })

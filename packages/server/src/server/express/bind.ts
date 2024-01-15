@@ -189,7 +189,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           const ret = await context.usePostInterceptor(funcData)
 
           if (res.writableEnded)
-            return true
+            return
 
           if (typeof ret === 'string')
             res.send(ret)
@@ -200,6 +200,8 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e)
+          if (res.writableEnded)
+            return
           res.status(err.status).json(err)
         }
       })

@@ -189,6 +189,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e)
+
+          if (ctx.res.writableEnded)
+            return
           ctx.status = err.status
           ctx.body = err
         }
