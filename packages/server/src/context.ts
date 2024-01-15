@@ -14,7 +14,10 @@ export class Context<Data = any> {
   params: string[]
   history = new Histroy()
 
-  static filter: P.Filter = defaultFilter
+  static filterRecord: Record<string, P.Filter> = {
+    default: defaultFilter,
+  }
+
   static pipeRecord: Record<string, P.Pipe> = {
     default: defaultPipe,
   }
@@ -45,8 +48,15 @@ export class Context<Data = any> {
     }))
   }
 
-  useFilter(arg: any) {
-    return Context.filter(arg, this.tag, this.data)
+  useFilter(arg: any, filter = 'default') {
+    if (!Context.filterRecord[filter]) {
+      if (IS_STRICT)
+        throw new FrameworkException(`can't find filter named '${filter}'`)
+      else
+        return Context.filterRecord.default(arg, this.tag, this.data)
+    }
+
+    return Context.filterRecord[filter](arg, this.tag, this.data)
   }
 
   async useGuard(guards: string[]) {
@@ -115,8 +125,8 @@ export function addPipe(key: string, pipe: P.Pipe) {
   Context.pipeRecord[key] = pipe
 }
 
-export function setFilter(filter: P.Filter) {
-  Context.filter = filter
+export function addFilter(key: string, handler: P.Filter) {
+  Context.filterRecord[key] = handler
 }
 
 export function addGuard(key: string, handler: P.Guard) {

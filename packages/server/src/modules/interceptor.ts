@@ -4,15 +4,16 @@ import { Dev } from './dev'
 
 export abstract class PInterceptor<C = any> extends Dev {
   abstract use(tag: string, ctx: C): Function | Promise<Function> | any
+  readonly key: string
 
   constructor(tag?: string) {
     super()
 
-    const key = tag || getSymbol(this)
+    this.key = tag || getSymbol(this)
 
     this.onUnmount(() => {
-      delete Context.interceptorRecord[key]
+      delete Context.interceptorRecord[this.key]
     })
-    addInterceptor(key, this.use.bind(this))
+    addInterceptor(this.key, this.use.bind(this))
   }
 }

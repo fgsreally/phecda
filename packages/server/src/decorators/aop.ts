@@ -47,3 +47,16 @@ export function Interceptor(...interceptors: string[]): any {
     setState(target, key, state)
   }
 }
+export function Filter(filter: string): any {
+  return (target: any, key?: PropertyKey) => {
+    if (!key)
+      key = '__CLASS'
+    target = key === '__CLASS' ? target.prototype : target
+
+    setModelVar(target, key)
+
+    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    state.filter = filter
+    setState(target, key, state)
+  }
+}

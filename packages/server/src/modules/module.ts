@@ -1,8 +1,7 @@
 import { getSymbol } from 'phecda-core'
 import type { P } from '../types'
-import { Context, addGuard, addInterceptor, addPipe, addPlugin, setFilter } from '../context'
+import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
 import type { Exception } from '../exception'
-import { defaultFilter } from '../filter'
 import { Dev } from './dev'
 
 export interface PModule<C = any> {
@@ -19,10 +18,12 @@ export interface PModule<C = any> {
 }
 
 export class PModule extends Dev {
+  readonly key: string
+
   constructor(tag?: string) {
     super()
 
-    const key = tag || getSymbol(this)
+    const key = this.key = tag || getSymbol(this)
 
     if (this.pipe) {
       addPipe(key, this.pipe.bind(this))
@@ -54,9 +55,9 @@ export class PModule extends Dev {
     }
 
     if (this.filter) {
-      setFilter(this.filter.bind(this))
+      addFilter(key, this.filter.bind(this))
       this.onUnmount(() => {
-        setFilter(defaultFilter)
+        delete Context.filterRecord[key]
       })
     }
   }

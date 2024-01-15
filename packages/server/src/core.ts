@@ -205,6 +205,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     }
 
     meta.params = params
+    meta.filter = state.filter || baseState.filter
     meta.define = { ...baseState.define, ...state.define }
     meta.header = { ...baseState.header, ...state.header }
     meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]

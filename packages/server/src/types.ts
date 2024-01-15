@@ -1,5 +1,6 @@
 import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
+import type { ERROR_SYMBOL } from './common'
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface Emitter {
@@ -19,7 +20,7 @@ export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options
 export namespace P {
   export interface Error {
     // as a symbol
-    '__PS_ERROR__': true
+    [ERROR_SYMBOL]: true
     status: number
     message: string
     description: string
@@ -51,6 +52,7 @@ export namespace P {
     header: Record<string, string>
     params: { type: string; index: number; key: string; pipe?: string; pipeOpts?: any }[]
     guards: string[]
+    filter?: string
     interceptors: string[]
     plugins: string[]
     method: string

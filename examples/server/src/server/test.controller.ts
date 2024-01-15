@@ -1,4 +1,4 @@
-import { Body, Controller, Define, Dev, Get, Param, Pipe, Plugin, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
+import { Body, Controller, Define, Dev, Filter, Get, Param, Pipe, Plugin, Post, Query, Tag, Watcher, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'
@@ -29,7 +29,11 @@ export class TestController extends Dev {
 
   @Plugin('test')
   @Post('/:test')
+  @Filter('test')
   async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
+    if (test)
+      throw new Error('error from test')
+
     return `${test}-${name}-${id.id}-4542`
   }
 

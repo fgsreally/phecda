@@ -82,7 +82,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
         const { body } = req as any
 
         async function errorHandler(e: any) {
-          const error = await Context.filter(e)
+          const error = await Context.filterRecord.default(e)
           return res.status(error.status).send(error)
         }
 
@@ -97,7 +97,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
               const meta = metaMap.get(tag)
 
               if (!meta)
-                return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
               const contextData = {
                 type: 'fastify' as const,
@@ -117,7 +117,9 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
 
                 data: {
                   params,
-                  guards, interceptors,
+                  guards,
+                  interceptors,
+                  filter,
                 },
               } = meta
 
@@ -141,7 +143,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
               }
               catch (e: any) {
                 handlers.forEach(handler => handler.error?.(e))
-                resolve(await context.useFilter(e))
+                resolve(await context.useFilter(e, filter))
               }
             })
           })).then((ret) => {
@@ -172,6 +174,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!
 
@@ -218,7 +221,7 @@ export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>
           }
           catch (e: any) {
             handlers.forEach(handler => handler.error?.(e))
-            const err = await context.useFilter(e)
+            const err = await context.useFilter(e, filter)
 
             if (res.sent)
               return

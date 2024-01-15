@@ -78,7 +78,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
     router.post(route, eventHandler(async (event) => {
       const body = await readBody(event, { strict: true })
       async function errorHandler(e: any) {
-        const error = await Context.filter(e)
+        const error = await Context.filterRecord.default(e)
         setResponseStatus(event, error.status)
         return error
       }
@@ -93,7 +93,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             const { tag } = item
             const meta = metaMap.get(tag)!
             if (!meta)
-              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+              return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
             const contextData = {
               type: 'h3' as const,
@@ -110,7 +110,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               handlers,
               data: {
                 params,
-                guards, interceptors,
+                guards,
+                interceptors, filter,
               },
             } = metaMap.get(tag)!
 
@@ -130,7 +131,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             }
             catch (e: any) {
               handlers.forEach(handler => handler.error?.(e))
-              resolve(await context.useFilter(e))
+              resolve(await context.useFilter(e, filter))
             }
           })
         }))
@@ -156,6 +157,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!
 
@@ -221,7 +223,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
+          const err = await context.useFilter(e, filter)
           setResponseStatus(event, err.status)
           return err
         }

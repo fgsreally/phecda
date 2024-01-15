@@ -69,7 +69,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { body } = req
 
       async function errorHandler(e: any) {
-        const error = await Context.filter(e)
+        const error = await Context.filterRecord.default(e)
         return res.status(error.status).json(error)
       }
 
@@ -83,7 +83,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const { tag } = item
             const meta = metaMap.get(tag)
             if (!meta)
-              return resolve(await Context.filter(new BadRequestException(`"${tag}" doesn't exist`)))
+              return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
             const contextData = {
               type: 'express' as const,
@@ -101,6 +101,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               data: {
                 params,
                 guards, interceptors,
+                filter,
               },
             } = meta
 
@@ -120,7 +121,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             }
             catch (e: any) {
               handlers.forEach(handler => handler.error?.(e))
-              resolve(await context.useFilter(e))
+              resolve(await context.useFilter(e, filter))
             }
           })
         })).then((ret) => {
@@ -147,6 +148,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           guards,
           params,
           plugins,
+          filter,
         },
       } = metaMap.get(methodTag)!;
 
@@ -199,7 +201,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         }
         catch (e: any) {
           handlers.forEach(handler => handler.error?.(e))
-          const err = await context.useFilter(e)
+          const err = await context.useFilter(e, filter)
           if (res.writableEnded)
             return
           res.status(err.status).json(err)
