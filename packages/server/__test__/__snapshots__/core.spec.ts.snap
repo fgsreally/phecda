@@ -4,6 +4,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {
@@ -35,6 +36,7 @@ exports[`Factory  > In extended case 1`] = `
 [
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {
@@ -61,6 +63,7 @@ exports[`Factory  > In extended case 1`] = `
   },
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {
@@ -92,6 +95,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
 [
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {
@@ -118,6 +122,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
   },
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {
@@ -144,6 +149,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
   },
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {
@@ -170,6 +176,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
   },
   {
     "define": {},
+    "filter": undefined,
     "guards": [],
     "header": {},
     "http": {

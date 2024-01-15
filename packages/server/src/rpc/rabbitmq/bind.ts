@@ -59,18 +59,23 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
       })
       if (!existQueue.has(queue))
         await ch.assertQueue(queue)
+      if (!metaMap.has(tag)) {
+        queue && ch.sendToQueue(queue, Buffer.from(JSON.stringify({
+          data: new BadRequestException(`service "${tag}" doesn't exist`).data,
+          error: true,
+          id,
+        })))
 
+        return
+      }
+
+      const {
+        data: {
+          guards, interceptors, params, name, method, filter,
+        },
+        paramsType,
+      } = metaMap.get(tag)!
       try {
-        if (!metaMap.has(tag))
-          throw new BadRequestException(`service "${tag}" doesn't exist`)
-
-        const {
-          data: {
-            guards, interceptors, params, name, method,
-          },
-          paramsType,
-        } = metaMap.get(tag)!
-
         await context.useGuard([...globalGuards, ...guards])
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
@@ -89,7 +94,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
           ch.sendToQueue(queue, Buffer.from(JSON.stringify({ data: ret, id })))
       }
       catch (e) {
-        const ret = await context.useFilter(e)
+        const ret = await context.useFilter(e, filter)
         if (queue) {
           ch.sendToQueue(queue, Buffer.from(JSON.stringify({
             data: ret,

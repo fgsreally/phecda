@@ -59,18 +59,21 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         channel,
         data,
       })
-
+      if (!metaMap.has(tag)) {
+        queue && pub.publish(queue, JSON.stringify({
+          data: new BadRequestException(`service "${tag}" doesn't exist`).data,
+          error: true,
+          id,
+        }))
+        return
+      }
+      const {
+        data: {
+          guards, interceptors, params, name, method, filter,
+        },
+        paramsType,
+      } = metaMap.get(tag)!
       try {
-        if (!metaMap.has(tag))
-          throw new BadRequestException(`service "${tag}" doesn't exist`)
-
-        const {
-          data: {
-            guards, interceptors, params, name, method,
-          },
-          paramsType,
-        } = metaMap.get(tag)!
-
         await context.useGuard([...globalGuards, ...guards])
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
@@ -90,7 +93,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         queue && pub.publish(queue, JSON.stringify({ data: res, id }))
       }
       catch (e) {
-        const ret = await context.useFilter(e)
+        const ret = await context.useFilter(e, filter)
         queue && pub.publish(queue, JSON.stringify({
           data: ret,
           error: true,
