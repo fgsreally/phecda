@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe, setFilter } from '../src'
+import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../src'
 import { bind, createClient } from '../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
