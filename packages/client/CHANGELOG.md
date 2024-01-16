@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.3
+
+### Patch Changes
+
+- 6b6036a: add pickFunc to improve types support when using request
+
 ## 2.0.2
 
 ### Patch Changes

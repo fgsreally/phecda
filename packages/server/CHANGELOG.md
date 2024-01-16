@@ -1,5 +1,16 @@
 # phecda-server
 
+## 4.0.7
+
+### Patch Changes
+
+- 6b6036a: add pickFunc to improve types support when using request
+- 9670308: add getConfig/setConfig
+- d052702: improve TestHttp flexible;
+  refactor bindApp in fastfiy to unified writing;
+- Updated dependencies [99b458d]
+  - phecda-core@2.1.1
+
 ## 4.0.6
 
 ### Patch Changes
