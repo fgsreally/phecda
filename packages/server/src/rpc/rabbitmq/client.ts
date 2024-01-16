@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type amqplib from 'amqplib'
-import type { ToInstance } from '../../types'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S): Promise<ToInstance<S>> {
+import type { ToControllerMap } from '../../types'
+export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S): Promise<ToControllerMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
   const uniQueue = `PS:${randomUUID()}`

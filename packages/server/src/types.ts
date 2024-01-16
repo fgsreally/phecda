@@ -11,9 +11,13 @@ export interface Emitter {
   emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }
 
-export type ToInstance<T = any> = {
-  [K in keyof T]: T[K] extends (new (...args: any) => any) ? InstanceType<T[K]> : void
+export type ToControllerMap<T = any> = {
+  [K in keyof T]: T[K] extends (new (...args: any) => any) ? PickFunc<InstanceType<T[K]>> : void
 }
+
+export type PickKeysByValue<Type, Value> = { [Key in keyof Type]: Type[Key] extends Value ? Key : never }[keyof Type]
+
+export type PickFunc<T> = Pick<T, PickKeysByValue<T, (...args: any) => any>>
 
 export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
@@ -31,10 +35,10 @@ export namespace P {
   export type Res<T> = T
   export type Guard<C = any> = ((tag: string, ctx: C) => Promise<boolean> | boolean)
 
-  export type Interceptor<C = any> = (tag: string, ctx: C) =>(any | ((ret: any) => any))
+  export type Interceptor<C = any> = (tag: string, ctx: C) => (any | ((ret: any) => any))
 
   export type Pipe<C = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C) => Promise<any>
-  export type Filter<C = any, E extends Exception = any > = (err: E | Error, tag?: string, ctx?: C) => Error
+  export type Filter<C = any, E extends Exception = any> = (err: E | Error, tag?: string, ctx?: C) => Error
 
   export interface Handler {
     error?: (arg: any) => void
