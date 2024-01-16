@@ -38,7 +38,7 @@ export namespace P {
   export type Interceptor<C = any> = (tag: string, ctx: C) => (any | ((ret: any) => any))
 
   export type Pipe<C = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C) => Promise<any>
-  export type Filter<C = any, E extends Exception = any> = (err: E | Error, tag?: string, ctx?: C) => Error
+  export type Filter<C = any, E extends Exception = any> = (err: E | Error, tag?: string, ctx?: C) => Error | any
 
   export interface Handler {
     error?: (arg: any) => void

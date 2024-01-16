@@ -1,9 +1,7 @@
-import type { Express, Router } from 'express'
-
+import type { Server } from 'node:http'
 import type { Test } from 'supertest'
 import { Factory } from './core'
 import type { Construct, PickFunc } from './types'
-import { APP_SYMBOL } from './common'
 
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
   const { moduleMap, constructorMap } = await Factory(Modules)
@@ -28,8 +26,7 @@ export type SuperTestRequest<T> = {
   [K in keyof T]: T[K] extends (...args: infer R) => any ? (...args: R) => Test : never;
 }
 
-export async function TestHttp(app: Router | Express | any) {
-  const { moduleMap, meta } = (app as any)[APP_SYMBOL] as Awaited<ReturnType<typeof Factory>>
+export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>) {
   const { default: request } = await import('supertest')
   return {
     get<T extends Construct>(Module: T): SuperTestRequest<PickFunc<InstanceType<T>>> {
@@ -64,12 +61,6 @@ export async function TestHttp(app: Router | Express | any) {
 
             // @ts-expect-error miss type
             return request(app)[ret.method](ret.url).query(ret.query).set(ret.headers).send(ret.body)
-            // const res = await request(app)[ret.method](ret.url + ret.query).set({ ...headers, ...ret.headers }).send(ret.body)
-            // if (res.type.includes('text'))
-            //   return res.text
-
-            // if (res.type.includes('json'))
-            //   return res.body
           }
         },
       }) as any

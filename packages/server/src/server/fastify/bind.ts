@@ -1,4 +1,4 @@
-import type { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -37,9 +37,9 @@ export interface Options {
 
 }
 
-export function bindApp({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
+export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
-  //   (app as any)[APP_SYMBOL] = { moduleMap, meta }
+  (app as any).server[APP_SYMBOL] = { moduleMap, meta }
 
   isAopDepInject(meta, {
     plugins,

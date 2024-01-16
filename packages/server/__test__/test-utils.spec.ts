@@ -1,11 +1,34 @@
+import { createServer } from 'node:http'
 import express from 'express'
 import { describe, expect, it } from 'vitest'
 import Fastify from 'fastify'
-import { Body, Controller, Factory, Param, Post, Put, Query } from '../src'
-import { bindApp } from '../src/server/fastify'
-import { TestFactory, TestHttp } from '../src/test'
+import { createApp, createRouter, toNodeListener } from 'h3'
+import { Body, Controller, Factory, Get, Param, Post, Put, Query } from '../src'
+import { bindApp as bindExpress } from '../src/server/express'
+import { bindApp as bindFastify } from '../src/server/fastify'
+import { bindApp as bindH3 } from '../src/server/h3'
 
+import { TestFactory, TestHttp } from '../src/test'
 describe('test utils', () => {
+  @Controller('/base')
+  class Http {
+    name: string
+
+    @Get('')
+    get() {
+      return 'get'
+    }
+
+    @Post('/:test')
+    string(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
+      return `${test}-${name}-${id}`
+    }
+
+    @Put('/:test')
+    json(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
+      return { key: `${test}-${name}-${id}` }
+    }
+  }
   it('TestFactory', async () => {
     class X {
       add(n1: number, n2: number) {
@@ -16,29 +39,46 @@ describe('test utils', () => {
 
     expect(get(X).add(1, 1)).toBe(2)
   })
-  it('testHttp', async () => {
-    @Controller('/base')
-    class B {
-      context: any
-      @Post('/:test')
-      string(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
-        return `${test}-${name}-${id}`
-      }
 
-      @Put('/:test')
-      json(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {
-        return { key: `${test}-${name}-${id}` }
-      }
-    }
-    const data = await Factory([B])
+  it('testHttp(express)', async () => {
+    // express
+    const data = await Factory([Http])
+    const app = express()
+    app.use(express.json())
+
+    bindExpress(app, data)
+
+    const { get } = await TestHttp(app, data)
+    await get(Http).get().expect(200, 'get')
+
+    await get(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await get(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
+  })
+  it('testHttp(fastify)', async () => {
+    // express
+    const data = await Factory([Http])
     const app = Fastify()
-    // app.use(express.json())
+    app.register(bindFastify(app, data))
 
-    app.register(bindApp(data))
+    await app.ready()
+    const { get } = await TestHttp(app.server, data)
+    await get(Http).get().expect(200, 'get')
+    await get(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await get(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
+  })
 
-    const { get } = await TestHttp(app)
+  it('testHttp(h3)', async () => {
+    // express
+    const data = await Factory([Http])
+    const app = createApp()
+    const router = createRouter()
+    bindH3(router, data)
+    app.use(router)
 
-    await get(B).string('test', 'name', 'id').expect(200, 'test-name-id')
-    await get(B).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
+    const { get } = await TestHttp(createServer(toNodeListener(app)), data)
+    await get(Http).get().expect(200, 'get')
+
+    await get(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await get(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
   })
 })
