@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import type { P } from 'phecda-server'
+import type { P, PickFunc } from 'phecda-server'
 import { useC } from '..'
 import { createParallelReq, createReq, isError } from './base'
 type ToAxios<R> = {
@@ -7,7 +7,7 @@ type ToAxios<R> = {
 }
 
 export type ChainController<T extends Record<string, any>> = {
-  [K in keyof T]: ToAxios<InstanceType<T[K]>>;
+  [K in keyof T]: ToAxios<PickFunc<InstanceType<T[K]>>>;
 } & {
   options(config: AxiosRequestConfig): ChainController<T>
 }

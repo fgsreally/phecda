@@ -104,7 +104,7 @@ describe('express ', () => {
       }
     }
 
-    addPlugin('test', (_req, _res, next) => {
+    addPlugin('test', (_req: Request, _res: Response, next: () => void) => {
       fn()
       next()
     })

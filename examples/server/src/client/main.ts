@@ -16,6 +16,7 @@ const chain = createChainReq(instance, { $test: TestController }, { batch: true 
 async function chainRequest() {
   const data = await Promise.all([chain.options({
   }).$test.test('110', 'server', toClass<Tester>({ id: '1', name: 'test' })), chain.$test.get()])
+
   console.log('[chain and batch request]:')
   console.log(data)
   console.log('[chain request second]:')

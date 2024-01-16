@@ -1,7 +1,7 @@
-import type { Router } from 'express'
+import type { Server } from 'node:http'
+import type { Test } from 'supertest'
 import { Factory } from './core'
-import type { Construct } from './types'
-import { APP_SYMBOL } from './common'
+import type { Construct, PickFunc } from './types'
 
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
   const { moduleMap, constructorMap } = await Factory(Modules)
@@ -22,11 +22,14 @@ export async function TestFactory<T extends Construct[]>(...Modules: T) {
   }
 }
 
-export async function TestHttp(app: Router, headers: Record<string, string> = {}) {
-  const { moduleMap, meta } = (app as any)[APP_SYMBOL] as Awaited<ReturnType<typeof Factory>>
+export type SuperTestRequest<T> = {
+  [K in keyof T]: T[K] extends (...args: infer R) => any ? (...args: R) => Test : never;
+}
+
+export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>) {
   const { default: request } = await import('supertest')
   return {
-    get<T extends Construct>(Module: T): InstanceType<T> {
+    get<T extends Construct>(Module: T): SuperTestRequest<PickFunc<InstanceType<T>>> {
       const tag = Module.prototype?.__TAG__ || Module.name
 
       const instance = moduleMap.get(tag)
@@ -36,8 +39,8 @@ export async function TestHttp(app: Router, headers: Record<string, string> = {}
       return new Proxy({}, {
         get(_target, p) {
           const { data } = meta.find(({ data }) => data.name === Module.name && data.method === p && data.tag === tag)!
-          return async (...args: any) => {
-            const ret = { body: {}, headers: {}, query: '', method: data.http!.type, url: data.http!.route }
+          return (...args: any) => {
+            const ret = { body: {}, headers: {}, query: {}, method: data.http!.type, url: data.http!.route } as any
 
             data.params.forEach((item) => {
               if (item.type === 'params') {
@@ -45,27 +48,19 @@ export async function TestHttp(app: Router, headers: Record<string, string> = {}
                 return
               }
               if (item.type === 'query') {
-                if (!ret.query)
-                  ret.query = '?'
-                ret.query += `${item.key}=${args[item.index]}`
+                ret.query[item.key] = args[item.index]
                 return
               }
 
               // body
               if (item.key)
-              // @ts-expect-error miss
                 ret[item.type][item.key] = args[item.index]
               else
-              // @ts-expect-error miss
                 ret[item.type] = args[item.index]
             })
 
-            const res = await request(app)[ret.method](ret.url + ret.query).set({ ...headers, ...ret.headers }).send(ret.body)
-            if (res.type.includes('text'))
-              return res.text
-
-            if (res.type.includes('json'))
-              return res.body
+            // @ts-expect-error miss type
+            return request(app)[ret.method](ret.url).query(ret.query).set(ret.headers).send(ret.body)
           }
         },
       }) as any
