@@ -15,7 +15,7 @@ async function start() {
     logger: true,
   })
 
-  fastify.register(bindApp(data))
+  fastify.register(bindApp(fastify, data))
   fastify.listen({ port: process.env.PORT as any }, () => {
     console.timeEnd('cold-start')
     console.log(`phecda-server/fastify started on port ${process.env.PORT}`)
