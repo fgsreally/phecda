@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.2
+
+### Patch Changes
+
+- 12a7881: update error symobol in isError
+
 ## 2.0.1
 
 ### Patch Changes

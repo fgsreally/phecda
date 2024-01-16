@@ -1,5 +1,17 @@
 # phecda-server
 
+## 4.0.6
+
+### Patch Changes
+
+- 3b8cdb2: fix server ctx types
+- 2eaa6c9: export log
+- 1ace514: module tag can be set by constructor param or Tag
+- 67dbaa0: add named filter/Filter works for specific controller
+- 5545b71: remove useless types;fix modules types;add PModule
+- a94e1ad: phecda-server won't send data again if data is sent in interceptor/filter
+- 6339ce6: refactor filter; rename error symbol in server filter
+
 ## 4.0.5
 
 ### Patch Changes
