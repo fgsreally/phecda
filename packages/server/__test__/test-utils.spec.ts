@@ -1,7 +1,8 @@
 import express from 'express'
 import { describe, expect, it } from 'vitest'
+import Fastify from 'fastify'
 import { Body, Controller, Factory, Param, Post, Put, Query } from '../src'
-import { bindApp } from '../src/server/express'
+import { bindApp } from '../src/server/fastify'
 import { TestFactory, TestHttp } from '../src/test'
 
 describe('test utils', () => {
@@ -30,15 +31,14 @@ describe('test utils', () => {
       }
     }
     const data = await Factory([B])
-    const app = express()
-    app.use(express.json())
+    const app = Fastify()
+    // app.use(express.json())
 
-    bindApp(app, data)
+    app.register(bindApp(data))
 
     const { get } = await TestHttp(app)
 
-    expect((await get(B).string('test', 'name', 'id'))).toBe('test-name-id')
-
-    expect((await get(B).json('test', 'name', 'id'))).toStrictEqual({ key: 'test-name-id' })
+    await get(B).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await get(B).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
   })
 })

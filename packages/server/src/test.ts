@@ -1,6 +1,6 @@
 import type { Express, Router } from 'express'
 
-import type { SuperTest, Test } from 'supertest'
+import type { Test } from 'supertest'
 import { Factory } from './core'
 import type { Construct, PickFunc } from './types'
 import { APP_SYMBOL } from './common'
@@ -25,7 +25,7 @@ export async function TestFactory<T extends Construct[]>(...Modules: T) {
 }
 
 export type SuperTestRequest<T> = {
-  [K in keyof T]: T[K] extends (...args: infer R) => any ? (...args: R) => SuperTest<Test> : never;
+  [K in keyof T]: T[K] extends (...args: infer R) => any ? (...args: R) => Test : never;
 }
 
 export async function TestHttp(app: Router | Express | any) {
@@ -42,7 +42,7 @@ export async function TestHttp(app: Router | Express | any) {
       return new Proxy({}, {
         get(_target, p) {
           const { data } = meta.find(({ data }) => data.name === Module.name && data.method === p && data.tag === tag)!
-          return async (...args: any) => {
+          return (...args: any) => {
             const ret = { body: {}, headers: {}, query: {}, method: data.http!.type, url: data.http!.route } as any
 
             data.params.forEach((item) => {
@@ -63,9 +63,7 @@ export async function TestHttp(app: Router | Express | any) {
             })
 
             // @ts-expect-error miss type
-            const requester = request(app)[ret.method](ret.url).set(ret.headers).send(ret.body)
-
-            return requester
+            return request(app)[ret.method](ret.url).query(ret.query).set(ret.headers).send(ret.body)
             // const res = await request(app)[ret.method](ret.url + ret.query).set({ ...headers, ...ret.headers }).send(ret.body)
             // if (res.type.includes('text'))
             //   return res.text
