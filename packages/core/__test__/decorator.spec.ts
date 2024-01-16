@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipeline, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
@@ -144,5 +144,23 @@ describe('validate&transform', () => {
     expect(instance.b.b).toBe(1)
     instance.b.change()
     expect(instance.b.b).toBe(2)
+  })
+
+  it('pipeline', async () => {
+    class Test {
+      @Pipeline(
+
+        To((num: number) => {
+          return ++num
+        }),
+        To((num: number) => {
+          return ++num
+        }))
+      count: number
+    }
+
+    const instance = plainToClass(Test, { count: 0 })
+    await transformClass(instance, true)
+    expect(instance.count).toBe(2)
   })
 })

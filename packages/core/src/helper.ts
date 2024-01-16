@@ -89,3 +89,10 @@ export function snapShot<T extends new (...args: any) => any>(data: InstanceType
 export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'static' | 'class' | 'normal' = 'normal') {
   handler(type === 'normal' ? c.prototype : c, key)
 }
+
+export function Pipeline(...decos: ((...args: any) => void)[]) {
+  return (...args: any) => {
+    for (const d of decos)
+      d(...args)
+  }
+}
