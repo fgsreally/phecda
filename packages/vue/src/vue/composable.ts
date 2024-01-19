@@ -9,13 +9,7 @@ import { getActivePhecda } from './phecda'
 import type { _DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
-// create/get origin reactive value
 export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
-  // if (getCurrentInstance()) {
-  //   const cur = inject(phecdaSymbol, null)
-  //   if (cur)
-  //     setActivePhecda(cur)
-  // }
   const { useOMap } = getActivePhecda()
   if (!useOMap.has(Model)) {
     const instance = reactive(new Model())
@@ -28,21 +22,18 @@ export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNeste
 export function useRaw<T extends new (...args: any) => any>(Model: T) {
   return toRaw(useO(Model)) as unknown as InstanceType<T>
 }
-// like what pinia do
+// like what pinia does
 export function usePatch<T extends new (...args: any) => any>(Model: T, Data: _DeepPartial<InstanceType<T>>) {
-  useO(Model)
-  const { useOMap } = getActivePhecda()
-  const target = useOMap.get(Model)
-  mergeReactiveObjects(target, Data)
+  const instance = useO(Model)
+  mergeReactiveObjects(instance, Data)
 }
 
 export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
-  useO(Model)
-  const { useRMap, useOMap, fnMap } = getActivePhecda()
+  const { useRMap, fnMap } = getActivePhecda()
+  const instance = useO(Model)
 
-  if (useRMap.has(Model))
-    return useRMap.get(Model)
-  const instance = useOMap.get(Model)
+  if (useRMap.has(instance))
+    return useRMap.get(instance)
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
@@ -64,18 +55,17 @@ export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNeste
     },
   })
 
-  useRMap.set(Model, proxy)
+  useRMap.set(instance, proxy)
   return proxy
 }
 
 export function useV<T extends new (...args: any) => any>(Model: T): ReplaceInstanceValues<InstanceType<T>> {
-  useO(Model)
-  const { useVMap, useOMap, fnMap, computedMap } = getActivePhecda()
+  const { useVMap, fnMap, computedMap } = getActivePhecda()
+  const instance = useO(Model)
 
-  if (useVMap.has(Model))
-    return useVMap.get(Model)
-  computedMap.set(Model, {})
-  const instance = useOMap.get(Model)
+  if (useVMap.has(instance))
+    return useVMap.get(instance)
+  computedMap.set(instance, {})
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
@@ -88,20 +78,12 @@ export function useV<T extends new (...args: any) => any>(Model: T): ReplaceInst
         fnMap.set(target[key], wrapper)
         return wrapper
       }
-      const cache = computedMap.get(Model)
+      const cache = computedMap.get(instance)
       if (key in cache)
         return cache[key]()
 
       cache[key] = createSharedReactive(() => {
         return toRef(target, key)
-        // return computed({
-        //   get() {
-        //     return target[key]
-        //   },
-        //   set(v) {
-        //     return target[key] = v
-        //   },
-        // })
       })
       return cache[key]()
     },
@@ -110,7 +92,7 @@ export function useV<T extends new (...args: any) => any>(Model: T): ReplaceInst
     },
   })
 
-  useVMap.set(Model, proxy)
+  useVMap.set(instance, proxy)
   return proxy
 }
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<Events[Key]>) {
