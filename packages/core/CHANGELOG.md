@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.1.1
+
+### Patch Changes
+
+- 99b458d: add pipeline
+
 ## 2.1.0
 
 ### Minor Changes
