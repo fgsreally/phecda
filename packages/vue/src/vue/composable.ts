@@ -104,11 +104,15 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<E
   return () => emitter.off(eventName, cb)
 }
 
-export function initialize<M extends new (...args: any) => any>(Model: M): InstanceType<M> | void {
+export function initialize<M extends new (...args: any) => any>(Model: M, deleteOtherProperty = true): InstanceType<M> | void {
   const instance = useO(Model)
-  if (instance) {
-    Object.assign(instance, new Model())
-    return instance
+  const newInstance = new Model()
+  Object.assign(instance, newInstance)
+  if (deleteOtherProperty) {
+    for (const key in instance) {
+      if (!(key in newInstance))
+        delete instance[key]
+    }
   }
 }
 
