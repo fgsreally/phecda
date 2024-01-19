@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Phecda } from 'phecda-core'
-import { Empty, getExposeKey, getHandler, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
+import { Empty, getExposeKey, getHandler, getProperty, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import Debug from 'debug'
 import type { Construct, Emitter, P } from './types'
 import { Meta } from './meta'
@@ -31,23 +31,26 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   const constructorSet = new WeakSet()
   const moduleGraph = new Map<string, Set<string>>()
   const { http, rpc } = opts
-  injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
-    const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
-    // work for hmr
-    if (!instance[UNMOUNT_SYMBOL])
-      instance[UNMOUNT_SYMBOL] = []
+  if (!getProperty('watcher')) {
+    injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
+      const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
-    instance[UNMOUNT_SYMBOL].push(() => {
-      (emitter as any).off(eventName, fn)
+      // work for hmr
+      if (!instance[UNMOUNT_SYMBOL])
+        instance[UNMOUNT_SYMBOL] = []
+
+      instance[UNMOUNT_SYMBOL].push(() => {
+        (emitter as any).off(eventName, fn)
+      })
+
+      if (options?.once)
+        (emitter as any).once(eventName, fn)
+
+      else
+        (emitter as any).on(eventName, fn)
     })
-
-    if (options?.once)
-      (emitter as any).once(eventName, fn)
-
-    else
-      (emitter as any).on(eventName, fn)
-  })
+  }
 
   // only remove module in moduleMap(won't remove indiect module)
   async function del(tag: string) {

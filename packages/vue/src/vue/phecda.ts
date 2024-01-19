@@ -2,6 +2,7 @@ import type { App, UnwrapNestedRefs } from 'vue'
 import { markRaw } from 'vue'
 import { getProperty, getTag, injectProperty } from 'phecda-core'
 import { emitter } from '../emitter'
+import type { PhecdaInstance } from '../types'
 export const phecdaSymbol = Symbol('phecda')
 
 export const interval = {
@@ -82,22 +83,10 @@ export function createPhecda(symbol?: string) {
         originUnmount()
       }
     },
-    // useVMap: new WeakMap(),
-    // useOMap: new Map(),
-    // useRMap: new WeakMap(),
-    // fnMap: new WeakMap(),
-    // computedMap: new WeakMap(),
+
   })
 
   return phecda
-}
-
-interface PhecdaInstance {
-  useVMap: WeakMap<any, any>
-  useOMap: Map<any, any>
-  useRMap: WeakMap<any, any>
-  fnMap: WeakMap<any, any>
-  computedMap: WeakMap<any, any>
 }
 
 let activePhecda: PhecdaInstance = {
