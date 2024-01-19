@@ -7,8 +7,8 @@ export interface PhecdaEmitter {
 }
 
 export interface PhecdaInstance {
+  useOMap: Map<any, any>
   useVMap: WeakMap<any, any>
-  useOMap: WeakMap<any, any>
   useRMap: WeakMap<any, any>
   fnMap: WeakMap<any, any>
 }

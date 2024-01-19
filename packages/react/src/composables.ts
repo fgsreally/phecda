@@ -1,7 +1,7 @@
 import { proxy, useSnapshot } from 'valtio'
 import { getHandler, getProperty, injectProperty, register } from 'phecda-core'
 
-import { createContext, createElement } from 'react'
+import { createContext, createElement, useEffect } from 'react'
 import mitt from 'mitt'
 import { wrapError } from './utils'
 import type { PhecdaEmitter, PhecdaInstance } from './types'
@@ -9,8 +9,8 @@ import type { PhecdaEmitter, PhecdaInstance } from './types'
 export const emitter: PhecdaEmitter = mitt()
 
 let activePhecda: PhecdaInstance = {
+  useOMap: new Map(),
   useVMap: new WeakMap(),
-  useOMap: new WeakMap(),
   useRMap: new WeakMap(),
   fnMap: new WeakMap(),
 }
@@ -37,13 +37,11 @@ export function useO<T extends new (...args: any) => any>(Model: T) {
 
 export function useR<T extends new (...args: any) => any>(Model: T): [InstanceType<T>, InstanceType<T>] {
   const { useRMap, fnMap } = getActivePhecda()
-
-  if (useRMap.has(Model)) {
-    const proxyInstance = useRMap.get(Model)
+  const instance = useO(Model)
+  if (useRMap.has(instance)) {
+    const proxyInstance = useRMap.get(instance)
     return [useSnapshot(proxyInstance), proxyInstance]
   }
-
-  const instance = useO(Model)
 
   const proxyInstance = proxy(new Proxy(instance, {
     get(target: any, key) {
@@ -66,24 +64,25 @@ export function useR<T extends new (...args: any) => any>(Model: T): [InstanceTy
     },
   }))
   register(proxyInstance)
-  useRMap.set(Model, proxyInstance)
+  useRMap.set(instance, proxyInstance)
 
   return [useSnapshot(proxyInstance), proxyInstance]
 }
 
 export function createPhecdaContext() {
   const { Provider } = createContext(null)
-  const eventRecord = [] as [string, (event: any) => void][]
+  let eventRecord = [] as [string, (event: any) => void][]
 
   return ({ children }: any) => {
-    // useEffect(() => {
-    //   return () => {
-    //     eventRecord.forEach(([eventName, handler]) =>
-    //       (emitter as any).off(eventName as any, handler),
-    //     )
-    //     eventRecord = []
-    //   }
-    // }, [])
+    useEffect(() => {
+      return () => {
+        getActivePhecda().useOMap.clear()
+        eventRecord.forEach(([eventName, handler]) =>
+          (emitter as any).off(eventName as any, handler),
+        )
+        eventRecord = []
+      }
+    }, [])
 
     if (!getProperty('watcher')) {
       injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: any; instance: any; key: string; options?: { once: boolean } }) => {
@@ -108,6 +107,7 @@ export function createPhecdaContext() {
         if (!tag)
           return
         const initstr = localStorage.getItem(tag)
+        // localStorage.removeItem(tag)
         if (initstr) {
           const data = JSON.parse(initstr)
           if (key) {
