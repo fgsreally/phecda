@@ -1,5 +1,6 @@
 {
   "extends": "@antfu/eslint-config",
+
   "parserOptions": {
     "emitDecoratorMetadata": true
     // "tsconfigRootDir": "__dirname"
