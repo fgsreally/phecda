@@ -1,0 +1,29 @@
+{
+  "name": "phecda-react",
+  "version": "0.0.0",
+  "description": "provide store with phecda function to react",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "mitt": "^3.0.0",
+    "phecda-core": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "valtio": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48",
+    "tsup": "^6.5.0"
+  }
+}
