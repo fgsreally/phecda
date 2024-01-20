@@ -5,7 +5,7 @@ import type { Phecda } from 'phecda-core'
 import { Empty, getExposeKey, getHandler, getProperty, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
 import Debug from 'debug'
 import type { Construct, Emitter, P } from './types'
-import { Meta } from './meta'
+import { PMeta } from './meta'
 import { log } from './utils'
 import { IS_DEV, UNMOUNT_SYMBOL } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
@@ -24,7 +24,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   rpc?: string
 } = {}) {
   const moduleMap = new Map<string, InstanceType<Construct>>()
-  const meta: Meta[] = []
+  const meta: PMeta[] = []
   const constructorMap = new Map()
 
   // only work for warn
@@ -228,7 +228,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Meta(meta as unknown as P.Meta, getHandler(instance, i), getParamTypes(instance, i as string) || [])
+    return new PMeta(meta as unknown as P.Meta, getHandler(instance, i), getParamTypes(instance, i as string) || [])
   })
 }
 

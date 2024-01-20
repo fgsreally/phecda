@@ -3,17 +3,17 @@ import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { PMeta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
+import { P } from '../../types'
 
-export interface FastifyCtx {
+export interface FastifyCtx extends P.BaseContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
-  meta: Meta
-  moduleMap: Record<string, any>
+
   parallel: boolean
-  [key: string]: any
+
 }
 export interface Options {
 
@@ -47,7 +47,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
     interceptors: globalInterceptors,
   })
 
-  const metaMap = new Map<string, Meta>()
+  const metaMap = new Map<string, PMeta>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -106,9 +106,9 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
                 response: res,
                 moduleMap,
                 parallel: true,
-
+tag
               }
-              const context = new Context<FastifyCtx>(tag, contextData)
+              const context = new Context<FastifyCtx>( contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -195,8 +195,9 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
             response: res,
             moduleMap,
             parallel: false,
+            tag:methodTag
           }
-          const context = new Context<FastifyCtx>(methodTag, contextData)
+          const context = new Context<FastifyCtx>( contextData)
 
           try {
             for (const name in header)

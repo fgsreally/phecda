@@ -5,11 +5,11 @@ import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { P } from './types'
 import { IS_DEV, IS_STRICT } from './common'
-import type { Meta } from './meta'
+import type { PMeta } from './meta'
 import { log } from './utils'
 export const guardRecord = {} as Record<string, P.Guard>
 
-export class Context<Data = any> {
+export class Context<Data extends P.BaseContext> {
   method: string
   params: string[]
   history = new Histroy()
@@ -28,7 +28,7 @@ export class Context<Data = any> {
   static pluginRecord: Record<string, any> = {}
   postInterceptors: Function[]
 
-  constructor(public tag: string, public data: Data) {
+  constructor( public data: Data) {
     if (IS_DEV)
       // @ts-expect-error work for debug
       data._context = this
@@ -41,10 +41,10 @@ export class Context<Data = any> {
           throw new FrameworkException(`can't find pipe named '${item.pipe}'`)
 
         else
-          return Context.pipeRecord.default(item, this.tag, this.data)
+          return Context.pipeRecord.default(item,  this.data)
       }
 
-      return Context.pipeRecord[item.pipe || 'default'](item, this.tag, this.data)
+      return Context.pipeRecord[item.pipe || 'default'](item,  this.data)
     }))
   }
 
@@ -53,10 +53,10 @@ export class Context<Data = any> {
       if (IS_STRICT)
         throw new FrameworkException(`can't find filter named '${filter}'`)
       else
-        return Context.filterRecord.default(arg, this.tag, this.data)
+        return Context.filterRecord.default(arg,  this.data)
     }
 
-    return Context.filterRecord[filter](arg, this.tag, this.data)
+    return Context.filterRecord[filter](arg,this.data)
   }
 
   async useGuard(guards: string[]) {
@@ -67,7 +67,7 @@ export class Context<Data = any> {
             throw new FrameworkException(`can't find guard named '${guard}'`)
           continue
         }
-        if (!await Context.guardRecord[guard](this.tag, this.data))
+        if (!await Context.guardRecord[guard](this.data))
           throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
@@ -90,7 +90,7 @@ export class Context<Data = any> {
 
           continue
         }
-        const postInterceptor = await Context.interceptorRecord[interceptor](this.tag, this.data)
+        const postInterceptor = await Context.interceptorRecord[interceptor]( this.data)
         if (postInterceptor !== undefined) {
           if (typeof postInterceptor === 'function')
             ret.push(postInterceptor)
@@ -138,7 +138,7 @@ export function addInterceptor(key: string, handler: P.Interceptor) {
 }
 
 // detect whether plugin/filter/pipe/guard/intercept is injected
-export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: {
+export function isAopDepInject(meta: PMeta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]

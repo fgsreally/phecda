@@ -1,28 +1,27 @@
 import type amqplib from 'amqplib'
 import type { Factory } from '../../core'
-import type { Meta } from '../../meta'
+import type { PMeta } from '../../meta'
 import { BadRequestException } from '../../exception'
 import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
+import { P } from '../../types'
 
 export interface Options {
   globalGuards?: string[]
   globalInterceptors?: string[]
 }
-export interface RabbitmqCtx {
+export interface RabbitmqCtx extends P.BaseContext{
   type: 'rabbitmq'
-  meta?: Meta
-  moduleMap: Record<string, any>
+
   ch: amqplib.Channel
   msg: amqplib.ConsumeMessage
-  // JSON parse msg.content
   data: any
-  [key: string]: any
+
 
 }
 
 export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
-  const metaMap = new Map<string, Meta>()
+  const metaMap = new Map<string, PMeta>()
 
   const existQueue = new Set<string>()
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
@@ -49,10 +48,10 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
     if (msg) {
       const data = JSON.parse(msg.content.toString())
       const { tag, args, queue, id } = data
-      const context = new Context(tag, {
+      const context = new Context( {
         type: 'rabbitmq',
         moduleMap,
-        meta: metaMap.get(tag),
+        meta: metaMap.get(tag)!,
         data,
         ch,
         msg,
