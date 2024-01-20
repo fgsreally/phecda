@@ -106,20 +106,25 @@ test3(@User() user:any){
 
 ### context
 
-那以上功能该怎么实现呢，简单！只需要在守卫、中间件、拦截器中把信息挂到`context`上
+那以上功能该怎么实现呢，简单！只需要把信息挂到`context`上
+> 守卫、拦截器、管道中都可以
 
 ```ts
 
 @Get()
 test3(){
-const {user}=this.context//必须在函数顶部
+const {user}=this.context//必须在顶部
+
+//...
 }
 
 ```
 
 简而言之，函数的参数必须是来自客户端，而服务端的数据则通过`context`获得
 
-当然，以 express 为例 有的时候我们需要拿到`req`/`res`对象，这也要通过`context`
+通过`context`还能拿到原始的请求对象
+
+以 express 为例 有的时候我们需要拿到`req`/`res`
 
 ```ts
 
@@ -130,196 +135,17 @@ const {request,response}=this.context//必须在函数顶部
 
 ```
 
-:::info info
-直接操作`req`/`res`需要注意
+:::warning 警告
 
 > 请少这么做
 
-1. 一般而言，只有使用`express`中间件时（这个时候还没有创建`context`）,将某个东西挂到了`req`上面，只有这种情况使用`req`
-2. 一般而言，只有[这种情况](./problem.md)需要使用`res`
-3. 这会导致跨框架出问题，因为像`h3`/`koa`中没有`req`/`res`
+1. 在插件处，还没有创建`context`
+2. 这会导致跨框架出问题，因为像`koa`中没有`req`/`res`
 
 :::
 
-### 管道
-
-显然，我们需要对参数进行一些处理（主要是验证），可以为参数选择指定管道！
-默认使用`default`管道,其效果如下
-
-```ts
-import { Body, Controller, Post, To } from 'phecda-server'
-
-class BodyData {
-  @To((param: any) => {
-    if (age < 18)
-      throw new Error('too young')
-    return age + 1
-  })
-  age: number
-}
-
-@Controller('/test')
-class TestController {
-  @Post()
-  test4(@Body() body: BodyDatas) {}
-}
-```
-
-当请求体中的 age 为 17，就会报错，为 19 的话，body.age 就会得到 20
-
-你也可以设置 pipe
-
-```ts
-import { Controller, Pipe, Post, Query, To, addPipe } from 'phecda-server'
-
-addPipe('test', ({ arg, reflect }) => {
-  // reflect:Number 元数据
-  return reflect(arg)
-  // 将query的参数类型转为 number
-})
-
-@Controller('/test')
-class TestController {
-  @Post()
-  test4(@Query() @Pipe('test') name: number) {
-    // 使用test 管道
-  }
-}
-```
-
-但一个参数，只能使用一个管道
-
-### 过滤器
-
-过滤器全局唯一，负责处理处理报错
-
-```ts
-import { BadRequestException } from 'phecda-server'
-@Controller('/test')
-class TestController {
-  @Post()
-  test4(@Query() name: number) {
-    throw new BadRequestException('error!!')
-  }
-}
-```
-
-收到报错信息如下
-
-```json
-{
-  "message": "error!!",
-  "description": "Bad Request",
-  "status": 400,
-  "error": true
-}
-```
-
-默认过滤器如下：
-
-```ts
-import type { P } from 'phecda-server'
-import { Exception } from 'phecda-server'
-export const defaultFilter: P.Filter = (e: any) => {
-  if (!(e instanceof Exception)) {
-    console.error(e.stack)
-    e = new UndefinedException(e.message || e)
-  }
-  else {
-    console.error(e.message)
-  }
-
-  return e.data
-}
-```
-
-你可以设计自己的过滤器,从而记录错误日志 or 其他
-也可以继承`Exception`，设计特定的错误信息
-
-> 注意，过滤器是处理**错误**的，意味着请求没有被成功处理，状态码不为 2 开头，过滤器不要去`忽略`错误
-
-### 插件
-这其实对应着中间件，但有些框架没有or不方便实现中间件，故改个名字
-
-这个角色显然是完全无法跨框架的,nest 搞的那么复杂也只能支持 express+fastify，这还需要一大堆其他依赖来兼容处理
-所以使用了注入的模式，根据不同框架中注入不同插件，
-
-在 express/h3 中对应express中间件,koa对应koa 中间件，fastify 中对应 register 的插件，rpc中忽略
 
 
-```ts
-
-addPlugin('auth',/**根据server不同，注入不同的东西 */)
-
-//...
-@Plugin('test')
-@Get()
-get(){
-
-}
-
-```
-
-### 守卫
-
-主要用于鉴权
-运行在中间件之后
-
-```ts
-
-addGuard('auth',()=>false)
-
-//...
-@Guard('auth')//使用auth guard
-@Get()
-get(){
-
-}
-
-```
-
-:::warning 提醒
-在守卫中很可能直接操作`context`/`req`/`res`
-意味着可能无法跨框架，和中间件一样，不同框架中设置不同守卫就行
-当然也可以写一个守卫，然后里面 if-else（这个中间件就做不到了），但不推荐
-
-拦截器也一样
-
-:::
-
-### 拦截器
-
-```ts
-
-addInterceptor('test',()=>{//守卫执行后，管道执行前
-return ()=>{
-
-}// 函数执行后
-
-})
-
-//...
-@Interceptor('test')
-@Get()
-get(){
-
-}
-
-```
-
-如果拦截器返回不是 function/undefined，那就直接返回给客户端，不会再执行函数（用于缓存）
-
-:::info
-这些装饰器挂在方法上，就是只有这个接口使用，挂在类上，就是这个类上所有接口使用
-当然也可以设置全局
-
-```ts
-bindApp(app, data, {
-  globalGuards: ['tests'],
-})
-```
-
-:::
 
 # 创建服务
 
@@ -327,7 +153,7 @@ bindApp(app, data, {
 
 ```ts
 import { Controller, Get, Param } from 'phecda'
-
+@Injectable()//具体可以看`模块`这一章
 class TestService {
   test() {
     return 1

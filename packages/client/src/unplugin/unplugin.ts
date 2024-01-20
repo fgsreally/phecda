@@ -27,7 +27,7 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
           }
         }
         else {
-          if (port)
+          if (port)// work for lazy load
             setInterval(() => axios.get(port).catch(() => {}), interval)
         }
       },
