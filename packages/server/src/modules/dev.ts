@@ -6,7 +6,8 @@ import { emitter } from '../core'
 export class Dev {
   protected readonly emitter = emitter
   private readonly [UNMOUNT_SYMBOL]: (() => void)[] = []
-
+// work for hmr
+// exec callback  when module unmount
   onUnmount(cb: () => void) {
     this[UNMOUNT_SYMBOL].push(cb)
   }
