@@ -5,7 +5,7 @@ import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { P } from './types'
 import { IS_DEV, IS_STRICT } from './common'
-import type { PMeta } from './meta'
+import type { Meta } from './meta'
 import { log } from './utils'
 export const guardRecord = {} as Record<string, P.Guard>
 
@@ -129,7 +129,7 @@ export function addFilter(key: string, handler: P.Filter) {
   Context.filterRecord[key] = handler
 }
 
-export function addGuard(key: string, handler: P.Guard) {
+export function addGuard<C>(key: string, handler: P.Guard) {
   Context.guardRecord[key] = handler
 }
 
@@ -138,7 +138,7 @@ export function addInterceptor(key: string, handler: P.Interceptor) {
 }
 
 // detect whether plugin/filter/pipe/guard/intercept is injected
-export function isAopDepInject(meta: PMeta[], { guards, interceptors, plugins }: {
+export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]

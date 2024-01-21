@@ -5,7 +5,7 @@ import { resolveDep } from '../../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { PMeta } from '../../meta'
+import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import { P } from '../../types'
 export interface KoaCtx extends P.BaseContext{
@@ -45,7 +45,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
   (app as any)[APP_SYMBOL] = { moduleMap, meta }
 
-  const metaMap = new Map<string, PMeta>()
+  const metaMap = new Map<string, Meta>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {

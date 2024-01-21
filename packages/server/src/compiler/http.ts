@@ -23,7 +23,7 @@ class Compiler {
   //     return content
   // }
 
-  addMethod(args: P.Meta) {
+  addMethod(args: P.MetaData) {
     const {
       http, name, method, params, tag,
     } = args
@@ -43,7 +43,7 @@ return ret
   }
 }
 
-export function generateHTTPCode(meta: P.Meta[]) {
+export function generateHTTPCode(meta: P.MetaData[]) {
   const compiler = new Compiler()
 
   for (const i of meta)

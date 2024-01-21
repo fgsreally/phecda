@@ -38,7 +38,7 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
         return metaPath
     },
     // transform(code) {
-    //   const meta = JSON.parse(code) as P.Meta[]
+    //   const meta = JSON.parse(code) as P.MetaData[]
     //   const compiler = new Compiler()
 
     //   for (const i of meta)

@@ -1,7 +1,7 @@
 import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
 import type { ERROR_SYMBOL } from './common'
-import { PMeta } from './meta'
+import { Meta } from './meta'
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface Emitter {
@@ -25,7 +25,7 @@ export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options
 export namespace P {
 
   export interface BaseContext {
-    meta: PMeta
+    meta: Meta
     moduleMap: Record<string, any>
     parallel?: boolean
     type: string
@@ -41,19 +41,17 @@ export namespace P {
   }
 
   export type ResOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
-
   export type Res<T> = T
+
   export type Guard<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
-
   export type Interceptor<C extends BaseContext = BaseContext> = (ctx: C) => (any | ((ret: any) => any))
-
   export type Pipe<C extends BaseContext = BaseContext> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
   export type Filter<C extends BaseContext = BaseContext, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
   export interface Handler {
     error?: (arg: any) => void
   }
-  export interface Meta {
+  export interface MetaData {
     http?: {
       type: RequestType
       route: string
