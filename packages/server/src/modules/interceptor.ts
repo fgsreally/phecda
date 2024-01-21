@@ -1,9 +1,10 @@
 import { getSymbol } from 'phecda-core'
 import { Context, addInterceptor } from '../context'
 import { Dev } from './dev'
+import { P } from '../types'
 
-export abstract class PInterceptor<C = any> extends Dev {
-  abstract use(tag: string, ctx: C): Function | Promise<Function> | any
+export abstract class PInterceptor<C extends P.BaseContext = any> extends Dev {
+  abstract use( ctx: C): Function | Promise<Function> | any
   readonly key: string
 
   constructor(tag?: string) {

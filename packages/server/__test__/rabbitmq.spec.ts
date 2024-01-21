@@ -73,8 +73,8 @@ describe('rabbitmq rpc', () => {
   })
 
   it('guard', async () => {
-    addGuard('g1', (tag) => {
-      expect(tag).toBe('TestRpc-run')
+    addGuard('g1', (ctx) => {
+      expect(ctx.tag).toBe('TestRpc-run')
 
       return true
     })
@@ -103,8 +103,8 @@ describe('rabbitmq rpc', () => {
   })
 
   it('interceptor', async () => {
-    addInterceptor('i1', (tag) => {
-      expect(tag).toBe('TestRpc-run')
+    addInterceptor('i1', (ctx) => {
+      expect(ctx.tag).toBe('TestRpc-run')
       return (ret: number) => {
         expect(ret).toBe(2)
         return ++ret

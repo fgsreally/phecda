@@ -12,12 +12,9 @@ export interface Options {
 }
 export interface RabbitmqCtx extends P.BaseContext {
   type: 'rabbitmq'
-
   ch: amqplib.Channel
   msg: amqplib.ConsumeMessage
   data: any
-
-
 }
 
 export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {

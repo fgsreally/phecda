@@ -10,10 +10,12 @@ export abstract class PGuard<C extends P.BaseContext = any> extends Dev {
     super()
     this.key = tag || getSymbol(this)
 
-    addGuard<C>(this.key, this.use.bind(this))
+    addGuard(this.key, this.use.bind(this))
 
     this.onUnmount(() => {
       delete Context.guardRecord[this.key]
     })
   }
 }
+
+

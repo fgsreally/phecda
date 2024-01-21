@@ -4,7 +4,7 @@ import type { Exception } from '../exception'
 import type { P } from '../types'
 import { Dev } from './dev'
 
-export abstract class PFilter<C = any, E extends Exception = Exception > extends Dev {
+export abstract class PFilter<C extends P.BaseContext = any, E extends Exception = Exception > extends Dev {
   readonly key: string
   constructor(tag?: string) {
     super()
@@ -16,5 +16,5 @@ export abstract class PFilter<C = any, E extends Exception = Exception > extends
     })
   }
 
-  abstract use(error: Error | E, tag?: string, ctx?: C): P.Error
+  abstract use(error: Error | E,  ctx?: C): P.Error
 }

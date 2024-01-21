@@ -44,9 +44,9 @@ export namespace P {
   export type Res<T> = T
 
   export type Guard<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
-  export type Interceptor<C extends BaseContext = BaseContext> = (ctx: C) => (any | ((ret: any) => any))
-  export type Pipe<C extends BaseContext = BaseContext> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
-  export type Filter<C extends BaseContext = BaseContext, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
+  export type Interceptor<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
+  export type Pipe<C extends BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
+  export type Filter<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
   export interface Handler {
     error?: (arg: any) => void

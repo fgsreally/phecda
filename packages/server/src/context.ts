@@ -28,7 +28,7 @@ export class Context<Data extends P.BaseContext> {
   static pluginRecord: Record<string, any> = {}
   postInterceptors: Function[]
 
-  constructor( public data: Data) {
+  constructor(public data: Data) {
     if (IS_DEV)
       // @ts-expect-error work for debug
       data._context = this
@@ -41,10 +41,10 @@ export class Context<Data extends P.BaseContext> {
           throw new FrameworkException(`can't find pipe named '${item.pipe}'`)
 
         else
-          return Context.pipeRecord.default(item,  this.data)
+          return Context.pipeRecord.default(item, this.data)
       }
 
-      return Context.pipeRecord[item.pipe || 'default'](item,  this.data)
+      return Context.pipeRecord[item.pipe || 'default'](item, this.data)
     }))
   }
 
@@ -53,10 +53,10 @@ export class Context<Data extends P.BaseContext> {
       if (IS_STRICT)
         throw new FrameworkException(`can't find filter named '${filter}'`)
       else
-        return Context.filterRecord.default(arg,  this.data)
+        return Context.filterRecord.default(arg, this.data)
     }
 
-    return Context.filterRecord[filter](arg,this.data)
+    return Context.filterRecord[filter](arg, this.data)
   }
 
   async useGuard(guards: string[]) {
@@ -90,7 +90,7 @@ export class Context<Data extends P.BaseContext> {
 
           continue
         }
-        const postInterceptor = await Context.interceptorRecord[interceptor]( this.data)
+        const postInterceptor = await Context.interceptorRecord[interceptor](this.data)
         if (postInterceptor !== undefined) {
           if (typeof postInterceptor === 'function')
             ret.push(postInterceptor)
@@ -117,23 +117,23 @@ export class Context<Data extends P.BaseContext> {
     return ret as any[]
   }
 }
-export function addPlugin<C>(key: string, handler: C) {
+export function addPlugin<T>(key: string, handler: T) {
   Context.pluginRecord[key] = handler
 }
 
-export function addPipe(key: string, pipe: P.Pipe) {
+export function addPipe<C extends P.BaseContext>(key: string, pipe: P.Pipe<C>) {
   Context.pipeRecord[key] = pipe
 }
 
-export function addFilter(key: string, handler: P.Filter) {
+export function addFilter<C extends P.BaseContext>(key: string, handler: P.Filter<C>) {
   Context.filterRecord[key] = handler
 }
 
-export function addGuard<C>(key: string, handler: P.Guard) {
+export function addGuard<C extends P.BaseContext>(key: string, handler: P.Guard<C>) {
   Context.guardRecord[key] = handler
 }
 
-export function addInterceptor(key: string, handler: P.Interceptor) {
+export function addInterceptor<C extends P.BaseContext>(key: string, handler: P.Interceptor<C>) {
   Context.interceptorRecord[key] = handler
 }
 
@@ -143,6 +143,8 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
   interceptors?: string[]
   plugins?: string[]
 } = {}) {
+
+  if (!IS_DEV) return
   const pluginSet = new Set<string>(plugins)
 
   const guardSet = new Set<string>(guards)

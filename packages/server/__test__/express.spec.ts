@@ -136,7 +136,7 @@ describe('express ', () => {
         return `${test}`
       }
     }
-    addGuard('test', (_tag, { request }: any) => {
+    addGuard('test', ( { request }: any) => {
       if (request.params.test !== 'test')
         return false
       return true
