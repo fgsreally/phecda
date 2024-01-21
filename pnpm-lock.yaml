@@ -128,7 +128,7 @@ importers:
   examples/module:
     dependencies:
       phecda-module:
-        specifier: workspace:^1.0.2
+        specifier: workspace:^1.0.3
         version: link:../../packages/module
     devDependencies:
       typescript:
@@ -245,7 +245,7 @@ importers:
   examples/vue:
     dependencies:
       phecda-vue:
-        specifier: workspace:^2.1.0
+        specifier: workspace:^2.1.1
         version: link:../../packages/vue
       vue:
         specifier: ^3.2.45
