@@ -29,8 +29,10 @@ class TestController {
 你可以设计自己的过滤器,从而记录错误日志 or 其他
 ```ts
 import {addFilter} from 'phecda-server'
-addFilter('test',()=>{
-    
+import type {ExpressCtx} from 'phecda-server/express'
+
+addFilter<ExpressCtx>('test',()=>{
+
 })
 ```
 
@@ -43,13 +45,15 @@ addFilter('test',()=>{
 
 ```ts
 import { PFilter } from "phecda-server";
+import type {ExpressCtx} from 'phecda-server/express'
+
 @Tag('test')
-class test extends PFilter {
+class test extends PFilter<ExpressCtx> {
 constructor(){
     super('test')//可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
 }
 
-  use() {
+  use(err:Error|Exception,ctx:ExpressCtx) {
     //...
   }
 }

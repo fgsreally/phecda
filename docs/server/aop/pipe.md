@@ -28,8 +28,9 @@ class TestController {
 
 ```ts
 import { Controller, Pipe, Post, Query, To, addPipe } from "phecda-server";
+import type {ExpressCtx} from 'phecda-server/express'
 
-addPipe("test", ({ arg, reflect }) => {
+addPipe<ExpressCtx>("test", ({ arg, reflect }) => {
   // reflect:Number 元数据
   return reflect(arg);
   // 将query的参数类型转为 number
@@ -52,13 +53,14 @@ class TestController {
 
 ```ts
 import { PPipe } from "phecda-server";
+import type {ExpressCtx} from 'phecda-server/express'
 @Tag('test')
-class test extends PPipe {
+class test extends PPipe<ExpressCtx> {
 constructor(){
     super('test')//可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
 }
 
-  use() {
+  use(ctx:ExpressCtx) {
     //...
   }
 }

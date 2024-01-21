@@ -6,21 +6,23 @@
 
 ```ts
 import { PModule } from "phecda-server";
+import type {ExpressCtx} from 'phecda-server/express'
+
 @Tag("test")
-class test extends PModule {
+class test extends PModule<ExpressCtx> {
   constructor() {
     super("test"); //可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
   }
 
-  pipe() {}
+  pipe(ctx:ExpressCtx) {}
 
-  guard() {}
+  guard(ctx:ExpressCtx) {}
 
-  plugin() {}
+  plugin(...args:any) {}
 
-  intercept(){}
+  intercept(ctx:ExpressCtx){}
 
-  filter(){}
+  filter(error:Error|Exception,ctx:ExpressCtx){}
 }
 // in main.ts
 

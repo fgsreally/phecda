@@ -3,8 +3,9 @@
 
 具体参数详见类型提示
 ```ts
+import type {ExpressCtx} from 'phecda-server/express'
 
-addInterceptor('test',()=>{
+addInterceptor<ExpressCtx>('test',()=>{
 return ()=>{
 
 }
@@ -40,13 +41,15 @@ bindApp(app, data, {
 
 ```ts
 import { PInterceptor } from "phecda-server";
+import type {ExpressCtx} from 'phecda-server/express'
+
 @Tag('Cache')
-class Cache extends PInterceptor {
+class Cache extends PInterceptor<ExpressCtx> {
 constructor(){
     super('Cache')//可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
 }
 
-  use() {
+  use(ctx:ExpressCtx) {
     //...
   }
 }

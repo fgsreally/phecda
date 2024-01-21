@@ -5,8 +5,9 @@
 具体参数详见类型提示
 
 ```ts
+import type {ExpressCtx} from 'phecda-server/express'
 
-addGuard('auth',()=>true)
+addGuard<ExpressCtx>('auth',()=>true)
 
 
 @Guard('auth')//使用auth guard
@@ -22,13 +23,15 @@ get(){
 
 ```ts
 import { PGuard } from "phecda-server";
+import type {ExpressCtx} from 'phecda-server/express'
+
 @Tag('auth')
-class auth extends PGuard {
+class auth extends PGuard<ExpressCtx> {
 constructor(){
     super('auth')//可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
 }
 
-  use() {
+  use(ctx:ExpressCtx) {
     //...
   }
 }
