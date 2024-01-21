@@ -27,7 +27,7 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
           }
         }
         else {
-          if (port)
+          if (port)// work for lazy load
             setInterval(() => axios.get(port).catch(() => {}), interval)
         }
       },
@@ -38,7 +38,7 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
         return metaPath
     },
     // transform(code) {
-    //   const meta = JSON.parse(code) as P.Meta[]
+    //   const meta = JSON.parse(code) as P.MetaData[]
     //   const compiler = new Compiler()
 
     //   for (const i of meta)

@@ -4,15 +4,15 @@ import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from
 import type { Exception } from '../exception'
 import { Dev } from './dev'
 
-export interface PModule<C = any> {
+export interface PModule<C extends P.BaseContext = any,E extends Exception = Exception> {
 
-  intercept(tag: string, ctx: C): Function | Promise<Function> | any
+  intercept( ctx: C): Function | Promise<Function> | any
 
-  guard(tag: string, ctx: C): Promise<boolean> | boolean
+  guard( ctx: C): Promise<boolean> | boolean
 
-  pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C): any
+  pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any },  ctx: C): any
 
-  filter< E extends Exception = Exception>(error: Error | E, tag?: string, ctx?: C): P.Error
+  filter(error: Error | E,  ctx?: C): P.Error
 
   plugin(...args: any): void
 }
@@ -62,3 +62,5 @@ export class PModule extends Dev {
     }
   }
 }
+
+

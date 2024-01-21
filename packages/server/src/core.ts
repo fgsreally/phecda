@@ -188,12 +188,12 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
 function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
   const vars = getExposeKey(instance).filter(item => item !== '__CLASS')
-  const baseState = (getState(instance, '__CLASS') || {}) as P.Meta
+  const baseState = (getState(instance, '__CLASS') || {}) as P.MetaData
   initState(baseState)
 
   return vars.map((i) => {
-    const meta = {} as P.Meta
-    const state = (getState(instance, i) || {}) as P.Meta
+    const meta = {} as P.MetaData
+    const state = (getState(instance, i) || {}) as P.MetaData
     initState(state)
     if (state.http) {
       meta.http = {
@@ -228,7 +228,7 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Meta(meta as unknown as P.Meta, getHandler(instance, i), getParamTypes(instance, i as string) || [])
+    return new Meta(meta as unknown as P.MetaData, getHandler(instance, i), getParamTypes(instance, i as string) || [])
   })
 }
 

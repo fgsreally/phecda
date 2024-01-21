@@ -16,7 +16,7 @@ class Compiler {
     return content
   }
 
-  addMethod(args: P.Meta) {
+  addMethod(args: P.MetaData) {
     const {
       rpc, name, method, tag,
     } = args
@@ -35,7 +35,7 @@ class Compiler {
   }
 }
 
-export function generateRPCCode(meta: P.Meta[]) {
+export function generateRPCCode(meta: P.MetaData[]) {
   const compiler = new Compiler()
 
   for (const i of meta)

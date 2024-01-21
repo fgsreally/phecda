@@ -6,14 +6,14 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
+import { P } from '../../types'
 
-export interface H3Ctx {
+export interface H3Ctx extends P.BaseContext{
   type: 'h3'
   event: H3Event
-  meta: Meta
-  moduleMap: Record<string, any>
+
   parallel: boolean
-  [key: string]: any
+
 }
 export interface Options {
 
@@ -100,9 +100,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               meta,
               moduleMap,
               parallel: true,
-
+              tag
             }
-            const context = new Context<H3Ctx>(tag, contextData)
+            const context = new Context<H3Ctx>(contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -183,8 +183,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           event,
           moduleMap,
           parallel: false,
+          tag:methodTag
         }
-        const context = new Context<H3Ctx>(methodTag, contextData)
+        const context = new Context<H3Ctx>( contextData)
 
         try {
           setHeaders(event, header)

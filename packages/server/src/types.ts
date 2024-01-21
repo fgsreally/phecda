@@ -1,6 +1,7 @@
 import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
 import type { ERROR_SYMBOL } from './common'
+import { Meta } from './meta'
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface Emitter {
@@ -22,6 +23,15 @@ export type PickFunc<T> = Pick<T, PickKeysByValue<T, (...args: any) => any>>
 export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
 export namespace P {
+
+  export interface BaseContext {
+    meta: Meta
+    moduleMap: Record<string, any>
+    parallel?: boolean
+    type: string
+    tag: string
+    [key: string]: any
+  }
   export interface Error {
     // as a symbol
     [ERROR_SYMBOL]: true
@@ -31,19 +41,17 @@ export namespace P {
   }
 
   export type ResOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
-
   export type Res<T> = T
-  export type Guard<C = any> = ((tag: string, ctx: C) => Promise<boolean> | boolean)
 
-  export type Interceptor<C = any> = (tag: string, ctx: C) => (any | ((ret: any) => any))
-
-  export type Pipe<C = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C) => Promise<any>
-  export type Filter<C = any, E extends Exception = any> = (err: E | Error, tag?: string, ctx?: C) => Error | any
+  export type Guard<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
+  export type Interceptor<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
+  export type Pipe<C extends BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
+  export type Filter<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
   export interface Handler {
     error?: (arg: any) => void
   }
-  export interface Meta {
+  export interface MetaData {
     http?: {
       type: RequestType
       route: string

@@ -4,21 +4,17 @@ import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
 import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
+import { P } from '../../types'
 
 export interface Options {
   globalGuards?: string[]
   globalInterceptors?: string[]
 }
-export interface RabbitmqCtx {
+export interface RabbitmqCtx extends P.BaseContext {
   type: 'rabbitmq'
-  meta?: Meta
-  moduleMap: Record<string, any>
   ch: amqplib.Channel
   msg: amqplib.ConsumeMessage
-  // JSON parse msg.content
   data: any
-  [key: string]: any
-
 }
 
 export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
@@ -27,12 +23,14 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
   const existQueue = new Set<string>()
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  isAopDepInject(meta, {
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
 
   function handleMeta() {
+
+    isAopDepInject(meta, {
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
+
     for (const item of meta) {
       const { data: { rpc, method, name } } = item
 
@@ -49,14 +47,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
     if (msg) {
       const data = JSON.parse(msg.content.toString())
       const { tag, args, queue, id } = data
-      const context = new Context(tag, {
-        type: 'rabbitmq',
-        moduleMap,
-        meta: metaMap.get(tag),
-        data,
-        ch,
-        msg,
-      })
+
       if (!existQueue.has(queue))
         await ch.assertQueue(queue)
       if (!metaMap.has(tag)) {
@@ -69,12 +60,22 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
         return
       }
 
+      const meta = metaMap.get(tag)!
+      const context = new Context<RabbitmqCtx>({
+        type: 'rabbitmq',
+        moduleMap,
+        meta,
+        tag,
+        data,
+        ch,
+        msg,
+      })
       const {
         data: {
           guards, interceptors, params, name, method, filter,
         },
         paramsType,
-      } = metaMap.get(tag)!
+      } = meta
       try {
         await context.useGuard([...globalGuards, ...guards])
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])

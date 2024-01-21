@@ -7,13 +7,12 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
-export interface KoaCtx {
+import { P } from '../../types'
+export interface KoaCtx extends P.BaseContext{
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
-  meta: Meta
-  moduleMap: Record<string, any>
+
   parallel: boolean
-  [key: string]: any
 }
 export interface Options {
 
@@ -92,9 +91,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               meta,
               moduleMap,
               parallel: true,
-
+              tag
             }
-            const context = new Context<KoaCtx>(tag, contextData)
+            const context = new Context<KoaCtx>( contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -164,8 +163,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           meta: i,
           moduleMap,
           parallel: false,
+          tag:methodTag
         }
-        const context = new Context<KoaCtx>(methodTag, contextData)
+        const context = new Context<KoaCtx>( contextData)
 
         try {
           for (const name in header)

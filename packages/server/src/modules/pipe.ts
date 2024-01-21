@@ -1,7 +1,8 @@
 import { getSymbol } from 'phecda-core'
 import { Context, addPipe } from '../context'
 import { Dev } from './dev'
-export abstract class PPipe<C = any> extends Dev {
+import { P } from '../types'
+export abstract class PPipe<C extends P.BaseContext = any> extends Dev {
   readonly key: string
 
   constructor(tag?: string) {
@@ -14,5 +15,5 @@ export abstract class PPipe<C = any> extends Dev {
     })
   }
 
-  abstract use(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, tag: string, ctx: C): any
+  abstract use(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any },  ctx: C): any
 }
