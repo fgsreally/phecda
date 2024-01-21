@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 2.1.2
+
+### Patch Changes
+
+- 0d19e23: fix initlize
+
 ## 2.1.1
 
 ### Patch Changes
