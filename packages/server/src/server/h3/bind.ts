@@ -163,8 +163,11 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
       router[http.type](http.route, fromNodeMiddleware((req, _res, next) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
+
+        console.log('bindApp request')
         next()
       }))
+      console.log(http.type,http.route)
 
       for (const p of plugins) {
         const middleware = Context.usePlugin([p])[0]
