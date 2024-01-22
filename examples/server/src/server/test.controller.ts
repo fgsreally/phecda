@@ -1,4 +1,3 @@
-import { Body, Controller, Define, Dev, Filter, Get, Param, Pipe, Post, Query, Tag, Watcher, addGuard, addPlugin, emitter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 import { A } from './test.service'

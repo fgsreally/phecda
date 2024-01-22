@@ -11,7 +11,6 @@ import { P } from '../../types'
 export interface H3Ctx extends P.BaseContext {
   type: 'h3'
   event: H3Event
-
   parallel: boolean
 
 }
