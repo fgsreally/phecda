@@ -57,7 +57,6 @@ describe('h3 ', () => {
 
         const res1 = await request(app).post('/pipe').send({ info: { name: '' } })
 
-        console.log(res1.body)
 
         expect(res1.body).toMatchObject({ message: 'name should be phecda', [ERROR_SYMBOL]: true })
 
@@ -68,9 +67,8 @@ describe('h3 ', () => {
     it('plugin', async () => {
         const fn = vi.fn()
 
-        addPlugin('p1', (_req: Request, _res: Response, next: () => void) => {
+        addPlugin('p1', () => {
             fn()
-            next()
         })
 
         const app = await createApp({ plugins: ['p1'] })

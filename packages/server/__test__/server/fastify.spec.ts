@@ -57,7 +57,6 @@ describe('fastify ', () => {
 
         const res1 = await request(app).post('/pipe').send({ info: { name: '' } })
 
-        console.log(res1.body)
 
         expect(res1.body).toMatchObject({ message: 'name should be phecda', [ERROR_SYMBOL]: true })
 
