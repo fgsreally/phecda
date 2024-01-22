@@ -1,5 +1,12 @@
 # phecda-server
 
+## 4.1.1
+
+### Patch Changes
+
+- 83852de: default filter only log error in development
+- 83852de: plugin can work in h3 at now
+
 ## 4.1.0
 
 ### Minor Changes
