@@ -8,7 +8,7 @@ const data = await Factory([TestController], {
   http: 'pmeta.js',
 })
 const fastify = Fastify({
-  logger: true,
+  logger: false,
 })
 
 // addFilter('test', (e, tag, ctx) => {

@@ -1,19 +1,20 @@
 import { describe, expect, it, vi } from 'vitest'
-import amqp from 'amqplib'
-import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../src'
-import { bind, createClient } from '../src/rpc/rabbitmq'
+import Redis from 'ioredis'
 
-function stop(time = 1000) {
+import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { bind, createClient } from '../../src/rpc/redis'
+
+function stop(time = 500) {
   return new Promise<void>((resolve) => {
     setTimeout(() => resolve(), time)
   })
 }
-describe('rabbitmq rpc', () => {
+describe('redis rpc', () => {
   class Faker {
     run() {
       return {
         tag: 'TestRpc-run',
-        rpc: ['mq'],
+        rpc: ['redis'],
       }
     }
   }
@@ -29,22 +30,23 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const redis = new Redis('redis://localhost')
 
-    const ch = await conn.createChannel()
-    const pub = await conn.createChannel()
+    const pub = new Redis('redis://localhost')
 
-    await bind(ch, 'test', data)
+    bind(redis, 'test', data)
 
-    pub.sendToQueue('test', Buffer.from(JSON.stringify({
+    pub.publish('test', JSON.stringify({
       args: [1],
       tag: 'TestRpc-run',
-    })))
+
+    }))
 
     await stop()
 
     expect(fn).toHaveBeenCalled()
   })
+
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
@@ -56,14 +58,13 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const redis = new Redis('redis://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    const pub = new Redis('redis://localhost')
 
-    await bind(serverCh, 'test', data)
+    bind(redis, 'test2', data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(pub, 'test2', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -88,14 +89,13 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const redis = new Redis('redis://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    const pub = new Redis('redis://localhost')
 
-    await bind(serverCh, 'test', data)
+    bind(redis, 'test3', data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(pub, 'test3', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -120,14 +120,13 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const redis = new Redis('redis://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    const pub = new Redis('redis://localhost')
 
-    await bind(serverCh, 'test', data)
+    bind(redis, 'test4', data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(pub, 'test4', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -148,14 +147,13 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const redis = new Redis('redis://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    const pub = new Redis('redis://localhost')
 
-    await bind(serverCh, 'test', data)
+    bind(redis, 'test5', data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(pub, 'test5', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -177,17 +175,18 @@ describe('rabbitmq rpc', () => {
         throw new Exception('just for test', 0)
       }
     }
+
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const redis = new Redis('redis://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    const pub = new Redis('redis://localhost')
 
-    await bind(serverCh, 'test', data)
+    bind(redis, 'test6', data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(pub, 'test6', {
       test: Faker as unknown as typeof TestRpc,
     })
+
     await expect(client.test.run()).rejects.toEqual({ error: true, info: 'rpc error' })
   })
 })
