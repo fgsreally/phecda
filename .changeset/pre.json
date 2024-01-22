@@ -16,5 +16,7 @@
     "phecda-server": "4.1.0",
     "phecda-vue": "2.1.2"
   },
-  "changesets": []
+  "changesets": [
+    "selfish-flowers-grin"
+  ]
 }
