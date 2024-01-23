@@ -14,6 +14,6 @@ export const tsup: Options = {
   dts: true,
   splitting: true,
   shims: false,
-  sourcemap: true,
+  sourcemap: !process.env.CI,
   external: Object.keys(pkg.devDependencies),
 }
