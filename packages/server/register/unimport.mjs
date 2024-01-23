@@ -9,7 +9,6 @@ export async function genUnImportRet() {
       }),
     });
   } catch (e) {
-    console.log(e)
     return false;
   }
 }

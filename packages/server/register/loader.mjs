@@ -4,6 +4,8 @@ import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
 import { compile } from "./compile.mjs";
 import { genUnImportRet } from "./unimport.mjs";
+import { log } from "../dist/index.mjs";
+
 let port;
 
 // this part is important or not?
@@ -30,6 +32,7 @@ export async function initialize(data) {
   unimportRet = await genUnImportRet();
 
   if (unimportRet) {
+    log('auto import...')
     writeFileSync("ps.d.ts", await unimportRet.generateTypeDeclarations());
   }
 }
