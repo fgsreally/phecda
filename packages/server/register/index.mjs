@@ -9,8 +9,6 @@ register("./loader.mjs", {
   transferList: [port2],
 });
 
-process.env.NODE_ENV = "development";
-
 port1.on("message", async (data) => {
   if (!globalThis.__PS_HMR__) return;
 

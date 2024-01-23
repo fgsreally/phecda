@@ -21,6 +21,12 @@ npm i @swc-node/core
 ```shell
 npx phecda server.ts
 ```
+或
+```shell
+node --import phecda-server/register server.ts
+```
+
+
 
 ## 清除副作用
 如果需要在热更新的时候清除一些影响，比如取消事件，可以这样
