@@ -1,7 +1,7 @@
 import type { Handler, Phecda } from './types'
 
 export function isPhecda(target: any) {
-  if(typeof target==='object'&&target){
+  if(typeof target==='function'){
     return !!target.prototype?._namespace
   }
   return false
