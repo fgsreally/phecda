@@ -1,28 +1,31 @@
-const { exec } = require("child_process");
+const { fork } = require("child_process");
 
 const fs = require("fs");
 const { posix } = require("path");
-const kill = require("tree-kill");
 const pc = require("picocolors");
-const cmd = process.argv.slice(2)[0];
+const cmd = process.argv.slice(2);
 
 let child;
-function startChild() {
-  child = exec(`node --import phecda-server/register ${cmd}`, {
-    env: { NODE_ENV: "development", ...process.env },
-    // cwd: process.cwd(),
-  });
-  
-  child.stderr.pipe(process.stderr);
-  child.stdin.pipe(process.stdin);
-  child.stdout.pipe(process.stdout);
 
-  child.once("exit", (code) => {
-    if (code >= 2) {
-      log("relunch...");
-      startChild();
-    }
-    child = undefined;
+let closePromise;
+
+function startChild() {
+  child = fork(cmd[0], {
+    env: { NODE_ENV: "development", ...process.env },
+    stdio: "inherit",
+    execArgv: ["--import=phecda-server/register", ...cmd.slice(1)],
+  });
+
+  closePromise = new Promise((resolve) => {
+    child.once("exit", (code) => {
+      if (code >= 2) {
+        log("relunch...");
+        startChild();
+      }
+      child = undefined;
+
+      resolve();
+    });
   });
 }
 
@@ -34,9 +37,8 @@ function exit() {
   log("process exit");
 
   if (child) {
-    kill(child.pid, () => {
-      process.exit(0);
-    });
+    child.kill();
+    process.exit(0);
   } else {
     process.exit(0);
   }
@@ -70,14 +72,14 @@ console.log(
   `${pc.green("->")} press ${pc.green("m {moduleName} {dir}")} to create module`
 );
 
-process.stdin.on("data", (data) => {
+process.stdin.on("data", async (data) => {
   const input = data.toString().trim().toLocaleLowerCase();
   if (input === "r") {
     if (child) {
-      kill(child.pid, () => {
-        log("relunch...");
-        startChild();
-      });
+      await child.kill();
+      if (closePromise) await closePromise;
+      log("relunch...");
+      startChild();
     } else {
       log("relunch...");
 
@@ -90,21 +92,27 @@ process.stdin.on("data", (data) => {
     let [, module, dir] = input.split(" ");
     module = toCamelCase(module);
     const path = posix.join(dir, `${module}.controller.ts`);
-    fs.writeFileSync(
+    fs.writeFile(
       path,
       `
     export class ${module[0].toUpperCase()}${module.slice(1)}Controller{
       
     }
-    `
+    `,
+      (err) => {
+        if (err) {
+          log("writeFile filled", "red");
+        } else {
+          log(`create controller at ${path}`);
+        }
+      }
     );
-    log(`create controller at ${path}`);
   }
   if (input.startsWith("s ")) {
     let [, module, dir] = input.split(" ");
     module = toCamelCase(module);
     const path = posix.join(dir, `${module}.service.ts`);
-    fs.writeFileSync(
+    fs.writeFile(
       path,
       `
     import {Tag} from 'phecda-server'
@@ -112,16 +120,22 @@ process.stdin.on("data", (data) => {
     export class ${module[0].toUpperCase()}${module.slice(1)}Service{
       
     }
-    `
+    `,
+      (err) => {
+        if (err) {
+          log("writeFile filled", "red");
+        } else {
+          log(`create service at ${path}`);
+        }
+      }
     );
-    log(`create service at ${path}`);
   }
 
   if (input.startsWith("m ")) {
     let [, module, dir] = input.split(" ");
     module = toCamelCase(module);
     const path = posix.join(dir, `${module}.module.ts`);
-    fs.writeFileSync(
+    fs.writeFile(
       path,
       `
     import {Tag} from 'phecda-server'
@@ -129,10 +143,15 @@ process.stdin.on("data", (data) => {
     export class ${module[0].toUpperCase()}${module.slice(1)}Module{
       
     }
-    `
+    `,
+      (err) => {
+        if (err) {
+          log("writeFile filled", "red");
+        } else {
+          log(`create module at ${path}`);
+        }
+      }
     );
-
-    log(`create module at ${path}`);
   }
 });
 

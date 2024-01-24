@@ -21,3 +21,13 @@ port1.on("message", async (data) => {
     log("reload done");
   }
 });
+
+process.on('uncaughtException', (err) => {
+  log('Uncaught Exception:','error')
+  console.error(err);
+});
+
+process.on('unhandledRejection', (err) => {
+  log('Unhandled Promise Rejection:','error')
+  console.error(err);
+});

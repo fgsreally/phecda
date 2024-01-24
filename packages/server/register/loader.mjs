@@ -1,8 +1,9 @@
 import { fileURLToPath, pathToFileURL } from "url";
-import { watch, writeFileSync } from "fs";
+import { watch } from "fs";
+import { writeFile } from "fs/promises";
 import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
-import { compile ,genUnImportRet} from "./utils.mjs";
+import { compile, genUnImportRet } from "./utils.mjs";
 import { log } from "../dist/index.mjs";
 
 let port;
@@ -31,8 +32,8 @@ export async function initialize(data) {
   unimportRet = await genUnImportRet();
 
   if (unimportRet) {
-    log('auto import...')
-    writeFileSync("ps.d.ts", await unimportRet.generateTypeDeclarations());
+    log("auto import...");
+    writeFile("ps.d.ts", await unimportRet.generateTypeDeclarations());
   }
 }
 
