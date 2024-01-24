@@ -1,28 +1,32 @@
-const { exec } = require("child_process");
+const { fork } = require("child_process");
 
 const fs = require("fs");
 const { posix } = require("path");
-const kill = require("tree-kill");
 const pc = require("picocolors");
-const cmd = process.argv.slice(2).join(' ');
+const cmd = process.argv.slice(2);
 
 let child;
-function startChild() {
-  child = exec(`node --import phecda-server/register ${cmd}`, {
-    env: { NODE_ENV: "development", ...process.env },
-    // cwd: process.cwd(),
-  });
-  
-  child.stderr.pipe(process.stderr);
-  child.stdin.pipe(process.stdin);
-  child.stdout.pipe(process.stdout);
 
-  child.once("exit", (code) => {
-    if (code >= 2) {
-      log("relunch...");
-      startChild();
-    }
-    child = undefined;
+let closePromise;
+
+
+function startChild() {
+  child = fork(cmd[0], {
+    env: { NODE_ENV: "development", ...process.env },
+    stdio: "inherit",
+    execArgv: ["--import=phecda-server/register", ...cmd.slice(1)],
+  });
+
+  closePromise = new Promise((resolve) => {
+    child.once("exit", (code) => {
+      if (code >= 2) {
+        log("relunch...");
+        startChild();
+      }
+      child = undefined;
+
+      resolve();
+    });
   });
 }
 
@@ -34,9 +38,8 @@ function exit() {
   log("process exit");
 
   if (child) {
-    kill(child.pid, () => {
-      process.exit(0);
-    });
+    child.kill();
+    process.exit(0);
   } else {
     process.exit(0);
   }
@@ -70,14 +73,15 @@ console.log(
   `${pc.green("->")} press ${pc.green("m {moduleName} {dir}")} to create module`
 );
 
-process.stdin.on("data", (data) => {
+process.stdin.on("data", async (data) => {
+
   const input = data.toString().trim().toLocaleLowerCase();
   if (input === "r") {
     if (child) {
-      kill(child.pid, () => {
-        log("relunch...");
-        startChild();
-      });
+      await child.kill();
+      if (closePromise) await closePromise;
+      log("relunch...");
+      startChild();
     } else {
       log("relunch...");
 
