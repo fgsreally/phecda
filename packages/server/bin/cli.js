@@ -9,7 +9,6 @@ let child;
 
 let closePromise;
 
-
 function startChild() {
   child = fork(cmd[0], {
     env: { NODE_ENV: "development", ...process.env },
@@ -74,7 +73,6 @@ console.log(
 );
 
 process.stdin.on("data", async (data) => {
-
   const input = data.toString().trim().toLocaleLowerCase();
   if (input === "r") {
     if (child) {
@@ -94,21 +92,27 @@ process.stdin.on("data", async (data) => {
     let [, module, dir] = input.split(" ");
     module = toCamelCase(module);
     const path = posix.join(dir, `${module}.controller.ts`);
-    fs.writeFileSync(
+    fs.writeFile(
       path,
       `
     export class ${module[0].toUpperCase()}${module.slice(1)}Controller{
       
     }
-    `
+    `,
+      (err) => {
+        if (err) {
+          log("writeFile filled", "red");
+        } else {
+          log(`create controller at ${path}`);
+        }
+      }
     );
-    log(`create controller at ${path}`);
   }
   if (input.startsWith("s ")) {
     let [, module, dir] = input.split(" ");
     module = toCamelCase(module);
     const path = posix.join(dir, `${module}.service.ts`);
-    fs.writeFileSync(
+    fs.writeFile(
       path,
       `
     import {Tag} from 'phecda-server'
@@ -116,16 +120,22 @@ process.stdin.on("data", async (data) => {
     export class ${module[0].toUpperCase()}${module.slice(1)}Service{
       
     }
-    `
+    `,
+      (err) => {
+        if (err) {
+          log("writeFile filled", "red");
+        } else {
+          log(`create service at ${path}`);
+        }
+      }
     );
-    log(`create service at ${path}`);
   }
 
   if (input.startsWith("m ")) {
     let [, module, dir] = input.split(" ");
     module = toCamelCase(module);
     const path = posix.join(dir, `${module}.module.ts`);
-    fs.writeFileSync(
+    fs.writeFile(
       path,
       `
     import {Tag} from 'phecda-server'
@@ -133,10 +143,15 @@ process.stdin.on("data", async (data) => {
     export class ${module[0].toUpperCase()}${module.slice(1)}Module{
       
     }
-    `
+    `,
+      (err) => {
+        if (err) {
+          log("writeFile filled", "red");
+        } else {
+          log(`create module at ${path}`);
+        }
+      }
     );
-
-    log(`create module at ${path}`);
   }
 });
 
