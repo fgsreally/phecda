@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 2.1.3-alpha.0
+
+### Patch Changes
+
+- 048b9ee: remove all components
+
 ## 2.1.2
 
 ### Patch Changes

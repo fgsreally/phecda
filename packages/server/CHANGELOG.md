@@ -1,5 +1,14 @@
 # phecda-server
 
+## 4.1.2-alpha.1
+
+### Patch Changes
+
+- cc22f20: child process can exit correctly
+- 1cc36e2: ps cli support nodejs command line args
+- 090b742: cli can relunch even throw unhandle promise/uncaugth exception
+- 048b9ee: can set NODE_ENV when using phecda-server/register
+
 ## 4.1.2-alpha.0
 
 ### Patch Changes
