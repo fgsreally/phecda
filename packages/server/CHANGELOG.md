@@ -1,5 +1,12 @@
 # phecda-server
 
+## 4.1.2-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [8f35d74]
+  - phecda-core@2.1.2-alpha.0
+
 ## 4.1.2-alpha.1
 
 ### Patch Changes

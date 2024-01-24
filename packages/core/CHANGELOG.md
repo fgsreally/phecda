@@ -1,5 +1,11 @@
 # phecda-core
 
+## 2.1.2-alpha.0
+
+### Patch Changes
+
+- 8f35d74: isPhecda can judge all exports from dynamic import
+
 ## 2.1.1
 
 ### Patch Changes
