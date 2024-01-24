@@ -1,7 +1,10 @@
 import type { Handler, Phecda } from './types'
 
 export function isPhecda(target: any) {
-  return target && !!target.prototype._namespace
+  if(typeof target==='function'){
+    return !!target.prototype?._namespace
+  }
+  return false
 }
 // 一个类挂载第一个phecda装饰器时，会创建对应的，类似元数据的东西
 export function init(target: Phecda) {

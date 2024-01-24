@@ -1,5 +1,5 @@
 import { fileURLToPath, pathToFileURL } from "url";
-import { watch } from "fs";
+import { watch,existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
@@ -26,6 +26,8 @@ const host = {
 
 let unimportRet;
 
+const dtsPath='ps.d.ts'
+
 export async function initialize(data) {
   port = data.port;
 
@@ -33,7 +35,8 @@ export async function initialize(data) {
 
   if (unimportRet) {
     log("auto import...");
-    writeFile("ps.d.ts", await unimportRet.generateTypeDeclarations());
+    if(!existsSync(dtsPath))
+    writeFile(dtsPath, await unimportRet.generateTypeDeclarations());
   }
 }
 
