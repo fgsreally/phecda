@@ -4,7 +4,7 @@ const fs = require("fs");
 const { posix } = require("path");
 const kill = require("tree-kill");
 const pc = require("picocolors");
-const cmd = process.argv.slice(2)[0];
+const cmd = process.argv.slice(2).join(' ');
 
 let child;
 function startChild() {
