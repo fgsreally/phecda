@@ -1,12 +1,12 @@
-import { setModelVar, setState } from 'phecda-core'
+import { SHARE_KEY, setState, setVar } from 'phecda-core'
 
 export function Route(route: string, type?: string): any {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
 
-    setModelVar(target, key)
+    setVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     state.http = {
@@ -42,9 +42,9 @@ export function Controller(route = '') {
 export function Rpc(...types: ('mq' | 'redis' | string)[]) {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
-    setModelVar(target, key)
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
+    setVar(target, key)
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.rpc)
       state.rpc = {}
@@ -56,9 +56,9 @@ export function Rpc(...types: ('mq' | 'redis' | string)[]) {
 export function Event(isEvent = true) {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
-    setModelVar(target, key)
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
+    setVar(target, key)
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.rpc)
       state.rpc = {}

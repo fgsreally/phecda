@@ -21,8 +21,6 @@ export interface Phecda {
   prototype: any
   _namespace: {
 
-    __INIT_EVENT__: Set<PropertyKey>
-
     __EXPOSE_VAR__: Set<PropertyKey>
 
     __IGNORE_VAR__: Set<PropertyKey>

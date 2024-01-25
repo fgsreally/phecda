@@ -1,18 +1,19 @@
-import { getExposeKey, getHandler, getModelState, getState } from './core'
+/* eslint-disable new-cap */
+import { getExposeKey, getHandler, getModuleState, getState } from './core'
 import type { ClassValue, Phecda } from './types'
 // from class
-export function getTag<M extends new (...args: any) => any>(Model: M) {
-  return (Model as any).prototype?.__TAG__
+export function getTag<M extends new (...args: any) => any>(module: M) {
+  return (module as any).prototype?.__TAG__
 }
 // from instance
 export function getSymbol<M extends new (...args: any) => any>(instance: InstanceType<M>) {
-  const Model = instance.constructor
-  return getTag(Model) || Model.name
+  const module = instance.constructor
+  return getTag(module) || module.name
 }
 
-export function getBind<M extends new (...args: any) => any>(Model: M) {
-  const instance = new Model() as Phecda
-  const keys = getModelState(instance) as PropertyKey[]
+export function getBind<M extends new (...args: any) => any>(module: M) {
+  const instance = new module() as Phecda
+  const keys = getModuleState(instance) as PropertyKey[]
   const ret: any = {}
   for (const item of keys) {
     const state = getState(instance as any, item) as any
@@ -23,8 +24,8 @@ export function getBind<M extends new (...args: any) => any>(Model: M) {
   return ret
 }
 
-export function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(Model: M, input: Data) {
-  const instance: InstanceType<M> = new Model()
+export function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(module: M, input: Data) {
+  const instance: InstanceType<M> = new module()
 
   const keys = getExposeKey(instance) as PropertyKey[]
   for (const item of keys)
@@ -35,7 +36,7 @@ export function plainToClass<M extends new (...args: any) => any, Data extends R
 export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
   const err: string[] = []
 
-  const stateVars = getModelState(instance) as PropertyKey[]
+  const stateVars = getModuleState(instance) as PropertyKey[]
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
     if (handlers) {
@@ -86,8 +87,8 @@ export function snapShot<T extends new (...args: any) => any>(data: InstanceType
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'static' | 'class' | 'normal' = 'normal') {
-  handler(type === 'normal' ? c.prototype : c, key)
+export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
+  handler(type === 'class' ? c.prototype : c, key)
 }
 
 export function Pipeline(...decos: ((...args: any) => void)[]) {

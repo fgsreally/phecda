@@ -1,6 +1,4 @@
-import { Body, Controller, Exception, Get, Param, Post, Query, Plugin, To, Guard, Interceptor, Pipe } from "../../src";
-
-
+import { Body, Controller, Exception, Get, Guard, Interceptor, Param, Pipe, Plugin, Post, Query, To } from '../../src'
 
 class Info {
   @To((p) => {
@@ -11,14 +9,12 @@ class Info {
   name: string
 }
 
-
 @Controller('')
 export class Test {
   @Get('/get')
   get() {
     return { msg: 'test' }
   }
-
 
   @Post('/post/:test')
   post(@Param('test') test: string, @Body('name') name: string, @Query('id') id: string) {

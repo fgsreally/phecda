@@ -1,8 +1,8 @@
-import { setModelVar, setState } from 'phecda-core'
+import { SHARE_KEY, setState, setVar } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
-    setModelVar(target, k)
+    setVar(target, k)
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
     if (!state.header)
       state.header = {}
@@ -15,11 +15,11 @@ export function Header(name: string, value: string) {
 export function Define(key: string, value: any) {
   return (target: any, k?: PropertyKey) => {
     if (!k) {
-      k = '__CLASS'
+      k = SHARE_KEY
       target = target.prototype
     }
 
-    setModelVar(target, k)
+    setVar(target, k)
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
     if (!state.define)
       state.define = {}

@@ -1,8 +1,8 @@
-import { setModelVar, setState } from 'phecda-core'
+import { setState, setVar } from 'phecda-core'
 
 export function BaseParam(type: string, key: string): any {
   return (target: any, k: PropertyKey, index: number) => {
-    setModelVar(target, k)
+    setVar(target, k)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
     if (!state.params)
@@ -20,7 +20,7 @@ export function BaseParam(type: string, key: string): any {
 
 export function Pipe(key?: string, opts?: any) {
   return (target: any, k: PropertyKey, index: number) => {
-    setModelVar(target, k)
+    setVar(target, k)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
 

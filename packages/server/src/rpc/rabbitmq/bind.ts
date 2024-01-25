@@ -4,7 +4,7 @@ import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
 import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
-import { P } from '../../types'
+import type { P } from '../../types'
 
 export interface Options {
   globalGuards?: string[]
@@ -23,9 +23,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
   const existQueue = new Set<string>()
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-
   function handleMeta() {
-
     isAopDepInject(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,

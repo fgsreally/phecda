@@ -1,7 +1,7 @@
 import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
 import type { ERROR_SYMBOL } from './common'
-import { Meta } from './meta'
+import type { Meta } from './meta'
 export type Construct<T = any> = new (...args: any[]) => T
 
 export interface Emitter {
