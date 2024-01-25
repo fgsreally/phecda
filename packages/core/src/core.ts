@@ -14,11 +14,7 @@ export function init(model: Phecda) {
   if (!model.hasOwnProperty('_namespace')) {
     model._namespace = {
 
-      /**
-         * @Init 事件,
-         * 引入Model时就会执行
-        */
-      __INIT_EVENT__: new Set(),
+  
       /**
          * 暴露的变量，
          * 只要属性上存在至少一个装饰器，该属性就会被捕捉到
@@ -46,25 +42,25 @@ export function init(model: Phecda) {
   }
 }
 
-export function regisInitEvent(model: Phecda, key: string) {
-  init(model)
-  model._namespace.__INIT_EVENT__.add(key)
-}
+// export function regisInitEvent(model: Phecda, key: string) {
+//   init(model)
+//   model._namespace.__INIT_EVENT__.add(key)
+// }
 
-export function getOwnInitEvent(module: Phecda) {
-  module=Object.getPrototypeOf(module)
-  return [...module._namespace.__INIT_EVENT__] as string[]
-}
-export function getInitEvent(module: Phecda) {
-  let proto: Phecda = Object.getPrototypeOf(module)
-  const set = new Set<PropertyKey>()
-  while (proto?._namespace) {
-    proto._namespace.__INIT_EVENT__.forEach(item => set.add(item))
+// export function getOwnInitEvent(module: Phecda) {
+//   module=Object.getPrototypeOf(module)
+//   return [...module._namespace.__INIT_EVENT__] as string[]
+// }
+// export function getInitEvent(module: Phecda) {
+//   let proto: Phecda = Object.getPrototypeOf(module)
+//   const set = new Set<PropertyKey>()
+//   while (proto?._namespace) {
+//     proto._namespace.__INIT_EVENT__.forEach(item => set.add(item))
 
-    proto = Object.getPrototypeOf(proto)
-  }
-  return [...set]
-}
+//     proto = Object.getPrototypeOf(proto)
+//   }
+//   return [...set]
+// }
 
 // it should be setmodelVar
 export function setVar(proto: Phecda, key: PropertyKey) {

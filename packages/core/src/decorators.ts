@@ -42,7 +42,6 @@ export function Ignore(target: any, key: PropertyKey) {
 export function Clear(target: any, key: PropertyKey) {
   init(target)
 
-  target._namespace.__INIT_EVENT__.delete(key)
   target._namespace.__EXPOSE_VAR__.delete(key)
   target._namespace.__IGNORE_VAR__.delete(key)
   target._namespace.__STATE_VAR__.delete(key)
