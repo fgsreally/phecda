@@ -1,4 +1,4 @@
-import { setVar, setState } from 'phecda-core'
+import { SHARE_KEY, setState, setVar } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {

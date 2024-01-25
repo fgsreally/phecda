@@ -34,8 +34,3 @@ export function setConfig<C = any>(key: string, conf: C, force = true) {
 
   DataMap[key] = conf
 }
-
-
-
-
-

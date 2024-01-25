@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 import { getExposeKey, getHandler, getModuleState, getState } from './core'
 import type { ClassValue, Phecda } from './types'
 // from class
@@ -86,7 +87,7 @@ export function snapShot<T extends new (...args: any) => any>(data: InstanceType
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class'  =  'class') {
+export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
   handler(type === 'class' ? c.prototype : c, key)
 }
 

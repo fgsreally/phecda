@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { bindApp, ExpressCtx, Options } from '../../src/server/express'
+import type { ExpressCtx, Options } from '../../src/server/express'
+import { bindApp } from '../../src/server/express'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
@@ -13,9 +14,7 @@ async function createApp(opts?: Options) {
   return app
 }
 
-
 describe('express ', () => {
-
   it('basic request', async () => {
     const app = await createApp()
     const res1 = await request(app).get('/get')
@@ -29,15 +28,13 @@ describe('express ', () => {
         args: ['phecda', 'server', '1'],
       }, {
         tag: 'Test-get',
-        args: []
-      }
+        args: [],
+      },
 
     ])
     expect(res3.body[0]).toEqual('phecda-server-1')
     expect(res3.body[1]).toEqual({ msg: 'test' })
-
   })
-
 
   it('exception filter', async () => {
     const app = await createApp()
@@ -48,14 +45,11 @@ describe('express ', () => {
   it('Pipe', async () => {
     const app = await createApp()
 
-
     addPipe('add', ({ arg }) => {
-
       return arg + 1
     })
 
     const res1 = await request(app).post('/pipe').send({ info: { name: '' } })
-
 
     expect(res1.body).toMatchObject({ message: 'name should be phecda', [ERROR_SYMBOL]: true })
 
@@ -73,8 +67,7 @@ describe('express ', () => {
 
     const app = await createApp({ plugins: ['p1'] })
 
-
-     await request(app).get('/plugin')
+    await request(app).get('/plugin')
     expect(fn).toHaveBeenCalledTimes(1)
     await request(app).post('/__PHECDA_SERVER__').send([{
       tag: 'Test-plugin',
@@ -87,7 +80,6 @@ describe('express ', () => {
   it('guard/interceptor', async () => {
     const InterceptFn = vi.fn((str: string) => str)
     const Guardfn = vi.fn((str: string) => str)
-
 
     addGuard('g1', ({ request, parallel }: ExpressCtx) => {
       Guardfn('g1')
@@ -123,7 +115,7 @@ describe('express ', () => {
     await request(app).post('/aop')
     expect(Guardfn).toHaveBeenCalledTimes(2)
 
-await request(app).post('/__PHECDA_SERVER__').send(
+    await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
           tag: 'Test-aop',
@@ -140,8 +132,5 @@ await request(app).post('/__PHECDA_SERVER__').send(
     expect(InterceptFn).toHaveBeenCalledTimes(8)
 
     expect(Guardfn).toHaveBeenCalledTimes(6)
-
   })
-
-
 })

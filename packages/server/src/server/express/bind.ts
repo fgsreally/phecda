@@ -5,9 +5,9 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
-import { P } from '../../types'
+import type { P } from '../../types'
 
-export interface ExpressCtx extends P.BaseContext{
+export interface ExpressCtx extends P.BaseContext {
   type: 'express'
   request: Request
   response: Response
@@ -91,9 +91,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               response: res,
               moduleMap,
               parallel: true,
-              tag
+              tag,
             }
-            const context = new Context<ExpressCtx>( contextData)
+            const context = new Context<ExpressCtx>(contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -165,9 +165,9 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           response: res,
           moduleMap,
           parallel: false,
-          tag:methodTag
+          tag: methodTag,
         }
-        
+
         const context = new Context<ExpressCtx>(contextData)
 
         try {

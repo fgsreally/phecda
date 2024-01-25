@@ -1,4 +1,4 @@
-import { setVar, setState } from 'phecda-core'
+import { SHARE_KEY, setState, setVar } from 'phecda-core'
 
 export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {

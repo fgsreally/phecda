@@ -16,5 +16,5 @@ export abstract class PFilter<C extends P.BaseContext = any, E extends Exception
     })
   }
 
-  abstract use(error: Error | E,  ctx?: C): P.Error
+  abstract use(error: Error | E, ctx?: C): P.Error
 }

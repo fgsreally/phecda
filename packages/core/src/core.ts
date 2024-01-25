@@ -1,9 +1,9 @@
 import type { Handler, Phecda } from './types'
 
 export function isPhecda(module: any) {
-  if (typeof module === 'function') {
+  if (typeof module === 'function')
     return !!module.prototype?._namespace
-  }
+
   return false
 }
 // 有的时候，类上多个方法、属性需要共用一些东西
@@ -16,7 +16,6 @@ export function init(proto: Phecda) {
   // eslint-disable-next-line no-prototype-builtins
   if (!proto.hasOwnProperty('_namespace')) {
     proto._namespace = {
-
 
       /**
          * 暴露的变量，

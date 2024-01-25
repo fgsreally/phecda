@@ -6,7 +6,7 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
-import { P } from '../../types'
+import type { P } from '../../types'
 
 export interface H3Ctx extends P.BaseContext {
   type: 'h3'
@@ -38,20 +38,15 @@ export interface Options {
 export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
 
-
-
   isAopDepInject(meta, {
     plugins,
     guards: globalGuards,
     interceptors: globalInterceptors,
   });
 
-
-
   (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
-
-  const prePlugin=defineRequestMiddleware((event) => {
+  const prePlugin = defineRequestMiddleware((event) => {
     (event as any)[MODULE_SYMBOL] = moduleMap;
     (event as any)[META_SYMBOL] = meta
   })
@@ -68,21 +63,19 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
   }
 
   async function createRoute() {
-
-
     router.post(route, eventHandler({
-      onRequest:[prePlugin,...Context.usePlugin(plugins).map((p)=>defineRequestMiddleware(p))],
-      handler:async (event) => {
+      onRequest: [prePlugin, ...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+      handler: async (event) => {
         const body = await readBody(event, { strict: true })
         async function errorHandler(e: any) {
           const error = await Context.filterRecord.default(e)
           setResponseStatus(event, error.status)
           return error
         }
-  
+
         if (!Array.isArray(body))
           return errorHandler(new BadRequestException('data format should be an array'))
-  
+
         try {
           return Promise.all(body.map((item: any) => {
             // eslint-disable-next-line no-async-promise-executor
@@ -91,14 +84,14 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               const meta = metaMap.get(tag)!
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
-  
+
               const contextData = {
                 type: 'h3' as const,
                 event,
                 meta,
                 moduleMap,
                 parallel: true,
-                tag
+                tag,
               }
               const context = new Context<H3Ctx>(contextData)
               const [name, method] = tag.split('-')
@@ -111,9 +104,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                   interceptors, filter,
                 },
               } = metaMap.get(tag)!
-  
+
               const instance = moduleMap.get(name)
-  
+
               try {
                 await context.useGuard([...globalGuards, ...guards])
                 const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
@@ -133,14 +126,12 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             })
           }))
         }
-  
+
         catch (e) {
           return errorHandler(e)
         }
-      }
+      },
     }))
-
-
 
     for (const i of meta) {
       const { method, http, header, tag } = i.data
@@ -162,34 +153,32 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         },
       } = metaMap.get(methodTag)!
 
-
-  
       router[http.type](http.route, eventHandler({
-        onRequest:[prePlugin,...Context.usePlugin(plugins).map((p)=>defineRequestMiddleware(p))],
-        handler:async (event) => {
+        onRequest: [prePlugin, ...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+        handler: async (event) => {
           const instance = moduleMap.get(tag)!
-  
+
           const contextData = {
             type: 'h3' as const,
             meta: i,
             event,
             moduleMap,
             parallel: false,
-            tag: methodTag
+            tag: methodTag,
           }
           const context = new Context<H3Ctx>(contextData)
-  
+
           try {
             setHeaders(event, header)
             await context.useGuard([...globalGuards, ...guards])
             const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
             if (cache !== undefined)
               return cache
-  
+
             const body = params.some(item => item.type === 'body') ? await readBody(event, { strict: true }) : undefined
             const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
               let arg: any
-  
+
               switch (type) {
                 case 'params':
                   arg = getRouterParams(event)
@@ -203,14 +192,14 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 default:
                   arg = body
               }
-  
+
               return { arg: resolveDep(arg, key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
             }))
-  
+
             instance.context = contextData
             const funcData = await instance[method](...args)
             const ret = await context.usePostInterceptor(funcData)
-  
+
             return ret
           }
           catch (e: any) {

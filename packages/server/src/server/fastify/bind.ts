@@ -5,7 +5,7 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
-import { P } from '../../types'
+import type { P } from '../../types'
 
 export interface FastifyCtx extends P.BaseContext {
   type: 'fastify'
@@ -106,9 +106,9 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
                 response: res,
                 moduleMap,
                 parallel: true,
-tag
+                tag,
               }
-              const context = new Context<FastifyCtx>( contextData)
+              const context = new Context<FastifyCtx>(contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -195,9 +195,9 @@ tag
             response: res,
             moduleMap,
             parallel: false,
-            tag:methodTag
+            tag: methodTag,
           }
-          const context = new Context<FastifyCtx>( contextData)
+          const context = new Context<FastifyCtx>(contextData)
 
           try {
             for (const name in header)

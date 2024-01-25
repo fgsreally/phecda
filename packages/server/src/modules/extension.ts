@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { getSymbol } from 'phecda-core'
 import type { P } from '../types'
 import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
 import type { Exception } from '../exception'
 import { Dev } from './dev'
 
-export interface PExtension<C extends P.BaseContext = any,E extends Exception = Exception> {
+export interface PExtension<C extends P.BaseContext = any, E extends Exception = Exception> {
 
-  intercept( ctx: C): Function | Promise<Function> | any
+  intercept(ctx: C): Function | Promise<Function> | any
 
-  guard( ctx: C): Promise<boolean> | boolean
+  guard(ctx: C): Promise<boolean> | boolean
 
-  pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any },  ctx: C): any
+  pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C): any
 
-  filter(error: Error | E,  ctx?: C): P.Error
+  filter(error: Error | E, ctx?: C): P.Error
 
   plugin(...args: any): void
 }
@@ -62,5 +63,3 @@ export class PExtension extends Dev {
     }
   }
 }
-
-

@@ -14,7 +14,6 @@ export function getProperty(key: string) {
   return activeInstance[key]
 }
 
-
 export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
   return (proto: any, key: string) => {
     setVar(proto, key)

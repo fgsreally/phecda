@@ -39,5 +39,3 @@ app.use('/base', router)
 app.listen('3010', () => {
   console.log('start express server..')
 })
-
-

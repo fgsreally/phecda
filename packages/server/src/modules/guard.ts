@@ -1,7 +1,7 @@
 import { getSymbol } from 'phecda-core'
 import { Context, addGuard } from '../context'
+import type { P } from '../types'
 import { Dev } from './dev'
-import { P } from '../types'
 
 export abstract class PGuard<C extends P.BaseContext = any> extends Dev {
   abstract use(ctx: C): Promise<boolean> | boolean
@@ -17,5 +17,3 @@ export abstract class PGuard<C extends P.BaseContext = any> extends Dev {
     })
   }
 }
-
-

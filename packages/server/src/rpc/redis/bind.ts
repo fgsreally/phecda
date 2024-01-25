@@ -4,13 +4,13 @@ import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
 import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
-import { P } from '../../types'
+import type { P } from '../../types'
 
 export interface Options {
   globalGuards?: string[]
   globalInterceptors?: string[]
 }
-export interface RedisCtx extends P.BaseContext{
+export interface RedisCtx extends P.BaseContext {
   type: 'redis'
   redis: Redis
   msg: string
@@ -19,13 +19,11 @@ export interface RedisCtx extends P.BaseContext{
 
 }
 
-
 export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const metaMap = new Map<string, Meta>()
 
   const pub = new Redis(redis.options)
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
-
 
   function handleMeta() {
     isAopDepInject(meta, {
@@ -58,8 +56,8 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         return
       }
 
-      const meta= metaMap.get(tag)!
-      const context = new Context( {
+      const meta = metaMap.get(tag)!
+      const context = new Context({
         type: 'redis',
         moduleMap,
         redis,
@@ -69,7 +67,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         tag,
         data,
       })
-    
+
       const {
         data: {
           guards, interceptors, params, name, method, filter,

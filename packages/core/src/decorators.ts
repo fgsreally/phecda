@@ -1,8 +1,6 @@
 import { plainToClass, transformClass } from './helper'
-import { init, regisHandler, setExposeKey, setIgnoreKey, setVar, setState } from './core'
+import { SHARE_KEY, init, regisHandler, setExposeKey, setIgnoreKey, setState, setVar } from './core'
 import type { InjectData } from './types'
-import { SHARE_KEY } from './core'
-
 
 export function Init(proto: any, key: PropertyKey) {
   setVar(proto, key)
@@ -23,8 +21,6 @@ export function Bind(value: any) {
     })
   }
 }
-
-
 
 export function Ignore(proto: any, key: PropertyKey) {
   setIgnoreKey(proto, key)

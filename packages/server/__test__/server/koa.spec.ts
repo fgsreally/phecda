@@ -1,26 +1,25 @@
 import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import Koa from 'koa'
-import {koaBody} from 'koa-body'
-import { bindApp, KoaCtx, Options } from '../../src/server/koa'
+import { koaBody } from 'koa-body'
+import Router from '@koa/router'
+import type { KoaCtx, Options } from '../../src/server/koa'
+import { bindApp } from '../../src/server/koa'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
-import Router from '@koa/router'
 
 async function createApp(opts?: Options) {
   const data = await Factory([Test])
   const app = new Koa()
   app.use(koaBody())
-  const router=new Router()
-  bindApp(router , data, opts)
+  const router = new Router()
+  bindApp(router, data, opts)
   app.use(router.routes()).use(router.allowedMethods())
 
   return app.listen()
 }
 
-
 describe('koa ', () => {
-
   it('basic request', async () => {
     const app = await createApp()
     const res1 = await request(app).get('/get')
@@ -34,15 +33,13 @@ describe('koa ', () => {
         args: ['phecda', 'server', '1'],
       }, {
         tag: 'Test-get',
-        args: []
-      }
+        args: [],
+      },
 
     ])
     expect(res3.body[0]).toEqual('phecda-server-1')
     expect(res3.body[1]).toEqual({ msg: 'test' })
-
   })
-
 
   it('exception filter', async () => {
     const app = await createApp()
@@ -53,14 +50,11 @@ describe('koa ', () => {
   it('Pipe', async () => {
     const app = await createApp()
 
-
     addPipe('add', ({ arg }) => {
-
       return arg + 1
     })
 
     const res1 = await request(app).post('/pipe').send({ info: { name: '' } })
-
 
     expect(res1.body).toMatchObject({ message: 'name should be phecda', [ERROR_SYMBOL]: true })
 
@@ -78,8 +72,7 @@ describe('koa ', () => {
 
     const app = await createApp({ plugins: ['p1'] })
 
-
-     await request(app).get('/plugin')
+    await request(app).get('/plugin')
     expect(fn).toHaveBeenCalledTimes(1)
     await request(app).post('/__PHECDA_SERVER__').send([{
       tag: 'Test-plugin',
@@ -92,7 +85,6 @@ describe('koa ', () => {
   it('guard/interceptor', async () => {
     const InterceptFn = vi.fn((str: string) => str)
     const Guardfn = vi.fn((str: string) => str)
-
 
     addGuard('g1', ({ ctx, parallel }: KoaCtx) => {
       Guardfn('g1')
@@ -128,7 +120,7 @@ describe('koa ', () => {
     await request(app).post('/aop')
     expect(Guardfn).toHaveBeenCalledTimes(2)
 
-  await request(app).post('/__PHECDA_SERVER__').send(
+    await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
           tag: 'Test-aop',
@@ -145,8 +137,5 @@ describe('koa ', () => {
     expect(InterceptFn).toHaveBeenCalledTimes(8)
 
     expect(Guardfn).toHaveBeenCalledTimes(6)
-
   })
-
-
 })
