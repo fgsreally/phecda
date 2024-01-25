@@ -1,5 +1,13 @@
 # phecda-server
 
+## 4.1.2-alpha.3
+
+### Patch Changes
+
+- 949a013: loader can't resolve entry file(.ts) correctly in some cases
+- 185be69: add config to Dev for modular;auto import can be banned(process.env.PS_NO_DTS)
+- 2665dd1: rename PModule with PExtension
+
 ## 4.1.2-alpha.2
 
 ### Patch Changes
