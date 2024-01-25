@@ -1,4 +1,4 @@
-import { setModelVar, setState } from 'phecda-core'
+import { setVar, setState } from 'phecda-core'
 
 export function Route(route: string, type?: string): any {
   return (target: any, key?: PropertyKey) => {
@@ -6,7 +6,7 @@ export function Route(route: string, type?: string): any {
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
 
-    setModelVar(target, key)
+    setVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     state.http = {
@@ -44,7 +44,7 @@ export function Rpc(...types: ('mq' | 'redis' | string)[]) {
     if (!key)
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
-    setModelVar(target, key)
+    setVar(target, key)
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.rpc)
       state.rpc = {}
@@ -58,7 +58,7 @@ export function Event(isEvent = true) {
     if (!key)
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
-    setModelVar(target, key)
+    setVar(target, key)
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.rpc)
       state.rpc = {}

@@ -1,4 +1,4 @@
-import { getExposeKey, getHandler, getModelState, getState } from './core'
+import { getExposeKey, getHandler, getModuleState, getState } from './core'
 import type { ClassValue, Phecda } from './types'
 // from class
 export function getTag<M extends new (...args: any) => any>(Model: M) {
@@ -12,7 +12,7 @@ export function getSymbol<M extends new (...args: any) => any>(instance: Instanc
 
 export function getBind<M extends new (...args: any) => any>(Model: M) {
   const instance = new Model() as Phecda
-  const keys = getModelState(instance) as PropertyKey[]
+  const keys = getModuleState(instance) as PropertyKey[]
   const ret: any = {}
   for (const item of keys) {
     const state = getState(instance as any, item) as any
@@ -35,7 +35,7 @@ export function plainToClass<M extends new (...args: any) => any, Data extends R
 export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
   const err: string[] = []
 
-  const stateVars = getModelState(instance) as PropertyKey[]
+  const stateVars = getModuleState(instance) as PropertyKey[]
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
     if (handlers) {

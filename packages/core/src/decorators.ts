@@ -1,9 +1,9 @@
 import { plainToClass, transformClass } from './helper'
-import { init, regisHandler, setExposeKey, setIgnoreKey, setModelVar, setState } from './core'
+import { init, regisHandler, setExposeKey, setIgnoreKey, setVar, setState } from './core'
 import type { InjectData } from './types'
 
 export function Init(target: any, key: PropertyKey) {
-  setModelVar(target, key)
+  setVar(target, key)
 
   regisHandler(target, key, {
     async init(instance: any) {
@@ -15,7 +15,7 @@ export function Init(target: any, key: PropertyKey) {
 // bind value
 export function Bind(value: any) {
   return (target: any, k: PropertyKey) => {
-    setModelVar(target, k)
+    setVar(target, k)
     setState(target, k, {
       value,
     })
@@ -26,7 +26,7 @@ export function Bind(value: any) {
 //   info: string | ((k: string, tag: string) => string),
 //   meta?: any) {
 //   return (obj: any, key: PropertyKey) => {
-//     setModelVar(obj, key)
+//     setVar(obj, key)
 //     regisHandler(obj, key, {
 //       rule,
 //       info,
@@ -52,7 +52,7 @@ export function Clear(target: any, key: PropertyKey) {
 
 export function Err<Fn extends (...args: any) => any>(cb: Fn) {
   return (target: any, key: PropertyKey) => {
-    setModelVar(target, key)
+    setVar(target, key)
     regisHandler(target, key, {
       error: cb,
     })
@@ -64,9 +64,9 @@ export function Expose(target: any, key: PropertyKey) {
 }
 
 export function To(cb: (arg: any, instance: any, key: string) => any) {
-  return (obj: any, key: PropertyKey) => {
-    setModelVar(obj, key)
-    regisHandler(obj, key, {
+  return (proto: any, key: PropertyKey) => {
+    setVar(proto, key)
+    regisHandler(proto, key, {
       async pipe(instance: any) {
         instance[key] = await cb(instance[key], instance, key as string)
       },
@@ -85,7 +85,7 @@ export function Tag(tag: string) {
 export function Assign(cb: (instance?: any) => any) {
   return (target: any) => {
     init(target.prototype)
-    setModelVar(target.prototype, '__CLASS')
+    setVar(target.prototype, '__CLASS')
     regisHandler(target.prototype, '__CLASS', {
       init: async (instance: any) => {
         const value = await cb(instance)
@@ -100,7 +100,7 @@ export function Assign(cb: (instance?: any) => any) {
 
 export function Global(target: any) {
   init(target.prototype)
-  setModelVar(target.prototype, '__CLASS')
+  setVar(target.prototype, '__CLASS')
   regisHandler(target.prototype, '__CLASS', {
     init: async (instance: any) => {
       const tag = instance.__TAG__

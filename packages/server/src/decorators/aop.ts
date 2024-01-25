@@ -1,4 +1,4 @@
-import { setModelVar, setState } from 'phecda-core'
+import { setVar, setState } from 'phecda-core'
 
 export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {
@@ -6,7 +6,7 @@ export function Guard(...guards: string[]): any {
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
 
-    setModelVar(target, key)
+    setVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.guards)
@@ -22,7 +22,7 @@ export function Plugin(...plugins: string[]): any {
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
 
-    setModelVar(target, key)
+    setVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.plugins)
@@ -38,7 +38,7 @@ export function Interceptor(...interceptors: string[]): any {
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
 
-    setModelVar(target, key)
+    setVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     if (!state.interceptors)
@@ -53,7 +53,7 @@ export function Filter(filter: string): any {
       key = '__CLASS'
     target = key === '__CLASS' ? target.prototype : target
 
-    setModelVar(target, key)
+    setVar(target, key)
 
     const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
     state.filter = filter

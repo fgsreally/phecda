@@ -1,12 +1,12 @@
 // custom decorator
 
-import { init, regisHandler, setModelVar } from '../core'
+import { init, regisHandler, setVar } from '../core'
 import { getProperty } from '../namespace'
 import type { Events } from '../types'
 
 export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
   return (obj: any, key: string) => {
-    setModelVar(obj, key)
+    setVar(obj, key)
     regisHandler(obj, key, {
       init(instance: any) {
         getProperty('watcher')?.({ eventName, instance, key, options })
@@ -17,7 +17,7 @@ export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
 
 export function Effect(eventName: string, options?: any) {
   return (obj: any, key: string) => {
-    setModelVar(obj, key)
+    setVar(obj, key)
     regisHandler(obj, key, {
       init(instance: any) {
         instance[`$_${key}`] = instance[key]
@@ -45,7 +45,7 @@ export function Storage(storeKey?: string) {
       tag = storeKey || target.__TAG__
       const uniTag = Symbol(tag)
 
-      setModelVar(target, uniTag)
+      setVar(target, uniTag)
       regisHandler(target, uniTag, {
         init: (instance: any) => {
           getProperty('storage')?.({ instance, key, tag })
@@ -56,7 +56,7 @@ export function Storage(storeKey?: string) {
       init(target.prototype)
       tag = storeKey || `${target.prototype.__TAG__}_${key}`
       const uniTag = Symbol(tag)
-      setModelVar(target.prototype, uniTag)
+      setVar(target.prototype, uniTag)
       regisHandler(target.prototype, uniTag, {
         init: (instance: any) => {
           getProperty('storage')?.({ instance, key: '', tag })

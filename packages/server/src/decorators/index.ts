@@ -1,8 +1,8 @@
-import { setModelVar, setState } from 'phecda-core'
+import { setVar, setState } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
-    setModelVar(target, k)
+    setVar(target, k)
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
     if (!state.header)
       state.header = {}
@@ -19,7 +19,7 @@ export function Define(key: string, value: any) {
       target = target.prototype
     }
 
-    setModelVar(target, k)
+    setVar(target, k)
     const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
     if (!state.define)
       state.define = {}
