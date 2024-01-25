@@ -4,7 +4,7 @@ import { writeFile } from "fs/promises";
 import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
 import { compile, genUnImportRet } from "./utils.mjs";
-import { log } from "../dist/index.mjs";
+import { log,PS_FILE_RE } from "../dist/index.mjs";
 
 let port;
 
@@ -198,16 +198,5 @@ function debounce(cb, timeout = 500) {
 }
 
 export function isModuleFileUrl(url) {
-  return (
-    url.endsWith(".controller.ts") ||
-    url.endsWith(".service.ts") ||
-    url.endsWith(".route.ts") ||
-    url.endsWith(".module.ts") ||
-    url.endsWith(".rpc.ts") ||
-    url.endsWith(".guard.ts") ||
-    url.endsWith(".interceptor.ts") ||
-    url.endsWith(".pipe.ts") ||
-    url.endsWith(".plugin.ts") ||
-    url.endsWith(".filter.ts")
-  );
+  return PS_FILE_RE.test(url)
 }
