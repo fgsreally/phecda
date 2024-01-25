@@ -2,10 +2,10 @@ import { plainToClass, transformClass } from './helper'
 import { init, regisHandler, setExposeKey, setIgnoreKey, setVar, setState } from './core'
 import type { InjectData } from './types'
 
-export function Init(target: any, key: PropertyKey) {
-  setVar(target, key)
+export function Init(proto: any, key: PropertyKey) {
+  setVar(proto, key)
 
-  regisHandler(target, key, {
+  regisHandler(proto, key, {
     async init(instance: any) {
       instance[key]()
     },
@@ -14,9 +14,9 @@ export function Init(target: any, key: PropertyKey) {
 
 // bind value
 export function Bind(value: any) {
-  return (target: any, k: PropertyKey) => {
-    setVar(target, k)
-    setState(target, k, {
+  return (proto: any, k: PropertyKey) => {
+    setVar(proto, k)
+    setState(proto, k, {
       value,
     })
   }
@@ -35,31 +35,31 @@ export function Bind(value: any) {
 //   }
 // }
 
-export function Ignore(target: any, key: PropertyKey) {
-  setIgnoreKey(target, key)
+export function Ignore(proto: any, key: PropertyKey) {
+  setIgnoreKey(proto, key)
 }
 
-export function Clear(target: any, key: PropertyKey) {
-  init(target)
+export function Clear(proto: any, key: PropertyKey) {
+  init(proto)
 
-  target._namespace.__EXPOSE_VAR__.delete(key)
-  target._namespace.__IGNORE_VAR__.delete(key)
-  target._namespace.__STATE_VAR__.delete(key)
-  target._namespace.__STATE_HANDLER__.delete(key)
-  target._namespace.__STATE_NAMESPACE__.delete(key)
+  proto._namespace.__EXPOSE_VAR__.delete(key)
+  proto._namespace.__IGNORE_VAR__.delete(key)
+  proto._namespace.__STATE_VAR__.delete(key)
+  proto._namespace.__STATE_HANDLER__.delete(key)
+  proto._namespace.__STATE_NAMESPACE__.delete(key)
 }
 
 export function Err<Fn extends (...args: any) => any>(cb: Fn) {
-  return (target: any, key: PropertyKey) => {
-    setVar(target, key)
-    regisHandler(target, key, {
+  return (proto: any, key: PropertyKey) => {
+    setVar(proto, key)
+    regisHandler(proto, key, {
       error: cb,
     })
   }
 }
 
-export function Expose(target: any, key: PropertyKey) {
-  setExposeKey(target, key)
+export function Expose(proto: any, key: PropertyKey) {
+  setExposeKey(proto, key)
 }
 
 export function To(cb: (arg: any, instance: any, key: string) => any) {
@@ -74,18 +74,19 @@ export function To(cb: (arg: any, instance: any, key: string) => any) {
 }
 
 export function Tag(tag: string) {
-  return (target: any) => {
-    init(target.prototype)
+  return (proto: any) => {
+    console.log(proto,'tag')
+    init(proto.prototype)
 
-    target.prototype.__TAG__ = tag
+    proto.prototype.__TAG__ = tag
   }
 }
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
-  return (target: any) => {
-    init(target.prototype)
-    setVar(target.prototype, '__CLASS')
-    regisHandler(target.prototype, '__CLASS', {
+  return (proto: any) => {
+    init(proto.prototype)
+    setVar(proto.prototype, '__CLASS')
+    regisHandler(proto.prototype, '__CLASS', {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -97,10 +98,10 @@ export function Assign(cb: (instance?: any) => any) {
   }
 }
 
-export function Global(target: any) {
-  init(target.prototype)
-  setVar(target.prototype, '__CLASS')
-  regisHandler(target.prototype, '__CLASS', {
+export function Global(proto: any) {
+  init(proto.prototype)
+  setVar(proto.prototype, '__CLASS')
+  regisHandler(proto.prototype, '__CLASS', {
     init: async (instance: any) => {
       const tag = instance.__TAG__
       if (!tag)

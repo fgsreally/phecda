@@ -1,13 +1,24 @@
 // custom decorator
 
 import { init, regisHandler, setVar } from '../core'
-import { getProperty } from '../namespace'
 import type { Events } from '../types'
 
+export const activeInstance: Record<string, any> = {}
+
+export function injectProperty(key: string, value: any) {
+  activeInstance[key] = value
+  return activeInstance
+}
+
+export function getProperty(key: string) {
+  return activeInstance[key]
+}
+
+
 export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
-  return (obj: any, key: string) => {
-    setVar(obj, key)
-    regisHandler(obj, key, {
+  return (proto: any, key: string) => {
+    setVar(proto, key)
+    regisHandler(proto, key, {
       init(instance: any) {
         getProperty('watcher')?.({ eventName, instance, key, options })
       },
@@ -16,9 +27,9 @@ export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
 }
 
 export function Effect(eventName: string, options?: any) {
-  return (obj: any, key: string) => {
-    setVar(obj, key)
-    regisHandler(obj, key, {
+  return (proto: any, key: string) => {
+    setVar(proto, key)
+    regisHandler(proto, key, {
       init(instance: any) {
         instance[`$_${key}`] = instance[key]
         Object.defineProperty(instance, key, {
@@ -37,27 +48,27 @@ export function Effect(eventName: string, options?: any) {
 }
 
 export function Storage(storeKey?: string) {
-  return (target: any, key?: PropertyKey) => {
+  return (proto: any, key?: PropertyKey) => {
     let tag: string
 
     if (key) {
-      init(target)
-      tag = storeKey || target.__TAG__
+      init(proto)
+      tag = storeKey || proto.__TAG__
       const uniTag = Symbol(tag)
 
-      setVar(target, uniTag)
-      regisHandler(target, uniTag, {
+      setVar(proto, uniTag)
+      regisHandler(proto, uniTag, {
         init: (instance: any) => {
           getProperty('storage')?.({ instance, key, tag })
         },
       })
     }
     else {
-      init(target.prototype)
-      tag = storeKey || `${target.prototype.__TAG__}_${key}`
+      init(proto.prototype)
+      tag = storeKey || `${proto.prototype.__TAG__}_${key}`
       const uniTag = Symbol(tag)
-      setVar(target.prototype, uniTag)
-      regisHandler(target.prototype, uniTag, {
+      setVar(proto.prototype, uniTag)
+      regisHandler(proto.prototype, uniTag, {
         init: (instance: any) => {
           getProperty('storage')?.({ instance, key: '', tag })
         },
