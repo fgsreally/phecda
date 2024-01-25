@@ -1,5 +1,5 @@
 import { fileURLToPath, pathToFileURL } from "url";
-import { watch,existsSync } from "fs";
+import { watch, existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
@@ -26,7 +26,7 @@ const host = {
 
 let unimportRet;
 
-const dtsPath='ps.d.ts'
+const dtsPath = "ps.d.ts";
 
 export async function initialize(data) {
   port = data.port;
@@ -35,8 +35,8 @@ export async function initialize(data) {
 
   if (unimportRet) {
     log("auto import...");
-    if(!existsSync(dtsPath))
-    writeFile(dtsPath, await unimportRet.generateTypeDeclarations());
+    if (!existsSync(dtsPath))
+      writeFile(dtsPath, await unimportRet.generateTypeDeclarations());
   }
 }
 
@@ -142,6 +142,11 @@ export const load = async (url, context, nextLoad) => {
         }
       })
     );
+  }
+    //resolveModuleName failed
+    // I don't know why it failed
+  if (!context.format && url.endsWith(".ts")) {
+    context.format = "ts";
   }
 
   if (context.format === "ts") {
