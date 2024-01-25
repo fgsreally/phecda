@@ -1,10 +1,10 @@
 import { fileURLToPath, pathToFileURL } from "url";
-import { watch,existsSync } from "fs";
+import { watch, existsSync } from "fs";
 import { writeFile } from "fs/promises";
 import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
 import { compile, genUnImportRet } from "./utils.mjs";
-import { log } from "../dist/index.mjs";
+import { log, PS_FILE_RE } from "../dist/index.mjs";
 
 let port;
 
@@ -26,17 +26,21 @@ const host = {
 
 let unimportRet;
 
-const dtsPath='ps.d.ts'
+const dtsPath = "ps.d.ts";
 
 export async function initialize(data) {
   port = data.port;
+
+  if (process.env.PS_NO_DTS) {
+    return;
+  }
 
   unimportRet = await genUnImportRet();
 
   if (unimportRet) {
     log("auto import...");
-    if(!existsSync(dtsPath))
-    writeFile(dtsPath, await unimportRet.generateTypeDeclarations());
+    if (!existsSync(dtsPath))
+      writeFile(dtsPath, await unimportRet.generateTypeDeclarations());
   }
 }
 
@@ -143,6 +147,11 @@ export const load = async (url, context, nextLoad) => {
       })
     );
   }
+  //resolveModuleName failed
+  // I don't know why it failed
+  if (!context.format && url.endsWith(".ts")) {
+    context.format = "ts";
+  }
 
   if (context.format === "ts") {
     const { source } = await nextLoad(url, context);
@@ -193,16 +202,5 @@ function debounce(cb, timeout = 500) {
 }
 
 export function isModuleFileUrl(url) {
-  return (
-    url.endsWith(".controller.ts") ||
-    url.endsWith(".service.ts") ||
-    url.endsWith(".route.ts") ||
-    url.endsWith(".module.ts") ||
-    url.endsWith(".rpc.ts") ||
-    url.endsWith(".guard.ts") ||
-    url.endsWith(".interceptor.ts") ||
-    url.endsWith(".pipe.ts") ||
-    url.endsWith(".plugin.ts") ||
-    url.endsWith(".filter.ts")
-  );
+  return PS_FILE_RE.test(url);
 }

@@ -4,7 +4,7 @@ import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from
 import type { Exception } from '../exception'
 import { Dev } from './dev'
 
-export interface PModule<C extends P.BaseContext = any,E extends Exception = Exception> {
+export interface PExtension<C extends P.BaseContext = any,E extends Exception = Exception> {
 
   intercept( ctx: C): Function | Promise<Function> | any
 
@@ -17,7 +17,7 @@ export interface PModule<C extends P.BaseContext = any,E extends Exception = Exc
   plugin(...args: any): void
 }
 
-export class PModule extends Dev {
+export class PExtension extends Dev {
   readonly key: string
 
   constructor(tag?: string) {

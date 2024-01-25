@@ -13,6 +13,9 @@ export function log(msg: string, level: 'error' | 'info' | 'warn' = 'info') {
   console.log(`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)} ${pc.gray(interval)}`)
 }
 
+/**
+ * @deprecated
+ */
 export function getConfig<C = any>(key: string, defaultConf?: C): C {
   if (!DataMap[key]) {
     if (defaultConf)
@@ -22,7 +25,9 @@ export function getConfig<C = any>(key: string, defaultConf?: C): C {
 
   return DataMap[key]
 }
-
+/**
+ * @deprecated
+ */
 export function setConfig<C = any>(key: string, conf: C, force = true) {
   if (DataMap[key] && !force)
     return
