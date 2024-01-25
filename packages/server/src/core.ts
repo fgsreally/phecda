@@ -187,8 +187,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 }
 
 function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
-  const vars = getExposeKey(instance).filter(item => item !== '__CLASS')
-  const baseState = (getState(instance, '__CLASS') || {}) as P.MetaData
+  const vars = getExposeKey(instance).filter(item => item !== SHARE_KEY)
+  const baseState = (getState(instance, SHARE_KEY) || {}) as P.MetaData
   initState(baseState)
 
   return vars.map((i) => {

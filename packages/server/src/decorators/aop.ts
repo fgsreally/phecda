@@ -3,8 +3,8 @@ import { setVar, setState } from 'phecda-core'
 export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
 
     setVar(target, key)
 
@@ -19,8 +19,8 @@ export function Guard(...guards: string[]): any {
 export function Plugin(...plugins: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
 
     setVar(target, key)
 
@@ -35,8 +35,8 @@ export function Plugin(...plugins: string[]): any {
 export function Interceptor(...interceptors: string[]): any {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
 
     setVar(target, key)
 
@@ -50,8 +50,8 @@ export function Interceptor(...interceptors: string[]): any {
 export function Filter(filter: string): any {
   return (target: any, key?: PropertyKey) => {
     if (!key)
-      key = '__CLASS'
-    target = key === '__CLASS' ? target.prototype : target
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
 
     setVar(target, key)
 

@@ -15,7 +15,7 @@ export function Header(name: string, value: string) {
 export function Define(key: string, value: any) {
   return (target: any, k?: PropertyKey) => {
     if (!k) {
-      k = '__CLASS'
+      k = SHARE_KEY
       target = target.prototype
     }
 

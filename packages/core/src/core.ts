@@ -6,7 +6,9 @@ export function isPhecda(module: any) {
   }
   return false
 }
-
+// 有的时候，类上多个方法、属性需要共用一些东西
+// SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
+export const SHARE_KEY = Symbol('phecda-core')
 
 export function init(proto: Phecda) {
   if (!proto)
@@ -15,7 +17,7 @@ export function init(proto: Phecda) {
   if (!proto.hasOwnProperty('_namespace')) {
     proto._namespace = {
 
-  
+
       /**
          * 暴露的变量，
          * 只要属性上存在至少一个装饰器，该属性就会被捕捉到

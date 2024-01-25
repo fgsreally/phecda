@@ -1,6 +1,8 @@
 import { plainToClass, transformClass } from './helper'
 import { init, regisHandler, setExposeKey, setIgnoreKey, setVar, setState } from './core'
 import type { InjectData } from './types'
+import { SHARE_KEY } from './core'
+
 
 export function Init(proto: any, key: PropertyKey) {
   setVar(proto, key)
@@ -22,18 +24,7 @@ export function Bind(value: any) {
   }
 }
 
-// export function Rule(rule: RegExp | string | ((arg: any) => Promise<boolean> | boolean | 'ok') | number,
-//   info: string | ((k: string, tag: string) => string),
-//   meta?: any) {
-//   return (obj: any, key: PropertyKey) => {
-//     setVar(obj, key)
-//     regisHandler(obj, key, {
-//       rule,
-//       info,
-//       meta,
-//     })
-//   }
-// }
+
 
 export function Ignore(proto: any, key: PropertyKey) {
   setIgnoreKey(proto, key)
@@ -74,19 +65,17 @@ export function To(cb: (arg: any, instance: any, key: string) => any) {
 }
 
 export function Tag(tag: string) {
-  return (proto: any) => {
-    console.log(proto,'tag')
-    init(proto.prototype)
-
-    proto.prototype.__TAG__ = tag
+  return (module: any) => {
+    init(module.prototype)
+    module.prototype.__TAG__ = tag
   }
 }
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
-  return (proto: any) => {
-    init(proto.prototype)
-    setVar(proto.prototype, '__CLASS')
-    regisHandler(proto.prototype, '__CLASS', {
+  return (module: any) => {
+    init(module.prototype)
+    setVar(module.prototype, SHARE_KEY)
+    regisHandler(module.prototype, SHARE_KEY, {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -98,10 +87,10 @@ export function Assign(cb: (instance?: any) => any) {
   }
 }
 
-export function Global(proto: any) {
-  init(proto.prototype)
-  setVar(proto.prototype, '__CLASS')
-  regisHandler(proto.prototype, '__CLASS', {
+export function Global(module: any) {
+  init(module.prototype)
+  setVar(module.prototype, SHARE_KEY)
+  regisHandler(module.prototype, SHARE_KEY, {
     init: async (instance: any) => {
       const tag = instance.__TAG__
       if (!tag)
@@ -113,8 +102,8 @@ export function Global(proto: any) {
   })
 }
 
-export function Empty(_target: any) {
-  init(_target.prototype)
+export function Empty(module: any) {
+  init(module.prototype)
 }
 
 export const DataMap = {} as InjectData
@@ -132,9 +121,9 @@ export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
   return DataMap[key] || EmptyProxy/** work for @Inject(x)(...) */
 }
 
-export function Nested<M extends new (...args: any) => any>(Model: M) {
+export function Nested<M extends new (...args: any) => any>(module: M) {
   return To(async (property) => {
-    const instance = plainToClass(Model, property)
+    const instance = plainToClass(module, property)
 
     const err = await transformClass(instance)
     if (err.length > 0)
