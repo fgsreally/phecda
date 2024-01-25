@@ -4,7 +4,7 @@ import { writeFile } from "fs/promises";
 import { extname, isAbsolute, relative } from "path";
 import ts from "typescript";
 import { compile, genUnImportRet } from "./utils.mjs";
-import { log,PS_FILE_RE } from "../dist/index.mjs";
+import { log, PS_FILE_RE } from "../dist/index.mjs";
 
 let port;
 
@@ -30,6 +30,10 @@ const dtsPath = "ps.d.ts";
 
 export async function initialize(data) {
   port = data.port;
+
+  if (process.env.PS_NO_DTS) {
+    return;
+  }
 
   unimportRet = await genUnImportRet();
 
@@ -143,8 +147,8 @@ export const load = async (url, context, nextLoad) => {
       })
     );
   }
-    //resolveModuleName failed
-    // I don't know why it failed
+  //resolveModuleName failed
+  // I don't know why it failed
   if (!context.format && url.endsWith(".ts")) {
     context.format = "ts";
   }
@@ -198,5 +202,5 @@ function debounce(cb, timeout = 500) {
 }
 
 export function isModuleFileUrl(url) {
-  return PS_FILE_RE.test(url)
+  return PS_FILE_RE.test(url);
 }
