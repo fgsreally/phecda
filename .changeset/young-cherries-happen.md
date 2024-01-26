@@ -1,5 +1,6 @@
 ---
-"phecda-core": patch
+"phecda-core": major
 ---
 
-there is too much simple fix and some functions seem useless; I think a break change is essential
+there is too much simple fix and some functions seem useless in phecda;
+I think a break change is essential
