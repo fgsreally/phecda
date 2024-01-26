@@ -1,5 +1,17 @@
 # phecda-server
 
+## 5.0.0-alpha.4
+
+### Major Changes
+
+- fc8db58: there is too much simple fix and some functions seem useless in phecda;
+  I think a break change is essential
+
+### Patch Changes
+
+- Updated dependencies [fc8db58]
+  - phecda-core@3.0.0-alpha.1
+
 ## 4.1.2-alpha.3
 
 ### Patch Changes

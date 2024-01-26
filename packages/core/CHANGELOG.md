@@ -1,5 +1,12 @@
 # phecda-core
 
+## 3.0.0-alpha.1
+
+### Major Changes
+
+- fc8db58: there is too much simple fix and some functions seem useless in phecda;
+  I think a break change is essential
+
 ## 2.1.2-alpha.0
 
 ### Patch Changes
