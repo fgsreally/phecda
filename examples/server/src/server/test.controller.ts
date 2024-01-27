@@ -24,6 +24,11 @@ export class TestController extends Dev {
     addPlugin('aa', () => {})
   }
 
+  @Init
+  init() {
+    console.log('init!')
+  }
+
   @Post('/mq')
   async mq(@Body('') body: undefined) {
     return body

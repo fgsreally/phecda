@@ -2,4 +2,4 @@
 "phecda-server": patch
 ---
 
-cli can relunch even throw unhandle promise/uncaugth exception
+cli can relaunch even throw unhandle promise/uncaugth exception
