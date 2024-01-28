@@ -163,7 +163,7 @@ export const load = async (url, context, nextLoad) => {
     const code
       = typeof source === 'string' ? source : Buffer.from(source).toString()
     const compiled = await compile(code, url)
-    if (unimportRet && isModuleFileUrl(url)) {
+    if (unimportRet) {
       const { injectImports } = unimportRet
       return {
         format: 'module',
