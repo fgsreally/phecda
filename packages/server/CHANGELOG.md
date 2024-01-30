@@ -33,7 +33,7 @@
 
 - cc22f20: child process can exit correctly
 - 1cc36e2: ps cli support nodejs command line args
-- 090b742: cli can relunch even throw unhandle promise/uncaugth exception
+- 090b742: cli can relaunch even throw unhandle promise/uncaugth exception
 - 048b9ee: can set NODE_ENV when using phecda-server/register
 
 ## 4.1.2-alpha.0
@@ -165,7 +165,7 @@
 - 738ef7a: won't output metaFile if file is empty
 - 95a0564: add context to rpc
 - 9c023e7: rename symbol and global function. bind modulemap/metat to req
-- e43bc19: stdin can relunch/exit process (even in windows)
+- e43bc19: stdin can relaunch/exit process (even in windows)
 - ec66a44: support multple pipe
 - da1a0bb: http compiler will pass args
 - Updated dependencies [4c4c45a]
@@ -268,7 +268,7 @@
 
 - 474587f: server still work even when specific interceptor/guard/middleware doesn't exist (set process.env.PS_STRICT will avoid it)
 - 9c023e7: rename symbol and global function. bind modulemap/metat to req
-- e43bc19: stdin can relunch/exit process (even in windows)
+- e43bc19: stdin can relaunch/exit process (even in windows)
 
 ## 3.2.0-alpha.1
 

@@ -2,7 +2,7 @@
 import Redis from 'ioredis'
 import { bind } from 'phecda-server/redis'
 import { Factory } from 'phecda-server'
-import { TestRpc } from '../test.controller'
+import { TestRpc } from '../test.rpc'
 async function start() {
   const data = await Factory([TestRpc], {
     rpc: 'src/rpc/redis.ts',

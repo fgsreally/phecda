@@ -29,21 +29,20 @@ get(){
 > 推荐使用，这可以提供热更新、依赖注入等功能
 
 ```ts
-import { PPlugin } from "phecda-server";
+import { PPlugin } from 'phecda-server'
 @Tag('test')
 class test extends PPlugin {
-constructor(){
-    super('test')//可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
-}
+  constructor() {
+    super('test')// 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
+  }
 
   use() {
-    //...
+    // ...
   }
 }
 // in main.ts
 
 Factory([test])
-
 ```
 
 

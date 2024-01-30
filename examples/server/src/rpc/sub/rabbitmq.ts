@@ -2,7 +2,7 @@
 import amqp from 'amqplib'
 import { bind } from 'phecda-server/rabbitmq'
 import { Factory } from 'phecda-server'
-import { TestRpc } from '../test.controller'
+import { TestRpc } from '../test.rpc'
 async function start() {
   const data = await Factory([TestRpc], {
     rpc: 'src/rpc/mq.ts',
