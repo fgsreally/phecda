@@ -8,9 +8,11 @@
 3. 基于依赖注入的`phecda-core`标准，
 :::
 
-> 我认为它在`monorepo`项目上能够提供一流的体验与标准，我目前正在多个项目中实践`phecda-server`
-> 即使是大型项目,由于渐进+低侵入，迁移上手简单，风险低
-> 目前支持`express`/`fastify`/`h3`/`koa`,微服务支持`redis`/`rabbitmq`
+ 我认为它在`monorepo`项目上能够提供一流的体验与标准，我目前正在多个项目中实践`phecda-server`
+
+ 即使是大型项目,由于渐进+低侵入，迁移上手简单，风险低
+
+ 目前支持`express`/`fastify`/`h3`/`koa`,微服务支持`redis`/`rabbitmq`
 
 
 ## 灵感来源

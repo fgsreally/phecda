@@ -40,22 +40,21 @@ bindApp(app, data, {
 > 推荐使用，这可以提供热更新、依赖注入等功能
 
 ```ts
-import { PInterceptor } from "phecda-server";
-import type {ExpressCtx} from 'phecda-server/express'
+import { PInterceptor } from 'phecda-server'
+import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('Cache')
 class Cache extends PInterceptor<ExpressCtx> {
-constructor(){
-    super('Cache')//可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
-}
+  constructor() {
+    super('Cache')// 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
+  }
 
-  use(ctx:ExpressCtx) {
-    //...
+  use(ctx: ExpressCtx) {
+    // ...
   }
 }
 // in main.ts
 
 Factory([Cache])
-
 ```
 

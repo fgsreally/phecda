@@ -26,7 +26,6 @@ export class TestController extends Dev {
 
   @Init
   init() {
-    console.log('init!')
   }
 
   @Post('/mq')

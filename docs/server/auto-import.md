@@ -12,12 +12,10 @@ npm i unimport -save-dev
 
 ```json
 {
-    "include":["p.d.ts"]
+  "include": ["p.d.ts"]
 }
-
 ```
-只会对模块文件（如`xx.(module/controller/rpc/service/...).ts`）默认引入
-
+会对所有`ts`文件引入
 
 ## 想法
 

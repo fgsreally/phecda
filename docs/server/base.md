@@ -20,7 +20,7 @@ data.modulemap.get('test2') //  Test2Module 实例,此时使用了tag
 然后在将实例和服务端框架结合
 
 <details>
-<summary>EXpress</summary><br>
+<summary>Express</summary><br>
 
 ```ts
 import { bindApp } from 'phecda-server/express'
@@ -153,7 +153,7 @@ const {request,response}=this.context//必须在函数顶部
 
 ```ts
 import { Controller, Get, Param } from 'phecda'
-@Injectable()//具体可以看`模块`这一章
+@Injectable()// 具体可以看`模块`这一章
 class TestService {
   test() {
     return 1

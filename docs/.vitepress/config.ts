@@ -29,7 +29,7 @@ export default defineConfig({
     nav: [
       { text: '/', link: '/core/', activeMatch: '/core/' },
 
-      { text: 'server', link: '/server/', activeMatch: '/server/' },
+      { text: 'server', link: '/server/intro', activeMatch: '/server/' },
       // { text: '框架封装', link: '/pack/', activeMatch: '/pack/' },
 
     ],
@@ -103,7 +103,7 @@ export default defineConfig({
       '/server/': [
         {
           text: 'phecda-server',
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: 'intro',
@@ -123,7 +123,7 @@ export default defineConfig({
         },
         {
           text: 'aop装饰器',
-          collapsible: false,
+          collapsed: false,
           items: [
             {
               text: '守卫',
@@ -152,17 +152,26 @@ export default defineConfig({
           ],
         },
         {
-          text: 'advance',
-          collapsible: false,
+          text: '调用',
+          collapsed: false,
+          items: [
+            {
+              text: '插件',
+              link: '/server/client/plugin',
+            }, {
+              text: 'npm',
+              link: '/server/client/plugin',
+            }],
+        },
+        {
+          text: '进一步',
+          collapsed: false,
           items: [
             {
               text: '专用路由',
               link: '/server/route',
             },
-            {
-              text: '客户端',
-              link: '/server/client',
-            },
+
             {
               text: '规范',
               link: '/server/rule',
@@ -193,7 +202,7 @@ export default defineConfig({
         },
         {
           text: '其他',
-          collapsible: true,
+          collapsed: true,
           items: [
             {
               text: '和其他框架比较',
