@@ -8,17 +8,27 @@ const cmd = process.argv.slice(2)
 let child
 
 let closePromise
+const nodeVersion = parseFloat(process.version.slice(1))
+
+if (nodeVersion <= 18.18) {
+  log('Nodejs version must be later than 18.18', 'red')
+  process.exit(0)
+}
 
 function startChild() {
   child = fork(cmd[0], {
     env: { NODE_ENV: 'development', ...process.env },
     stdio: 'inherit',
-    execArgv: ['--import=phecda-server/register', ...cmd.slice(1)],
+    execArgv: [
+      '--import=phecda-server/register',
+      ...cmd.slice(1),
+    ],
   })
 
   closePromise = new Promise((resolve) => {
     child.once('exit', (code) => {
-      if (code >= 2) { // for relaunch
+      if (code >= 2) {
+        // for relaunch
         log('relaunch...')
         startChild()
       }
@@ -106,8 +116,7 @@ process.stdin.on('data', async (data) => {
       (err) => {
         if (err)
           log('writeFile filled', 'red')
-        else
-          log(`create controller at ${path}`)
+        else log(`create controller at ${path}`)
       },
     )
   }
@@ -127,8 +136,7 @@ process.stdin.on('data', async (data) => {
       (err) => {
         if (err)
           log('writeFile filled', 'red')
-        else
-          log(`create service at ${path}`)
+        else log(`create service at ${path}`)
       },
     )
   }
@@ -149,8 +157,7 @@ process.stdin.on('data', async (data) => {
       (err) => {
         if (err)
           log('writeFile filled', 'red')
-        else
-          log(`create module at ${path}`)
+        else log(`create module at ${path}`)
       },
     )
   }
