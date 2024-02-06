@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- 2f11e38: replace fs.watch with chokidar
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes
