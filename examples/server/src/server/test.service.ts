@@ -20,7 +20,7 @@ abstract class BaseService<T extends new (...args: any) => any> extends Dev {
   }
 
   find() {
-    return 'find!'
+    return 'find!!'
   }
 }
 

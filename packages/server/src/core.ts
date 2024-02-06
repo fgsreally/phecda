@@ -112,6 +112,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       return { instance, tag }
     }
     moduleMap.set(tag, undefined)
+    debug(`instantiate module "${tag}"`)
+
     if (paramtypes) {
       const paramtypesInstances = [] as any[]
       for (const i in paramtypes) {
@@ -121,13 +123,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
           moduleGraph.set(subTag, new Set())
         moduleGraph.get(subTag)!.add(tag)
       }
-      debug(`instantiate module "${tag}"`)
 
       instance = new Module(...paramtypesInstances)
     }
     else {
-      debug(`instantiate module "${tag}"`)
-
       instance = new Module()
     }
     meta.push(...getMetaFromInstance(instance, tag, Module.name))

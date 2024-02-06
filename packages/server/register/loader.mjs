@@ -1,11 +1,11 @@
 import { fileURLToPath, pathToFileURL } from 'url'
-import { existsSync, watch } from 'fs'
+import { existsSync } from 'fs'
 import { writeFile } from 'fs/promises'
 import { extname, isAbsolute, relative } from 'path'
 import ts from 'typescript'
+import chokidar from 'chokidar'
 import { PS_FILE_RE, log } from '../dist/index.mjs'
 import { compile, genUnImportRet } from './utils.mjs'
-
 let port
 
 // this part is important or not?
@@ -127,27 +127,49 @@ export const load = async (url, context, nextLoad) => {
     && !watchFiles.has(url)
   ) {
     watchFiles.add(url)
-    watch(
-      fileURLToPath(url),
-      debounce((type) => {
-        if (type === 'change') {
-          try {
-            const files = [...findTopScope(url, Date.now())].reverse()
+    // watch(
+    //   fileURLToPath(url),
+    //   debounce((type) => {
+    //     if (type === 'change') {
+    //       try {
+    //         const files = [...findTopScope(url, Date.now())].reverse()
 
-            port.postMessage(
-              JSON.stringify({
-                type: 'change',
-                files,
-              }),
-            )
-          }
-          catch (e) {
-            port.postMessage(
-              JSON.stringify({
-                type: 'relaunch',
-              }),
-            )
-          }
+    //         port.postMessage(
+    //           JSON.stringify({
+    //             type: 'change',
+    //             files,
+    //           }),
+    //         )
+    //       }
+    //       catch (e) {
+    //         port.postMessage(
+    //           JSON.stringify({
+    //             type: 'relaunch',
+    //           }),
+    //         )
+    //       }
+    //     }
+    //   }),
+    // )
+    chokidar.watch(fileURLToPath(url), { persistent: true }).on(
+      'change',
+      debounce(() => {
+        try {
+          const files = [...findTopScope(url, Date.now())].reverse()
+
+          port.postMessage(
+            JSON.stringify({
+              type: 'change',
+              files,
+            }),
+          )
+        }
+        catch (e) {
+          port.postMessage(
+            JSON.stringify({
+              type: 'relaunch',
+            }),
+          )
         }
       }),
     )
