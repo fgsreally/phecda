@@ -46,7 +46,8 @@
       "import": "./dist/rpc/rabbitmq/index.mjs",
       "require": "./dist/rpc/rabbitmq/index.js"
     },
-    "./register": "./register/index.mjs"
+    "./register": "./register/index.mjs",
+    "./*": "./*"
   },
   "typesVersions": {
     "*": {

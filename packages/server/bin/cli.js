@@ -10,17 +10,15 @@ let child
 let closePromise
 const nodeVersion = parseFloat(process.version.slice(1))
 
-if (nodeVersion <= 18.18) {
-  log('Nodejs version must be later than 18.18', 'red')
-  process.exit(0)
-}
+if (nodeVersion < 18.18)
+  log(`Nodejs version less than 18.18(current is ${nodeVersion}) can't support hmr`, 'yellow')
 
 function startChild() {
   child = fork(cmd[0], {
     env: { NODE_ENV: 'development', ...process.env },
     stdio: 'inherit',
     execArgv: [
-      '--import=phecda-server/register',
+      nodeVersion < 18.18 ? '--loader=phecda-server/register/loader.mjs' : '--import=phecda-server/register',
       ...cmd.slice(1),
     ],
   })
