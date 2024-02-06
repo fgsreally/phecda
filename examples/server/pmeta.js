@@ -2,7 +2,7 @@
         export class TestController{
             
     mq(...args){
-const ret={tag:"test-mq",body:{},headers:{},query:{},params:{},method:"post",url:"/base/mq",args}
+const ret={tag:"test-mq",body:{},headers:{},query:{},params:{},method:"post",url:"/base/mq1",args}
 
 ret.body=args[0]
 

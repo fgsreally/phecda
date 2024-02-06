@@ -46,7 +46,8 @@
       "import": "./dist/rpc/rabbitmq/index.mjs",
       "require": "./dist/rpc/rabbitmq/index.js"
     },
-    "./register": "./register/index.mjs"
+    "./register": "./register/index.mjs",
+    "./*": "./*"
   },
   "typesVersions": {
     "*": {
@@ -99,6 +100,7 @@
     "@types/koa__router": "^12.0.4",
     "@types/supertest": "^2.0.12",
     "amqplib": "^0.10.3",
+    "chokidar": "^3.5.3",
     "express": "^4.18.2",
     "fastify": "^4.25.1",
     "h3": "^1.9.0",

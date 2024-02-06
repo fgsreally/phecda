@@ -28,7 +28,7 @@ export class TestController extends Dev {
   init() {
   }
 
-  @Post('/mq')
+  @Post('/mq1')
   async mq(@Body('') body: undefined) {
     return body
   }
