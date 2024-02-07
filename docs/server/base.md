@@ -20,7 +20,7 @@ data.modulemap.get('test2') //  Test2Module 实例,此时使用了tag
 然后在将实例和服务端框架结合
 
 <details>
-<summary>Express</summary><br>
+<summary>Express</summary>
 
 ```ts
 import { bindApp } from 'phecda-server/express'
@@ -31,39 +31,58 @@ const router = express.Router()
 bindApp(router, data)// work for router
 ```
 
-<br></details>
+</details>
 
 
 <details>
-<summary>Fastify</summary><br>
+<summary>Fastify</summary>
 
 ```ts
-// rollup.config.js
 import { bindApp } from 'phecda-server/fastify'
-const fastify = Fastify({
+const app = Fastify({
   logger: true,
 })
 
-fastify.register(bindApp(data))
+app.register(bindApp(app, data))
 ```
 
-<br></details>
-
+</details>
 
 <details>
-<summary>h3</summary><br>
+<summary>koa</summary>
 
 ```ts
-// rollup.config.js
+import Koa from 'koa'
+import { koaBody } from 'koa-body'
+import Router from '@koa/router'
+import { bindApp } from 'phecda-server/koa'
+import { Factory } from 'phecda-server'
+import { TestController } from './test.controller'
+const data = await Factory([TestController], {
+  http: 'pmeta.js',
+})
+const app = new Koa()
+const router = new Router()
+
+app.use(koaBody())
+
+bindApp(router, data)
+app.use(router.routes()).use(router.allowedMethods())
+```
+
+</details>
+<details>
+<summary>h3</summary>
+
+```ts
 import { bindApp } from 'phecda-server/h3'
 
 const router = createRouter()
 bindApp(router, data)
 ```
 
-<br></details>
+</details>
 
-[详见]()
 
 ## 创建接口
 
@@ -147,7 +166,7 @@ const {request,response}=this.context//必须在函数顶部
 
 
 
-# 创建服务
+## 创建服务
 
 只有一个 controller 显然过于单薄，controller 应可以调用`服务` 从而有更优雅的实现
 

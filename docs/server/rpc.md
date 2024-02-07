@@ -26,7 +26,7 @@ export class TestRpc {
 
 
 <details>
-<summary>Rabbitmq</summary><br>
+<summary>Rabbitmq</summary>
 
 服务方
 ```ts
@@ -66,10 +66,10 @@ const nullRet = client.test.event('event')
 
 console.log(`return with ${nullRet}`)
 ```
-<br></details>
+</details>
 
 <details>
-<summary>Redis</summary><br>
+<summary>Redis</summary>
 
 服务方
 ```ts
@@ -106,7 +106,7 @@ const nullRet = client.test.event('event')
 
 console.log(`return with ${nullRet}`)
 ```
-<br></details>
+</details>
 
 :::info 注意
 

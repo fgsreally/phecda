@@ -1,13 +1,41 @@
 # 管道
-> 运行在拦截器之后
 
-显然，我们需要对参数进行一些处理（主要是验证），可以为参数选择指定管道！
-默认使用`default`管道,其效果如下
+运行在拦截器之后，主要用于验证参数
+
+一个参数，只能使用一个管道
+
+```ts
+import { Controller, Factory, PPipe, Pipe, Post, Query } from 'phecda-server'
+import type { ExpressCtx } from 'phecda-server/express'
+@Tag('Validate')
+class Validate extends PPipe<ExpressCtx> {
+  constructor() {
+    super('Validate') // 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
+  }
+
+  use(ctx: ExpressCtx) {
+    // ...
+  }
+}
+// in main.ts
+@Controller('/test')
+class TestController {
+  @Post()
+  test4(@Query() @Pipe('Validate') name: number) {
+    // 使用test 管道
+  }
+}
+Factory([Validate, TestController])
+```
+
+## 默认
+没有设置管道时，默认使用`default`管道,效果如下
 
 ```ts
 import { Body, Controller, Post, To } from 'phecda-server'
 
 class BodyData {
+  // 当请求体中的 age 为 17，就会报错，为 19 的话，body.age 就会得到 20
   @To((param: any) => {
     if (age < 18)
       throw new Error('too young')
@@ -16,56 +44,14 @@ class BodyData {
   age: number
 }
 
-@Controller('/test')
+@Controller('/Validate')
 class TestController {
   @Post()
   test4(@Body() body: BodyDatas) {}
 }
 ```
 
-当请求体中的 age 为 17，就会报错，为 19 的话，body.age 就会得到 20
 
-你也可以设置 pipe
+如果你不怎么欣赏这个效果，可以设置一个`default`管道，从而顶替掉内置的管道
 
-```ts
-import { Controller, Pipe, Post, Query, To, addPipe } from 'phecda-server'
-import type { ExpressCtx } from 'phecda-server/express'
-
-addPipe<ExpressCtx>('test', ({ arg, reflect }) => {
-  // reflect:Number 元数据
-  return reflect(arg)
-  // 将query的参数类型转为 number
-})
-
-@Controller('/test')
-class TestController {
-  @Post()
-  test4(@Query() @Pipe('test') name: number) {
-    // 使用test 管道
-  }
-}
-```
-
-但一个参数，只能使用一个管道
-
-## 模块化
-
-> 推荐使用，这可以提供热更新、依赖注入等功能
-
-```ts
-import { PPipe } from 'phecda-server'
-import type { ExpressCtx } from 'phecda-server/express'
-@Tag('test')
-class test extends PPipe<ExpressCtx> {
-  constructor() {
-    super('test')// 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
-  }
-
-  use(ctx: ExpressCtx) {
-    // ...
-  }
-}
-// in main.ts
-
-Factory([test])
-```
+> 将上述的`Validate`改为`default`即可
