@@ -17,7 +17,10 @@
     "phecda-vue": "2.1.2"
   },
   "changesets": [
+    "blue-chicken-destroy",
     "curly-glasses-clap",
+    "eleven-parrots-suffer",
+    "gorgeous-toys-pay",
     "lazy-rockets-invent",
     "long-chefs-swim",
     "new-ligers-smell",
