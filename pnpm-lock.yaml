@@ -402,6 +402,9 @@ importers:
       ioredis-mock:
         specifier: ^8.9.0
         version: registry.npmmirror.com/ioredis-mock@8.9.0(@types/ioredis-mock@8.2.5)(ioredis@5.3.2)
+      kafkajs:
+        specifier: ^2.2.4
+        version: 2.2.4
       koa:
         specifier: ^2.14.2
         version: registry.npmmirror.com/koa@2.14.2
@@ -3647,6 +3650,11 @@ packages:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
       graceful-fs: 4.2.10
+    dev: true
+
+  /kafkajs@2.2.4:
+    resolution: {integrity: sha512-j/YeapB1vfPT2iOIUn/vxdyKEuhuY2PxMBvf5JWux6iSaukAccrMtXEY/Lb7OvavDhOWME589bpLrEdnVHjfjA==}
+    engines: {node: '>=14.0.0'}
     dev: true
 
   /levn@0.3.0:
@@ -12494,7 +12502,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': registry.npmmirror.com/@types/node@18.11.18
+      '@types/node': 18.11.18
       esbuild: registry.npmmirror.com/esbuild@0.18.20
       postcss: registry.npmmirror.com/postcss@8.4.31
       rollup: registry.npmmirror.com/rollup@3.29.4

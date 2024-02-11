@@ -1,19 +1,18 @@
 import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
-import type amqplib from 'amqplib'
+import type { Kafka } from 'kafkajs'
 import type { ToControllerMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S): Promise<ToControllerMap<S>> {
+export async function createClient<S extends Record<string, any>>(kafka: Kafka, topic: string, controllers: S): Promise<ToControllerMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
-  const uniQueue = `PS:${queue}-${randomUUID()}`
+  const uniQueue = `PS:${topic}-${randomUUID()}`
+  const producer = kafka.producer()
+  await producer.connect()
 
-  await ch.assertQueue(uniQueue)
-  ch.consume(uniQueue, (msg) => {
-    if (!msg)
-      return
-    const { data, id, error } = JSON.parse(msg.content.toString())
-    emitter.emit(id, data, error)
-  })
+  const consumer = kafka.consumer({ groupId: 'phecda-server' })
+  await consumer.connect()
+
+  await consumer.subscribe({ topic: uniQueue, fromBeginning: true })
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -26,16 +25,20 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
         if (!rpc.includes('mq'))
           throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
         return (...args: any) => {
-          ch.sendToQueue(queue, Buffer.from(
-            JSON.stringify(
+          producer.send({
+            topic,
+            messages: [
               {
-                id,
-                tag,
-                args,
-                queue: isEvent ? undefined : uniQueue,
+                value: JSON.stringify({
+                  id,
+                  tag,
+                  args,
+                  queue: isEvent ? undefined : uniQueue,
+                }),
               },
-            ),
-          ))
+            ],
+          })
+
           if (isEvent)
             return null
 
