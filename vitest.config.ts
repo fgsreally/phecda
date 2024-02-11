@@ -7,6 +7,7 @@ export default defineConfig({
     alias: {
       amqplib: 'mock-amqplib',
       ioredis: 'ioredis-mock',
+      kafkajs: '@nucleoidjs/kafkajs-mock',
     },
   },
   test: {

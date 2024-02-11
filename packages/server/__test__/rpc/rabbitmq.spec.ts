@@ -13,7 +13,7 @@ describe('rabbitmq rpc', () => {
     run() {
       return {
         tag: 'TestRpc-run',
-        rpc: ['mq'],
+        rpc: ['rabbitmq'],
       }
     }
   }
@@ -21,7 +21,7 @@ describe('rabbitmq rpc', () => {
   it('create server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('mq')
+      @Rpc('rabbitmq')
       run(arg: string) {
         fn()
         return arg
@@ -48,7 +48,7 @@ describe('rabbitmq rpc', () => {
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('mq')
+      @Rpc('rabbitmq')
       run(@Arg() arg: number) {
         fn()
         return arg
@@ -79,7 +79,7 @@ describe('rabbitmq rpc', () => {
       return true
     })
     class TestRpc {
-      @Rpc('mq')
+      @Rpc('rabbitmq')
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -111,7 +111,7 @@ describe('rabbitmq rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('mq')
+      @Rpc('rabbitmq')
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -140,7 +140,7 @@ describe('rabbitmq rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc('mq')
+      @Rpc('rabbitmq')
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -171,7 +171,7 @@ describe('rabbitmq rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('mq')
+      @Rpc('rabbitmq')
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)

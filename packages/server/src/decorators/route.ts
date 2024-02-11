@@ -38,8 +38,7 @@ export function Delete(route: string) {
 export function Controller(route = '') {
   return Route(route)
 }
-
-export function Rpc(...types: ('mq' | 'redis' | string)[]) {
+export function Rpc(...types: ('rabbitmq' | 'redis' | 'kafka' | string)[]) {
   return (target: any, key?: PropertyKey) => {
     if (!key)
       key = SHARE_KEY

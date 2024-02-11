@@ -22,7 +22,7 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
         const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('mq'))
+        if (!rpc.includes('rabbitmq'))
           throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
         return (...args: any) => {
           producer.send({
