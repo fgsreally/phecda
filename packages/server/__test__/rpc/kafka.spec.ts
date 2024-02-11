@@ -8,12 +8,12 @@ function stop(time = 1000) {
     setTimeout(() => resolve(), time)
   })
 }
-describe('rabbitmq rpc', () => {
+describe('kafka rpc', () => {
   class Faker {
     run() {
       return {
         tag: 'TestRpc-run',
-        rpc: ['rabbitmq'],
+        rpc: ['kafka'],
       }
     }
   }
@@ -29,17 +29,27 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const ch = await conn.createChannel()
-    const pub = await conn.createChannel()
+    const producer = kafka.producer()
+    await producer.connect()
 
-    await bind(ch, 'test', data)
+    await bind(kafka, 'test', data)
 
-    pub.sendToQueue('test', Buffer.from(JSON.stringify({
-      args: [1],
-      tag: 'TestRpc-run',
-    })))
+    producer.send({
+      topic: 'test',
+      messages: [
+        {
+          value: JSON.stringify({
+            tag: 'TestRpc-run',
+            args: [1],
+          }),
+        },
+      ],
+    })
 
     await stop()
 
@@ -48,26 +58,27 @@ describe('rabbitmq rpc', () => {
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       run(@Arg() arg: number) {
         fn()
         return arg
       }
     }
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    await bind(kafka, 'test2', data)
 
-    await bind(serverCh, 'test', data)
-
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(kafka, 'test2', {
       test: Faker as unknown as typeof TestRpc,
     })
 
     expect(await client.test.run(1)).toBe(1)
+    expect(await client.test.run(2)).toBe(2)
 
     expect(fn).toHaveBeenCalled()
   })
@@ -79,7 +90,7 @@ describe('rabbitmq rpc', () => {
       return true
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -88,14 +99,14 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    await bind(kafka, 'test3', data)
 
-    await bind(serverCh, 'test', data)
-
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(kafka, 'test3', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -111,7 +122,7 @@ describe('rabbitmq rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -120,14 +131,14 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    await bind(kafka, 'test4', data)
 
-    await bind(serverCh, 'test', data)
-
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(kafka, 'test4', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -140,7 +151,7 @@ describe('rabbitmq rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -148,14 +159,14 @@ describe('rabbitmq rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    await bind(kafka, 'test5', data)
 
-    await bind(serverCh, 'test', data)
-
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(kafka, 'test5', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -171,21 +182,21 @@ describe('rabbitmq rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)
       }
     }
     const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+    await bind(kafka, 'test6', data)
 
-    await bind(serverCh, 'test', data)
-
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(kafka, 'test6', {
       test: Faker as unknown as typeof TestRpc,
     })
     await expect(client.test.run()).rejects.toEqual({ error: true, info: 'rpc error' })

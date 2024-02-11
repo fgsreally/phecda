@@ -12,7 +12,11 @@ export interface Options {
 }
 export interface KafkaCtx extends P.BaseContext {
   type: 'kafka'
-
+  topic: string
+  partition: number
+  heartbeat(): Promise<void>
+  pause(): () => void
+  data: any
 }
 
 export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
@@ -44,8 +48,10 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
 
   handleMeta()
   await consumer.run({
-    eachMessage: async ({ message }) => {
-      const { tag, args, queue, id } = JSON.parse(message.value!.toString())
+    eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
+      const data = JSON.parse(message.value!.toString())
+      const { tag, args, queue, id } = data
+
       if (!metaMap.has(tag)) {
         if (queue) {
           producer.send({
@@ -71,7 +77,11 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
         moduleMap,
         meta,
         tag,
-
+        partition,
+        topic,
+        heartbeat,
+        pause,
+        data,
       })
       const {
         data: {
@@ -100,6 +110,7 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
 
         const funcData = await moduleMap.get(name)[method](...handleArgs)
         const ret = await context.usePostInterceptor(funcData)
+
         if (queue) {
           producer.send({
             topic: queue,

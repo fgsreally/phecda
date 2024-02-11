@@ -14,6 +14,17 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
 
   await consumer.subscribe({ topic: uniQueue, fromBeginning: true })
 
+  await consumer.run(
+    {
+      eachMessage: async ({ message }) => {
+        if (!message.value)
+          return
+        const { data, id, error } = JSON.parse(message.value.toString())
+        emitter.emit(id, data, error)
+      },
+    },
+  )
+
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
       get(target, p: string) {
@@ -22,8 +33,8 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
         const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('rabbitmq'))
-          throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
+        if (!rpc.includes('kafka'))
+          throw new Error(`"${p}" in "${i}" doesn't support kafka`)
         return (...args: any) => {
           producer.send({
             topic,
