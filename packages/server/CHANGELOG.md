@@ -1,5 +1,15 @@
 # phecda-server
 
+## 5.0.0-alpha.7
+
+### Minor Changes
+
+- bf097a6: support kafka
+
+### Patch Changes
+
+- 9e90730: format uniqueue id in rpc for debug
+
 ## 5.0.0-alpha.6
 
 ### Patch Changes
