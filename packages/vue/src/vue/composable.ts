@@ -1,36 +1,38 @@
+/* eslint-disable new-cap */
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
 import { onBeforeUnmount, reactive, toRaw, toRef } from 'vue'
 import type { Events } from 'phecda-core'
-import { getHandler, register } from 'phecda-core'
+import { getHandler, getTag, register } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { ReplaceInstanceValues } from '../types'
 import { getActivePhecda } from './phecda'
-import type { _DeepPartial } from './utils'
+import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
-export function useO<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
+export function useO<T extends new (...args: any) => any>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { useOMap } = getActivePhecda()
-  if (!useOMap.has(Model)) {
-    const instance = reactive(new Model())
-    useOMap.set(Model, instance)
+  const tag = getTag(module) || module.name
+  if (!useOMap.has(tag)) {
+    const instance = reactive(new module())
+    useOMap.set(tag, instance)
     register(instance)
   }
-  return useOMap.get(Model)
+  return useOMap.get(tag)
 }
 
-export function useRaw<T extends new (...args: any) => any>(Model: T) {
-  return toRaw(useO(Model)) as unknown as InstanceType<T>
+export function useRaw<T extends new (...args: any) => any>(module: T) {
+  return toRaw(useO(module)) as unknown as InstanceType<T>
 }
 // like what pinia does
-export function usePatch<T extends new (...args: any) => any>(Model: T, Data: _DeepPartial<InstanceType<T>>) {
-  const instance = useO(Model)
+export function usePatch<T extends new (...args: any) => any>(module: T, Data: DeepPartial<InstanceType<T>>) {
+  const instance = useO(module)
   mergeReactiveObjects(instance, Data)
 }
 
-export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNestedRefs<InstanceType<T>> {
+export function useR<T extends new (...args: any) => any>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { useRMap, fnMap } = getActivePhecda()
-  const instance = useO(Model)
+  const instance = useO(module)
 
   if (useRMap.has(instance))
     return useRMap.get(instance)
@@ -59,9 +61,9 @@ export function useR<T extends new (...args: any) => any>(Model: T): UnwrapNeste
   return proxy
 }
 
-export function useV<T extends new (...args: any) => any>(Model: T): ReplaceInstanceValues<InstanceType<T>> {
+export function useV<T extends new (...args: any) => any>(module: T): ReplaceInstanceValues<InstanceType<T>> {
   const { useVMap, fnMap, computedMap } = getActivePhecda()
-  const instance = useO(Model)
+  const instance = useO(module)
 
   if (useVMap.has(instance))
     return useVMap.get(instance)
@@ -104,9 +106,9 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<E
   return () => emitter.off(eventName, cb)
 }
 
-export function initialize<M extends new (...args: any) => any>(Model: M, deleteOtherProperty = true): InstanceType<M> | void {
-  const instance = useO(Model)
-  const newInstance = new Model()
+export function initialize<M extends new (...args: any) => any>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
+  const instance = useO(module)
+  const newInstance = new module()
   Object.assign(instance, newInstance)
   if (deleteOtherProperty) {
     for (const key in instance) {

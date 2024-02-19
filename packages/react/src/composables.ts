@@ -1,5 +1,6 @@
+/* eslint-disable new-cap */
 import { proxy, useSnapshot } from 'valtio'
-import { getHandler, getProperty, injectProperty, register } from 'phecda-core'
+import { getHandler, getProperty, getTag, injectProperty, register } from 'phecda-core'
 
 import { createContext, createElement, useEffect } from 'react'
 import mitt from 'mitt'
@@ -23,21 +24,21 @@ export function getActivePhecda() {
   return activePhecda
 }
 
-export function useO<T extends new (...args: any) => any>(Model: T) {
+export function useO<T extends new (...args: any) => any>(module: T) {
   const { useOMap } = getActivePhecda()
+  const tag = getTag(module) || module.name
+  if (useOMap.has(tag))
+    return useOMap.get(tag)
 
-  if (useOMap.has(Model))
-    return useOMap.get(Model)
+  const instance = new module()
 
-  const instance = new Model()
-
-  useOMap.set(Model, instance)
+  useOMap.set(tag, instance)
   return instance
 }
 
-export function useR<T extends new (...args: any) => any>(Model: T): [InstanceType<T>, InstanceType<T>] {
+export function useR<T extends new (...args: any) => any>(module: T): [InstanceType<T>, InstanceType<T>] {
   const { useRMap, fnMap } = getActivePhecda()
-  const instance = useO(Model)
+  const instance = useO(module)
   if (useRMap.has(instance)) {
     const proxyInstance = useRMap.get(instance)
     return [useSnapshot(proxyInstance), proxyInstance]
