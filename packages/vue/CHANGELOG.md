@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 2.1.3-alpha.3
+
+### Patch Changes
+
+- 6a55ac9: won't load module with tag that has been loaded before
+
 ## 2.1.3-alpha.2
 
 ### Patch Changes
