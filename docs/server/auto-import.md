@@ -1,6 +1,7 @@
 # 自动引入
 >  这是一个测试功能，只会引入`phecda-server`暴露的`api`
-> 类似`unplugin-auto-import`
+
+类似`unplugin-auto-import`
 ## 快速开始
 
 安装`unimport`后，就可以自动引入
@@ -17,7 +18,7 @@ npm i unimport -save-dev
 ```
 会对所有`ts`文件引入
 
-## 想法
+<!-- ## 想法
 
 这里其实有点麻烦，因为有几个问题：
 1. 打包是否有必要
@@ -43,4 +44,4 @@ npm i unimport -save-dev
 
 也就是写死的，最简单的逻辑，一些更灵活的配置不支持
 
-
+ -->

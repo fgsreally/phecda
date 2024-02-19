@@ -1,20 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
-import Redis from 'ioredis'
-
+import { Kafka } from 'kafkajs'
 import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
-import { bind, createClient } from '../../src/rpc/redis'
+import { bind, createClient } from '../../src/rpc/kafka'
 
-function stop(time = 500) {
+function stop(time = 1000) {
   return new Promise<void>((resolve) => {
     setTimeout(() => resolve(), time)
   })
 }
-describe('redis rpc', () => {
+describe('kafka rpc', () => {
   class Faker {
     run() {
       return {
         tag: 'TestRpc-run',
-        rpc: ['redis'],
+        rpc: ['kafka'],
       }
     }
   }
@@ -22,7 +21,7 @@ describe('redis rpc', () => {
   it('create server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       run(arg: string) {
         fn()
         return arg
@@ -30,45 +29,56 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const pub = new Redis('redis://localhost')
+    const producer = kafka.producer()
+    await producer.connect()
 
-    bind(redis, 'test', data)
+    await bind(kafka, 'test', data)
 
-    pub.publish('test', JSON.stringify({
-      args: [1],
-      tag: 'TestRpc-run',
-
-    }))
+    producer.send({
+      topic: 'test',
+      messages: [
+        {
+          value: JSON.stringify({
+            tag: 'TestRpc-run',
+            args: [1],
+          }),
+        },
+      ],
+    })
 
     await stop()
 
     expect(fn).toHaveBeenCalled()
   })
-
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       run(@Arg() arg: number) {
         fn()
         return arg
       }
     }
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    await bind(kafka, 'test2', data)
 
-    bind(redis, 'test2', data)
-
-    const client = await createClient(pub, 'test2', {
+    const client = await createClient(kafka, 'test2', {
       test: Faker as unknown as typeof TestRpc,
     })
 
     expect(await client.test.run(1)).toBe(1)
+    expect(await client.test.run(2)).toBe(2)
 
     expect(fn).toHaveBeenCalled()
   })
@@ -80,7 +90,7 @@ describe('redis rpc', () => {
       return true
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -89,13 +99,14 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const pub = new Redis('redis://localhost')
+    await bind(kafka, 'test3', data)
 
-    bind(redis, 'test3', data)
-
-    const client = await createClient(pub, 'test3', {
+    const client = await createClient(kafka, 'test3', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -111,7 +122,7 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -120,13 +131,14 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const pub = new Redis('redis://localhost')
+    await bind(kafka, 'test4', data)
 
-    bind(redis, 'test4', data)
-
-    const client = await createClient(pub, 'test4', {
+    const client = await createClient(kafka, 'test4', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -139,7 +151,7 @@ describe('redis rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -147,13 +159,14 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
+    })
 
-    const pub = new Redis('redis://localhost')
+    await bind(kafka, 'test5', data)
 
-    bind(redis, 'test5', data)
-
-    const client = await createClient(pub, 'test5', {
+    const client = await createClient(kafka, 'test5', {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -169,24 +182,23 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('kafka')
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)
       }
     }
-
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
-
-    const pub = new Redis('redis://localhost')
-
-    bind(redis, 'test6', data)
-
-    const client = await createClient(pub, 'test6', {
-      test: Faker as unknown as typeof TestRpc,
+    const kafka = new Kafka({
+      clientId: 'test-client-1',
+      brokers: ['test'],
     })
 
+    await bind(kafka, 'test6', data)
+
+    const client = await createClient(kafka, 'test6', {
+      test: Faker as unknown as typeof TestRpc,
+    })
     await expect(client.test.run()).rejects.toEqual({ error: true, info: 'rpc error' })
   })
 })

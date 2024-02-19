@@ -2,7 +2,7 @@
 /* eslint-disable no-prototype-builtins */
 import type { EffectScope } from 'vue'
 import { effectScope, isReactive, isRef, onScopeDispose } from 'vue'
-export type _DeepPartial<T> = { [K in keyof T]?: _DeepPartial<T[K]> }
+export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> }
 
 export function isObject(o: any) {
   return Object.prototype.toString.call(o) === '[object Object]'
@@ -11,7 +11,7 @@ export function isObject(o: any) {
 // copy form pinia
 export function mergeReactiveObjects<
   T extends Record<any, unknown> | Map<unknown, unknown> | Set<unknown>,
->(target: T, patchToApply: _DeepPartial<T>): T {
+>(target: T, patchToApply: DeepPartial<T>): T {
   for (const key in patchToApply) {
     if (!patchToApply.hasOwnProperty(key))
       continue

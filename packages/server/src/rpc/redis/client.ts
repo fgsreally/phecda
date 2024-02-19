@@ -6,7 +6,7 @@ import type { ToControllerMap } from '../../types'
 export function createClient<S extends Record<string, any>>(redis: Redis, queue: string, controllers: S): ToControllerMap<S> {
   const ret = {} as any
   const sub = new Redis(redis.options)
-  const uniQueue = randomUUID()
+  const uniQueue = `PS:${queue}-${randomUUID()}`
 
   const emitter = new EventEmitter()
   sub.subscribe(uniQueue)

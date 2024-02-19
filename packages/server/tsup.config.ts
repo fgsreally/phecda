@@ -5,10 +5,11 @@ export const tsup: Options = {
     'src/test.ts',
     'src/server/express/index.ts',
     'src/server/koa/index.ts',
-
     'src/server/fastify/index.ts',
     'src/server/h3/index.ts',
+
     'src/rpc/rabbitmq/index.ts',
+    'src/rpc/kafka/index.ts',
     'src/rpc/redis/index.ts'],
   format: ['cjs', 'esm'],
   dts: true,

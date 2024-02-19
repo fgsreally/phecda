@@ -1,41 +1,46 @@
 # 守卫
-> 运行在中间件之后
-主要用于鉴权，
+
+ 运行在中间件之后，主要用于鉴权，
 
 具体参数详见类型提示
 
-```ts
-import type {ExpressCtx} from 'phecda-server/express'
+:::info
 
-addGuard<ExpressCtx>('auth',()=>true)
+`aop`也是模块！！它和其他模块一样需要引入
 
+除了管道以外其他的装饰器，可以设置到类上，也可以设置到方法上
 
-@Guard('auth')//使用auth guard
-@Get()
-get(){
+前者会对该类上的所有接口起效！
 
-}
+:::
 
-```
-## 模块化
-
-> 推荐使用，这可以提供热更新、依赖注入等功能
 
 ```ts
-import { PGuard } from 'phecda-server'
+import { Guard, PGuard } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
-@Tag('auth')
-class auth extends PGuard<ExpressCtx> {
+@Tag('Auth')
+class Auth extends PGuard<ExpressCtx> {
   constructor() {
-    super('auth')// 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
+    super('Auth') // 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
   }
 
   use(ctx: ExpressCtx) {
     // ...
   }
 }
-// in main.ts
-
-Factory([auth])
+class User {
+  @Guard('Auth') // 使用auth guard
+  @Get()
+  get() {}
+}
+Factory([Auth, User])
 ```
+
+### 全局使用
+```ts
+bindApp(app, data, {
+  globalGuards: ['Auth'],
+})
+```
+

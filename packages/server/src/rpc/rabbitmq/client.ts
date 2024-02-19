@@ -5,7 +5,7 @@ import type { ToControllerMap } from '../../types'
 export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S): Promise<ToControllerMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
-  const uniQueue = `PS:${randomUUID()}`
+  const uniQueue = `PS:${queue}-${randomUUID()}`
 
   await ch.assertQueue(uniQueue)
   ch.consume(uniQueue, (msg) => {
@@ -23,7 +23,7 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
         const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('mq'))
+        if (!rpc.includes('rabbitmq'))
           throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
         return (...args: any) => {
           ch.sendToQueue(queue, Buffer.from(

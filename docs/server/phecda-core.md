@@ -1,5 +1,5 @@
 ## phecda-core
-有些功能来自phecda-core
+有些功能来自`phecda-core`
 
 ```ts
 import { Init, Watcher, emitter } from 'phecda-server'
@@ -19,7 +19,7 @@ class TestService {
 ```
 
 
-这里`emitter`用的是`nodejs`中的,如果想更改
+这里`emitter`用的是`nodejs`中的`eventEmitter`,
 
-可以参考`Factory`的实现，提前`inject`
+如果想更改,可以参考`Factory`的实现，提前`inject`
 

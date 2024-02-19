@@ -32,7 +32,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
     for (const item of meta) {
       const { data: { rpc, method, name } } = item
 
-      if (rpc?.type && rpc.type.includes('mq'))
+      if (rpc?.type && rpc.type.includes('rabbitmq'))
         metaMap.set(`${name}-${method}`, item)
     }
   }

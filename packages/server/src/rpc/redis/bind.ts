@@ -34,7 +34,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
     for (const item of meta) {
       const { data: { rpc, method, name } } = item
 
-      if (rpc?.type && rpc.type.includes('mq'))
+      if (rpc?.type && rpc.type.includes('rabbitmq'))
         metaMap.set(`${name}-${method}`, item)
     }
   }

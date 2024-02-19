@@ -42,6 +42,10 @@
       "import": "./dist/rpc/redis/index.mjs",
       "require": "./dist/rpc/redis/index.js"
     },
+    "./kafka": {
+      "import": "./dist/rpc/kafka/index.mjs",
+      "require": "./dist/rpc/kafka/index.js"
+    },
     "./rabbitmq": {
       "import": "./dist/rpc/rabbitmq/index.mjs",
       "require": "./dist/rpc/rabbitmq/index.js"
@@ -92,6 +96,7 @@
   "license": "MIT",
   "devDependencies": {
     "@koa/router": "^12.0.1",
+    "@nucleoidjs/kafkajs-mock": "^0.0.1",
     "@swc-node/core": "^1.10.6",
     "@types/amqplib": "^0.10.1",
     "@types/debug": "^4.1.12",
@@ -106,6 +111,7 @@
     "h3": "^1.9.0",
     "ioredis": "^5.3.2",
     "ioredis-mock": "^8.9.0",
+    "kafkajs": "^2.2.4",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "mock-amqplib": "^1.8.2",

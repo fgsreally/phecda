@@ -103,7 +103,7 @@ export default defineConfig({
       '/server/': [
         {
           text: 'phecda-server',
-          collapsed: true,
+          collapsed: false,
           items: [
             {
               text: 'intro',
@@ -123,7 +123,7 @@ export default defineConfig({
         },
         {
           text: 'aop装饰器',
-          collapsed: false,
+          collapsed: true,
           items: [
             {
               text: '守卫',
@@ -149,22 +149,30 @@ export default defineConfig({
               text: 'extension',
               link: '/server/aop/extension',
             },
+            {
+              text: '自定义装饰器',
+              link: '/server/aop/decorator',
+            },
           ],
         },
         {
-          text: '调用',
+          text: '客户端调用',
           collapsed: false,
           items: [
+            {
+              text: '运行时',
+              link: '/server/client/runtime',
+            },
             {
               text: '插件',
               link: '/server/client/plugin',
             }, {
               text: 'npm',
-              link: '/server/client/plugin',
+              link: '/server/client/npm',
             }],
         },
         {
-          text: '进一步',
+          text: '进阶',
           collapsed: false,
           items: [
             {
@@ -209,7 +217,7 @@ export default defineConfig({
               link: '/server/other/compare',
             },
             {
-              text: '类型的思考',
+              text: '类型杂技',
               link: '/server/other/types',
             },
             {
