@@ -1,7 +1,6 @@
+import type { Construct } from 'phecda-core'
 import { registerAsync } from 'phecda-core'
 import 'reflect-metadata'
-
-type Construct<T = any> = new (...args: any[]) => T
 
 export const moduleMap = new Map<string, InstanceType<Construct>>()
 

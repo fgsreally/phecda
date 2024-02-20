@@ -1,11 +1,12 @@
-import type { Handler, Phecda } from './types'
+import type { Construct, Handler, Phecda } from './types'
 
-export function isPhecda(module: any) {
+export function isPhecda(module: any): module is Construct {
   if (typeof module === 'function')
     return !!module.prototype?._namespace
 
   return false
 }
+
 // 有的时候，类上多个方法、属性需要共用一些东西
 // SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
 export const SHARE_KEY = Symbol('phecda-core')

@@ -1,8 +1,8 @@
 import type { Server } from 'node:http'
 import type { Test } from 'supertest'
+import type { Construct } from 'phecda-core'
 import { Factory } from './core'
-import type { Construct, PickFunc } from './types'
-
+import type { PickFunc } from './types'
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
   const { moduleMap, constructorMap } = await Factory(Modules)
 

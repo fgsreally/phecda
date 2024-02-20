@@ -7,6 +7,8 @@ export interface InjectData {
 
 }
 
+export type Construct<T = any> = new (...args: any[]) => T
+
 export interface Handler {
   [key: string]: any
   // init?: (instance: any) => any

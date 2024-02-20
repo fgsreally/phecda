@@ -2,35 +2,35 @@
 import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
 import { onBeforeUnmount, reactive, toRaw, toRef } from 'vue'
-import type { Events } from 'phecda-core'
-import { getHandler, getTag, register } from 'phecda-core'
+import type { Construct, Events } from 'phecda-core'
+import { getHandler, getTag, registerAsync } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { ReplaceInstanceValues } from '../types'
 import { getActivePhecda } from './phecda'
 import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
-export function useO<T extends new (...args: any) => any>(module: T): UnwrapNestedRefs<InstanceType<T>> {
+export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { useOMap } = getActivePhecda()
   const tag = getTag(module) || module.name
   if (!useOMap.has(tag)) {
     const instance = reactive(new module())
     useOMap.set(tag, instance)
-    register(instance)
+    instance._promise = registerAsync(instance)
   }
   return useOMap.get(tag)
 }
 
-export function useRaw<T extends new (...args: any) => any>(module: T) {
+export function useRaw<T extends Construct>(module: T) {
   return toRaw(useO(module)) as unknown as InstanceType<T>
 }
 // like what pinia does
-export function usePatch<T extends new (...args: any) => any>(module: T, Data: DeepPartial<InstanceType<T>>) {
+export function usePatch<T extends Construct>(module: T, Data: DeepPartial<InstanceType<T>>) {
   const instance = useO(module)
   mergeReactiveObjects(instance, Data)
 }
 
-export function useR<T extends new (...args: any) => any>(module: T): UnwrapNestedRefs<InstanceType<T>> {
+export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { useRMap, fnMap } = getActivePhecda()
   const instance = useO(module)
 
@@ -61,7 +61,7 @@ export function useR<T extends new (...args: any) => any>(module: T): UnwrapNest
   return proxy
 }
 
-export function useV<T extends new (...args: any) => any>(module: T): ReplaceInstanceValues<InstanceType<T>> {
+export function useV<T extends Construct>(module: T): ReplaceInstanceValues<InstanceType<T>> {
   const { useVMap, fnMap, computedMap } = getActivePhecda()
   const instance = useO(module)
 
@@ -106,7 +106,7 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<E
   return () => emitter.off(eventName, cb)
 }
 
-export function initialize<M extends new (...args: any) => any>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
+export function initialize<M extends Construct>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
   const instance = useO(module)
   const newInstance = new module()
   Object.assign(instance, newInstance)
@@ -127,3 +127,7 @@ export function initialize<M extends new (...args: any) => any>(module: M, delet
 //   }
 //   return newInstance
 // }
+
+export async function waitUntilInit(...modules: Construct[]) {
+  await Promise.all(modules.map(m => useO(m)._promise))
+}

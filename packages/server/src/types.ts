@@ -2,7 +2,6 @@ import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
 import type { ERROR_SYMBOL } from './common'
 import type { Meta } from './meta'
-export type Construct<T = any> = new (...args: any[]) => T
 
 export interface Emitter {
   on<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
