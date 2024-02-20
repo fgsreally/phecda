@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Err } from 'phecda-core'
+import { Err, Init } from 'phecda-core'
 import { createApp } from 'vue'
-import { Watcher, createPhecda, emitter, useR, useV } from '../src/index'
+import { Watcher, createPhecda, emitter, useR, useV, waitUntilInit } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
     createApp({}).use(createPhecda())
@@ -50,5 +50,21 @@ describe('work for vue', () => {
     expect(testB('B')).toBe('info:Error: B')
     expect(await testC('C')).toBe('info:C')
     expect(fn).toHaveBeenCalledTimes(4)
+  })
+
+  it('waitUntilInit', async () => {
+    let isInit = false
+    class A {
+
+    }
+    class B {
+      @Init
+      _init() {
+        return Promise.resolve().then(() => isInit = true)
+      }
+    }
+
+    await waitUntilInit(A, B)
+    expect(isInit).toBeTruthy()
   })
 })
