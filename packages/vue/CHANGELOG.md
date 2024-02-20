@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 2.1.3-alpha.4
+
+### Patch Changes
+
+- 65cc59a: add waitUntilInit
+- Updated dependencies [c40fece]
+  - phecda-core@3.0.0-alpha.2
+
 ## 2.1.3-alpha.3
 
 ### Patch Changes

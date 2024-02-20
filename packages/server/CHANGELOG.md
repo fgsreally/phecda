@@ -1,5 +1,12 @@
 # phecda-server
 
+## 5.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies [c40fece]
+  - phecda-core@3.0.0-alpha.2
+
 ## 5.0.0-alpha.7
 
 ### Minor Changes
