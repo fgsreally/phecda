@@ -12,12 +12,20 @@ import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { useOMap } = getActivePhecda()
+
+  if (module.prototype.__ISOLATE__) {
+    const instance = reactive(new module())
+    instance._promise = registerAsync(instance)
+    return instance
+  }
   const tag = getTag(module) || module.name
   if (!useOMap.has(tag)) {
     const instance = reactive(new module())
-    useOMap.set(tag, instance)
     instance._promise = registerAsync(instance)
+
+    useOMap.set(tag, instance)
   }
+
   return useOMap.get(tag)
 }
 
