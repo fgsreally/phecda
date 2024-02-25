@@ -1,4 +1,6 @@
 import { Clear, Global, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
+import { h, render } from 'vue'
+import HelloWorld from '../components/HelloWorld.vue'
 @Tag('base')
 
 export class Base {
@@ -19,6 +21,8 @@ export class HomeModel<T> extends Base {
     super()
   }
 
+  component = HelloWorld
+
   key: T
   readonly obj = {
     id: 1,
@@ -30,7 +34,9 @@ export class HomeModel<T> extends Base {
   }
 
   changeName() {
-    // console.log(this)
+    const el = document.createElement('div')
+    const vnode = h(this.component)
+    document.body.appendChild((render(vnode, el), el))
 
     this.name = 'fgs'
   }

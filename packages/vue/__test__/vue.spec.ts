@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Err, Init } from 'phecda-core'
 import { createApp } from 'vue'
-import { Watcher, createPhecda, emitter, useR, useV, waitUntilInit } from '../src/index'
+import { Isolate, Tag, Watcher, createPhecda, emitter, useR, useV, waitUntilInit } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
     createApp({}).use(createPhecda())
@@ -66,5 +66,16 @@ describe('work for vue', () => {
 
     await waitUntilInit(A, B)
     expect(isInit).toBeTruthy()
+  })
+
+  it('Isolate', async () => {
+    @Isolate()
+    @Tag('unique')
+    class A {
+
+    }
+
+    const a = useR(A)
+    expect(a === useR(A)).toBeFalsy()
   })
 })
