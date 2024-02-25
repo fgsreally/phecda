@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 2.1.3-alpha.5
+
+### Patch Changes
+
+- fb6633c: add Isolate
+
 ## 2.1.3-alpha.4
 
 ### Patch Changes
