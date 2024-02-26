@@ -1,87 +1,20 @@
 import type { App, UnwrapNestedRefs } from 'vue'
 import { markRaw } from 'vue'
-import { getProperty, getTag, injectProperty } from 'phecda-core'
-import { emitter } from '../emitter'
-import type { PhecdaInstance } from '../types'
+import type { PhecdaInstance, Plugin } from '../types'
 export const phecdaSymbol = Symbol('phecda')
 
-export const interval = {
-
-} as any
-export function createPhecda(symbol?: string) {
+export function createPhecda() {
   const phecda = markRaw({
     install(app: App) {
-      interval.app = app
+      replaceActivePhecda(app)
       app.provide(phecdaSymbol, phecda)
       app.config.globalProperties.$phecda = phecda
-      if (!window.__PHECDA_VUE__)
-        window.__PHECDA_VUE__ = {}
+    },
 
-      if (symbol) {
-        window.__PHECDA_VUE__[symbol] = {
-          instance: phecda,
-          snapshot: () => {
-            const ret = [] as { key: string; value: any }[]
-            const { useOMap } = getActivePhecda()
-            for (const [key, value] of useOMap)
-              ret.push({ key: getTag(key) || key.name, value })
-
-            return ret
-          },
-        }
-      }
-      let eventRecord = [] as [string, (event: any) => void][]
-      if (!getProperty('watcher')) {
-        injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: any; instance: any; key: string; options?: { once: boolean } }) => {
-          const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
-
-          if (options?.once) {
-            const handler = (...args: any) => {
-              fn(...args);
-              (emitter as any).off(eventName, handler)
-            }
-            (emitter as any).on(eventName, handler)
-            eventRecord.push([eventName, handler])
-          }
-          else {
-            eventRecord.push([eventName, fn]);
-            (emitter as any).on(eventName, fn)
-          }
-        })
-      }
-      if (!getProperty('storage')) {
-        injectProperty('storage', ({ tag, key, instance }: { instance: any; key: string; tag: string }) => {
-          if (!tag)
-            return
-          const initstr = localStorage.getItem(tag)
-
-          if (initstr) {
-            const data = JSON.parse(initstr)
-            if (key) {
-              instance[key] = data
-            }
-            else {
-              for (const i in data) {
-                if (i)
-                  instance[i] = data[i]
-              }
-            }
-          }
-          globalThis.addEventListener('beforeunload', () => {
-            localStorage.setItem(tag, JSON.stringify(key ? instance[key] : instance))
-          })
-        })
-      }
-      const originUnmount = app.unmount.bind(app)
-      app.unmount = () => {
-        eventRecord.forEach(([eventName, handler]) =>
-          (emitter as any).off(eventName as any, handler),
-        )
-        eventRecord = []
-        if (symbol)
-          delete window.__PHECDA_VUE__[symbol]
-        originUnmount()
-      }
+    use(...plugins: Plugin[]) {
+      const instance = getActivePhecda()
+      plugins.forEach(p => p(instance))
+      return this
     },
 
   })
@@ -89,16 +22,22 @@ export function createPhecda(symbol?: string) {
   return phecda
 }
 
-let activePhecda: PhecdaInstance = {
-  useVMap: new WeakMap(),
-  useOMap: new Map(),
-  useRMap: new WeakMap(),
-  fnMap: new WeakMap(),
-  computedMap: new WeakMap(),
-}
+let activePhecda: PhecdaInstance
 
-export function setActivePhecda(phecda: PhecdaInstance) {
-  activePhecda = phecda
+export function replaceActivePhecda(app?: App) {
+  if (!app) {
+    activePhecda = undefined as any
+  }
+  else {
+    activePhecda = {
+      useOMap: new Map(),
+      useVMap: new WeakMap(),
+      useRMap: new WeakMap(),
+      fnMap: new WeakMap(),
+      computedMap: new WeakMap(),
+      app,
+    }
+  }
 }
 
 export function getActivePhecda() {

@@ -1,5 +1,5 @@
 import type { Events } from 'phecda-core'
-import type { Ref } from 'vue'
+import type { App, Ref } from 'vue'
 
 // type ReadonlyValue<T> = {
 //   readonly [K in keyof T]: K extends 'value' ? T[K] : ReadonlyValue<T[K]>
@@ -16,11 +16,11 @@ export type SchemaToObj<S> = {
 
 export interface PhecdaInstance {
   useOMap: Map<any, any>
-
   useVMap: WeakMap<any, any>
   useRMap: WeakMap<any, any>
   fnMap: WeakMap<any, any>
   computedMap: WeakMap<any, any>
+  app: App
 }
 
 export interface PhecdaEmitter {
@@ -28,3 +28,5 @@ export interface PhecdaEmitter {
   off<N extends keyof Events>(eventName: N, cb?: (args: Events[N]) => void): void
   emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }
+
+export type Plugin = (instance: PhecdaInstance) => void
