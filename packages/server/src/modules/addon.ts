@@ -1,8 +1,8 @@
 import { getSymbol } from 'phecda-core'
 import { Context, addPlugin } from '../context'
-import { Dev } from '../modules/dev'
+import { Dev } from './dev'
 
-export abstract class PPlugin extends Dev {
+export abstract class PAddon<Params extends any[] = any[]> extends Dev {
   readonly key: string
   constructor(tag?: string) {
     super()
@@ -15,5 +15,5 @@ export abstract class PPlugin extends Dev {
     })
   }
 
-  abstract use(...args: any): void
+  abstract use(...args: Params): void
 }

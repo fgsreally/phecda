@@ -1,13 +1,12 @@
-import { createPhecdaContext, useR } from "phecda-react";
+import {  useR } from "phecda-react";
 import { HomeModel } from "./models/home";
+
+
 export function Home() {
-  const Comp = createPhecdaContext();
   return (
     <>
-      <Comp>
         <Child1></Child1>
         <Child2></Child2>
-      </Comp>
     </>
   );
 }

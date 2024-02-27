@@ -1,7 +1,7 @@
 {
   "name": "phecda-vue",
-  "version": "2.1.3-alpha.5",
-  "description": "provide store/form/table with phecda function to vue",
+ "version": "2.1.3-alpha.5",
+  "description": "provide phecda function to vue",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -16,8 +16,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mitt": "^3.0.0",
-    "phecda-core": "workspace:*",
+    "phecda-web": "workspace:*",
     "vue": "^3.2.45"
   },
   "devDependencies": {

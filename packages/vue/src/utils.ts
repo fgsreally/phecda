@@ -1,4 +1,3 @@
-/* eslint-disable prefer-spread */
 /* eslint-disable no-prototype-builtins */
 import type { EffectScope } from 'vue'
 import { effectScope, isReactive, isRef, onScopeDispose } from 'vue'
@@ -34,28 +33,6 @@ export function mergeReactiveObjects<
   }
 
   return target
-}
-
-export function wrapError(target: any, key: PropertyKey, errorHandler: Function) {
-  if (isAsyncFunc(target[key])) {
-    return (...args: any) => {
-      return target[key].apply(target, args).catch(errorHandler)
-    }
-  }
-  else {
-    return (...args: any) => {
-      try {
-        return target[key].apply(target, args)
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    }
-  }
-}
-
-export function isAsyncFunc(fn: Function) {
-  return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
 }
 
 export function createSharedReactive<F extends (...args: any) => any>(composable: F): () => ReturnType<F> {

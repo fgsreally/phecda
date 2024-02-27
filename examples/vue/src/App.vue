@@ -3,7 +3,8 @@ import { RouterLink, RouterView } from 'vue-router'
 import { getTag, initialize, useR, useRaw, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
-const { name, fullName, run, key } = useV<typeof HomeModel<number>>(HomeModel)
+// eslint-disable-next-line vue/comma-dangle
+const { name, fullName } = useV<typeof HomeModel<number>>(HomeModel)
 </script>
 
 <template>

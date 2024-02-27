@@ -1,7 +1,7 @@
 {
-  "name": "phecda-react",
-  "version": "0.0.1-alpha.3",
-  "description": "provide phecda function to react by valtio",
+  "name": "phecda-web",
+  "version": "1.0.0",
+  "description": "provide web function for phecda",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -16,12 +16,10 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "phecda-web": "workspace:*",
-    "react": "^18.2.0",
-    "valtio": "^1.13.0"
+    "mitt": "^3.0.0",
+    "phecda-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^18.2.48",
     "tsup": "^6.5.0"
   }
 }
