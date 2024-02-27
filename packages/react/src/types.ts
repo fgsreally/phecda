@@ -6,9 +6,9 @@ export interface PhecdaEmitter {
   emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }
 
-export interface PhecdaInstance {
-  useOMap: Map<any, any>
-  useVMap: WeakMap<any, any>
-  useRMap: WeakMap<any, any>
-  fnMap: WeakMap<any, any>
+export interface ActiveInstance {
+  state: Record<string, any>
+  _v: WeakMap<any, any>
+  _r: WeakMap<any, any>
+  _f: WeakMap<any, any>
 }

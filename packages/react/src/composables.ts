@@ -5,55 +5,55 @@ import { getHandler, getProperty, getTag, injectProperty, register } from 'phecd
 import { createContext, createElement, useEffect } from 'react'
 import mitt from 'mitt'
 import { wrapError } from './utils'
-import type { PhecdaEmitter, PhecdaInstance } from './types'
+import type { ActiveInstance, PhecdaEmitter } from './types'
 
 export const emitter: PhecdaEmitter = mitt()
 
-let activePhecda: PhecdaInstance = {
-  useOMap: new Map(),
-  useVMap: new WeakMap(),
-  useRMap: new WeakMap(),
-  fnMap: new WeakMap(),
+let activeInstance: ActiveInstance
+
+export function resetActiveInstance() {
+  activeInstance = {
+    state: {},
+    _v: new WeakMap(),
+    _r: new WeakMap(),
+    _f: new WeakMap(),
+  }
 }
 
-export function setActivePhecda(phecda: PhecdaInstance) {
-  activePhecda = phecda
-}
-
-export function getActivePhecda() {
-  return activePhecda
+export function getActiveInstance() {
+  return activeInstance
 }
 
 export function useO<T extends new (...args: any) => any>(module: T) {
-  const { useOMap } = getActivePhecda()
+  const { state } = getActiveInstance()
   const tag = getTag(module) || module.name
-  if (useOMap.has(tag))
-    return useOMap.get(tag)
+  if (tag in state)
+    return state[tag]
 
   const instance = new module()
 
-  useOMap.set(tag, instance)
+  state[tag] = instance
   return instance
 }
 
 export function useR<T extends new (...args: any) => any>(module: T): [InstanceType<T>, InstanceType<T>] {
-  const { useRMap, fnMap } = getActivePhecda()
+  const { _r, _f } = getActiveInstance()
   const instance = useO(module)
-  if (useRMap.has(instance)) {
-    const proxyInstance = useRMap.get(instance)
+  if (_r.has(instance)) {
+    const proxyInstance = _r.get(instance)
     return [useSnapshot(proxyInstance), proxyInstance]
   }
 
   const proxyInstance = proxy(new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        if (fnMap.has(target[key]))
-          return fnMap.get(target[key])
+        if (_f.has(target[key]))
+          return _f.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        fnMap.set(target[key], wrapper)
+        _f.set(target[key], wrapper)
         return wrapper
       }
 
@@ -65,7 +65,7 @@ export function useR<T extends new (...args: any) => any>(module: T): [InstanceT
     },
   }))
   register(proxyInstance)
-  useRMap.set(instance, proxyInstance)
+  _r.set(instance, proxyInstance)
 
   return [useSnapshot(proxyInstance), proxyInstance]
 }
@@ -77,7 +77,7 @@ export function createPhecdaContext() {
   return ({ children }: any) => {
     useEffect(() => {
       return () => {
-        getActivePhecda().useOMap.clear()
+        getActiveInstance().state.clear()
         eventRecord.forEach(([eventName, handler]) =>
           (emitter as any).off(eventName as any, handler),
         )

@@ -1,6 +1,6 @@
+import { injectProperty } from 'phecda-core'
 import type { Plugin } from '../types'
 import { emitter } from '../emitter'
-
 export const storePlugin: Plugin = () => {
   injectProperty('storage', ({ tag, key, instance }: { instance: any; key: string; tag: string }) => {
     if (!tag)

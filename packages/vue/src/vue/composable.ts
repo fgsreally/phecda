@@ -6,12 +6,12 @@ import type { Construct, Events } from 'phecda-core'
 import { getHandler, getTag, registerAsync } from 'phecda-core'
 import { emitter } from '../emitter'
 import type { ReplaceInstanceValues } from '../types'
-import { getActivePhecda } from './phecda'
+import { getActiveInstance } from './phecda'
 import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
 
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
-  const { useOMap } = getActivePhecda()
+  const { state } = getActiveInstance()
 
   if (module.prototype.__ISOLATE__) {
     const instance = reactive(new module())
@@ -19,14 +19,13 @@ export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
     return instance
   }
   const tag = getTag(module) || module.name
-  if (!useOMap.has(tag)) {
+  if (!(tag in state)) {
     const instance = reactive(new module())
     instance._promise = registerAsync(instance)
-
-    useOMap.set(tag, instance)
+    state[tag] = instance
   }
 
-  return useOMap.get(tag)
+  return state[tag]
 }
 
 export function useRaw<T extends Construct>(module: T) {
@@ -39,21 +38,21 @@ export function usePatch<T extends Construct>(module: T, Data: DeepPartial<Insta
 }
 
 export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
-  const { useRMap, fnMap } = getActivePhecda()
+  const { _r: rmap, _f: fmap } = getActiveInstance()
   const instance = useO(module)
 
-  if (useRMap.has(instance))
-    return useRMap.get(instance)
+  if (rmap.has(instance))
+    return rmap.get(instance)
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        if (fnMap.has(target[key]))
-          return fnMap.get(target[key])
+        if (fmap.has(target[key]))
+          return fmap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        fnMap.set(target[key], wrapper)
+        fmap.set(target[key], wrapper)
         return wrapper
       }
 
@@ -65,30 +64,30 @@ export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
     },
   })
 
-  useRMap.set(instance, proxy)
+  rmap.set(instance, proxy)
   return proxy
 }
 
 export function useV<T extends Construct>(module: T): ReplaceInstanceValues<InstanceType<T>> {
-  const { useVMap, fnMap, computedMap } = getActivePhecda()
+  const { _v: vmap, _f: fmap, _c: cmap } = getActiveInstance()
   const instance = useO(module)
 
-  if (useVMap.has(instance))
-    return useVMap.get(instance)
-  computedMap.set(instance, {})
+  if (vmap.has(instance))
+    return vmap.get(instance)
+  cmap.set(instance, {})
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        if (fnMap.has(target[key]))
-          return fnMap.get(target[key])
+        if (fmap.has(target[key]))
+          return fmap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        fnMap.set(target[key], wrapper)
+        fmap.set(target[key], wrapper)
         return wrapper
       }
-      const cache = computedMap.get(instance)
+      const cache = cmap.get(instance)
       if (key in cache)
         return cache[key]()
 
@@ -102,7 +101,7 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
     },
   })
 
-  useVMap.set(instance, proxy)
+  vmap.set(instance, proxy)
   return proxy
 }
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<Events[Key]>) {
