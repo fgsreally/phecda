@@ -1,5 +1,19 @@
 # phecda-vue
 
+## 3.0.0-alpha.6
+
+### Major Changes
+
+- 0d6d8ad: refactor activeInstance logic to support ssr
+
+### Minor Changes
+
+- cf59f17: split part to web
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.0
+
 ## 2.1.3-alpha.5
 
 ### Patch Changes

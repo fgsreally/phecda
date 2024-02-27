@@ -1,5 +1,15 @@
 # phecda-react
 
+## 0.1.0-alpha.4
+
+### Minor Changes
+
+- cf59f17: split part to web
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.0
+
 ## 0.0.1-alpha.3
 
 ### Patch Changes
