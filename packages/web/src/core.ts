@@ -21,3 +21,7 @@ export function resetActiveInstance() {
 export function getActiveInstance(): ActiveInstance {
   return activeInstance
 }
+
+export function serializeState() {
+  return JSON.parse(JSON.stringify(activeInstance.state))
+}

@@ -1,6 +1,6 @@
 ---
-"phecda-react": patch
-"phecda-vue": patch
+"phecda-react": minor
+"phecda-vue": minor
 ---
 
 split part to web
