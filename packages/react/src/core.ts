@@ -85,6 +85,11 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
   })
 
   emitter.on(eventName, cb)
+
+  return [
+    (arg: Events[Key]) => emitter.emit(eventName, arg),
+    () => emitter.off(eventName, cb),
+  ]
 }
 
 export function initialize<M extends Construct>(module: M, deleteOtherProperty = true): InstanceType<M> | void {

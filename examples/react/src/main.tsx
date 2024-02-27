@@ -1,11 +1,10 @@
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { resetActiveInstance } from 'phecda-react'
+import { createPhecda, storagePlugin, watchPlugin } from 'phecda-react'
 
 
-
-resetActiveInstance()
+createPhecda().use(storagePlugin(),watchPlugin())
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
