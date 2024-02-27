@@ -1,7 +1,8 @@
 /* eslint-disable new-cap */
 import { proxy, useSnapshot } from 'valtio'
-import type { Construct } from 'phecda-web'
-import { getActiveInstance, getHandler, getTag, register, wrapError } from 'phecda-web'
+import type { Construct, Events, Plugin } from 'phecda-web'
+import { useEffect } from 'react'
+import { getActiveInstance, getHandler, getTag, register, resetActiveInstance, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
   const { state } = getActiveInstance()
@@ -54,4 +55,46 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
   rmap.set(instance, proxyInstance)
 
   return [useSnapshot(proxyInstance), proxyInstance]
+}
+export function createPhecda() {
+  resetActiveInstance()
+  const instance = getActiveInstance()
+  const pluginSet: Plugin[] = []
+  return {
+    use(...plugins: Plugin[]) {
+      plugins.forEach((p) => {
+        p.setup(instance)
+        pluginSet.push(p)
+      })
+    },
+    load(state: any) {
+      instance.state = state
+      return this
+    },
+
+    unmount() {
+      pluginSet.forEach(p => p.unmount?.(instance))
+    },
+
+  }
+}
+
+export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
+  useEffect(() => {
+    return () => emitter.off(eventName, cb)
+  })
+
+  emitter.on(eventName, cb)
+}
+
+export function initialize<M extends Construct>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
+  const instance = useO(module)
+  const newInstance = new module()
+  Object.assign(instance, newInstance)
+  if (deleteOtherProperty) {
+    for (const key in instance) {
+      if (!(key in newInstance))
+        delete instance[key]
+    }
+  }
 }

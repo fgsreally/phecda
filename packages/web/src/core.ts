@@ -7,8 +7,8 @@ export async function waitUntilInit(...instances: InstanceType<Construct>[]) {
 
 let activeInstance: ActiveInstance
 
-export function resetActiveInstance() {
-  activeInstance = {
+export function resetActiveInstance(instance?: ActiveInstance) {
+  activeInstance = instance || {
     state: {},
     _v: new WeakMap(),
     _r: new WeakMap(),
