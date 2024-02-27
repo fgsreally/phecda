@@ -1,3 +1,2 @@
-export * from './composables'
-export * from './utils'
-export * from 'phecda-core'
+export * from './core'
+export * from 'phecda-web'

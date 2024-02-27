@@ -1,18 +1,15 @@
 /* eslint-disable new-cap */
-import type { Handler } from 'mitt'
 import type { UnwrapNestedRefs } from 'vue'
 import { onBeforeUnmount, reactive, toRaw, toRef } from 'vue'
-import type { Construct, Events } from 'phecda-core'
-import { getHandler, getTag, registerAsync } from 'phecda-core'
-import { emitter } from '../emitter'
-import type { ReplaceInstanceValues } from '../types'
-import { getActiveInstance } from './phecda'
+
+import type { Construct, Events } from 'phecda-web'
+import { emitter, getActiveInstance, getHandler, getTag, registerAsync, wrapError } from 'phecda-web'
+import type { ReplaceInstanceValues } from './types'
 import type { DeepPartial } from './utils'
-import { createSharedReactive, mergeReactiveObjects, wrapError } from './utils'
+import { createSharedReactive, mergeReactiveObjects } from './utils'
 
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { state } = getActiveInstance()
-
   if (module.prototype.__ISOLATE__) {
     const instance = reactive(new module())
     instance._promise = registerAsync(instance)
@@ -104,7 +101,7 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
   vmap.set(instance, proxy)
   return proxy
 }
-export function useEvent<Key extends keyof Events>(eventName: Key, cb: Handler<Events[Key]>) {
+export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
   onBeforeUnmount(() => {
     emitter.off(eventName, cb)
   })
@@ -134,7 +131,3 @@ export function initialize<M extends Construct>(module: M, deleteOtherProperty =
 //   }
 //   return newInstance
 // }
-
-export async function waitUntilInit(...modules: Construct[]) {
-  await Promise.all(modules.map(m => useO(m)._promise))
-}

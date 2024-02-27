@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Err, Init } from 'phecda-core'
+import { Err, Init } from 'phecda-web'
 import { createApp } from 'vue'
-import { Isolate, Tag, Watcher, createPhecda, emitter, useR, useV, waitUntilInit } from '../src/index'
+import { Isolate, Tag, Watcher, createPhecda, emitter, useO, useR, useV, waitUntilInit, watchPlugin } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
-    createApp({}).use(createPhecda())
+    createApp({}).use(createPhecda().use(watchPlugin()))
     class WatchPlayer {
       name: string
       @Watcher('test')
@@ -64,7 +64,7 @@ describe('work for vue', () => {
       }
     }
 
-    await waitUntilInit(A, B)
+    await waitUntilInit(useO(A), useO(B))
     expect(isInit).toBeTruthy()
   })
 

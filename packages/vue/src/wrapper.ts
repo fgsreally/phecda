@@ -1,5 +1,5 @@
-import type { Events } from 'phecda-core'
-import { emitter } from './emitter'
+import type { Events } from 'phecda-web'
+import { emitter } from 'phecda-web'
 
 export class PV {
   constructor() {

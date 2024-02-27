@@ -1,6 +1,7 @@
 import type { App } from 'vue'
-import { getCurrentInstance, inject, markRaw } from 'vue'
-import type { ActiveInstance, Plugin } from '../types'
+import { markRaw } from 'vue'
+import type { Plugin } from 'phecda-web'
+import { getActiveInstance, resetActiveInstance } from 'phecda-web'
 export const phecdaSymbol = Symbol('phecda')
 
 export function createPhecda() {
@@ -10,9 +11,10 @@ export function createPhecda() {
     install(app: App) {
       const instance = getActiveInstance()
       instance.app = app
+
       app.provide(phecdaSymbol, instance)
       app.config.globalProperties.$phecda = instance
-      this.plugins.forEach(p => p(instance))
+      this.plugins.forEach(p => p.setup(instance))
     },
 
     use(...plugins: Plugin[]) {
@@ -23,27 +25,16 @@ export function createPhecda() {
     load(state: any) {
       const instance = getActiveInstance()
       instance.state = state
+
       return this
+    },
+
+    unmount() {
+      const instance = getActiveInstance()
+      this.plugins.forEach(p => p.unmount?.(instance))
     },
 
   })
 
   return phecda
-}
-
-let activeInstance: ActiveInstance
-
-export function resetActiveInstance() {
-  activeInstance = {
-    state: {},
-    _v: new WeakMap(),
-    _r: new WeakMap(),
-    _f: new WeakMap(),
-    _c: new WeakMap(),
-
-  } as any
-}
-
-export function getActiveInstance(): ActiveInstance {
-  return (getCurrentInstance() && inject(phecdaSymbol)) || activeInstance
 }
