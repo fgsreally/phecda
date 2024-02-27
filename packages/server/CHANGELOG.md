@@ -1,5 +1,14 @@
 # phecda-server
 
+## 5.0.0-alpha.9
+
+### Patch Changes
+
+- cf59f17: rename PPlugin to PAddon
+- 07816fb: add generics to PPlugin
+- Updated dependencies [f25189c]
+  - phecda-core@3.0.0-alpha.3
+
 ## 5.0.0-alpha.8
 
 ### Patch Changes

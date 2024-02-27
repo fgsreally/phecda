@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.3
+
+### Patch Changes
+
+- f25189c: move Isolate to core
+
 ## 3.0.0-alpha.2
 
 ### Patch Changes

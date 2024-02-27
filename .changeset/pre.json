@@ -14,16 +14,22 @@
     "phecda-prompt": "1.0.1",
     "phecda-react": "0.0.0",
     "phecda-server": "4.1.0",
-    "phecda-vue": "2.1.2"
+    "phecda-vue": "2.1.2",
+    "phecda-web": "1.0.0"
   },
   "changesets": [
+    "angry-hotels-mate",
     "blue-chicken-destroy",
     "curly-glasses-clap",
+    "curvy-jeans-hunt",
     "eight-jars-end",
     "eleven-parrots-suffer",
+    "good-hotels-doubt",
     "gorgeous-toys-pay",
     "heavy-suns-pump",
+    "hot-adults-bake",
     "lazy-rockets-invent",
+    "little-hornets-warn",
     "long-chefs-swim",
     "loud-tips-refuse",
     "new-ligers-smell",
