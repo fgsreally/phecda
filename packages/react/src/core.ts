@@ -12,7 +12,7 @@ export function useO<T extends Construct>(module: T) {
     return instance
   }
 
-  const tag = getTag(module) || module.name
+  const tag = getTag(module)
 
   if (tag in state)
     return state[tag]

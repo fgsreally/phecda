@@ -15,7 +15,7 @@ export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
     instance._promise = registerAsync(instance)
     return instance
   }
-  const tag = getTag(module) || module.name
+  const tag = getTag(module)
   if (!(tag in state)) {
     const instance = reactive(new module())
     instance._promise = registerAsync(instance)

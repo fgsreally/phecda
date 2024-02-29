@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipeline, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipeline, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getTag, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
       if (p !== 'phecda')
-        throw new Error(`${getSymbol(i)}.${k} should be phecda`)
+        throw new Error(`${getTag(i)}.${k} should be phecda`)
 
       return p + 1
     })
