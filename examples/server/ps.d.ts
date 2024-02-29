@@ -113,7 +113,7 @@ declare global {
   const regisHandler: typeof import('phecda-server')['regisHandler']
   const regisInitEvent: typeof import('phecda-server')['regisInitEvent']
   const register: typeof import('phecda-server')['register']
-  const registerAsync: typeof import('phecda-server')['registerAsync']
+  const registerSerial: typeof import('phecda-server')['registerSerial']
   const resolveDep: typeof import('phecda-server')['resolveDep']
   const setConfig: typeof import('phecda-server')['setConfig']
   const setExposeKey: typeof import('phecda-server')['setExposeKey']

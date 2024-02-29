@@ -176,19 +176,18 @@ export function getState(instance: Phecda, key: PropertyKey) {
   return ret
 }
 
-// work for init
-export function register(instance: Phecda) {
+// parallel
+export function registerParallel(instance: Phecda) {
   const stateVars = getExposeKey(instance) as PropertyKey[]
 
-  for (const item of stateVars) {
-    const handlers = getHandler(instance, item)
+  const initHandlers = stateVars.map((item) => {
+    return getHandler(instance, item).filter(h => h.init).map(h => h.init(instance))
+  }).flat()
 
-    for (const hanlder of handlers)
-      hanlder.init?.(instance)
-  }
+  return Promise.all(initHandlers)
 }
-
-export async function registerAsync(instance: Phecda) {
+// series
+export async function registerSerial(instance: Phecda) {
   const stateVars = getExposeKey(instance) as PropertyKey[]
 
   for (const item of stateVars) {

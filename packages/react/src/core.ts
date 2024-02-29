@@ -8,7 +8,7 @@ export function useO<T extends Construct>(module: T) {
   const { state } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = new module()
-    instance._promise = registerAsync(instance)
+    instance._promise = registerSerial(instance)
     return instance
   }
 

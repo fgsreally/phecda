@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerAsync } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
@@ -133,7 +133,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`init module "${tag}"`)
 
-    await registerAsync(instance)
+    await registerSerial(instance)
 
     debug(`add module "${tag}"`)
 
