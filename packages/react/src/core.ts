@@ -2,13 +2,13 @@
 import { proxy, useSnapshot } from 'valtio'
 import type { Construct, Events, Plugin } from 'phecda-web'
 import { useEffect } from 'react'
-import { getActiveInstance, getHandler, getTag, register, resetActiveInstance, wrapError } from 'phecda-web'
+import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
   const { state } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = new module()
-    instance._promise = registerSerial(instance)
+
     return instance
   }
 
@@ -33,6 +33,8 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
 
   const proxyInstance = proxy(new Proxy(instance, {
     get(target: any, key) {
+      if (key === '_promise')
+        return target[key]
       if (typeof target[key] === 'function') {
         if (fmap.has(target[key]))
           return fmap.get(target[key])
@@ -51,7 +53,9 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
       return true
     },
   }))
-  register(proxyInstance)
+
+  instance._promise = registerSerial(proxyInstance)
+
   rmap.set(instance, proxyInstance)
 
   return [useSnapshot(proxyInstance), proxyInstance]

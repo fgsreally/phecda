@@ -1,8 +1,8 @@
 import type { Construct } from 'phecda-core'
 import type { ActiveInstance } from './types'
 
-export async function waitUntilInit(...instances: InstanceType<Construct>[]) {
-  await Promise.all(instances.map(i => i._promise))
+export function waitUntilInit(...instances: InstanceType<Construct>[]) {
+  return Promise.all(instances.map(i => i._promise))
 }
 
 let activeInstance: ActiveInstance
