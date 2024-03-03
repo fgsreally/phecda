@@ -1,4 +1,4 @@
-import { getSymbol } from 'phecda-core'
+import { getTag } from 'phecda-core'
 import { Context, addGuard } from '../context'
 import type { P } from '../types'
 import { Dev } from './dev'
@@ -8,7 +8,7 @@ export abstract class PGuard<C extends P.BaseContext = any> extends Dev {
   readonly key: string
   constructor(tag?: string) {
     super()
-    this.key = tag || getSymbol(this)
+    this.key = tag || getTag(this)
 
     addGuard(this.key, this.use.bind(this))
 

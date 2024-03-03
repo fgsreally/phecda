@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, injectProperty, isPhecda, registerAsync } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
@@ -99,7 +99,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   async function buildNestModule(Module: Construct) {
     const paramtypes = getParamTypes(Module) as Construct[]
     let instance: InstanceType<Construct>
-    const tag = Module.prototype?.__TAG__ || Module.name
+    const tag = getTag(Module)
     if (moduleMap.has(tag)) {
       instance = moduleMap.get(tag)
       if (!instance)
@@ -133,7 +133,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`init module "${tag}"`)
 
-    await registerAsync(instance)
+    await registerSerial(instance)
 
     debug(`add module "${tag}"`)
 

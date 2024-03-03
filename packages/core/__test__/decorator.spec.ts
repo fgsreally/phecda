@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Nested, Pipeline, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getSymbol, injectProperty, isPhecda, plainToClass, registerAsync, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Init, Nested, Pipeline, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getTag, injectProperty, isPhecda, plainToClass, registerParallel, registerSerial, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
       if (p !== 'phecda')
-        throw new Error(`${getSymbol(i)}.${k} should be phecda`)
+        throw new Error(`${getTag(i)}.${k} should be phecda`)
 
       return p + 1
     })
@@ -92,7 +92,7 @@ describe('validate&transform', () => {
       key = 'test'
     }
     const instance = new Test() as any
-    await registerAsync(instance)
+    await registerSerial(instance)
     expect(instance.key).toBe('test2')
   })
 
@@ -115,7 +115,7 @@ describe('validate&transform', () => {
       fn(value)
     })
     const instance = new Test() as any
-    await registerAsync(instance)
+    await registerSerial(instance)
     expect(instance.key).toBe(10)
     expect(instance.$_key).toBe(10)
 
@@ -162,5 +162,25 @@ describe('validate&transform', () => {
     const instance = plainToClass(Test, { count: 0 })
     await transformClass(instance, true)
     expect(instance.count).toBe(2)
+  })
+
+  it('init', async () => {
+    class A {
+      isReady = false
+      @Init
+      async _init() {
+        await Promise.resolve()
+        this.isReady = true
+      }
+    }
+
+    const i1 = new A()
+    await registerParallel(i1 as any)
+
+    expect(i1.isReady).toBeTruthy()
+    const i2 = new A()
+    await registerSerial(i2 as any)
+
+    expect(i2.isReady).toBeTruthy()
   })
 })

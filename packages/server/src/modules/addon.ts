@@ -1,4 +1,4 @@
-import { getSymbol } from 'phecda-core'
+import { getTag } from 'phecda-core'
 import { Context, addPlugin } from '../context'
 import { Dev } from './dev'
 
@@ -6,7 +6,7 @@ export abstract class PAddon<Params extends any[] = any[]> extends Dev {
   readonly key: string
   constructor(tag?: string) {
     super()
-    this.key = tag || getSymbol(this)
+    this.key = tag || getTag(this)
 
     addPlugin(this.key, this.use.bind(this))
 

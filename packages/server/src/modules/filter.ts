@@ -1,4 +1,4 @@
-import { getSymbol } from 'phecda-core'
+import { getTag } from 'phecda-core'
 import { Context, addFilter } from '../context'
 import type { Exception } from '../exception'
 import type { P } from '../types'
@@ -8,7 +8,7 @@ export abstract class PFilter<C extends P.BaseContext = any, E extends Exception
   readonly key: string
   constructor(tag?: string) {
     super()
-    this.key = tag || getSymbol(this)
+    this.key = tag || getTag(this)
 
     addFilter(this.key, this.use.bind(this))
     this.onUnmount(() => {

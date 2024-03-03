@@ -1,17 +1,15 @@
 /* eslint-disable new-cap */
 import { getExposeKey, getHandler, getModuleState, getState } from './core'
-import type { ClassValue, Phecda } from './types'
+import type { ClassValue, Construct, Phecda } from './types'
 // from class
-export function getTag<M extends new (...args: any) => any>(module: M) {
-  return (module as any).prototype?.__TAG__
-}
-// from instance
-export function getSymbol<M extends new (...args: any) => any>(instance: InstanceType<M>) {
-  const module = instance.constructor
-  return getTag(module) || module.name
+export function getTag<M extends Construct>(moduleOrInstance: M | InstanceType<M>) {
+  if (typeof moduleOrInstance === 'object')
+    moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
+
+  return (moduleOrInstance as M).prototype?.__TAG__ || (moduleOrInstance as M).name
 }
 
-export function getBind<M extends new (...args: any) => any>(module: M) {
+export function getBind<M extends Construct>(module: M) {
   const instance = new module() as Phecda
   const keys = getModuleState(instance) as PropertyKey[]
   const ret: any = {}
@@ -24,7 +22,7 @@ export function getBind<M extends new (...args: any) => any>(module: M) {
   return ret
 }
 
-export function plainToClass<M extends new (...args: any) => any, Data extends Record<PropertyKey, any>>(module: M, input: Data) {
+export function plainToClass<M extends Construct, Data extends Record<PropertyKey, any>>(module: M, input: Data) {
   const instance: InstanceType<M> = new module()
 
   const keys = getExposeKey(instance) as PropertyKey[]
@@ -33,7 +31,7 @@ export function plainToClass<M extends new (...args: any) => any, Data extends R
   return instance
 }
 
-export async function transformClass<M extends new (...args: any) => any>(instance: InstanceType<M>, force = false) {
+export async function transformClass<M extends Construct>(instance: InstanceType<M>, force = false) {
   const err: string[] = []
 
   const stateVars = getModuleState(instance) as PropertyKey[]
@@ -67,7 +65,7 @@ export function classToValue<M>(instance: M): ClassValue<M> {
   return data
 }
 
-export function snapShot<T extends new (...args: any) => any>(data: InstanceType<T>) {
+export function snapShot<T extends Construct>(data: InstanceType<T>) {
   const snap = {} as unknown as InstanceType<T>
   for (const i in data)
     snap[i] = data[i]
@@ -87,7 +85,7 @@ export function snapShot<T extends new (...args: any) => any>(data: InstanceType
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends new (...args: any) => any>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
+export function addDecoToClass<M extends Construct>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
   handler(type === 'class' ? c.prototype : c, key)
 }
 
