@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.2
+
+### Patch Changes
+
+- c40fece: move Construct from server to core; fix isPhecda types
+
 ## 3.0.0-alpha.1
 
 ### Major Changes

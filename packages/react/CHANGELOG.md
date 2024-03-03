@@ -1,5 +1,18 @@
 # phecda-react
 
+## 0.0.1-alpha.3
+
+### Patch Changes
+
+- Updated dependencies [c40fece]
+  - phecda-core@3.0.0-alpha.2
+
+## 0.0.1-alpha.2
+
+### Patch Changes
+
+- 6a55ac9: won't load module with tag that has been loaded before
+
 ## 0.0.1-alpha.1
 
 ### Patch Changes
