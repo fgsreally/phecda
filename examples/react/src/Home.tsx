@@ -1,6 +1,7 @@
-import { useR, } from "phecda-react";
+import { useR } from "phecda-react";
 import { HomeModel } from "./models/home";
 
+// waitUntilInit performs weird
 
 export function Home() {
   return (

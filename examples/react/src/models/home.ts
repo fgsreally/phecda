@@ -2,7 +2,7 @@
 import { Watcher,Storage, Init } from 'phecda-react'
 
 
-// @Storage('home')
+@Storage('home')
 export class HomeModel {
     name = 'home'
     changeName(name: string) {
@@ -11,7 +11,7 @@ export class HomeModel {
 
     @Init
     _init(){
-     return new Promise((resolve)=>{
+     return new Promise<void>((resolve)=>{
         setTimeout(()=>{
             this.name='newOne'
             resolve()

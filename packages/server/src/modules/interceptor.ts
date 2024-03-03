@@ -1,4 +1,4 @@
-import { getSymbol } from 'phecda-core'
+import { getTag } from 'phecda-core'
 import { Context, addInterceptor } from '../context'
 import type { P } from '../types'
 import { Dev } from './dev'
@@ -10,7 +10,7 @@ export abstract class PInterceptor<C extends P.BaseContext = any> extends Dev {
   constructor(tag?: string) {
     super()
 
-    this.key = tag || getSymbol(this)
+    this.key = tag || getTag(this)
 
     this.onUnmount(() => {
       delete Context.interceptorRecord[this.key]

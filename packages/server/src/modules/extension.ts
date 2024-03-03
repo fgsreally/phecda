@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { getSymbol } from 'phecda-core'
+import { getTag } from 'phecda-core'
 import type { P } from '../types'
 import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
 import type { Exception } from '../exception'
@@ -24,7 +24,7 @@ export class PExtension extends Dev {
   constructor(tag?: string) {
     super()
 
-    const key = this.key = tag || getSymbol(this)
+    const key = this.key = tag || getTag(this)
 
     if (this.pipe) {
       addPipe(key, this.pipe.bind(this))

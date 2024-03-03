@@ -101,7 +101,7 @@ declare global {
   const getOwnState: typeof import('phecda-server')['getOwnState']
   const getProperty: typeof import('phecda-server')['getProperty']
   const getState: typeof import('phecda-server')['getState']
-  const getSymbol: typeof import('phecda-server')['getSymbol']
+  const getTag: typeof import('phecda-server')['getTag']
   const getTag: typeof import('phecda-server')['getTag']
   const guardRecord: typeof import('phecda-server')['guardRecord']
   const init: typeof import('phecda-server')['init']
