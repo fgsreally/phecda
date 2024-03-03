@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.4
+
+### Patch Changes
+
+- f83af88: remove getSymbol;getTag can handle both class(module) and instance now
+
 ## 3.0.0-alpha.3
 
 ### Patch Changes
