@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 3.0.0-alpha.7
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.1
+
 ## 3.0.0-alpha.6
 
 ### Major Changes
