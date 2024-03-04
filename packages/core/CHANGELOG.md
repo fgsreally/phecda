@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.5
+
+### Patch Changes
+
+- e8582aa: @Init can handle async function correctly
+
 ## 3.0.0-alpha.4
 
 ### Patch Changes
