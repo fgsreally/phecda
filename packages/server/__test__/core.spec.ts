@@ -1,8 +1,8 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Factory } from '../src/core'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { Factory, Injectable } from '../src/core'
 import { Body, Controller, Get, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
-import { Tag } from '../src'
+import { Init, Tag } from '../src'
 
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', async () => {
@@ -90,5 +90,38 @@ describe('Factory ', () => {
     const { moduleMap } = await Factory([A, Service])
     expect(moduleMap.size).toBe(2)
     expect(moduleMap.get('A').test()).toBe('test')
+  })
+
+  it('Factory will handle init events correctly', async () => {
+    const fn = vi.fn((str: string) => str)
+
+    function wait(timeout = 1000) {
+      return new Promise<void>((resolve) => {
+        setTimeout(resolve, timeout)
+      })
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    class A {
+      @Init
+      async _init() {
+        await wait()
+        fn('a')
+      }
+    }
+
+    @Injectable()
+    class B {
+      constructor(public A: A) {
+      }
+
+      @Init
+      async _init() {
+        await wait()
+        fn('b')
+      }
+    }
+
+    await Factory([B])
+    expect(fn).toHaveBeenCalledTimes(2)
   })
 })
