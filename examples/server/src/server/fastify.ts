@@ -21,7 +21,7 @@ const fastify = Fastify({
 //     })
 //   })
 // })
-// addPlugin('test', (fastify, _, done) => {
+// addAddon('test', (fastify, _, done) => {
 //   fastify.addHook('onRequest', (_request, reply, done) => {
 //     reply.header('X-Custom-Header', 'default')
 

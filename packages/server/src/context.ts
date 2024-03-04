@@ -117,7 +117,7 @@ export class Context<Data extends P.BaseContext> {
     return ret as any[]
   }
 }
-export function addPlugin<T>(key: string, handler: T) {
+export function addAddon<T>(key: string, handler: T) {
   Context.pluginRecord[key] = handler
 }
 

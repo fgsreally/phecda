@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { getTag } from 'phecda-core'
 import type { P } from '../types'
-import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
+import { Context, addAddon, addFilter, addGuard, addInterceptor, addPipe } from '../context'
 import type { Exception } from '../exception'
 import { Dev } from './dev'
 
@@ -15,7 +15,7 @@ export interface PExtension<C extends P.BaseContext = any, E extends Exception =
 
   filter(error: Error | E, ctx?: C): P.Error
 
-  plugin(...args: any): void
+  addon(...args: any): void
 }
 
 export class PExtension extends Dev {
@@ -33,8 +33,8 @@ export class PExtension extends Dev {
       })
     }
 
-    if (this.plugin) {
-      addPlugin(key, this.plugin.bind(this))
+    if (this.addon) {
+      addAddon(key, this.addon.bind(this))
 
       this.onUnmount(() => {
         delete Context.pluginRecord[key]
