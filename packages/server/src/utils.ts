@@ -1,4 +1,5 @@
 import pc from 'picocolors'
+import type { Construct } from 'phecda-core'
 import { DataMap } from 'phecda-core'
 
 let time: number
@@ -33,4 +34,13 @@ export function setConfig<C = any>(key: string, conf: C, force = true) {
     return
 
   DataMap[key] = conf
+}
+
+export function Mix<C1 extends Construct, C2 extends Construct>(InternalClass: C1, ExtendClass: C2) {
+  return class extends ExtendClass {
+    constructor(...args: any) {
+      super(...args)
+      Object.assign(this, new InternalClass())
+    }
+  } as new (...args: ConstructorParameters<C2>) => InstanceType<C1> & InstanceType<C2>
 }

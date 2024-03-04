@@ -7,7 +7,7 @@ export function Init(proto: any, key: PropertyKey) {
 
   regisHandler(proto, key, {
     async init(instance: any) {
-      instance[key]()
+      return instance[key]()
     },
   })
 }
