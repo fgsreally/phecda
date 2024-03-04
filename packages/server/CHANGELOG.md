@@ -1,5 +1,14 @@
 # phecda-server
 
+## 5.0.0-alpha.11
+
+### Patch Changes
+
+- df556a5: add destroy to Factory
+- 9fa9507: add Mix
+- Updated dependencies [e8582aa]
+  - phecda-core@3.0.0-alpha.5
+
 ## 5.0.0-alpha.10
 
 ### Patch Changes
