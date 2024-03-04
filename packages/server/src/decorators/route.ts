@@ -17,21 +17,21 @@ export function Route(route: string, type?: string): any {
   }
 }
 
-export function Get(route: string) {
+export function Get(route = '') {
   return Route(route, 'get')
 }
 
-export function Post(route: string) {
+export function Post(route = '') {
   return Route(route, 'post')
 }
-export function Put(route: string) {
+export function Put(route = '') {
   return Route(route, 'put')
 }
 
-export function Patch(route: string) {
+export function Patch(route = '') {
   return Route(route, 'patch')
 }
-export function Delete(route: string) {
+export function Delete(route = '') {
   return Route(route, 'delete')
 }
 
