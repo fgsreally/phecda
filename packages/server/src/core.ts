@@ -52,7 +52,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     })
   }
 
-  // only remove module in moduleMap(won't remove indiect module)
+  // only remove module in moduleMap(won't remove indirect module)
   async function del(tag: string) {
     if (!moduleMap.has(tag))
       return
@@ -76,6 +76,13 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     }
 
     return instance
+  }
+
+  async function destroy() {
+    debug('destroy all')
+
+    for (const [tag] of moduleMap)
+      await del(tag)
   }
 
   async function add(Module: Construct) {
@@ -182,6 +189,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     constructorMap,
     add,
     del,
+    destroy,
   }
 }
 
