@@ -3,3 +3,4 @@ export function resolveDep(ret: any, key: string) {
     return ret?.[key]
   return ret
 }
+
