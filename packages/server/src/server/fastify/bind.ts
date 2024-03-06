@@ -41,7 +41,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   (app as any).server[APP_SYMBOL] = { moduleMap, meta }
 
-  isAopDepInject(meta, {
+  IS_DEV && isAopDepInject(meta, {
     plugins,
     guards: globalGuards,
     interceptors: globalInterceptors,

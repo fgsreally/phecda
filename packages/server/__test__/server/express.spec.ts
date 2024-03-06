@@ -3,7 +3,7 @@ import request from 'supertest'
 import express from 'express'
 import type { ExpressCtx, Options } from '../../src/server/express'
 import { bindApp } from '../../src/server/express'
-import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addAddon } from '../../src'
+import { ERROR_SYMBOL, Factory, addAddon, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
 async function createApp(opts?: Options) {

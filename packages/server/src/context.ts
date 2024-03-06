@@ -154,8 +154,6 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
   interceptors?: string[]
   plugins?: string[]
 } = {}) {
-  if (!IS_DEV)
-    return
   const pluginSet = new Set<string>(plugins)
 
   const guardSet = new Set<string>(guards)

@@ -26,7 +26,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   function handleMeta() {
-    isAopDepInject(meta, {
+    IS_DEV && isAopDepInject(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })

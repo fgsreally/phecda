@@ -5,7 +5,7 @@ import { koaBody } from 'koa-body'
 import Router from '@koa/router'
 import type { KoaCtx, Options } from '../../src/server/koa'
 import { bindApp } from '../../src/server/koa'
-import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addAddon } from '../../src'
+import { ERROR_SYMBOL, Factory, addAddon, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
 async function createApp(opts?: Options) {
