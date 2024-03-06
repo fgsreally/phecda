@@ -37,7 +37,7 @@ export class PExtension extends Dev {
       addAddon(key, this.addon.bind(this))
 
       this.onUnmount(() => {
-        delete Context.pluginRecord[key]
+        delete Context.addonRecord[key]
       })
     }
     if (this.intercept) {

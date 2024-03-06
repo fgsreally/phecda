@@ -25,7 +25,7 @@ export class Context<Data extends P.BaseContext> {
   static guardRecord: Record<string, P.Guard> = {}
   static interceptorRecord: Record<string, P.Interceptor> = {}
 
-  static pluginRecord: Record<string, any> = {}
+  static addonRecord: Record<string, any> = {}
   postInterceptors: Function[]
 
   constructor(public data: Data) {
@@ -106,34 +106,45 @@ export class Context<Data extends P.BaseContext> {
   static usePlugin(plugins: string[]) {
     const ret = []
     for (const m of plugins) {
-      if (!(m in Context.pluginRecord)) {
+      if (!(m in Context.addonRecord)) {
         if (IS_STRICT)
           throw new FrameworkException(`can't find middleware named '${m}'`)
 
         continue
       }
-      ret.push(Context.pluginRecord[m])
+      ret.push(Context.addonRecord[m])
     }
     return ret as any[]
   }
 }
 export function addAddon<T>(key: string, handler: T) {
-  Context.pluginRecord[key] = handler
+  if (Context.addonRecord[key] && Context.addonRecord[key] !== handler)
+    log(`overwrite Addon "${key}"`, 'warn')
+
+  Context.addonRecord[key] = handler
 }
 
-export function addPipe<C extends P.BaseContext>(key: string, pipe: P.Pipe<C>) {
-  Context.pipeRecord[key] = pipe
+export function addPipe<C extends P.BaseContext>(key: string, handler: P.Pipe<C>) {
+  if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
+    log(`overwrite Pipe "${key}"`, 'warn')
+  Context.pipeRecord[key] = handler
 }
 
 export function addFilter<C extends P.BaseContext>(key: string, handler: P.Filter<C>) {
+  if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
+    log(`overwrite Filter "${key}"`, 'warn')
   Context.filterRecord[key] = handler
 }
 
 export function addGuard<C extends P.BaseContext>(key: string, handler: P.Guard<C>) {
+  if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
+    log(`overwrite Guard "${key}"`, 'warn')
   Context.guardRecord[key] = handler
 }
 
 export function addInterceptor<C extends P.BaseContext>(key: string, handler: P.Interceptor<C>) {
+  if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
+    log(`overwrite Interceptor "${key}"`, 'warn')
   Context.interceptorRecord[key] = handler
 }
 
@@ -165,7 +176,7 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
     })
   })
 
-  const missPlugins = [...pluginSet].filter(i => !Context.pluginRecord[i])
+  const missPlugins = [...pluginSet].filter(i => !Context.addonRecord[i])
   const missGuards = [...guardSet].filter(i => !Context.guardRecord[i])
   const missInterceptors = [...interceptorSet].filter(i => !Context.interceptorRecord[i])
   const missPipes = [...pipeSet].filter(i => !Context.pipeRecord[i])

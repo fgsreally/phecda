@@ -11,7 +11,7 @@ export abstract class PAddon<Params extends any[] = any[]> extends Dev {
     addAddon(this.key, this.use.bind(this))
 
     this.onUnmount(() => {
-      delete Context.pluginRecord[this.key]
+      delete Context.addonRecord[this.key]
     })
   }
 
