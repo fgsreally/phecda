@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.6
+
+### Patch Changes
+
+- 7242bb6: To support multiple callback
+
 ## 3.0.0-alpha.5
 
 ### Patch Changes

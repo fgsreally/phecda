@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.0.0-alpha.12
+
+### Patch Changes
+
+- 3847605: add warn to all aop function
+- Updated dependencies [7242bb6]
+  - phecda-core@3.0.0-alpha.6
+
 ## 5.0.0-alpha.11
 
 ### Patch Changes
