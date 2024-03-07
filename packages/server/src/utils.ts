@@ -1,10 +1,14 @@
 import pc from 'picocolors'
 import type { Construct } from 'phecda-core'
 import { DataMap } from 'phecda-core'
+import { IS_LOG_BAN } from './common'
 
 let time: number
 
 export function log(msg: string, level: 'error' | 'info' | 'warn' = 'info') {
+  if (IS_LOG_BAN)
+    return
+
   const color = ({ error: 'red', info: 'green', warn: 'yellow' } as const)[level]
   const date = new Date()
   const current = Date.now()

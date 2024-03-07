@@ -24,7 +24,7 @@ export async function bind(ch: amqplib.Channel, queue: string, { moduleMap, meta
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   function handleMeta() {
-    isAopDepInject(meta, {
+    IS_DEV && isAopDepInject(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })

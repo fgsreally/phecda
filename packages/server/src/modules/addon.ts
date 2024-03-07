@@ -1,5 +1,5 @@
 import { getTag } from 'phecda-core'
-import { Context, addPlugin } from '../context'
+import { Context, addAddon } from '../context'
 import { Dev } from './dev'
 
 export abstract class PAddon<Params extends any[] = any[]> extends Dev {
@@ -8,10 +8,10 @@ export abstract class PAddon<Params extends any[] = any[]> extends Dev {
     super()
     this.key = tag || getTag(this)
 
-    addPlugin(this.key, this.use.bind(this))
+    addAddon(this.key, this.use.bind(this))
 
     this.onUnmount(() => {
-      delete Context.pluginRecord[this.key]
+      delete Context.addonRecord[this.key]
     })
   }
 

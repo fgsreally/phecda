@@ -37,7 +37,7 @@ export interface Options {
 
 export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
-  isAopDepInject(meta, {
+  IS_DEV && isAopDepInject(meta, {
     plugins,
     guards: globalGuards,
     interceptors: globalInterceptors,

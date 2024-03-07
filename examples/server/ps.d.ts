@@ -81,7 +81,7 @@ declare global {
   const addGuard: typeof import('phecda-server')['addGuard']
   const addInterceptor: typeof import('phecda-server')['addInterceptor']
   const addPipe: typeof import('phecda-server')['addPipe']
-  const addPlugin: typeof import('phecda-server')['addPlugin']
+  const addAddon: typeof import('phecda-server')['addAddon']
   const classToValue: typeof import('phecda-server')['classToValue']
   const defaultPipe: typeof import('phecda-server')['defaultPipe']
   const emitter: typeof import('phecda-server')['emitter']

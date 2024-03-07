@@ -33,7 +33,7 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
   await consumer.subscribe({ topic, fromBeginning: true })
 
   function handleMeta() {
-    isAopDepInject(meta, {
+    IS_DEV && isAopDepInject(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })

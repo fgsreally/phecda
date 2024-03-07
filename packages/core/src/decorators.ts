@@ -49,12 +49,13 @@ export function Expose(proto: any, key: PropertyKey) {
   setExposeKey(proto, key)
 }
 
-export function To(cb: (arg: any, instance: any, key: string) => any) {
+export function To(...callbacks: ((arg: any, instance: any, key: string) => any)[]) {
   return (proto: any, key: PropertyKey) => {
     setVar(proto, key)
     regisHandler(proto, key, {
       async pipe(instance: any) {
-        instance[key] = await cb(instance[key], instance, key as string)
+        for (const cb of callbacks)
+          instance[key] = await cb(instance[key], instance, key as string)
       },
     })
   }

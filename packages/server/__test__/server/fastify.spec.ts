@@ -62,7 +62,7 @@ describe('fastify ', () => {
   // it('plugin', async () => {
   //     const fn = vi.fn()
 
-  //     addPlugin('p1', (_req: Request, _res: Response, next: () => void) => {
+  //     addAddon('p1', (_req: Request, _res: Response, next: () => void) => {
   //         fn()
   //         next()
   //     })

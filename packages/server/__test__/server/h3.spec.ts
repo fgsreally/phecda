@@ -3,7 +3,7 @@ import request from 'supertest'
 import { createApp as createH3, createRouter, getRouterParams, toNodeListener } from 'h3'
 import type { H3Ctx, Options } from '../../src/server/h3'
 import { bindApp } from '../../src/server/h3'
-import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
+import { ERROR_SYMBOL, Factory, addAddon, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
 async function createApp(opts?: Options) {
@@ -61,7 +61,7 @@ describe('h3 ', () => {
   it('plugin', async () => {
     const fn = vi.fn()
 
-    addPlugin('p1', () => {
+    addAddon('p1', () => {
       fn()
     })
 
