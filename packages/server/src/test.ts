@@ -27,8 +27,9 @@ export type SuperTestRequest<T> = {
   [K in keyof T]: T[K] extends (...args: infer R) => any ? (...args: R) => Test : never;
 }
 
-export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>) {
+export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, isAgent = true) {
   const { default: request, agent } = await import('supertest')
+  const Agent = agent(app) as SuperAgentTest & { module: typeof module }
 
   function module<T extends Construct>(Module: T): SuperTestRequest<PickFunc<InstanceType<T>>> {
     const tag = Module.prototype?.__TAG__ || Module.name
@@ -61,13 +62,11 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
           })
 
           // @ts-expect-error miss type
-          return request(app)[ret.method](ret.url).query(ret.query).set(ret.headers).send(ret.body)
+          return (isAgent ? Agent : request(app))[ret.method](ret.url).query(ret.query).set(ret.headers).send(ret.body)
         }
       },
     }) as any
   }
-
-  const Agent = agent(app) as SuperAgentTest & { module: typeof module }
 
   Agent.module = module
 
