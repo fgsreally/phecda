@@ -48,11 +48,12 @@ describe('test utils', () => {
 
     bindExpress(app, data)
 
-    const { get } = await TestHttp(app, data)
-    await get(Http).get().expect(200, 'get')
+    const { module } = await TestHttp(app, data)
 
-    await get(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
-    await get(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
+    await module(Http).get().expect(200, 'get')
+
+    await module(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await module(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
   })
   it('testHttp(fastify)', async () => {
     // express
@@ -61,10 +62,10 @@ describe('test utils', () => {
     app.register(bindFastify(app, data))
 
     await app.ready()
-    const { get } = await TestHttp(app.server, data)
-    await get(Http).get().expect(200, 'get')
-    await get(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
-    await get(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
+    const { module } = await TestHttp(app.server, data)
+    await module(Http).get().expect(200, 'get')
+    await module(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await module(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
   })
 
   it('testHttp(h3)', async () => {
@@ -75,10 +76,10 @@ describe('test utils', () => {
     bindH3(router, data)
     app.use(router)
 
-    const { get } = await TestHttp(createServer(toNodeListener(app)), data)
-    await get(Http).get().expect(200, 'get')
+    const { module } = await TestHttp(createServer(toNodeListener(app)), data)
+    await module(Http).get().expect(200, 'get')
 
-    await get(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
-    await get(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
+    await module(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
+    await module(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
   })
 })
