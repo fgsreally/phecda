@@ -40,7 +40,7 @@ export namespace P {
   }
 
   export type ResOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
-  export type Res<T> = T
+  export type Res<T> = T extends { toJSON(): infer R } ? R : T
 
   export type Guard<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
   export type Interceptor<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))

@@ -55,6 +55,7 @@ export class TestController extends Dev {
   async get() {
     return {
       data: Date.now(),
+
     }
   }
 
