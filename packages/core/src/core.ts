@@ -189,7 +189,6 @@ export function registerParallel(instance: Phecda) {
 // series
 export async function registerSerial(instance: Phecda) {
   const stateVars = getExposeKey(instance) as PropertyKey[]
-
   for (const item of stateVars) {
     const handlers = getHandler(instance, item)
     for (const hanlder of handlers)
