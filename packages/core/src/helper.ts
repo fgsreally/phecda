@@ -2,7 +2,7 @@
 import { getExposeKey, getHandler, getModuleState, getState } from './core'
 import type { ClassValue, Construct, Phecda } from './types'
 // from class
-export function getTag<M extends Construct>(moduleOrInstance: M | InstanceType<M>): string | symbol {
+export function getTag<M extends Construct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
     moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
 

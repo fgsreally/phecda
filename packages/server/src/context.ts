@@ -14,18 +14,18 @@ export class Context<Data extends P.BaseContext> {
   params: string[]
   history = new Histroy()
 
-  static filterRecord: Record<string, P.Filter> = {
+  static filterRecord: Record<PropertyKey, P.Filter> = {
     default: defaultFilter,
   }
 
-  static pipeRecord: Record<string, P.Pipe> = {
+  static pipeRecord: Record<PropertyKey, P.Pipe> = {
     default: defaultPipe,
   }
 
-  static guardRecord: Record<string, P.Guard> = {}
-  static interceptorRecord: Record<string, P.Interceptor> = {}
+  static guardRecord: Record<PropertyKey, P.Guard> = {}
+  static interceptorRecord: Record<PropertyKey, P.Interceptor> = {}
 
-  static addonRecord: Record<string, any> = {}
+  static addonRecord: Record<PropertyKey, any> = {}
   postInterceptors: Function[]
 
   constructor(public data: Data) {
@@ -117,34 +117,34 @@ export class Context<Data extends P.BaseContext> {
     return ret as any[]
   }
 }
-export function addAddon<T>(key: string, handler: T) {
+export function addAddon<T>(key: PropertyKey, handler: T) {
   if (Context.addonRecord[key] && Context.addonRecord[key] !== handler)
-    log(`overwrite Addon "${key}"`, 'warn')
+    log(`overwrite Addon "${String(key)}"`, 'warn')
 
   Context.addonRecord[key] = handler
 }
 
-export function addPipe<C extends P.BaseContext>(key: string, handler: P.Pipe<C>) {
+export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: P.Pipe<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
-    log(`overwrite Pipe "${key}"`, 'warn')
+    log(`overwrite Pipe "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = handler
 }
 
-export function addFilter<C extends P.BaseContext>(key: string, handler: P.Filter<C>) {
+export function addFilter<C extends P.BaseContext>(key: PropertyKey, handler: P.Filter<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
-    log(`overwrite Filter "${key}"`, 'warn')
+    log(`overwrite Filter "${String(key)}"`, 'warn')
   Context.filterRecord[key] = handler
 }
 
-export function addGuard<C extends P.BaseContext>(key: string, handler: P.Guard<C>) {
+export function addGuard<C extends P.BaseContext>(key: PropertyKey, handler: P.Guard<C>) {
   if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
-    log(`overwrite Guard "${key}"`, 'warn')
+    log(`overwrite Guard "${String(key)}"`, 'warn')
   Context.guardRecord[key] = handler
 }
 
-export function addInterceptor<C extends P.BaseContext>(key: string, handler: P.Interceptor<C>) {
+export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handler: P.Interceptor<C>) {
   if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
-    log(`overwrite Interceptor "${key}"`, 'warn')
+    log(`overwrite Interceptor "${String(key)}"`, 'warn')
   Context.interceptorRecord[key] = handler
 }
 

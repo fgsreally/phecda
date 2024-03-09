@@ -5,7 +5,7 @@ import { Dev } from './dev'
 
 export abstract class PInterceptor<C extends P.BaseContext = any> extends Dev {
   abstract use(ctx: C): Function | Promise<Function> | any
-  readonly key: string
+  readonly key: PropertyKey
 
   constructor(tag?: string) {
     super()

@@ -54,7 +54,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
       const { tag, method, http } = item.data
       if (!http?.type)
         continue
-      const methodTag = `${tag}-${method}`
+      const methodTag = `${tag as string}-${method}`
       metaMap.set(methodTag, item)
     }
   }
@@ -164,7 +164,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
       if (!http?.type)
         continue
 
-      const methodTag = `${tag}-${method}`
+      const methodTag = `${tag as string}-${method}`
 
       const {
         paramsType,

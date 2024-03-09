@@ -61,7 +61,7 @@ export function To(...callbacks: ((arg: any, instance: any, key: string) => any)
   }
 }
 
-export function Tag(tag: string) {
+export function Tag(tag: PropertyKey) {
   return (module: any) => {
     init(module.prototype)
     module.prototype.__TAG__ = tag
