@@ -1,6 +1,5 @@
 import type { ExpressCtx } from 'phecda-server/express'
 
-import { Unique } from 'phecda-server'
 import { A } from './test.service'
 
 export class Tester {
@@ -13,8 +12,7 @@ export class Tester {
 }
 
 @Controller('/base')
-// @Tag('test')
-@Unique()
+@Tag('test')
 export class TestController extends Dev {
   static age = 12
   age = 1

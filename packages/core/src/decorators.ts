@@ -71,7 +71,7 @@ export function Tag(tag: PropertyKey) {
 export function Unique(desc?: string) {
   return (module: any) => {
     init(module.prototype)
-    module.prototype.__TAG__ = Symbol(desc)
+    module.prototype.__TAG__ = Symbol(desc || module.name)
   }
 }
 

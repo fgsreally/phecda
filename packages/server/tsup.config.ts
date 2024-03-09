@@ -7,7 +7,6 @@ export const tsup: Options = {
     'src/server/koa/index.ts',
     'src/server/fastify/index.ts',
     'src/server/h3/index.ts',
-
     'src/rpc/rabbitmq/index.ts',
     'src/rpc/kafka/index.ts',
     'src/rpc/redis/index.ts'],
