@@ -67,6 +67,14 @@ export function Tag(tag: string) {
     module.prototype.__TAG__ = tag
   }
 }
+
+export function Unique(desc?: string) {
+  return (module: any) => {
+    init(module.prototype)
+    module.prototype.__TAG__ = Symbol(desc)
+  }
+}
+
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
   return (module: any) => {

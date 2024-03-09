@@ -23,7 +23,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   // rpc generate code path
   rpc?: string
 } = {}) {
-  const moduleMap = new Map<string, InstanceType<Construct>>()
+  const moduleMap = new Map<string | symbol, InstanceType<Construct>>()
   const meta: Meta[] = []
   const constructorMap = new Map()
 
@@ -53,20 +53,20 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   }
 
   // only remove module in moduleMap(won't remove indirect module)
-  async function del(tag: string) {
+  async function del(tag: string | symbol) {
     if (!moduleMap.has(tag))
       return
 
     const instance = moduleMap.get(tag)
 
-    debug(`unmount module "${tag}"`)
+    debug(`unmount module "${String(tag)}"`)
 
     if (instance?.[UNMOUNT_SYMBOL]) {
       for (const cb of instance[UNMOUNT_SYMBOL])
         await cb()
     }
 
-    debug(`del module "${tag}"`)
+    debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
     constructorMap.delete(tag)
