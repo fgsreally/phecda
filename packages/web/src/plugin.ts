@@ -1,4 +1,4 @@
-import { injectProperty } from 'phecda-core'
+import { getProperty, injectProperty } from 'phecda-core'
 import mitt from 'mitt'
 import type { PhecdaEmitter } from './types'
 
@@ -10,12 +10,16 @@ export function defaultWebInject() {
     injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: any; instance: any; key: string; options?: { once: boolean } }) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
-      if (options?.once)
+      if (options?.once) {
+        const handler = () => {
+          fn();
+          (emitter as any).off(eventName)
+        }
 
-        (emitter as any).once(eventName, fn)
+        (emitter as any).on(eventName, handler)
+      }
 
-      else
-        (emitter as any).on(eventName, fn)
+      else { (emitter as any).on(eventName, fn) }
 
       return () => (emitter as any).off(eventName)
     })
