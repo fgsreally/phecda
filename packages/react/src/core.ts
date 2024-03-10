@@ -1,8 +1,8 @@
 /* eslint-disable new-cap */
 import { proxy, useSnapshot } from 'valtio'
-import type { Construct, Events, Plugin } from 'phecda-web'
+import type { Construct, Events } from 'phecda-web'
 import { useEffect } from 'react'
-import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, wrapError } from 'phecda-web'
+import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, unmountParallel, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
   const { state, _o: oMap } = getActiveInstance()
@@ -65,22 +65,19 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
 }
 export function createPhecda() {
   resetActiveInstance()
-  const instance = getActiveInstance()
-  const pluginSet: Plugin[] = []
   return {
-    use(...plugins: Plugin[]) {
-      plugins.forEach((p) => {
-        p.setup(instance)
-        pluginSet.push(p)
-      })
-    },
+
     load(state: any) {
+      const instance = getActiveInstance()
+
       instance.state = state
       return this
     },
 
-    unmount() {
-      pluginSet.forEach(p => p.unmount?.(instance))
+    async  unmount() {
+      const { state } = getActiveInstance()
+      await Object.values(state).map(ins => unmountParallel(ins))
+      resetActiveInstance()
     },
 
   }
