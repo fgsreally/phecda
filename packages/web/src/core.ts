@@ -1,3 +1,4 @@
+import { unmountParallel } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 import type { ActiveInstance } from './types'
 
@@ -27,10 +28,11 @@ export function serializeState() {
   return JSON.parse(JSON.stringify(activeInstance.state))
 }
 
-export function unmountModule(module: Construct | PropertyKey) {
+export async function unmountModule(module: Construct | PropertyKey) {
   if (typeof module === 'object')
     module = getTag(module)
 
   const { state } = getActiveInstance()
+  await unmountParallel(state[module as PropertyKey])
   delete state[module as PropertyKey]
 }

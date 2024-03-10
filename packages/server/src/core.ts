@@ -2,12 +2,12 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial, unmountParallel } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_DEV, UNMOUNT_SYMBOL } from './common'
+import { IS_DEV } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
 export function Injectable() {
   return (target: any) => Empty(target)
@@ -36,19 +36,15 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
-      // work for hmr
-      if (!instance[UNMOUNT_SYMBOL])
-        instance[UNMOUNT_SYMBOL] = []
-
-      instance[UNMOUNT_SYMBOL].push(() => {
-        (emitter as any).off(eventName, fn)
-      })
-
       if (options?.once)
         (emitter as any).once(eventName, fn)
 
       else
         (emitter as any).on(eventName, fn)
+
+      return () => {
+        (emitter as any).off(eventName, fn)
+      }
     })
   }
 
@@ -61,11 +57,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`unmount module "${String(tag)}"`)
 
-    if (instance?.[UNMOUNT_SYMBOL]) {
-      for (const cb of instance[UNMOUNT_SYMBOL])
-        await cb()
-    }
-
+    unmountParallel(instance)
     debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
