@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
-  const { state } = getActiveInstance()
+  const { state, _o: oMap } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = new module()
 
@@ -14,9 +14,12 @@ export function useO<T extends Construct>(module: T) {
 
   const tag = getTag(module)
 
-  if (tag in state)
-    return state[tag]
+  if (tag in state) {
+    if (oMap.get(state[tag]) !== module)
+      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
 
+    return state[tag]
+  }
   const instance = new module()
 
   state[tag] = instance

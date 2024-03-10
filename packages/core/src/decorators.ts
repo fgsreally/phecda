@@ -12,6 +12,16 @@ export function Init(proto: any, key: PropertyKey) {
   })
 }
 
+export function Unmount(proto: any, key: PropertyKey) {
+  setVar(proto, key)
+
+  regisHandler(proto, key, {
+    async unmount(instance: any) {
+      return instance[key]()
+    },
+  })
+}
+
 // bind value
 export function Bind(value: any) {
   return (proto: any, k: PropertyKey) => {

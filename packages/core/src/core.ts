@@ -195,3 +195,13 @@ export async function registerSerial(instance: Phecda) {
       await hanlder.init?.(instance)
   }
 }
+
+export function unmountParallel(instance: Phecda) {
+  const stateVars = getExposeKey(instance) as PropertyKey[]
+
+  const initHandlers = stateVars.map((item) => {
+    return getHandler(instance, item).filter(h => h.unmount).map(h => h.init(instance))
+  }).flat()
+
+  return Promise.all(initHandlers)
+}

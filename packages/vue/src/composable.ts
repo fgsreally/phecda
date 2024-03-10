@@ -9,7 +9,7 @@ import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects } from './utils'
 
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
-  const { state } = getActiveInstance()
+  const { state, _o: oMap } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = reactive(new module())
     instance._promise = registerSerial(instance)
@@ -20,6 +20,11 @@ export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
     const instance = reactive(new module())
     instance._promise = registerSerial(instance)
     state[tag] = instance
+    oMap.set(instance, module)
+  }
+  else {
+    if (oMap.get(state[tag]) !== module)
+      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
   }
 
   return state[tag]
