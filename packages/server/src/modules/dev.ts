@@ -11,6 +11,7 @@ export class Dev {
   }
 
   @Unmount
+  // @ts-expect-error need private for ide
   private async unmount() {
     for (const cb of this[UNMOUNT_SYMBOL])
       await cb()
