@@ -5,7 +5,7 @@ import type { P } from '../types'
 import { Dev } from './dev'
 
 export abstract class PFilter<C extends P.BaseContext = any, E extends Exception = Exception > extends Dev {
-  readonly key: string
+  readonly key: PropertyKey
   constructor(tag?: string) {
     super()
     this.key = tag || getTag(this)

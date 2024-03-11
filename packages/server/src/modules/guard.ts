@@ -5,7 +5,7 @@ import { Dev } from './dev'
 
 export abstract class PGuard<C extends P.BaseContext = any> extends Dev {
   abstract use(ctx: C): Promise<boolean> | boolean
-  readonly key: string
+  readonly key: PropertyKey
   constructor(tag?: string) {
     super()
     this.key = tag || getTag(this)

@@ -3,7 +3,7 @@ import { Context, addAddon } from '../context'
 import { Dev } from './dev'
 
 export abstract class PAddon<Params extends any[] = any[]> extends Dev {
-  readonly key: string
+  readonly key: PropertyKey
   constructor(tag?: string) {
     super()
     this.key = tag || getTag(this)

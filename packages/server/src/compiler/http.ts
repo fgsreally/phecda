@@ -34,7 +34,7 @@ class Compiler {
       this.classMap[name] = {}
     this.classMap[name][method] = `
     ${method}(...args){
-const ret={tag:"${tag}-${method}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
+const ret={tag:"${tag as string}-${method}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
 
 ${params.reduce((p, c, i) => `${p}ret.${c.type}${c.key ? `['${c.key}']` : ''}=args[${i}]\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',args[${i}])` : ''}\n`, '')}
 return ret

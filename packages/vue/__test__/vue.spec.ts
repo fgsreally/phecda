@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Err, Init } from 'phecda-web'
 import { createApp } from 'vue'
-import { Isolate, Tag, Watcher, createPhecda, emitter, useO, useR, useV, waitUntilInit, watchPlugin } from '../src/index'
+import { Isolate, Tag, Watcher, createPhecda, defaultWebInject, emitter, useO, useR, useV, waitUntilInit } from '../src/index'
 describe('work for vue', () => {
   it('watcher', async () => {
-    createApp({}).use(createPhecda().use(watchPlugin()))
+    createApp({}).use(createPhecda())
+    defaultWebInject()
+
     class WatchPlayer {
       name: string
       @Watcher('test')

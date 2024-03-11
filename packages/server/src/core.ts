@@ -2,12 +2,12 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial, unmountParallel } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_DEV, UNMOUNT_SYMBOL } from './common'
+import { IS_DEV } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
 export function Injectable() {
   return (target: any) => Empty(target)
@@ -23,50 +23,42 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   // rpc generate code path
   rpc?: string
 } = {}) {
-  const moduleMap = new Map<string, InstanceType<Construct>>()
+  const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
   const meta: Meta[] = []
   const constructorMap = new Map()
 
   // only work for warn
   const constructorSet = new WeakSet()
-  const moduleGraph = new Map<string, Set<string>>()
+  const moduleGraph = new Map<PropertyKey, Set<PropertyKey>>()
   const { http, rpc } = opts
 
   if (!getProperty('watcher')) {
     injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
-      // work for hmr
-      if (!instance[UNMOUNT_SYMBOL])
-        instance[UNMOUNT_SYMBOL] = []
-
-      instance[UNMOUNT_SYMBOL].push(() => {
-        (emitter as any).off(eventName, fn)
-      })
-
       if (options?.once)
         (emitter as any).once(eventName, fn)
 
       else
         (emitter as any).on(eventName, fn)
+
+      return () => {
+        (emitter as any).off(eventName, fn)
+      }
     })
   }
 
   // only remove module in moduleMap(won't remove indirect module)
-  async function del(tag: string) {
+  async function del(tag: PropertyKey) {
     if (!moduleMap.has(tag))
       return
 
     const instance = moduleMap.get(tag)
 
-    debug(`unmount module "${tag}"`)
+    debug(`unmount module "${String(tag)}"`)
 
-    if (instance?.[UNMOUNT_SYMBOL]) {
-      for (const cb of instance[UNMOUNT_SYMBOL])
-        await cb()
-    }
-
-    debug(`del module "${tag}"`)
+    unmountParallel(instance)
+    debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
     constructorMap.delete(tag)
@@ -110,16 +102,16 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     if (moduleMap.has(tag)) {
       instance = moduleMap.get(tag)
       if (!instance)
-        throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${tag}--[module] ${Module}`)
+        throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${String(tag)}--[module] ${Module}`)
 
       if (constructorMap.get(tag) !== Module && !constructorSet.has(Module)) {
         constructorSet.add(Module)// a module will only warn once
-        log(`Synonym module: Module taged "${tag}" has been loaded before, so phecda-server won't load Module "${Module.name}"`, 'warn')
+        log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Module.name}"`, 'warn')
       }
       return { instance, tag }
     }
     moduleMap.set(tag, undefined)
-    debug(`instantiate module "${tag}"`)
+    debug(`instantiate module "${String(tag)}"`)
 
     if (paramtypes) {
       const paramtypesInstances = [] as any[]
@@ -138,11 +130,11 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     }
     meta.push(...getMetaFromInstance(instance, tag, Module.name))
 
-    debug(`init module "${tag}"`)
+    debug(`init module "${String(tag)}"`)
 
     await registerSerial(instance)
 
-    debug(`add module "${tag}"`)
+    debug(`add module "${String(tag)}"`)
 
     moduleMap.set(tag, instance)
     constructorMap.set(tag, Module)
@@ -193,7 +185,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   }
 }
 
-function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
+function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   const vars = getExposeKey(instance).filter(item => item !== SHARE_KEY)
   const baseState = (getState(instance, SHARE_KEY) || {}) as P.MetaData
   initState(baseState)
@@ -216,6 +208,9 @@ function getMetaFromInstance(instance: Phecda, tag: string, name: string) {
         ...state.rpc,
       }
     }
+
+    if (typeof tag !== 'string' && (meta.rpc || meta.http))
+      log(`can't use Tag with ${typeof tag} on http/rpc controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
 
     meta.name = name
     meta.tag = tag

@@ -57,7 +57,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
       const { tag, method, http } = item.data
       if (!http?.type)
         continue
-      const methodTag = `${tag}-${method}`
+      const methodTag = `${tag as string}-${method}`
       metaMap.set(methodTag, item)
     }
   }
@@ -139,7 +139,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
       if (!http?.type)
         continue
 
-      const methodTag = `${tag}-${method}`
+      const methodTag = `${tag as string}-${method}`
 
       const {
         paramsType,

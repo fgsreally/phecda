@@ -68,7 +68,7 @@ export namespace P {
     plugins: string[]
     method: string
     name: string
-    tag: string
+    tag: PropertyKey
   }
 
 }

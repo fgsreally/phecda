@@ -15,11 +15,15 @@ export function getProperty(key: string) {
 }
 
 export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
+  let cb: Function
   return (proto: any, key: string) => {
     setVar(proto, key)
     regisHandler(proto, key, {
       init(instance: any) {
-        getProperty('watcher')?.({ eventName, instance, key, options })
+        return cb = getProperty('watcher')?.({ eventName, instance, key, options })
+      },
+      unmount() {
+        return cb?.()
       },
     })
   }
@@ -58,7 +62,7 @@ export function Storage(storeKey?: string) {
       setVar(proto, uniTag)
       regisHandler(proto, uniTag, {
         init: (instance: any) => {
-          getProperty('storage')?.({ instance, key, tag })
+          return getProperty('storage')?.({ instance, key, tag })
         },
       })
     }
@@ -69,7 +73,7 @@ export function Storage(storeKey?: string) {
       setVar(proto.prototype, uniTag)
       regisHandler(proto.prototype, uniTag, {
         init: (instance: any) => {
-          getProperty('storage')?.({ instance, key: '', tag })
+          return getProperty('storage')?.({ instance, key: '', tag })
         },
       })
     }

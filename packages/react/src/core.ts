@@ -1,11 +1,11 @@
 /* eslint-disable new-cap */
 import { proxy, useSnapshot } from 'valtio'
-import type { Construct, Events, Plugin } from 'phecda-web'
+import type { Construct, Events } from 'phecda-web'
 import { useEffect } from 'react'
-import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, wrapError } from 'phecda-web'
+import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, unmountParallel, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
-  const { state } = getActiveInstance()
+  const { state, _o: oMap } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = new module()
 
@@ -14,9 +14,12 @@ export function useO<T extends Construct>(module: T) {
 
   const tag = getTag(module)
 
-  if (tag in state)
-    return state[tag]
+  if (tag in state) {
+    if (oMap.get(state[tag]) !== module)
+      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
 
+    return state[tag]
+  }
   const instance = new module()
 
   state[tag] = instance
@@ -62,22 +65,19 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
 }
 export function createPhecda() {
   resetActiveInstance()
-  const instance = getActiveInstance()
-  const pluginSet: Plugin[] = []
   return {
-    use(...plugins: Plugin[]) {
-      plugins.forEach((p) => {
-        p.setup(instance)
-        pluginSet.push(p)
-      })
-    },
+
     load(state: any) {
+      const instance = getActiveInstance()
+
       instance.state = state
       return this
     },
 
-    unmount() {
-      pluginSet.forEach(p => p.unmount?.(instance))
+    async  unmount() {
+      const { state } = getActiveInstance()
+      await Object.values(state).map(ins => unmountParallel(ins))
+      resetActiveInstance()
     },
 
   }

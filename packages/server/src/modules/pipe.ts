@@ -3,7 +3,7 @@ import { Context, addPipe } from '../context'
 import type { P } from '../types'
 import { Dev } from './dev'
 export abstract class PPipe<C extends P.BaseContext = any> extends Dev {
-  readonly key: string
+  readonly key: PropertyKey
 
   constructor(tag?: string) {
     super()

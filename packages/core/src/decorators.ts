@@ -12,6 +12,16 @@ export function Init(proto: any, key: PropertyKey) {
   })
 }
 
+export function Unmount(proto: any, key: PropertyKey) {
+  setVar(proto, key)
+
+  regisHandler(proto, key, {
+    async unmount(instance: any) {
+      return instance[key]()
+    },
+  })
+}
+
 // bind value
 export function Bind(value: any) {
   return (proto: any, k: PropertyKey) => {
@@ -61,12 +71,20 @@ export function To(...callbacks: ((arg: any, instance: any, key: string) => any)
   }
 }
 
-export function Tag(tag: string) {
+export function Tag(tag: PropertyKey) {
   return (module: any) => {
     init(module.prototype)
     module.prototype.__TAG__ = tag
   }
 }
+
+export function Unique(desc?: string) {
+  return (module: any) => {
+    init(module.prototype)
+    module.prototype.__TAG__ = Symbol(desc || module.name)
+  }
+}
+
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
   return (module: any) => {

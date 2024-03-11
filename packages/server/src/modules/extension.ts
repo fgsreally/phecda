@@ -19,7 +19,7 @@ export interface PExtension<C extends P.BaseContext = any, E extends Exception =
 }
 
 export class PExtension extends Dev {
-  readonly key: string
+  readonly key: PropertyKey
 
   constructor(tag?: string) {
     super()
