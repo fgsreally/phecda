@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 3.0.0-alpha.10
+
+### Patch Changes
+
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [9c83eae]
+  - phecda-web@1.0.1-alpha.4
+
 ## 3.0.0-alpha.9
 
 ### Patch Changes

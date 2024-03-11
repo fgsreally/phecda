@@ -1,5 +1,13 @@
 # phecda-core
 
+## 3.0.0-alpha.7
+
+### Patch Changes
+
+- c9445c6: Tag support all propertyKeys
+  add Unique(equal to Tag(symbol)),it can't work on http or rpc in `phecda-server`
+- ad47e7b: add Unmount and unmountParallel
+
 ## 3.0.0-alpha.6
 
 ### Patch Changes

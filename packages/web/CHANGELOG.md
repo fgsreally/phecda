@@ -1,5 +1,14 @@
 # phecda-web
 
+## 1.0.1-alpha.4
+
+### Patch Changes
+
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [c9445c6]
+- Updated dependencies [ad47e7b]
+  - phecda-core@3.0.0-alpha.7
+
 ## 1.0.1-alpha.3
 
 ### Patch Changes

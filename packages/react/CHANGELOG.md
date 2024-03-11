@@ -1,5 +1,13 @@
 # phecda-react
 
+## 0.1.0-alpha.8
+
+### Patch Changes
+
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [9c83eae]
+  - phecda-web@1.0.1-alpha.4
+
 ## 0.1.0-alpha.7
 
 ### Patch Changes
