@@ -1,9 +1,12 @@
 import { Empty, Unmount } from 'phecda-core'
 import { UNMOUNT_SYMBOL } from '../common'
+import type { P } from '../types'
 
 @Empty
 export class Dev {
   private readonly [UNMOUNT_SYMBOL]: (() => void)[] = []
+
+  protected context: P.BaseContext
   // work for hmr
   // exec callback  when module unmount
   onUnmount(cb: () => void) {
