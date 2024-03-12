@@ -1,5 +1,7 @@
 import type { Construct, Handler, Phecda } from './types'
 
+// type safe
+// 由于绝大部分的后续使用都是通过实例化（不支持抽象类），故不加AbConstruct
 export function isPhecda(module: any): module is Construct {
   if (typeof module === 'function')
     return !!module.prototype?._namespace
