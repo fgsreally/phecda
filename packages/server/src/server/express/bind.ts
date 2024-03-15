@@ -1,5 +1,5 @@
 import type { Express, Request, Response, Router } from 'express'
-import { resolveDep } from '../../helper'
+import { argToReq, resolveDep } from '../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -7,11 +7,10 @@ import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
 
-export interface ExpressCtx extends P.BaseContext {
+export interface ExpressCtx extends P.HttpContext {
   type: 'express'
   request: Request
   response: Response
-  parallel: boolean
 
 }
 export interface Options {
@@ -76,7 +75,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return errorHandler(new BadRequestException('data format should be an array'))
 
       try {
-        return Promise.all(body.map((item: any) => {
+        return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag } = item
@@ -84,16 +83,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             if (!meta)
               return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-            const contextData = {
-              type: 'express' as const,
-              request: req,
-              meta,
-              response: res,
-              moduleMap,
-              parallel: true,
-              tag,
-            }
-            const context = new Context<ExpressCtx>(contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -106,6 +95,18 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             } = meta
 
             const instance = moduleMap.get(name)
+
+            const contextData = {
+              type: 'express' as const,
+              request: req,
+              index: i,
+              meta,
+              response: res,
+              moduleMap,
+              tag,
+              ...argToReq(params, item.args, req.headers),
+            }
+            const context = new Context<ExpressCtx>(contextData)
 
             try {
               await context.useGuard([...globalGuards, ...guards])
@@ -166,6 +167,10 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           moduleMap,
           parallel: false,
           tag: methodTag,
+          query: req.query,
+          body: req.body,
+          params: req.params,
+          headers: req.headers,
         }
 
         const context = new Context<ExpressCtx>(contextData)
@@ -185,7 +190,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             return
           }
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
-            return { arg: resolveDep((req as any)[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
+            return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
 
           instance.context = contextData

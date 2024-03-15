@@ -5,10 +5,10 @@ import { koaBody } from 'koa-body'
 import Router from '@koa/router'
 import type { KoaCtx, Options } from '../../src/server/koa'
 import { bindApp } from '../../src/server/koa'
-import { ERROR_SYMBOL, Factory, addAddon, addGuard, addInterceptor, addPipe } from '../../src'
+import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
-async function createApp(opts?: Options) {
+async function createServer(opts?: Options) {
   const data = await Factory([Test])
   const app = new Koa()
   app.use(koaBody())
@@ -21,7 +21,7 @@ async function createApp(opts?: Options) {
 
 describe('koa ', () => {
   it('basic request', async () => {
-    const app = await createApp()
+    const app = await createServer()
     const res1 = await request(app).get('/get')
     expect(res1.body.msg).toBe('test')
     const res2 = await request(app).post('/post/phecda?id=1').send({ name: 'server' })
@@ -42,13 +42,13 @@ describe('koa ', () => {
   })
 
   it('exception filter', async () => {
-    const app = await createApp()
+    const app = await createServer()
 
     const res1 = await request(app).get('/error')
     expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, [ERROR_SYMBOL]: true })
   })
   it('Pipe', async () => {
-    const app = await createApp()
+    const app = await createServer()
 
     addPipe('add', ({ arg }) => {
       return arg + 1
@@ -65,12 +65,12 @@ describe('koa ', () => {
   it('plugin', async () => {
     const fn = vi.fn()
 
-    addAddon('p1', (_req: Request, next: () => void) => {
+    addPlugin('p1', (_req: Request, next: () => void) => {
       fn()
       next()
     })
 
-    const app = await createApp({ plugins: ['p1'] })
+    const app = await createServer({ plugins: ['p1'] })
 
     await request(app).get('/plugin')
     expect(fn).toHaveBeenCalledTimes(1)
@@ -86,10 +86,9 @@ describe('koa ', () => {
     const InterceptFn = vi.fn((str: string) => str)
     const Guardfn = vi.fn((str: string) => str)
 
-    addGuard('g1', ({ ctx, parallel }: KoaCtx) => {
+    addGuard('g1', ({ params, index }: KoaCtx) => {
       Guardfn('g1')
-
-      if (!parallel && ctx.request.params.test !== 'test')
+      if (index === undefined && params.test !== 'test')
         return false
       return true
     })
@@ -107,7 +106,7 @@ describe('koa ', () => {
     addInterceptor('i1', mockInterceptor)
     addInterceptor('i2', mockInterceptor)
 
-    const app = await createApp({
+    const app = await createServer({
       globalGuards: ['g2'],
       globalInterceptors: ['i2'],
     })
@@ -132,10 +131,31 @@ describe('koa ', () => {
         },
       ],
 
-    )
+    ).expect(200)
 
     expect(InterceptFn).toHaveBeenCalledTimes(8)
 
     expect(Guardfn).toHaveBeenCalledTimes(6)
+  })
+  it('ctx', async () => {
+    addGuard('g', (ctx: KoaCtx) => {
+      expect({ body: ctx.body, query: ctx.query, params: ctx.params }).toMatchSnapshot()
+      return true
+    })
+
+    const app = await createServer({
+      globalGuards: ['g'],
+    })
+
+    await request(app).post('/all/test?id=1').send({ name: 'test' }).expect(200, ['test', { name: 'test' }, '1'])
+    await request(app).post('/__PHECDA_SERVER__').send(
+      [
+        {
+          tag: 'Test-all',
+          args: ['test', { name: 'test' }, '1'],
+        },
+      ],
+
+    ).expect(200, [['test', { name: 'test' }, '1']])
   })
 })

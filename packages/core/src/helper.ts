@@ -1,15 +1,16 @@
 /* eslint-disable new-cap */
 import { getExposeKey, getHandler, getModuleState, getState } from './core'
-import type { ClassValue, Construct, Phecda } from './types'
+import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
 // from class
-export function getTag<M extends Construct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
+export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
     moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
 
   return (moduleOrInstance as M).prototype?.__TAG__ || (moduleOrInstance as M).name
 }
 
-export function getBind<M extends Construct>(module: M) {
+export function getBind<M extends Construct | AbConstruct>(module: M) {
+  // @ts-expect-error just get bind value
   const instance = new module() as Phecda
   const keys = getModuleState(instance) as PropertyKey[]
   const ret: any = {}
@@ -85,7 +86,7 @@ export function snapShot<T extends Construct>(data: InstanceType<T>) {
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends Construct>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
+export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
   handler(type === 'class' ? c.prototype : c, key)
 }
 

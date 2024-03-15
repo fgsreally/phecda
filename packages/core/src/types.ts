@@ -8,6 +8,8 @@ export interface InjectData {
 }
 
 export type Construct<T = any> = new (...args: any[]) => T
+// 需要实例化的功能只考虑Construct,仅用于与实例化无关or无后续操作的功能
+export type AbConstruct<T = any> = abstract new (...args: any[]) => T
 
 export interface Handler {
   [key: string]: any

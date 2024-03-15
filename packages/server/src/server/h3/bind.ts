@@ -1,6 +1,7 @@
+import type { IncomingHttpHeaders } from 'node:http'
 import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
 import type { H3Event, Router } from 'h3'
-import { resolveDep } from '../../helper'
+import { argToReq, resolveDep } from '../helper'
 import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -8,11 +9,9 @@ import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
 
-export interface H3Ctx extends P.BaseContext {
+export interface H3Ctx extends P.HttpContext {
   type: 'h3'
   event: H3Event
-  parallel: boolean
-
 }
 export interface Options {
 
@@ -77,7 +76,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           return errorHandler(new BadRequestException('data format should be an array'))
 
         try {
-          return Promise.all(body.map((item: any) => {
+          return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag } = item
@@ -85,15 +84,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              const contextData = {
-                type: 'h3' as const,
-                event,
-                meta,
-                moduleMap,
-                parallel: true,
-                tag,
-              }
-              const context = new Context<H3Ctx>(contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -106,6 +96,16 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               } = metaMap.get(tag)!
 
               const instance = moduleMap.get(name)
+              const contextData = {
+                type: 'h3' as const,
+                index: i,
+                event,
+                meta,
+                moduleMap,
+                tag,
+                ...argToReq(params, item.args, getRequestHeaders(event)),
+              }
+              const context = new Context<H3Ctx>(contextData)
 
               try {
                 await context.useGuard([...globalGuards, ...guards])
@@ -153,6 +153,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         },
       } = metaMap.get(methodTag)!
 
+      const needBody = params.some(item => item.type === 'body')
       router[http.type](http.route, eventHandler({
         onRequest: [prePlugin, ...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
         handler: async (event) => {
@@ -163,8 +164,11 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             meta: i,
             event,
             moduleMap,
-            parallel: false,
             tag: methodTag,
+            headers: getRequestHeaders(event) as IncomingHttpHeaders,
+            params: getRouterParams(event),
+            query: getQuery(event),
+            body: needBody ? await readBody(event, { strict: true }) : undefined,
           }
           const context = new Context<H3Ctx>(contextData)
 
@@ -175,25 +179,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             if (cache !== undefined)
               return cache
 
-            const body = params.some(item => item.type === 'body') ? await readBody(event, { strict: true }) : undefined
             const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-              let arg: any
-
-              switch (type) {
-                case 'params':
-                  arg = getRouterParams(event)
-                  break
-                case 'query':
-                  arg = getQuery(event)
-                  break
-                case 'header':
-                  arg = getRequestHeaders(event)
-                  break
-                default:
-                  arg = body
-              }
-
-              return { arg: resolveDep(arg, key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+              return { arg: resolveDep(context.data[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
             }))
 
             instance.context = contextData

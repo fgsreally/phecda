@@ -1,3 +1,4 @@
+import type { IncomingHttpHeaders } from 'node:http'
 import type { Events } from 'phecda-core'
 import type { Exception } from './exception'
 import type { ERROR_SYMBOL } from './common'
@@ -30,6 +31,13 @@ export namespace P {
     type: string
     tag: string
     [key: string]: any
+  }
+  export interface HttpContext extends BaseContext {
+    query: Record<string, any>
+    params: Record<string, string>
+    body: Record<string, any>
+    headers: IncomingHttpHeaders
+    index?: number
   }
   export interface Error {
     // as a symbol
