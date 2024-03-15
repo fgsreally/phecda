@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.0.0-alpha.14
+
+### Patch Changes
+
+- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- Updated dependencies [37bdc86]
+  - phecda-core@3.0.0-alpha.8
+
 ## 5.0.0-alpha.13
 
 ### Patch Changes
