@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
 import type { H3Event, Router } from 'h3'
-import { resolveDep } from '../../helper'
+import { argToReq, resolveDep } from '../helper'
 import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -12,7 +12,6 @@ import type { P } from '../../types'
 export interface H3Ctx extends P.HttpContext {
   type: 'h3'
   event: H3Event
-  index?: number
 }
 export interface Options {
 
@@ -85,19 +84,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              const contextData = {
-                type: 'h3' as const,
-                index: i,
-                query: item.args.query,
-                params: item.args.params,
-                body: item.args.body,
-                headers: Object.assign(item.args.headers, getRequestHeaders(event)),
-                event,
-                meta,
-                moduleMap,
-                tag,
-              }
-              const context = new Context<H3Ctx>(contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -110,6 +96,16 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               } = metaMap.get(tag)!
 
               const instance = moduleMap.get(name)
+              const contextData = {
+                type: 'h3' as const,
+                index: i,
+                event,
+                meta,
+                moduleMap,
+                tag,
+                ...argToReq(params, item.args, getRequestHeaders(event)),
+              }
+              const context = new Context<H3Ctx>(contextData)
 
               try {
                 await context.useGuard([...globalGuards, ...guards])
@@ -117,7 +113,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 if (cache !== undefined)
                   return resolve(cache)
                 const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-                  return { arg: context.data[type], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
+                  return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
                 })) as any
                 instance.context = contextData
                 const funcData = await moduleMap.get(name)[method](...args)
@@ -168,7 +164,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             meta: i,
             event,
             moduleMap,
-            parallel: false,
             tag: methodTag,
             headers: getRequestHeaders(event) as IncomingHttpHeaders,
             params: getRouterParams(event),

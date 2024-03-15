@@ -44,4 +44,9 @@ export class Test {
   aop(@Param('test') test: string) {
     return `${test}`
   }
+
+  @Post('/all/:test')
+  all(@Param('test') test: string, @Body() body: any, @Query('id') id: string) {
+    return [test, body, id]
+  }
 }

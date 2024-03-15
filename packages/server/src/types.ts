@@ -37,6 +37,7 @@ export namespace P {
     params: Record<string, string>
     body: Record<string, any>
     headers: IncomingHttpHeaders
+    index?: number
   }
   export interface Error {
     // as a symbol

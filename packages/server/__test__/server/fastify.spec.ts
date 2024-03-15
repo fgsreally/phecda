@@ -7,7 +7,7 @@ import { bindApp } from '../../src/server/fastify'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
-async function createApp(opts?: Options) {
+async function createServer(opts?: Options) {
   const data = await Factory([Test])
   const app = fastify()
   app.register(bindApp(app, data, opts))
@@ -17,7 +17,7 @@ async function createApp(opts?: Options) {
 
 describe('fastify ', () => {
   it('basic request', async () => {
-    const app = await createApp()
+    const app = await createServer()
     const res1 = await request(app).get('/get')
     expect(res1.body.msg).toBe('test')
     const res2 = await request(app).post('/post/phecda?id=1').send({ name: 'server' })
@@ -38,13 +38,13 @@ describe('fastify ', () => {
   })
 
   it('exception filter', async () => {
-    const app = await createApp()
+    const app = await createServer()
 
     const res1 = await request(app).get('/error')
     expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, [ERROR_SYMBOL]: true })
   })
   it('Pipe', async () => {
-    const app = await createApp()
+    const app = await createServer()
 
     addPipe('add', ({ arg }) => {
       return arg + 1
@@ -67,7 +67,7 @@ describe('fastify ', () => {
   //         next()
   //     })
 
-  //     const app = await createApp({ plugins: ['p1'] })
+  //     const app = await createServer({ plugins: ['p1'] })
 
   //      await request(app).get('/plugin')
   //     expect(fn).toHaveBeenCalledTimes(1)
@@ -83,10 +83,10 @@ describe('fastify ', () => {
     const InterceptFn = vi.fn((str: string) => str)
     const Guardfn = vi.fn((str: string) => str)
 
-    addGuard('g1', ({ request, parallel }: FastifyCtx) => {
+    addGuard('g1', ({ params, index }: FastifyCtx) => {
       Guardfn('g1')
 
-      if (!parallel && (request.params as any).test !== 'test')
+      if (index === undefined && params.test !== 'test')
         return false
       return true
     })
@@ -104,7 +104,7 @@ describe('fastify ', () => {
     addInterceptor('i1', mockInterceptor)
     addInterceptor('i2', mockInterceptor)
 
-    const app = await createApp({
+    const app = await createServer({
       globalGuards: ['g2'],
       globalInterceptors: ['i2'],
     })
@@ -134,5 +134,31 @@ describe('fastify ', () => {
     expect(InterceptFn).toHaveBeenCalledTimes(8)
 
     expect(Guardfn).toHaveBeenCalledTimes(6)
+  })
+
+  it('ctx', async () => {
+    addGuard('g', (ctx: FastifyCtx) => {
+      expect({ body: ctx.body, query: ctx.query, params: ctx.params }).toMatchSnapshot()
+      return true
+    })
+
+    const app = await createServer({
+      globalGuards: ['g'],
+    })
+
+    await request(app).post('/all/test?id=1').send({ name: 'test' }).expect(200, ['test', { name: 'test' }, '1'])
+    await request(app).post('/__PHECDA_SERVER__').send(
+      [
+        {
+          tag: 'Test-all',
+          args: ['test', { name: 'test' }, '1'],
+        },
+        {
+          tag: 'Test-all',
+          args: ['test', { name: 'test' }, '2'],
+        },
+      ],
+
+    ).expect(200)
   })
 })

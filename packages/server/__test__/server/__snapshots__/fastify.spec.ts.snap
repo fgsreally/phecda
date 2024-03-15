@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fastify  > ctx 1`] = `
+{
+  "body": {
+    "name": "test",
+  },
+  "params": {
+    "test": "test",
+  },
+  "query": {
+    "id": "1",
+  },
+}
+`;
+
+exports[`fastify  > ctx 2`] = `
+{
+  "body": {
+    "name": "test",
+  },
+  "params": {
+    "test": "test",
+  },
+  "query": {
+    "id": "1",
+  },
+}
+`;
+
+exports[`fastify  > ctx 3`] = `
+{
+  "body": {
+    "name": "test",
+  },
+  "params": {
+    "test": "test",
+  },
+  "query": {
+    "id": "2",
+  },
+}
+`;

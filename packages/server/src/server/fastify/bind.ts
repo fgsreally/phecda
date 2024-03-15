@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
-import { resolveDep } from '../../helper'
+import { argToReq, resolveDep } from '../helper'
 import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -7,12 +7,10 @@ import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
 
-export interface FastifyCtx extends P.BaseContext {
+export interface FastifyCtx extends P.HttpContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
-  index?: number
-  parallel: boolean
 
 }
 export interface Options {
@@ -99,18 +97,6 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              const contextData = {
-                type: 'fastify' as const,
-                request: req,
-                index: i,
-
-                meta,
-                response: res,
-                moduleMap,
-                parallel: true,
-                tag,
-              }
-              const context = new Context<FastifyCtx>(contextData)
               const [name, method] = tag.split('-')
               const {
                 paramsType,
@@ -126,7 +112,18 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
               } = meta
 
               const instance = moduleMap.get(name)
+              const contextData = {
+                type: 'fastify' as const,
+                request: req,
+                index: i,
+                meta,
+                response: res,
+                moduleMap,
+                tag,
+                ...argToReq(params, item.args, req.headers),
 
+              }
+              const context = new Context<FastifyCtx>(contextData)
               try {
                 if (!params)
                   throw new BadRequestException(`"${tag}" doesn't exist`)
@@ -196,8 +193,11 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
             meta: i,
             response: res,
             moduleMap,
-            parallel: false,
             tag: methodTag,
+            query: req.query as any,
+            body: req.body as any,
+            params: req.params as any,
+            headers: req.headers,
           }
           const context = new Context<FastifyCtx>(contextData)
 
@@ -211,7 +211,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
               return cache
 
             const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-              return { arg: resolveDep((req as any)[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+              return { arg: resolveDep(context.data[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
             }))
 
             instance.context = contextData

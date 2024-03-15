@@ -1,7 +1,7 @@
 import type Router from '@koa/router'
 import type { RouterParamContext } from '@koa/router'
 import type { DefaultContext, DefaultState } from 'koa'
-import { resolveDep } from '../../helper'
+import { argToReq, resolveDep } from '../helper'
 import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -11,9 +11,6 @@ import type { P } from '../../types'
 export interface KoaCtx extends P.HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
-  parallel: boolean
-  index?: number
-
 }
 export interface Options {
 
@@ -86,20 +83,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             if (!meta)
               return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-            const contextData = {
-              type: 'koa' as const,
-              index: i,
-              ctx,
-              meta,
-              moduleMap,
-              parallel: true,
-              query: item.args.query,
-              params: item.args.params,
-              body: item.args.body,
-              headers: item.args.headers,
-              tag,
-            }
-            const context = new Context<KoaCtx>(contextData)
             const [name, method] = tag.split('-')
             const {
               paramsType,
@@ -112,6 +95,17 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             } = meta
 
             const instance = moduleMap.get(name)
+            const contextData = {
+              type: 'koa' as const,
+              index: i,
+              ctx,
+              meta,
+              moduleMap,
+              parallel: true,
+              ...argToReq(params, item.args, ctx.headers),
+              tag,
+            }
+            const context = new Context<KoaCtx>(contextData)
 
             try {
               await context.useGuard([...globalGuards, ...guards])
@@ -119,7 +113,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               if (cache !== undefined)
                 return resolve(cache)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
-                return { arg: context.data[type], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
+                return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
