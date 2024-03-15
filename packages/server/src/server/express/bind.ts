@@ -12,6 +12,7 @@ export interface ExpressCtx extends P.BaseContext {
   request: Request
   response: Response
   parallel: boolean
+  index?: number
 
 }
 export interface Options {
@@ -76,7 +77,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return errorHandler(new BadRequestException('data format should be an array'))
 
       try {
-        return Promise.all(body.map((item: any) => {
+        return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag } = item
@@ -87,6 +88,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const contextData = {
               type: 'express' as const,
               request: req,
+              index: i,
               meta,
               response: res,
               moduleMap,

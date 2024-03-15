@@ -21,7 +21,7 @@ export class TestController extends Dev {
     super()
 
     addGuard('a', () => true)
-    addAddon('aa', () => {})
+    addPlugin('aa', () => {})
   }
 
   @Init

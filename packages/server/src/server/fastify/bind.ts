@@ -11,7 +11,7 @@ export interface FastifyCtx extends P.BaseContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
-
+  index?: number
   parallel: boolean
 
 }
@@ -90,7 +90,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
           return errorHandler(new BadRequestException('data format should be an array'))
 
         try {
-          return Promise.all(body.map((item: any) => {
+          return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag } = item
@@ -102,6 +102,8 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
               const contextData = {
                 type: 'fastify' as const,
                 request: req,
+                index: i,
+
                 meta,
                 response: res,
                 moduleMap,

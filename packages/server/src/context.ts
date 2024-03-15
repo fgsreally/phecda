@@ -25,7 +25,7 @@ export class Context<Data extends P.BaseContext> {
   static guardRecord: Record<PropertyKey, P.Guard> = {}
   static interceptorRecord: Record<PropertyKey, P.Interceptor> = {}
 
-  static addonRecord: Record<PropertyKey, any> = {}
+  static pluginRecord: Record<PropertyKey, any> = {}
   postInterceptors: Function[]
 
   constructor(public data: Data) {
@@ -106,22 +106,22 @@ export class Context<Data extends P.BaseContext> {
   static usePlugin(plugins: string[]) {
     const ret = []
     for (const m of plugins) {
-      if (!(m in Context.addonRecord)) {
+      if (!(m in Context.pluginRecord)) {
         if (IS_STRICT)
           throw new FrameworkException(`can't find middleware named '${m}'`)
 
         continue
       }
-      ret.push(Context.addonRecord[m])
+      ret.push(Context.pluginRecord[m])
     }
     return ret as any[]
   }
 }
-export function addAddon<T>(key: PropertyKey, handler: T) {
-  if (Context.addonRecord[key] && Context.addonRecord[key] !== handler)
-    log(`overwrite Addon "${String(key)}"`, 'warn')
+export function addPlugin<T>(key: PropertyKey, handler: T) {
+  if (Context.pluginRecord[key] && Context.pluginRecord[key] !== handler)
+    log(`overwrite Plugin "${String(key)}"`, 'warn')
 
-  Context.addonRecord[key] = handler
+  Context.pluginRecord[key] = handler
 }
 
 export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: P.Pipe<C>) {
@@ -174,7 +174,7 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
     })
   })
 
-  const missPlugins = [...pluginSet].filter(i => !Context.addonRecord[i])
+  const missPlugins = [...pluginSet].filter(i => !Context.pluginRecord[i])
   const missGuards = [...guardSet].filter(i => !Context.guardRecord[i])
   const missInterceptors = [...interceptorSet].filter(i => !Context.interceptorRecord[i])
   const missPipes = [...pipeSet].filter(i => !Context.pipeRecord[i])

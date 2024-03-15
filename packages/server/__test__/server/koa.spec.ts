@@ -5,7 +5,7 @@ import { koaBody } from 'koa-body'
 import Router from '@koa/router'
 import type { KoaCtx, Options } from '../../src/server/koa'
 import { bindApp } from '../../src/server/koa'
-import { ERROR_SYMBOL, Factory, addAddon, addGuard, addInterceptor, addPipe } from '../../src'
+import { ERROR_SYMBOL, Factory, addPlugin, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
 async function createApp(opts?: Options) {
@@ -65,7 +65,7 @@ describe('koa ', () => {
   it('plugin', async () => {
     const fn = vi.fn()
 
-    addAddon('p1', (_req: Request, next: () => void) => {
+    addPlugin('p1', (_req: Request, next: () => void) => {
       fn()
       next()
     })

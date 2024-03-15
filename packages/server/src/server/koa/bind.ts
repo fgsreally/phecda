@@ -8,11 +8,12 @@ import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
-export interface KoaCtx extends P.BaseContext {
+export interface KoaCtx extends P.HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
-
   parallel: boolean
+  index?: number
+
 }
 export interface Options {
 
@@ -77,7 +78,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return errorHandler(new BadRequestException('data format should be an array'))
 
       try {
-        return Promise.all(body.map((item: any) => {
+        return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag } = item
@@ -87,10 +88,15 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             const contextData = {
               type: 'koa' as const,
+              index: i,
               ctx,
               meta,
               moduleMap,
               parallel: true,
+              query: item.args.query,
+              params: item.args.params,
+              body: item.args.body,
+              headers: item.args.headers,
               tag,
             }
             const context = new Context<KoaCtx>(contextData)
@@ -113,7 +119,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               if (cache !== undefined)
                 return resolve(cache)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
-                return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
+                return { arg: context.data[type], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               instance.context = contextData
               const funcData = await moduleMap.get(name)[method](...args)
@@ -164,6 +170,10 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           moduleMap,
           parallel: false,
           tag: methodTag,
+          query: ctx.query,
+          params: ctx.params,
+          body: (ctx.request as any).body,
+          headers: ctx.headers,
         }
         const context = new Context<KoaCtx>(contextData)
 
@@ -177,8 +187,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             return
           }
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
-            // @ts-expect-error any request types
-            return { arg: resolveDep(ctx.request[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
+            return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
 
           instance.context = contextData
