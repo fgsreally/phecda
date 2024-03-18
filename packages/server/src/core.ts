@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, isPhecda, registerSerial, unmountParallel } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, invokeHandler, isPhecda } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
@@ -57,7 +57,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`unmount module "${String(tag)}"`)
 
-    unmountParallel(instance)
+    invokeHandler('unmount', instance)
     debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
@@ -132,7 +132,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`init module "${String(tag)}"`)
 
-    await registerSerial(instance)
+    await invokeHandler('init', instance)
 
     debug(`add module "${String(tag)}"`)
 

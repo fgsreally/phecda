@@ -27,3 +27,17 @@ exports[`koa  > ctx 2`] = `
   },
 }
 `;
+
+exports[`koa  > ctx 3`] = `
+{
+  "body": {
+    "name": "test",
+  },
+  "params": {
+    "test": "test",
+  },
+  "query": {
+    "id": "2",
+  },
+}
+`;

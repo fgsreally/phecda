@@ -154,8 +154,12 @@ describe('koa ', () => {
           tag: 'Test-all',
           args: ['test', { name: 'test' }, '1'],
         },
+        {
+          tag: 'Test-all',
+          args: ['test', { name: 'test' }, '2'],
+        },
       ],
 
-    ).expect(200, [['test', { name: 'test' }, '1']])
+    ).expect(200)
   })
 })

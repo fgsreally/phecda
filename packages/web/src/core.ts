@@ -1,4 +1,4 @@
-import { unmountParallel } from 'phecda-core'
+import { invokeHandler } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 import type { ActiveInstance } from './types'
 
@@ -33,6 +33,6 @@ export async function unmountModule(module: Construct | PropertyKey) {
     module = getTag(module)
 
   const { state } = getActiveInstance()
-  await unmountParallel(state[module as PropertyKey])
+  await invokeHandler('unmount', state[module as PropertyKey])
   delete state[module as PropertyKey]
 }

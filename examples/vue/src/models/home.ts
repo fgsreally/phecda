@@ -6,8 +6,8 @@ import HelloWorld from '../components/HelloWorld.vue'
 export class Base {
   name = 'base'
   @Init
-  run() {
-    // console.log('run')
+  async run() {
+    // console.log('init')
   }
 }
 @Global
@@ -19,6 +19,7 @@ export class HomeModel<T> extends Base {
 
   constructor() {
     super()
+    // console.log(this)
   }
 
   component = HelloWorld
