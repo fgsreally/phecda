@@ -1,5 +1,12 @@
 # phecda-module
 
+## 1.0.4-alpha.9
+
+### Patch Changes
+
+- Updated dependencies [3fd911a]
+  - phecda-core@3.0.0-alpha.9
+
 ## 1.0.4-alpha.8
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.9
+
+### Patch Changes
+
+- 3fd911a: remove registerSerial/registerParallel/unmountParallel,replace with invokeHandler
+
 ## 3.0.0-alpha.8
 
 ### Patch Changes
