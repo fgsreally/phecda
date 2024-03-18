@@ -3,7 +3,7 @@ import type { UnwrapNestedRefs } from 'vue'
 import { onBeforeUnmount, reactive, toRaw, toRef } from 'vue'
 
 import type { Construct, Events } from 'phecda-web'
-import { emitter, getActiveInstance, getHandler, getTag, registerSerial, wrapError } from 'phecda-web'
+import { emitter, getActiveInstance, getHandler, getTag, invokeHandler, wrapError } from 'phecda-web'
 import type { ReplaceInstanceValues } from './types'
 import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects } from './utils'
@@ -12,13 +12,13 @@ export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
   const { state, _o: oMap } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = reactive(new module())
-    instance._promise = registerSerial(instance)
+    instance._promise = invokeHandler('init', instance)
     return instance
   }
   const tag = getTag(module)
   if (!(tag in state)) {
     const instance = reactive(new module())
-    instance._promise = registerSerial(instance)
+    instance._promise = invokeHandler('init', instance)
     state[tag] = instance
     oMap.set(instance, module)
   }

@@ -1,6 +1,6 @@
 import type { App } from 'vue'
 import { markRaw } from 'vue'
-import { getActiveInstance, resetActiveInstance, unmountParallel } from 'phecda-web'
+import { getActiveInstance, invokeHandler, resetActiveInstance } from 'phecda-web'
 export const phecdaSymbol = Symbol('phecda')
 
 export function createPhecda() {
@@ -24,7 +24,7 @@ export function createPhecda() {
     async unmount() {
       const { state } = getActiveInstance()
 
-      await Object.values(state).map(ins => unmountParallel(ins))
+      await Object.values(state).map(ins => invokeHandler('unmount', ins))
       resetActiveInstance()
     },
 

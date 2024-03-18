@@ -1,5 +1,5 @@
 import type { Construct } from 'phecda-core'
-import { registerSerial } from 'phecda-core'
+import { invokeHandler } from 'phecda-core'
 import 'reflect-metadata'
 
 export const moduleMap = new Map<string, InstanceType<Construct>>()
@@ -45,7 +45,7 @@ async function buildNestModule(Module: Construct) {
   else {
     instance = new Module()
   }
-  await registerSerial(instance)
+  await invokeHandler('init', instance)
   moduleMap.set(tag, instance)
   if (__DEV__) {
     const proxy = new Proxy({}, {

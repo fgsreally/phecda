@@ -2,7 +2,7 @@
 import { proxy, useSnapshot } from 'valtio'
 import type { Construct, Events } from 'phecda-web'
 import { useEffect } from 'react'
-import { getActiveInstance, getHandler, getTag, registerSerial, resetActiveInstance, unmountParallel, wrapError } from 'phecda-web'
+import { getActiveInstance, getHandler, getTag, invokeHandler, resetActiveInstance, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
   const { state, _o: oMap } = getActiveInstance()
@@ -57,7 +57,7 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
     },
   }))
 
-  instance._promise = registerSerial(proxyInstance)
+  instance._promise = invokeHandler('init', proxyInstance)
 
   rmap.set(instance, proxyInstance)
 
@@ -76,7 +76,7 @@ export function createPhecda() {
 
     async  unmount() {
       const { state } = getActiveInstance()
-      await Object.values(state).map(ins => unmountParallel(ins))
+      await Object.values(state).map(ins => invokeHandler('unmount', ins))
       resetActiveInstance()
     },
 

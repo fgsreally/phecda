@@ -5,6 +5,7 @@ import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
 // eslint-disable-next-line vue/comma-dangle
 const { name, fullName } = useV<typeof HomeModel<number>>(HomeModel)
+console.log('start')
 </script>
 
 <template>
