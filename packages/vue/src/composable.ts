@@ -25,12 +25,9 @@ export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
   if (!(tag in state)) {
     const instance = proxyFn(new module())
 
-    // instance._promise = invokeHandler('init', instance)
-
-    console.log(instance.component?.__v_skip, tag)
+    instance._promise = invokeHandler('init', instance)
 
     state[tag] = instance
-    console.log(state[tag].component?.__v_skip)
 
     origin.set(instance, module)
   }
@@ -97,7 +94,6 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
     return cache[REF_SYMBOL]
   const proxy = new Proxy(instance, {
     get(target: any, key) {
-      console.log(key, target)
       if (typeof target[key] === 'function') {
         if (cache[key])
           return cache[key]
@@ -108,6 +104,8 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
         cache[key] = wrapper
         return wrapper
       }
+      if (target[key]?.__v_skip)
+        return target[key]
 
       const cacheRef = cache[key]
       if (cacheRef && cacheRef.r)// 防止一个属性一开始是函数，后来是非函数的特殊情况
