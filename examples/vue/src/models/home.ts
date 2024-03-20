@@ -1,5 +1,5 @@
 import { Clear, Global, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
-import { h, render } from 'vue'
+import { h, markRaw, render } from 'vue'
 import HelloWorld from '../components/HelloWorld.vue'
 @Tag('base')
 
@@ -22,7 +22,7 @@ export class HomeModel<T> extends Base {
     // console.log(this)
   }
 
-  component = HelloWorld
+  component = markRaw(HelloWorld)
 
   key: T
   readonly obj = {

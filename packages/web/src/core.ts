@@ -11,11 +11,8 @@ let activeInstance: ActiveInstance
 export function resetActiveInstance(instance?: ActiveInstance) {
   activeInstance = instance || {
     state: {},
-    _o: new WeakMap(),
-    _v: new WeakMap(),
-    _r: new WeakMap(),
-    _f: new WeakMap(),
-    _c: new WeakMap(),
+    origin: new WeakMap(),
+    cache: new WeakMap(),
 
   }
 }

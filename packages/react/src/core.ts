@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { getActiveInstance, getHandler, getTag, invokeHandler, resetActiveInstance, wrapError } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
-  const { state, _o: oMap } = getActiveInstance()
+  const { state, origin } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = new module()
 
@@ -15,7 +15,7 @@ export function useO<T extends Construct>(module: T) {
   const tag = getTag(module)
 
   if (tag in state) {
-    if (oMap.get(state[tag]) !== module)
+    if (origin.get(state[tag]) !== module)
       console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
 
     return state[tag]
@@ -27,10 +27,10 @@ export function useO<T extends Construct>(module: T) {
 }
 
 export function useR<T extends Construct>(module: T): [InstanceType<T>, InstanceType<T>] {
-  const { _r: rmap, _f: fmap } = getActiveInstance()
+  const { cache: cacheMap } = getActiveInstance()
   const instance = useO(module)
-  if (rmap.has(instance)) {
-    const proxyInstance = rmap.get(instance)
+  if (cacheMap.has(instance)) {
+    const proxyInstance = cacheMap.get(instance)
     return [useSnapshot(proxyInstance), proxyInstance]
   }
 
@@ -39,13 +39,13 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
       if (key === '_promise')
         return target[key]
       if (typeof target[key] === 'function') {
-        if (fmap.has(target[key]))
-          return fmap.get(target[key])
+        if (cacheMap.has(target[key]))
+          return cacheMap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        fmap.set(target[key], wrapper)
+        cacheMap.set(target[key], wrapper)
         return wrapper
       }
 
@@ -59,7 +59,7 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
 
   instance._promise = invokeHandler('init', proxyInstance)
 
-  rmap.set(instance, proxyInstance)
+  cacheMap.set(instance, proxyInstance)
 
   return [useSnapshot(proxyInstance), proxyInstance]
 }

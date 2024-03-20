@@ -8,8 +8,11 @@ import type { ReplaceInstanceValues } from './types'
 import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects } from './utils'
 
+const REF_SYMBOL = Symbol('ref')
+const REACTIVE_SYMBOL = Symbol('reactive')
+
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
-  const { state, _o: oMap } = getActiveInstance()
+  const { state, origin } = getActiveInstance()
   if (module.prototype.__ISOLATE__) {
     const instance = reactive(new module())
     instance._promise = invokeHandler('init', instance)
@@ -20,10 +23,10 @@ export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
     const instance = reactive(new module())
     instance._promise = invokeHandler('init', instance)
     state[tag] = instance
-    oMap.set(instance, module)
+    origin.set(instance, module)
   }
   else {
-    if (oMap.get(state[tag]) !== module)
+    if (origin.get(state[tag]) !== module)
       console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
   }
 
@@ -40,21 +43,24 @@ export function usePatch<T extends Construct>(module: T, Data: DeepPartial<Insta
 }
 
 export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
-  const { _r: rmap, _f: fmap } = getActiveInstance()
+  const { cache: cacheMap } = getActiveInstance()
   const instance = useO(module)
 
-  if (rmap.has(instance))
-    return rmap.get(instance)
+  const cache = cacheMap.get(instance) || {}
+
+  if (cache[REACTIVE_SYMBOL])
+    return cache[REACTIVE_SYMBOL]
+
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        if (fmap.has(target[key]))
-          return fmap.get(target[key])
+        if (cacheMap.has(target[key]))
+          return cacheMap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        fmap.set(target[key], wrapper)
+        cacheMap.set(target[key], wrapper)
         return wrapper
       }
 
@@ -66,32 +72,35 @@ export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
     },
   })
 
-  rmap.set(instance, proxy)
+  cache[REACTIVE_SYMBOL] = proxy
+  if (!cacheMap.has(instance))
+    cacheMap.set(instance, cache)
   return proxy
 }
 
 export function useV<T extends Construct>(module: T): ReplaceInstanceValues<InstanceType<T>> {
-  const { _v: vmap, _f: fmap, _c: cmap } = getActiveInstance()
+  const { cache: cacheMap } = getActiveInstance()
   const instance = useO(module)
+  const cache = cacheMap.get(instance) || {}
 
-  if (vmap.has(instance))
-    return vmap.get(instance)
-  cmap.set(instance, {})
+  if (cache[REF_SYMBOL])
+    return cache[REF_SYMBOL]
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        if (fmap.has(target[key]))
-          return fmap.get(target[key])
+        if (cacheMap.has(target[key]))
+          return cacheMap.get(target[key])
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        fmap.set(target[key], wrapper)
+        cacheMap.set(target[key], wrapper)
         return wrapper
       }
-      const cache = cmap.get(instance)
-      if (key in cache)
-        return cache[key]()
+
+      const cacheRef = cache[key]
+      if (cacheRef)
+        return cacheRef()
 
       cache[key] = createSharedReactive(() => {
         return toRef(target, key)
@@ -102,8 +111,9 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
       return false
     },
   })
-
-  vmap.set(instance, proxy)
+  cache[REF_SYMBOL] = proxy
+  if (!cacheMap.has(instance))
+    cacheMap.set(instance, cache)
   return proxy
 }
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
