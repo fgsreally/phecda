@@ -1,6 +1,4 @@
-import { Clear, Global, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
-import { markRaw } from 'vue'
-import HelloWorld from '../components/HelloWorld.vue'
+import { Clear, Global, Init, Storage, Tag, Watcher, markRaw, useEvent } from 'phecda-vue'
 @Tag('base')
 
 export class Base {
@@ -21,7 +19,9 @@ export class HomeModel<T> extends Base {
     super()
   }
 
-  component = markRaw(HelloWorld)
+  component = markRaw({
+    name: 'fgs',
+  })
 
   key: T
   readonly obj = {

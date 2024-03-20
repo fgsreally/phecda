@@ -2,7 +2,6 @@ import { getProperty, injectProperty } from 'phecda-core'
 import mitt from 'mitt'
 import type { PhecdaEmitter } from './types'
 
-//
 export const emitter: PhecdaEmitter = mitt()
 
 export function defaultWebInject() {
