@@ -150,6 +150,8 @@ export function Nested<M extends new (...args: any) => any>(module: M) {
 
 export function Isolate() {
   return (target: any) => {
+    init(target.prototype)
+
     target.prototype.__ISOLATE__ = true
   }
 }

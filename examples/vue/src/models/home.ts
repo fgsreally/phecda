@@ -1,5 +1,5 @@
 import { Clear, Global, Init, Storage, Tag, Watcher, useEvent } from 'phecda-vue'
-import { h, markRaw, render } from 'vue'
+import { markRaw } from 'vue'
 import HelloWorld from '../components/HelloWorld.vue'
 @Tag('base')
 
@@ -19,7 +19,6 @@ export class HomeModel<T> extends Base {
 
   constructor() {
     super()
-    // console.log(this)
   }
 
   component = markRaw(HelloWorld)
@@ -35,10 +34,6 @@ export class HomeModel<T> extends Base {
   }
 
   changeName() {
-    const el = document.createElement('div')
-    const vnode = h(this.component)
-    document.body.appendChild((render(vnode, el), el))
-
     this.name = 'fgs'
   }
 

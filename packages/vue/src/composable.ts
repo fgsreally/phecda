@@ -1,6 +1,6 @@
 /* eslint-disable new-cap */
 import type { UnwrapNestedRefs } from 'vue'
-import { onBeforeUnmount, reactive, toRaw, toRef } from 'vue'
+import { onBeforeUnmount, reactive, shallowReactive, toRaw, toRef } from 'vue'
 
 import type { Construct, Events } from 'phecda-web'
 import { emitter, getActiveInstance, getHandler, getTag, invokeHandler, wrapError } from 'phecda-web'
@@ -13,23 +13,33 @@ const REACTIVE_SYMBOL = Symbol('reactive')
 
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { state, origin } = getActiveInstance()
+
+  const proxyFn = module.prototype.__SHALLOW__ ? shallowReactive : reactive
+
   if (module.prototype.__ISOLATE__) {
-    const instance = reactive(new module())
+    const instance = proxyFn(new module())
     instance._promise = invokeHandler('init', instance)
     return instance
   }
   const tag = getTag(module)
   if (!(tag in state)) {
-    const instance = reactive(new module())
-    instance._promise = invokeHandler('init', instance)
+    const instance = proxyFn(new module())
+
+    // instance._promise = invokeHandler('init', instance)
+
+    console.log(instance.component?.__v_skip, tag)
+
     state[tag] = instance
+    console.log(state[tag].component?.__v_skip)
+
     origin.set(instance, module)
   }
-  else {
-    if (origin.get(state[tag]) !== module)
-      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
-  }
 
+  // it will cause hmr warn repeatly
+  // else {
+  //   if (origin.get(state[tag]) !== module)
+  //     console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
+  // }
   return state[tag]
 }
 
@@ -54,13 +64,13 @@ export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceT
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        if (cacheMap.has(target[key]))
-          return cacheMap.get(target[key])
+        if (cache[key])
+          return cache[key]
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        cacheMap.set(target[key], wrapper)
+        cache[key] = wrapper
         return wrapper
       }
 
@@ -87,19 +97,20 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
     return cache[REF_SYMBOL]
   const proxy = new Proxy(instance, {
     get(target: any, key) {
+      console.log(key, target)
       if (typeof target[key] === 'function') {
-        if (cacheMap.has(target[key]))
-          return cacheMap.get(target[key])
+        if (cache[key])
+          return cache[key]
         const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
         if (!errorHandler)
           return target[key].bind(target)
         const wrapper = wrapError(target, key, errorHandler)
-        cacheMap.set(target[key], wrapper)
+        cache[key] = wrapper
         return wrapper
       }
 
       const cacheRef = cache[key]
-      if (cacheRef)
+      if (cacheRef && cacheRef.r)// 防止一个属性一开始是函数，后来是非函数的特殊情况
         return cacheRef()
 
       cache[key] = createSharedReactive(() => {

@@ -47,7 +47,7 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
     }
   }
 
-  return () => {
+  const cb = () => {
     subscribers++
     if (!state) {
       scope = effectScope(true)
@@ -56,4 +56,9 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
     onScopeDispose(dispose)
     return state
   }
+
+  // just a symbol
+  cb.r = true
+
+  return cb
 }

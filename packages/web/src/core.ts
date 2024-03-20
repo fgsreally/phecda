@@ -1,4 +1,4 @@
-import { invokeHandler } from 'phecda-core'
+import { getTag, invokeHandler } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 import type { ActiveInstance } from './types'
 
@@ -23,6 +23,18 @@ export function getActiveInstance(): ActiveInstance {
 
 export function serializeState() {
   return JSON.parse(JSON.stringify(activeInstance.state))
+}
+
+export function isModuleLoad(module: Construct) {
+  const { origin, state } = getActiveInstance()
+  const tag = getTag(module)
+  if (tag in state) {
+    if (origin.get(state[tag]) !== module)
+      throw new Error(`Synonym module: Module taged "${String(tag)}" (but not "${module.name}") has been loaded before`)
+
+    return true
+  }
+  return false
 }
 
 export async function unmountModule(module: Construct | PropertyKey) {

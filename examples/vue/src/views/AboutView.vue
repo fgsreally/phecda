@@ -3,7 +3,7 @@ import { useV } from 'phecda-vue'
 import { AboutModel } from '../models/about'
 import { HomeModel } from '@/models/home'
 const { name } = useV(HomeModel)
-const { change_home_name, emit_update } = useV(AboutModel)
+const { change_home_name, emit_update, data } = useV(AboutModel)
 function emit() {
   emit_update()
 }
@@ -13,6 +13,7 @@ function emit() {
   <div class="about">
     {{ name }}
     <h1>This is an about page</h1>
+    {{ data }}
     <button @click="change_home_name">
       change about name
     </button>
