@@ -2,10 +2,9 @@ import type { Events } from 'phecda-core'
 
 export interface ActiveInstance {
   state: Record<string | symbol, any>
-  _v: WeakMap<any, any>
-  _r: WeakMap<any, any>
-  _f: WeakMap<any, any>
-  _c: WeakMap<any, any>
+  origin: WeakMap<any, any>
+  cache: WeakMap<any, any>
+
   [key: string]: any
 }
 

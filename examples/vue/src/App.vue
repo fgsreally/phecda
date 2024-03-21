@@ -1,11 +1,11 @@
+<!-- eslint-disable vue/comma-dangle -->
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { getTag, initialize, useR, useRaw, useV } from 'phecda-vue'
+import { initialize, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
-// eslint-disable-next-line vue/comma-dangle
-const { name, fullName } = useV<typeof HomeModel<number>>(HomeModel)
-console.log('start')
+
+const { name, fullName } = useV(HomeModel)
 </script>
 
 <template>

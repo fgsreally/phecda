@@ -1,7 +1,13 @@
 /* eslint-disable no-prototype-builtins */
 import type { EffectScope } from 'vue'
-import { effectScope, isReactive, isRef, onScopeDispose } from 'vue'
+
+import { effectScope, isReactive, isRef, onScopeDispose, markRaw as raw } from 'vue'
+import type { Raw } from './types'
 export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> }
+
+export function markRaw<T extends object>(value: T): Raw<T> {
+  return raw(value) as any
+}
 
 export function isObject(o: any) {
   return Object.prototype.toString.call(o) === '[object Object]'
@@ -47,7 +53,7 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
     }
   }
 
-  return () => {
+  const cb = () => {
     subscribers++
     if (!state) {
       scope = effectScope(true)
@@ -56,4 +62,9 @@ export function createSharedReactive<F extends (...args: any) => any>(composable
     onScopeDispose(dispose)
     return state
   }
+
+  // just a symbol
+  cb.r = true
+
+  return cb
 }

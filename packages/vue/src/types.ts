@@ -3,9 +3,15 @@ import type { Ref } from 'vue'
 // type ReadonlyValue<T> = {
 //   readonly [K in keyof T]: K extends 'value' ? T[K] : ReadonlyValue<T[K]>
 // }
+export declare const RawSymbol: unique symbol
+
+export type Raw<T> = T & {
+  [RawSymbol]: true
+}
 
 export type ReplaceInstanceValues<I> = {
-  [P in keyof I]: I[P] extends (...args: any[]) => any ? I[P] : Ref<I[P]>
+  // @todo handle markRaw types
+  [P in keyof I]: I[P] extends (...args: any[]) => any ? I[P] : I[P] extends Raw<infer O> ? O : Ref<I[P]>
 }
 
 export type SchemaToObj<S> = {
