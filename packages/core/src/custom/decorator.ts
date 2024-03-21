@@ -4,7 +4,7 @@ import { SHARE_KEY, init, regisHandler, setVar } from '../core'
 import type { Events } from '../types'
 
 export interface StorageParam {
-  key: string
+  key?: string
   instance: any
   tag: string
   toJSON: (str: string) => any
@@ -80,10 +80,10 @@ export function Storage({ key: storeKey, toJSON, toString }: {
 
     if (key) {
       init(proto)
-      tag = storeKey || getTag(proto) as string
+      tag = storeKey || `${getTag(proto) as string}_${key as string}`
 
-      setVar(proto, SHARE_KEY)
-      regisHandler(proto, SHARE_KEY, {
+      setVar(proto, key)
+      regisHandler(proto, key, {
         init: (instance: any) => {
           return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
         },
@@ -91,12 +91,11 @@ export function Storage({ key: storeKey, toJSON, toString }: {
     }
     else {
       init(proto.prototype)
-      tag = storeKey || `${proto.prototype.__TAG__}_${key}`
-      const uniTag = Symbol(tag)
-      setVar(proto.prototype, uniTag)
-      regisHandler(proto.prototype, uniTag, {
+      tag = storeKey || getTag(proto) as string
+      setVar(proto.prototype, SHARE_KEY)
+      regisHandler(proto.prototype, SHARE_KEY, {
         init: (instance: any) => {
-          return getProperty('storage')?.({ instance, key: '', tag, toJSON, toString })
+          return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
         },
       })
     }
