@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
-import type { Construct, Phecda } from 'phecda-core'
+import type { Construct, Phecda, WatcherParam } from 'phecda-core'
 import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, invokeHandler, isPhecda } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
@@ -33,7 +33,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   const { http, rpc } = opts
 
   if (!getProperty('watcher')) {
-    injectProperty('watcher', ({ eventName, instance, key, options }: { eventName: string; instance: any; key: string; options?: { once: boolean } }) => {
+    injectProperty('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
       if (options?.once)

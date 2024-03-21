@@ -1,7 +1,22 @@
 // custom decorator
 
-import { init, regisHandler, setVar } from '../core'
+import { SHARE_KEY, init, regisHandler, setVar } from '../core'
 import type { Events } from '../types'
+
+export interface StorageParam {
+  key: string
+  instance: any
+  tag: string
+  toJSON: (str: string) => any
+  toString: (arg: any) => string
+}
+
+export interface WatcherParam {
+  key: string
+  instance: any
+  eventName: string
+  options?: { once?: boolean }
+}
 
 export const activeInstance: Record<string, any> = {}
 
@@ -14,7 +29,7 @@ export function getProperty(key: string) {
   return activeInstance[key]
 }
 
-export function Watcher(eventName: keyof Events, options?: { once: boolean }) {
+export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
   let cb: Function
   return (proto: any, key: string) => {
     setVar(proto, key)
@@ -50,19 +65,27 @@ export function Effect(eventName: string, options?: any) {
   }
 }
 
-export function Storage(storeKey?: string) {
+export function Storage({ key: storeKey, toJSON, toString }: {
+  toJSON?: (str: string) => any
+  toString?: (arg: any) => string
+  key?: string
+} = {}) {
+  if (!toJSON)
+    toJSON = v => JSON.parse(v)
+
+  if (!toString)
+    toString = v => JSON.stringify(v)
   return (proto: any, key?: PropertyKey) => {
     let tag: string
 
     if (key) {
       init(proto)
-      tag = storeKey || proto.__TAG__
-      const uniTag = Symbol(tag)
+      tag = storeKey || getTag(proto) as string
 
-      setVar(proto, uniTag)
-      regisHandler(proto, uniTag, {
+      setVar(proto, SHARE_KEY)
+      regisHandler(proto, SHARE_KEY, {
         init: (instance: any) => {
-          return getProperty('storage')?.({ instance, key, tag })
+          return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
         },
       })
     }
@@ -73,7 +96,7 @@ export function Storage(storeKey?: string) {
       setVar(proto.prototype, uniTag)
       regisHandler(proto.prototype, uniTag, {
         init: (instance: any) => {
-          return getProperty('storage')?.({ instance, key: '', tag })
+          return getProperty('storage')?.({ instance, key: '', tag, toJSON, toString })
         },
       })
     }
