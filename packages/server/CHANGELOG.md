@@ -1,5 +1,12 @@
 # phecda-server
 
+## 5.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies [e254263]
+  - phecda-core@3.0.0-alpha.10
+
 ## 5.0.0-alpha.15
 
 ### Patch Changes
