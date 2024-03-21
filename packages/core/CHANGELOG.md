@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-alpha.10
+
+### Patch Changes
+
+- e254263: add types for watcher and storage when injectProperty;add toJSON/toString to Storage;fix Storage logic"
+
 ## 3.0.0-alpha.9
 
 ### Patch Changes

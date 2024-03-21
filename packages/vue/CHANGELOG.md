@@ -1,5 +1,17 @@
 # phecda-vue
 
+## 3.0.0-alpha.13
+
+### Patch Changes
+
+- 5bc160a: add markRaw just for types
+- 120716e: refactor: remove all map;use cache/origin/state instead
+- 43cc4e9: add Shallow to support shallowReactive
+- Updated dependencies [120716e]
+- Updated dependencies [e254263]
+- Updated dependencies [43cc4e9]
+  - phecda-web@1.0.1-alpha.7
+
 ## 3.0.0-alpha.12
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "phecda-react",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "provide phecda function to react by valtio",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
