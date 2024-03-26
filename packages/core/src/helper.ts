@@ -86,8 +86,8 @@ export function snapShot<T extends Construct>(data: InstanceType<T>) {
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | string, handler: ((target: any, key: PropertyKey) => void), type: 'property' | 'class' = 'class') {
-  handler(type === 'class' ? c.prototype : c, key)
+export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | string, handler: PropertyDecorator | ClassDecorator, type: 'property' | 'class' = 'class') {
+  handler(type === 'class' ? c.prototype : c, key as any)
 }
 
 export function Pipeline(...decos: ((...args: any) => void)[]) {
