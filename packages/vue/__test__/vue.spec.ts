@@ -71,7 +71,7 @@ describe('work for vue', () => {
   })
 
   it('Isolate', async () => {
-    @Isolate()
+    @Isolate
     @Tag('unique')
     class A {
 

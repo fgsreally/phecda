@@ -56,7 +56,7 @@ export namespace P {
   export type Filter<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
   export interface Handler {
-    error?: (arg: any) => void
+    error?: <C extends BaseContext>(arg: any, ctx: C) => void
   }
   export interface MetaData {
     http?: {

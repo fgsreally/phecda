@@ -137,6 +137,7 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
   }
 }
 
+// 还原模块
 export function initialize<M extends Construct>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
   const instance = useO(module)
   const newInstance = new module()
