@@ -7,13 +7,13 @@
     "build": "tsc -b phecda-server/tsconfig.json && tsc -b nestjs/tsconfig.json",
     "start:express": "cross-env PORT=3000 node express.js ",
     "start:koa": "cross-env PORT=3001 node koa.js ",
-    "start:restify": "cross-env PORT=3002 node restify.js",
     "start:fastify": "cross-env PORT=3003 node fastify.js",
     "start:nestjs-express": "cross-env PORT=3004 node dist/nestjs/express.js ",
     "start:nestjs-fastify": "cross-env PORT=3005 node dist/nestjs/fastify.js ",
     "start:phecda-express": "cross-env PORT=3006 node dist/phecda-server/express.js ",
     "start:phecda-fastify": "cross-env PORT=3007 node dist/phecda-server/fastify.js ",
-    "start:phecda-h3": "cross-env PORT=3008 node dist/phecda-server/h3.js "
+    "start:phecda-h3": "cross-env PORT=3008 node dist/phecda-server/h3.js ",
+    "start:phecda-koa": "cross-env PORT=3009 node dist/phecda-server/koa.js "
   },
   "keywords": [],
   "author": "",

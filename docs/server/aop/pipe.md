@@ -2,7 +2,7 @@
 
 运行在拦截器之后，主要用于验证参数
 
-一个参数，只能使用一个管道
+每个参数都会单独进入一个管道，(只能使用一个管道)
 
 ```ts
 import { Controller, Factory, PPipe, Pipe, Post, Query } from 'phecda-server'
@@ -22,7 +22,7 @@ class Validate extends PPipe<ExpressCtx> {
 class TestController {
   @Post()
   test4(@Query() @Pipe('Validate') name: number) {
-    // 使用test 管道
+    // 使用Validate 管道
   }
 }
 Factory([Validate, TestController])
@@ -30,6 +30,8 @@ Factory([Validate, TestController])
 
 ## 默认
 没有设置管道时，默认使用`default`管道,效果如下
+
+> 和`class-validator`很像
 
 ```ts
 import { Body, Controller, Post, To } from 'phecda-server'

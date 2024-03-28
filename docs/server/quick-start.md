@@ -78,7 +78,9 @@ npm i phecda-client
  如果使用的不是`axios`,那就要自己写一个类似`phecda-client`的东西
 
 ### 编译时
-编译方面，以`vite`为例
+> 使用了 `unplugin`，`webpack`中也能用
+
+以`vite`为例
 ```ts
 import PC from 'phecda-client/vite'
 

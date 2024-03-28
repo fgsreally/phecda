@@ -1,9 +1,11 @@
+# 运行时
+
 ```ts
 import axios from 'axios'
 import { createReq } from 'phecda-client'
 import { UserController } from './user.controller'
 const instance = axios.create({
-  baseURL: 'http://localhost:3699',
+  baseURL: 'server url',
 })
 const useRequest = createReq(instance)
 const { login } = useC(UserController)

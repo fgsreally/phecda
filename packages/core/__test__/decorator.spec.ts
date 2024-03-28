@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Init, Nested, Pipeline, Tag, To, addDecoToClass, classToValue, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Expose, Ignore, Init, Nested, Pipeline, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
@@ -14,31 +14,40 @@ describe('validate&transform', () => {
       return `${this.name}-core`
     }
 
+    @Expose
+    testId: string
+
     changeName() {
       this.name = 'phecda-changed'
     }
   }
   it('plainToClass', async () => {
-    // false
-    const instance = plainToClass(Parent, { name: 'phecda11' })
-    const err = await transformClass(instance)
+    // base validate
+    const i1 = plainToClass(Parent, { name: 'phecda11' })
+    const err = await transformClass(i1)
     expect(err[0]).toBe('Parent.name should be phecda')
+    expect(i1).toMatchSnapshot()
 
-    const instance2 = plainToClass(Parent, { name: 'phecda' })
+    // method
 
-    await transformClass(instance2)
-    expect(instance2.name).toBe('phecda1')
-    expect(instance2.fullname).toBe('phecda1-core')
+    const i2 = plainToClass(Parent, { name: 'phecda' })
+    expect(i2).toMatchSnapshot()
+    await transformClass(i2)
+    expect(i2.name).toBe('phecda1')
+    expect(i2.fullname).toBe('phecda1-core')
+    i2.changeName()
+    expect(i2.name).toBe('phecda-changed')
+    expect(i2.fullname).toBe('phecda-changed-core')
 
-    instance2.changeName()
-
-    expect(instance2.name).toBe('phecda-changed')
-    expect(instance2.fullname).toBe('phecda-changed-core')
+    // partial
+    const i3 = plainToClass(Parent, { })
+    expect(i3).toMatchSnapshot()
+    expect((await transformClass(i3, false, true)).length).toBe(0)
   })
 
-  it('classToValue', () => {
+  it('classToPlain', () => {
     const instance = plainToClass(Parent, { name: 'phecda' })
-    expect(classToValue(instance)).toMatchSnapshot()
+    expect(classToPlain(instance)).toMatchSnapshot()
   })
 
   it('extend', async () => {
@@ -56,7 +65,7 @@ describe('validate&transform', () => {
     const err = await transformClass(instance, true)
     expect(err.length).toBe(2)
     expect(err[0]).toBe('name should be short')
-    expect(classToValue(instance)).toMatchSnapshot()
+    expect(classToPlain(instance)).toMatchSnapshot()
   })
 
   it('isPhecda', async () => {

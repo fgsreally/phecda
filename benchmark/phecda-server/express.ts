@@ -4,6 +4,7 @@
 console.time('cold-start')
 import { bindApp } from 'phecda-server/express'
 import { Factory } from 'phecda-server'
+// @ts-expect-error miss types
 import express from 'express'
 import { AppController } from './app.controller'
 

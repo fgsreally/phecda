@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 import { getExposeKey, getHandler, getModuleState, getState } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
-// from class
+
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
     moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
@@ -28,15 +28,20 @@ export function plainToClass<M extends Construct, Data extends Record<PropertyKe
 
   const keys = getExposeKey(instance) as PropertyKey[]
   for (const item of keys)
+
     instance[item] = input[item]
+
   return instance
 }
 
-export async function transformClass<M extends Construct>(instance: InstanceType<M>, force = false) {
+export async function transformClass<M extends Construct>(instance: InstanceType<M>, force = false, partial = false) {
   const err: string[] = []
 
   const stateVars = getModuleState(instance) as PropertyKey[]
   for (const item of stateVars) {
+    if (partial && instance[item] === undefined)
+      continue
+
     const handlers = getHandler(instance, item)
     if (handlers) {
       for (const handler of handlers) {
@@ -56,14 +61,13 @@ export async function transformClass<M extends Construct>(instance: InstanceType
   return err
 }
 
-export function classToValue<M>(instance: M): ClassValue<M> {
+export function classToPlain<M>(instance: M): ClassValue<M> {
   const data = {} as any
   const exposeVars = getExposeKey(instance as any) as PropertyKey[]
   for (const item of exposeVars)
-
     data[item] = (instance as any)[item]
 
-  return data
+  return JSON.parse(JSON.stringify(data))
 }
 
 export function snapShot<T extends Construct>(data: InstanceType<T>) {

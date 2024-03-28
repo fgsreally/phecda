@@ -4,7 +4,7 @@
 
 
 ```ts
-import { PFilter } from 'phecda-server'
+import { Controller, PFilter } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('Log')
@@ -20,11 +20,12 @@ class Log extends PFilter<ExpressCtx> {
 }
 // in main.ts
 @Filter('Log')
-class Test {
+@Controller()
+class TestController {
 
 }
 
-Factory([Log, Test])
+Factory([Log, TestController])
 ```
 
 

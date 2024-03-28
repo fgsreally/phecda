@@ -8,7 +8,7 @@
 4. `h3`对应`defineRequestMiddleware`
 5. `rpc`中忽略
 
-:::warning
+:::danger
 
  这个角色显然是完全无法跨框架的
 
@@ -32,8 +32,8 @@ class Test extends PPlugin {
   }
 }
 // in main.ts
-@Controller('')
-class User {
+@Controller()
+class TestController {
   @Plugin('Test')
   @Get('')
   get() {
@@ -41,7 +41,7 @@ class User {
   }
 }
 
-Factory([Test, User])
+Factory([Test, TestController])
 ```
 
 ## 专用路由

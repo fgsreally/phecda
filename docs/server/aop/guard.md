@@ -4,19 +4,17 @@
 
 具体参数详见类型提示
 
-:::info
+:::warning
 
-`aop`也是模块！！它和其他模块一样需要引入
+`aop`是一些特殊的模块！！它和其他模块一样需要引入
 
-除了管道以外其他的装饰器，可以设置到类上，也可以设置到方法上
-
-前者会对该类上的所有接口起效！
+建议使用[Extension](./extension.md)
 
 :::
 
 
 ```ts
-import { Guard, PGuard } from 'phecda-server'
+import { Controller, Guard, PGuard } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('Auth')
@@ -29,12 +27,14 @@ class Auth extends PGuard<ExpressCtx> {
     // ...
   }
 }
-class User {
+
+@Controller()
+class TestController {
   @Guard('Auth') // 使用auth guard
   @Get()
   get() {}
 }
-Factory([Auth, User])
+Factory([Auth, TestController])
 ```
 
 ### 全局使用
