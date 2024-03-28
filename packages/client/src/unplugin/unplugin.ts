@@ -2,7 +2,7 @@ import { resolve } from 'path'
 import { createUnplugin } from 'unplugin'
 import axios from 'axios'
 export const unplugin = createUnplugin((options: { localPath?: string; parseFile?: (id: string) => boolean; port?: string; interval?: number; split?: boolean } = {}) => {
-  const { localPath = 'pmeta.js', parseFile = id => id.includes('.controller') || id.includes('.route'), port, interval = 3000, split = false } = options
+  const { localPath = 'pmeta.js', parseFile = id => /[^.](?:\.rpc|\.controller|\.route)/.test(id), port, interval = 3000, split = false } = options
 
   let command: string
   const metaPath = resolve(process.cwd(), localPath).replace(/\\/g, '/')
