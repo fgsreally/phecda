@@ -10,6 +10,8 @@
     "fastify": "phecda src/server/fastify.ts",
     "redis": "phecda src/rpc/sub/redis.ts",
     "rabbitmq": "phecda src/rpc/sub/rabbitmq.ts",
+    "client:redis": "phecda src/rpc/pub/redis.ts",
+    "client:rabbitmq": "phecda src/rpc/pub/rabbitmq.ts",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

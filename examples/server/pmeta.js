@@ -1,15 +1,6 @@
 export class TestController {
   mq(...args) {
-    const ret = {
-      tag: 'test-mq',
-      body: {},
-      headers: {},
-      query: {},
-      params: {},
-      method: 'post',
-      url: '/base/mq1',
-      args,
-    }
+    const ret = { tag: 'test-mq', body: {}, headers: {}, query: {}, params: {}, method: 'post', url: '/base/mq1', args }
 
     ret.body = args[0]
 
@@ -17,16 +8,7 @@ export class TestController {
   }
 
   test(...args) {
-    const ret = {
-      tag: 'test-test',
-      body: {},
-      headers: {},
-      query: {},
-      params: {},
-      method: 'post',
-      url: '/base/{{test}}',
-      args,
-    }
+    const ret = { tag: 'test-test', body: {}, headers: {}, query: {}, params: {}, method: 'post', url: '/base/{{test}}', args }
 
     ret.params.test = args[0]
     ret.url = ret.url.replace('{{test}}', args[0])
@@ -38,16 +20,7 @@ export class TestController {
   }
 
   query(...args) {
-    const ret = {
-      tag: 'test-query',
-      body: {},
-      headers: {},
-      query: {},
-      params: {},
-      method: 'get',
-      url: '/base/query',
-      args,
-    }
+    const ret = { tag: 'test-query', body: {}, headers: {}, query: {}, params: {}, method: 'get', url: '/base/query', args }
 
     ret.query.id = args[0]
 
@@ -57,16 +30,7 @@ export class TestController {
   }
 
   sendMsgToMQ(...args) {
-    const ret = {
-      tag: 'test-sendMsgToMQ',
-      body: {},
-      headers: {},
-      query: {},
-      params: {},
-      method: 'get',
-      url: '/base/send',
-      args,
-    }
+    const ret = { tag: 'test-sendMsgToMQ', body: {}, headers: {}, query: {}, params: {}, method: 'get', url: '/base/send', args }
 
     ret.body.data = args[0]
 
@@ -74,31 +38,13 @@ export class TestController {
   }
 
   get(...args) {
-    const ret = {
-      tag: 'test-get',
-      body: {},
-      headers: {},
-      query: {},
-      params: {},
-      method: 'get',
-      url: '/base/get',
-      args,
-    }
+    const ret = { tag: 'test-get', body: {}, headers: {}, query: {}, params: {}, method: 'get', url: '/base/get', args }
 
     return ret
   }
 
   params(...args) {
-    const ret = {
-      tag: 'test-params',
-      body: {},
-      headers: {},
-      query: {},
-      params: {},
-      method: 'get',
-      url: '/base/params',
-      args,
-    }
+    const ret = { tag: 'test-params', body: {}, headers: {}, query: {}, params: {}, method: 'get', url: '/base/params', args }
 
     ret.query = args[0]
 

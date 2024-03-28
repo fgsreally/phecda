@@ -36,6 +36,6 @@ bindApp(router, data, {
 })
 app.use('/base', router)
 
-app.listen('3010', () => {
+app.listen(3008, () => {
   console.log('start express server...')
 })

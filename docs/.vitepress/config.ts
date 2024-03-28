@@ -123,7 +123,7 @@ export default defineConfig({
         },
         {
           text: 'aop装饰器',
-          collapsed: true,
+          collapsed: false,
           items: [
             {
               text: '守卫',
@@ -156,27 +156,28 @@ export default defineConfig({
           ],
         },
         {
-          text: '客户端调用',
+          text: '客户端',
           collapsed: false,
           items: [
             {
-              text: '运行时',
-              link: '/server/client/runtime',
+              text: '调用',
+              link: '/server/client/invoke',
             },
             {
-              text: '插件',
-              link: '/server/client/plugin',
+              text: '构建工具',
+              link: '/server/client/bundler',
             }, {
               text: 'npm',
               link: '/server/client/npm',
             }],
         },
+
         {
           text: '进阶',
           collapsed: false,
           items: [
             {
-              text: '专用路由',
+              text: '合并请求',
               link: '/server/route',
             },
 
@@ -189,7 +190,7 @@ export default defineConfig({
               link: '/server/phecda-core',
             },
             {
-              text: '模块',
+              text: '模块(必读)',
               link: '/server/module',
             },
 
@@ -201,11 +202,29 @@ export default defineConfig({
               text: '自动引入',
               link: '/server/auto-import',
             },
-            {
-              text: '微服务',
-              link: '/server/rpc',
-            },
 
+          ],
+        },
+        {
+          text: '微服务',
+          collapsed: true,
+          items: [
+            {
+              text: '基础使用',
+              link: '/server/rpc/base',
+            },
+            {
+              text: 'rabbitmq',
+              link: '/server/rpc/rabbitmq',
+            },
+            {
+              text: 'redis',
+              link: '/server/rpc/redis',
+            },
+            {
+              text: 'kafka',
+              link: '/server/rpc/kafka',
+            },
           ],
         },
         {

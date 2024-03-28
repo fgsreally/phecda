@@ -1,7 +1,7 @@
 {
   "name": "phecda-server",
   "version": "5.0.0-alpha.12",
-  "description": "`nestjs` format + `trpc` types safe; adopt all nodejs server framework",
+  "description": "DI/IOC/type-safe/progressive nodejs server framework",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

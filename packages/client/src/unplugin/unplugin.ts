@@ -35,6 +35,7 @@ export const unplugin = createUnplugin((options: { localPath?: string; parseFile
     },
     resolveId(id) {
       if (parseFile(id))
+
         return metaPath
     },
     // transform(code) {

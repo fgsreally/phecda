@@ -1,26 +1,25 @@
 # npm
 
-`monorepo`中，使用插件似乎并不麻烦，可以通过路径，直接找到生成代码的文件，但如果不是呢？
 
-## npm
+当需要跨项目时，由于`typescript`的限制，常规方法几乎只有`npm`这一种
 
-很不幸，几乎只有`npm`一种方法，能保留类型
 
 那么可以这样：
 
-1. 服务端中，假设将`client`代码输出到`client.js`，所有模块打包到`index.js`
-   在 package.json 中：
+
+## 服务端
+服务端一侧，有两个`export`，一个是正常的`export`，另一个导出的是`pmeta.js`，但对应类型与前者相同
 
 ```json
 {
-  "name": "backend",
+  "name": "ps-test",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./client": {
-      "import": "./dist/client.js"
+      "import": "./dist/pmeta.js"
     }
   },
   "typesVersions": {
@@ -36,7 +35,11 @@
 }
 ```
 
-在客户端通过`npm`安装然后
+
+## 客户端
+在客户端通过`npm`安装
+
+然后：
 ```ts
-import { TestController } from 'backend/client'
+import { UserController } from 'ps-test/client'
 ```
