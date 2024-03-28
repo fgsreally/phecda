@@ -141,7 +141,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
                 resolve(await context.usePostInterceptor(funcData))
               }
               catch (e: any) {
-                handlers.forEach(handler => handler.error?.(e))
+                handlers.forEach(handler => handler.error?.(e, context.data))
                 resolve(await context.useFilter(e, filter))
               }
             })
@@ -223,7 +223,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
             return ret
           }
           catch (e: any) {
-            handlers.forEach(handler => handler.error?.(e))
+            handlers.forEach(handler => handler.error?.(e, context.data))
             const err = await context.useFilter(e, filter)
 
             if (res.sent)

@@ -11,7 +11,7 @@ export interface ExpressCtx extends P.HttpContext {
   type: 'express'
   request: Request
   response: Response
-
+  next: Function
 }
 export interface Options {
 
@@ -63,7 +63,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       (req as any)[META_SYMBOL] = meta
 
       next()
-    }, ...Context.usePlugin(plugins), async (req, res) => {
+    }, ...Context.usePlugin(plugins), async (req, res, next) => {
       const { body } = req
 
       async function errorHandler(e: any) {
@@ -104,6 +104,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               response: res,
               moduleMap,
               tag,
+              next,
               ...argToReq(params, item.args, req.headers),
             }
             const context = new Context<ExpressCtx>(contextData)
@@ -157,7 +158,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
         next()
-      }, ...Context.usePlugin(plugins), async (req, res) => {
+      }, ...Context.usePlugin(plugins), async (req, res, next) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
           type: 'express' as const,
@@ -171,6 +172,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           body: req.body,
           params: req.params,
           headers: req.headers,
+          next,
         }
 
         const context = new Context<ExpressCtx>(contextData)

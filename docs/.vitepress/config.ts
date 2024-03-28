@@ -30,76 +30,27 @@ export default defineConfig({
       { text: '/', link: '/core/', activeMatch: '/core/' },
 
       { text: 'server', link: '/server/intro', activeMatch: '/server/' },
+      { text: 'vue', link: '/vue/base', activeMatch: '/vue/' },
+
       // { text: '框架封装', link: '/pack/', activeMatch: '/pack/' },
 
     ],
 
     sidebar: {
-
-      // '/': [
-      //   {
-      //     text: '核心',
-      //     collapsed: true,
-      //     items: [
-      //       {
-      //         text: '介绍',
-      //         link: '/core/intro',
-      //       },
-      //       {
-      //         text: '核心',
-      //         link: '/core/core',
-      //       },
-      //       {
-      //         text: '节点',
-      //         link: '/core/node',
-      //       },
-      //       {
-      //         text: '预设',
-      //         link: '/core/preset',
-      //       },
-      //       {
-      //         text: '功能模块',
-      //         link: '/core/function',
-      //       },
-      //       {
-      //         text: '渲染引擎',
-      //         link: '/core/engine',
-      //       },
-      //       {
-      //         text: 'phecda-vue',
-      //         link: '/core/phecda-vue',
-      //       },
-      //       {
-      //         text: '部署',
-      //         link: '/core/deploy',
-      //       },
-      //     ],
-      //   },
-      //   {
-      //     text: '案例',
-      //     collapsed: false,
-      //     items: [
-      //       {
-      //         text: '看见须知',
-      //         link: '/example/must-know',
-      //       },
-      //       {
-      //         text: '快速上手',
-      //         link: '/example/quick-start',
-      //       },
-      //       {
-      //         text: '预设',
-      //         link: '/example/preset',
-      //       },
-      //       {
-      //         text: '功能模块',
-      //         link: '/example/function',
-      //       },
-
-      //     ],
-      //   },
-
-      // ],
+      '/vue/': [
+        {
+          text: '基础使用',
+          link: '/vue/base',
+        },
+        {
+          text: 'phecda-core',
+          link: '/vue/phecda-core',
+        },
+        {
+          text: 'module',
+          link: '/vue/module',
+        },
+      ],
       '/server/': [
         {
           text: 'phecda-server',
