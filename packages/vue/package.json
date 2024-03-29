@@ -1,7 +1,7 @@
 {
   "name": "phecda-vue",
-  "version": "3.0.0-alpha.9",
-  "description": "provide phecda function and intuitive store to vue",
+  "version": "3.0.0-alpha.13",
+  "description": "provide phecda function to vue",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

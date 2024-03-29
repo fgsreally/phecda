@@ -1,5 +1,31 @@
 # phecda-core
 
+## 3.0.0-alpha.10
+
+### Patch Changes
+
+- e254263: add types for watcher and storage when injectProperty;add toJSON/toString to Storage;fix Storage logic"
+
+## 3.0.0-alpha.9
+
+### Patch Changes
+
+- 3fd911a: remove registerSerial/registerParallel/unmountParallel,replace with invokeHandler
+
+## 3.0.0-alpha.8
+
+### Patch Changes
+
+- 37bdc86: add AbConstruct
+
+## 3.0.0-alpha.7
+
+### Patch Changes
+
+- c9445c6: Tag support all propertyKeys
+  add Unique(equal to Tag(symbol)),it can't work on http or rpc in `phecda-server`
+- ad47e7b: add Unmount and unmountParallel
+
 ## 3.0.0-alpha.6
 
 ### Patch Changes

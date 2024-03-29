@@ -1,5 +1,38 @@
 # phecda-web
 
+## 1.0.1-alpha.7
+
+### Patch Changes
+
+- 120716e: refactor: remove all map;use cache/origin/state instead
+- e254263: add types for watcher and storage when injectProperty;add toJSON/toString to Storage;fix Storage logic"
+- 43cc4e9: add isModuleLoad
+- Updated dependencies [e254263]
+  - phecda-core@3.0.0-alpha.10
+
+## 1.0.1-alpha.6
+
+### Patch Changes
+
+- Updated dependencies [3fd911a]
+  - phecda-core@3.0.0-alpha.9
+
+## 1.0.1-alpha.5
+
+### Patch Changes
+
+- Updated dependencies [37bdc86]
+  - phecda-core@3.0.0-alpha.8
+
+## 1.0.1-alpha.4
+
+### Patch Changes
+
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [c9445c6]
+- Updated dependencies [ad47e7b]
+  - phecda-core@3.0.0-alpha.7
+
 ## 1.0.1-alpha.3
 
 ### Patch Changes

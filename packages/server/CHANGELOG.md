@@ -1,5 +1,37 @@
 # phecda-server
 
+## 5.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies [e254263]
+  - phecda-core@3.0.0-alpha.10
+
+## 5.0.0-alpha.15
+
+### Patch Changes
+
+- Updated dependencies [3fd911a]
+  - phecda-core@3.0.0-alpha.9
+
+## 5.0.0-alpha.14
+
+### Patch Changes
+
+- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- Updated dependencies [37bdc86]
+  - phecda-core@3.0.0-alpha.8
+
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- dc4d00b: TestHttp return a supertest agent
+- 99481b4: fix P.res types;it will auto invoke toJSON function (only in types)
+- Updated dependencies [c9445c6]
+- Updated dependencies [ad47e7b]
+  - phecda-core@3.0.0-alpha.7
+
 ## 5.0.0-alpha.12
 
 ### Patch Changes
