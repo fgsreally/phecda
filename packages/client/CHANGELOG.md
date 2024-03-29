@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.4-alpha.0
+
+### Patch Changes
+
+- ae64f33: plugin can handle .rpc.ts
+
 ## 2.0.3
 
 ### Patch Changes
