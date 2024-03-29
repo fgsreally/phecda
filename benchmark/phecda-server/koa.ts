@@ -4,8 +4,10 @@
 console.time('cold-start')
 import { bindApp } from 'phecda-server/koa'
 import { Factory } from 'phecda-server'
+// @ts-expect-error miss types
 import Koa from 'koa'
 import { koaBody } from 'koa-body'
+// @ts-expect-error miss types
 import Router from '@koa/router'
 import { AppController } from './app.controller'
 async function start() {

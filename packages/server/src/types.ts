@@ -55,9 +55,6 @@ export namespace P {
   export type Pipe<C extends BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
   export type Filter<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
-  export interface Handler {
-    error?: (arg: any) => void
-  }
   export interface MetaData {
     http?: {
       type: RequestType

@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getHandler, getProperty, getState, getTag, injectProperty, invokeHandler, isPhecda } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getProperty, getState, getTag, injectProperty, invokeHandler, isPhecda } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
@@ -230,7 +230,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Meta(meta as unknown as P.MetaData, getHandler(instance, i), getParamTypes(instance, i as string) || [])
+    return new Meta(meta as unknown as P.MetaData, getParamTypes(instance, i as string) || [])
   })
 }
 

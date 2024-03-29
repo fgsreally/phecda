@@ -11,6 +11,7 @@ import type { P } from '../../types'
 export interface KoaCtx extends P.HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
+  next: Function
 }
 export interface Options {
 
@@ -62,7 +63,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       ctx[META_SYMBOL] = meta
 
       await next()
-    }, ...Context.usePlugin(plugins), async (ctx) => {
+    }, ...Context.usePlugin(plugins), async (ctx, next) => {
       const { body } = ctx.request as any
 
       async function errorHandler(e: any) {
@@ -86,7 +87,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const [name, method] = tag.split('-')
             const {
               paramsType,
-              handlers,
               data: {
                 params,
                 guards, interceptors,
@@ -102,6 +102,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               meta,
               moduleMap,
               parallel: true,
+              next,
               ...argToReq(params, item.args, ctx.headers),
               tag,
             }
@@ -120,7 +121,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               resolve(await context.usePostInterceptor(funcData))
             }
             catch (e: any) {
-              handlers.forEach(handler => handler.error?.(e))
               resolve(await context.useFilter(e, filter))
             }
           })
@@ -142,7 +142,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
       const {
         paramsType,
-        handlers,
         data: {
           interceptors,
           guards,
@@ -155,7 +154,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         ctx[MODULE_SYMBOL] = moduleMap
         ctx[META_SYMBOL] = meta
         await next()
-      }, ...Context.usePlugin(plugins), async (ctx) => {
+      }, ...Context.usePlugin(plugins), async (ctx, next) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
           type: 'koa' as const,
@@ -168,6 +167,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           params: ctx.params,
           body: (ctx.request as any).body,
           headers: ctx.headers,
+          next,
         }
         const context = new Context<KoaCtx>(contextData)
 
@@ -192,7 +192,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           ctx.body = ret
         }
         catch (e: any) {
-          handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e, filter)
 
           if (ctx.res.writableEnded)

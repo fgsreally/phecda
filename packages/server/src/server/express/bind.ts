@@ -11,7 +11,7 @@ export interface ExpressCtx extends P.HttpContext {
   type: 'express'
   request: Request
   response: Response
-
+  next: Function
 }
 export interface Options {
 
@@ -63,7 +63,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       (req as any)[META_SYMBOL] = meta
 
       next()
-    }, ...Context.usePlugin(plugins), async (req, res) => {
+    }, ...Context.usePlugin(plugins), async (req, res, next) => {
       const { body } = req
 
       async function errorHandler(e: any) {
@@ -86,7 +86,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const [name, method] = tag.split('-')
             const {
               paramsType,
-              handlers,
+
               data: {
                 params,
                 guards, interceptors,
@@ -104,6 +104,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               response: res,
               moduleMap,
               tag,
+              next,
               ...argToReq(params, item.args, req.headers),
             }
             const context = new Context<ExpressCtx>(contextData)
@@ -121,7 +122,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               resolve(await context.usePostInterceptor(funcData))
             }
             catch (e: any) {
-              handlers.forEach(handler => handler.error?.(e))
               resolve(await context.useFilter(e, filter))
             }
           })
@@ -143,7 +143,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
       const {
         paramsType,
-        handlers,
         data: {
           interceptors,
           guards,
@@ -157,7 +156,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
         next()
-      }, ...Context.usePlugin(plugins), async (req, res) => {
+      }, ...Context.usePlugin(plugins), async (req, res, next) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
           type: 'express' as const,
@@ -171,6 +170,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           body: req.body,
           params: req.params,
           headers: req.headers,
+          next,
         }
 
         const context = new Context<ExpressCtx>(contextData)
@@ -207,7 +207,6 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             res.json(ret)
         }
         catch (e: any) {
-          handlers.forEach(handler => handler.error?.(e))
           const err = await context.useFilter(e, filter)
           if (res.writableEnded)
             return

@@ -1,11 +1,13 @@
-# 模块化
+# Extension
+
+> 优先使用
 
 如果需要一个模块，又提供守卫，又提供拦截器...提供多个`aop`的功能
 
 那么可以
 
 ```ts
-import { PExtension } from 'phecda-server'
+import { Filter, Guard, Interceptor, PExtension, Pipe, Plugin } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('test')
@@ -26,5 +28,13 @@ class test extends PExtension<ExpressCtx> {
 }
 // in main.ts
 
-Factory([test])
+@Guard('test')
+@Interceptor('test')
+@Filter('test')
+@Plugin('test')
+class TestController {
+
+}
+
+Factory([test, TestController])
 ```

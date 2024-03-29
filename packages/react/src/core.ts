@@ -2,7 +2,7 @@
 import { proxy, useSnapshot } from 'valtio'
 import type { Construct, Events } from 'phecda-web'
 import { useEffect } from 'react'
-import { getActiveInstance, getHandler, getTag, invokeHandler, resetActiveInstance, wrapError } from 'phecda-web'
+import { emitter, getActiveInstance, getTag, invokeHandler, resetActiveInstance } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
   const { state, origin } = getActiveInstance()
@@ -34,28 +34,7 @@ export function useR<T extends Construct>(module: T): [InstanceType<T>, Instance
     return [useSnapshot(proxyInstance), proxyInstance]
   }
 
-  const proxyInstance = proxy(new Proxy(instance, {
-    get(target: any, key) {
-      if (key === '_promise')
-        return target[key]
-      if (typeof target[key] === 'function') {
-        if (cacheMap.has(target[key]))
-          return cacheMap.get(target[key])
-        const errorHandler = getHandler(target, key).find((item: any) => item.error)?.error
-        if (!errorHandler)
-          return target[key].bind(target)
-        const wrapper = wrapError(target, key, errorHandler)
-        cacheMap.set(target[key], wrapper)
-        return wrapper
-      }
-
-      return target[key]
-    },
-    set(target: any, key, v) {
-      target[key] = v
-      return true
-    },
-  }))
+  const proxyInstance = proxy(instance)
 
   instance._promise = invokeHandler('init', proxyInstance)
 

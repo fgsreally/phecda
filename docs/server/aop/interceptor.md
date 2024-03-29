@@ -5,7 +5,7 @@
 
 
 ```ts
-import { Interceptor, PInterceptor } from 'phecda-server'
+import { Controller, Interceptor, PInterceptor } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('Cache')
@@ -22,7 +22,8 @@ class Cache extends PInterceptor<ExpressCtx> {
 }
 // in main.ts
 
-class Test {
+@Controller()
+class TestController {
   @Get()
   @Interceptor('Cache')
   getCache() {
@@ -31,7 +32,7 @@ class Test {
 
 }
 
-Factory([Cache])
+Factory([TestController, Cache])
 ```
 
 ### 全局使用

@@ -87,7 +87,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               const [name, method] = tag.split('-')
               const {
                 paramsType,
-                handlers,
                 data: {
                   params,
                   guards,
@@ -120,7 +119,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 resolve(await context.usePostInterceptor(funcData))
               }
               catch (e: any) {
-                handlers.forEach(handler => handler.error?.(e))
                 resolve(await context.useFilter(e, filter))
               }
             })
@@ -143,7 +141,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
       const {
         paramsType,
-        handlers,
         data: {
           interceptors,
           guards,
@@ -190,7 +187,6 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             return ret
           }
           catch (e: any) {
-            handlers.forEach(handler => handler.error?.(e))
             const err = await context.useFilter(e, filter)
             setResponseStatus(event, err.status)
             return err

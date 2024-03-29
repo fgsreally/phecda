@@ -30,76 +30,27 @@ export default defineConfig({
       { text: '/', link: '/core/', activeMatch: '/core/' },
 
       { text: 'server', link: '/server/intro', activeMatch: '/server/' },
+      { text: 'vue', link: '/vue/base', activeMatch: '/vue/' },
+
       // { text: '框架封装', link: '/pack/', activeMatch: '/pack/' },
 
     ],
 
     sidebar: {
-
-      // '/': [
-      //   {
-      //     text: '核心',
-      //     collapsed: true,
-      //     items: [
-      //       {
-      //         text: '介绍',
-      //         link: '/core/intro',
-      //       },
-      //       {
-      //         text: '核心',
-      //         link: '/core/core',
-      //       },
-      //       {
-      //         text: '节点',
-      //         link: '/core/node',
-      //       },
-      //       {
-      //         text: '预设',
-      //         link: '/core/preset',
-      //       },
-      //       {
-      //         text: '功能模块',
-      //         link: '/core/function',
-      //       },
-      //       {
-      //         text: '渲染引擎',
-      //         link: '/core/engine',
-      //       },
-      //       {
-      //         text: 'phecda-vue',
-      //         link: '/core/phecda-vue',
-      //       },
-      //       {
-      //         text: '部署',
-      //         link: '/core/deploy',
-      //       },
-      //     ],
-      //   },
-      //   {
-      //     text: '案例',
-      //     collapsed: false,
-      //     items: [
-      //       {
-      //         text: '看见须知',
-      //         link: '/example/must-know',
-      //       },
-      //       {
-      //         text: '快速上手',
-      //         link: '/example/quick-start',
-      //       },
-      //       {
-      //         text: '预设',
-      //         link: '/example/preset',
-      //       },
-      //       {
-      //         text: '功能模块',
-      //         link: '/example/function',
-      //       },
-
-      //     ],
-      //   },
-
-      // ],
+      '/vue/': [
+        {
+          text: '基础使用',
+          link: '/vue/base',
+        },
+        {
+          text: 'phecda-core',
+          link: '/vue/phecda-core',
+        },
+        {
+          text: 'module',
+          link: '/vue/module',
+        },
+      ],
       '/server/': [
         {
           text: 'phecda-server',
@@ -123,7 +74,7 @@ export default defineConfig({
         },
         {
           text: 'aop装饰器',
-          collapsed: true,
+          collapsed: false,
           items: [
             {
               text: '守卫',
@@ -156,27 +107,28 @@ export default defineConfig({
           ],
         },
         {
-          text: '客户端调用',
+          text: '客户端',
           collapsed: false,
           items: [
             {
-              text: '运行时',
-              link: '/server/client/runtime',
+              text: '调用',
+              link: '/server/client/invoke',
             },
             {
-              text: '插件',
-              link: '/server/client/plugin',
+              text: '构建工具',
+              link: '/server/client/bundler',
             }, {
               text: 'npm',
               link: '/server/client/npm',
             }],
         },
+
         {
           text: '进阶',
           collapsed: false,
           items: [
             {
-              text: '专用路由',
+              text: '合并请求',
               link: '/server/route',
             },
 
@@ -189,7 +141,7 @@ export default defineConfig({
               link: '/server/phecda-core',
             },
             {
-              text: '模块',
+              text: '模块(必读)',
               link: '/server/module',
             },
 
@@ -201,11 +153,29 @@ export default defineConfig({
               text: '自动引入',
               link: '/server/auto-import',
             },
-            {
-              text: '微服务',
-              link: '/server/rpc',
-            },
 
+          ],
+        },
+        {
+          text: '微服务',
+          collapsed: true,
+          items: [
+            {
+              text: '基础使用',
+              link: '/server/rpc/base',
+            },
+            {
+              text: 'rabbitmq',
+              link: '/server/rpc/rabbitmq',
+            },
+            {
+              text: 'redis',
+              link: '/server/rpc/redis',
+            },
+            {
+              text: 'kafka',
+              link: '/server/rpc/kafka',
+            },
           ],
         },
         {
