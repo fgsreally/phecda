@@ -1,5 +1,35 @@
 # phecda-react
 
+## 0.1.0-alpha.11
+
+### Patch Changes
+
+- 120716e: refactor: remove all map;use cache/origin/state instead
+- Updated dependencies [120716e]
+- Updated dependencies [e254263]
+- Updated dependencies [43cc4e9]
+  - phecda-web@1.0.1-alpha.7
+
+## 0.1.0-alpha.10
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.6
+
+## 0.1.0-alpha.9
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.5
+
+## 0.1.0-alpha.8
+
+### Patch Changes
+
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [9c83eae]
+  - phecda-web@1.0.1-alpha.4
+
 ## 0.1.0-alpha.7
 
 ### Patch Changes
