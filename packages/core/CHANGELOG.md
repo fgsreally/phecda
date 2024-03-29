@@ -1,5 +1,20 @@
 # phecda-core
 
+## 3.0.0-alpha.11
+
+### Minor Changes
+
+- dbb599a: transformClass support partial feature;rename classToValue to classToPlain(return json value)
+
+### Patch Changes
+
+- c6427b1: refact Isolate
+- 7b0d6fa: fix addDecoToClass types
+- 4621244: refactor Err logic;
+  remove partial on transformClass;
+  remove Nested
+  change addDecoToClass params
+
 ## 3.0.0-alpha.10
 
 ### Patch Changes
