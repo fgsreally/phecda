@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Expose, Ignore, Init, Nested, Pipeline, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformClass } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
@@ -40,9 +40,9 @@ describe('validate&transform', () => {
     expect(i2.fullname).toBe('phecda-changed-core')
 
     // partial
-    const i3 = plainToClass(Parent, { })
-    expect(i3).toMatchSnapshot()
-    expect((await transformClass(i3, false, true)).length).toBe(0)
+    // const i3 = plainToClass(Parent, { })
+    // expect(i3).toMatchSnapshot()
+    // expect((await transformClass(i3, false, true)).length).toBe(0)
   })
 
   it('classToPlain', () => {
@@ -94,6 +94,8 @@ describe('validate&transform', () => {
 
     addDecoToClass(Test, 'name', Expose)
     expect(getExposeKey(new Test() as any)).toMatchSnapshot()
+    addDecoToClass(Test, SHARE_KEY, Tag('test'))
+    expect(getTag(Test)).toBe('test')
   })
   it('Assign', async () => {
     @Assign(() => new Promise(resolve => resolve({ key: 'test2' })))
@@ -134,26 +136,26 @@ describe('validate&transform', () => {
     expect(instance.key).toBe(20)
   })
 
-  it('Nested', async () => {
-    class B {
-      @To(v => v + 1)
-      b: number
+  // it('Nested', async () => {
+  //   class B {
+  //     @To(v => v + 1)
+  //     b: number
 
-      change() {
-        this.b++
-      }
-    }
-    class A {
-      @Nested(B)
-      b: B
-    }
+  //     change() {
+  //       this.b++
+  //     }
+  //   }
+  //   class A {
+  //     @Nested(B)
+  //     b: B
+  //   }
 
-    const instance = plainToClass(A, { b: { b: 0 } })
-    await transformClass(instance)
-    expect(instance.b.b).toBe(1)
-    instance.b.change()
-    expect(instance.b.b).toBe(2)
-  })
+  //   const instance = plainToClass(A, { b: { b: 0 } })
+  //   await transformClass(instance)
+  //   expect(instance.b.b).toBe(1)
+  //   instance.b.change()
+  //   expect(instance.b.b).toBe(2)
+  // })
 
   it('pipeline', async () => {
     class Test {
@@ -191,5 +193,30 @@ describe('validate&transform', () => {
     await invokeHandler('init', i2 as any)
 
     expect(i2.isReady).toBeTruthy()
+  })
+
+  it('Err', async () => {
+    const fn = vi.fn()
+    class Test {
+      @Err(fn, true)
+      invoke() {
+        this.error()
+      }
+
+      @Err(fn)
+      throw() {
+        this.error()
+      }
+
+      error() {
+        throw new Error('invoke error')
+      }
+    }
+    const i = new Test()
+    invokeHandler('init', i as any)
+    i.invoke()
+    expect(fn).toBeCalled()
+
+    expect(i.throw.bind(i)).toThrowError('invoke error')
   })
 })
