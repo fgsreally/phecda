@@ -1,24 +1,24 @@
+/* eslint-disable no-prototype-builtins */
 import type { Construct, Handler, Phecda } from './types'
 
+// 有的时候，类上多个方法、属性需要共用一些东西
+// SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
+export const SHARE_KEY = Symbol('phecda')
+export const PHECDA_KEY = Symbol('phecda')
 // type safe
 // 由于绝大部分的后续使用都是通过实例化（不支持抽象类），故不加AbConstruct
 export function isPhecda(module: any): module is Construct {
   if (typeof module === 'function')
-    return !!module.prototype?._namespace
+    return !!module.prototype?.[PHECDA_KEY]
 
   return false
 }
 
-// 有的时候，类上多个方法、属性需要共用一些东西
-// SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
-export const SHARE_KEY = Symbol('phecda-core')
-
 export function init(proto: Phecda) {
   if (!proto)
     return
-  // eslint-disable-next-line no-prototype-builtins
-  if (!proto.hasOwnProperty('_namespace')) {
-    proto._namespace = {
+  if (!proto.hasOwnProperty(PHECDA_KEY)) {
+    proto[PHECDA_KEY] = {
 
       /**
          * 暴露的变量，
@@ -46,57 +46,82 @@ export function init(proto: Phecda) {
     }
   }
 }
+function getPhecdaFromTarget(target: any) {
+  if (typeof target === 'function')
+    return target.prototype
+
+  if (target.hasOwnProperty(PHECDA_KEY))
+    return target
+
+  return Object.getPrototypeOf(target)
+}
 
 // export function regisInitEvent(module: Phecda, key: string) {
 //   init(module)
-//   module._namespace.__INIT_EVENT__.add(key)
+//   module[PHECDA_KEY].__INIT_EVENT__.add(key)
 // }
 
 // export function getOwnInitEvent(instance: Phecda) {
 //   instance=Object.getPrototypeOf(instance)
-//   return [...instance._namespace.__INIT_EVENT__] as string[]
+//   return [...instance[PHECDA_KEY].__INIT_EVENT__] as string[]
 // }
 // export function getInitEvent(instance: Phecda) {
 //   let proto: Phecda = Object.getPrototypeOf(instance)
 //   const set = new Set<PropertyKey>()
-//   while (proto?._namespace) {
-//     proto._namespace.__INIT_EVENT__.forEach(item => set.add(item))
+//   while (proto?.[PHECDA_KEY]) {
+//     proto[PHECDA_KEY].__INIT_EVENT__.forEach(item => set.add(item))
 
-//     proto = Object.getPrototypeOf(proto)
+//     proto=Object.getPrototypeOf(proto)
 //   }
 //   return [...set]
 // }
 
 // it should be setmodelVar
-export function setVar(proto: Phecda, key: PropertyKey) {
+export function setStateVar(proto: Phecda, key: PropertyKey) {
   init(proto)
-  proto._namespace.__STATE_VAR__.add(key)
+
+  proto[PHECDA_KEY].__STATE_VAR__.add(key)
   // 绑定状态的值，均属于暴露的值
   setExposeKey(proto, key)
 }
 
 export function setExposeKey(proto: Phecda, key: PropertyKey) {
   init(proto)
-  proto._namespace.__EXPOSE_VAR__.add(key)
+
+  proto[PHECDA_KEY].__EXPOSE_VAR__.add(key)
 }
 
 export function setIgnoreKey(proto: Phecda, key: PropertyKey) {
   init(proto)
-  proto._namespace.__IGNORE_VAR__.add(key)
+  proto[PHECDA_KEY].__IGNORE_VAR__.add(key)
+}
+
+export function setHandler(proto: Phecda, key: PropertyKey, handler: Handler) {
+  init(proto)
+  if (!proto[PHECDA_KEY].__STATE_HANDLER__.has(key))
+    proto[PHECDA_KEY].__STATE_HANDLER__.set(key, [handler])
+  else
+    proto[PHECDA_KEY].__STATE_HANDLER__.get(key)!.push(handler)
+}
+
+export function setState(proto: Phecda, key: PropertyKey, state: Record<string, any>) {
+  init(proto)
+  const namespace = proto[PHECDA_KEY].__STATE_NAMESPACE__
+
+  namespace.set(key, state)
 }
 
 // 存在状态的属性
-export function getOwnModuleState(instance: Phecda) {
-  instance = Object.getPrototypeOf(instance)
-
-  return [...instance._namespace.__STATE_VAR__] as string[]
+export function getOwnStateVars(target: any) {
+  const proto: Phecda = getPhecdaFromTarget(target)
+  return [...proto[PHECDA_KEY].__STATE_VAR__] as string[]
 }
 
-export function getModuleState(instance: Phecda) {
-  let proto: Phecda = Object.getPrototypeOf(instance)
+export function getStateVars(target: any) {
+  let proto: Phecda = getPhecdaFromTarget(target)
   const set = new Set<PropertyKey>()
-  while (proto?._namespace) {
-    proto._namespace.__STATE_VAR__.forEach(item => set.add(item))
+  while (proto?.[PHECDA_KEY]) {
+    proto[PHECDA_KEY].__STATE_VAR__.forEach(item => set.add(item))
 
     proto = Object.getPrototypeOf(proto)
   }
@@ -105,77 +130,69 @@ export function getModuleState(instance: Phecda) {
 // 暴露的属性
 // 存在状态必然暴露，反之未必，但expose可以被ignore，前者不行
 // 一般而言用这个就行，某些特定情况，可用前一种
-export function getOwnExposeKey(instance: Phecda) {
-  instance = Object.getPrototypeOf(instance) as Phecda
-  return [...instance._namespace.__EXPOSE_VAR__].filter(item => !instance._namespace.__IGNORE_VAR__.has(item)) as string[]
+export function getOwnExposeKey(target: any) {
+  const proto: Phecda = getPhecdaFromTarget(target)
+
+  return [...proto[PHECDA_KEY].__EXPOSE_VAR__].filter(item => !proto[PHECDA_KEY].__IGNORE_VAR__.has(item)) as string[]
 }
 
-export function getExposeKey(instance: Phecda) {
-  let proto = Object.getPrototypeOf(instance)
+export function getExposeKey(target: any) {
+  let proto: Phecda = getPhecdaFromTarget(target)
+
   const set = new Set<PropertyKey>()
-  while (proto?._namespace) {
-    [...proto._namespace.__EXPOSE_VAR__].forEach(item => !proto._namespace.__IGNORE_VAR__.has(item) && set.add(item))
+  while (proto?.[PHECDA_KEY]) {
+    [...proto[PHECDA_KEY].__EXPOSE_VAR__].forEach(item => !proto[PHECDA_KEY].__IGNORE_VAR__.has(item) && set.add(item))
 
     proto = Object.getPrototypeOf(proto)
   }
   return [...set]
 }
 
-export function getOwnIgnoreKey(instance: Phecda) {
-  if (!instance?._namespace)
+export function getOwnIgnoreKey(target: any) {
+  const proto: Phecda = getPhecdaFromTarget(target)
+
+  if (!proto?.[PHECDA_KEY])
     return []
 
-  return [...instance._namespace.__IGNORE_VAR__] as string[]
+  return [...proto[PHECDA_KEY].__IGNORE_VAR__] as string[]
 }
 
-export function regisHandler(proto: Phecda, key: PropertyKey, handler: Handler) {
-  init(proto)
-  if (!proto._namespace.__STATE_HANDLER__.has(key))
-    proto._namespace.__STATE_HANDLER__.set(key, [handler])
-  else
-    proto._namespace.__STATE_HANDLER__.get(key)!.push(handler)
-}
+export function getOwnHandler(target: any, key: PropertyKey) {
+  const proto: Phecda = getPhecdaFromTarget(target)
 
-export function getOwnHandler(instance: Phecda, key: PropertyKey) {
-  if (!instance?._namespace)
+  if (!proto?.[PHECDA_KEY])
     return []
 
-  return instance._namespace.__STATE_HANDLER__.get(key) || []
+  return proto[PHECDA_KEY].__STATE_HANDLER__.get(key) || []
 }
 
-export function getHandler(instance: Phecda, key: PropertyKey) {
-  let proto: Phecda = Object.getPrototypeOf(instance)
+export function getHandler(target: any, key: PropertyKey) {
+  let proto: Phecda = getPhecdaFromTarget(target)
   const set = new Set<any>()
-  while (proto?._namespace) {
-    proto._namespace.__STATE_HANDLER__.get(key)?.forEach(item => set.add(item))
+  while (proto?.[PHECDA_KEY]) {
+    proto[PHECDA_KEY].__STATE_HANDLER__.get(key)?.forEach(item => set.add(item))
     proto = Object.getPrototypeOf(proto)
   }
 
   return [...set]
 }
 
-export function setState(proto: Phecda, key: PropertyKey, state: Record<string, any>) {
-  init(proto)
-  const namespace = proto._namespace.__STATE_NAMESPACE__
-
-  namespace.set(key, state)
-}
-export function getOwnState(instance: Phecda, key: PropertyKey) {
-  instance = Object.getPrototypeOf(instance)
-  return instance._namespace.__STATE_NAMESPACE__.get(key) || {}
-}
-
-export function getState(instance: Phecda, key: PropertyKey) {
-  let proto: Phecda = Object.getPrototypeOf(instance)
+export function getState(target: any, key: PropertyKey) {
+  let proto: Phecda = getPhecdaFromTarget(target)
   let ret: any = {}
-  while (proto?._namespace) {
-    const state = proto._namespace.__STATE_NAMESPACE__.get(key)
+  while (proto?.[PHECDA_KEY]) {
+    const state = proto[PHECDA_KEY].__STATE_NAMESPACE__.get(key)
 
     if (state)
       ret = { ...state, ...ret }
     proto = Object.getPrototypeOf(proto)
   }
   return ret
+}
+export function getOwnState(target: any, key: PropertyKey): Record<string, any> {
+  const proto: Phecda = getPhecdaFromTarget(target)
+
+  return proto[PHECDA_KEY].__STATE_NAMESPACE__.get(key) || {}
 }
 
 export function invokeHandler(event: string, instance: Phecda) {

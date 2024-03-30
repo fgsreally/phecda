@@ -1,5 +1,5 @@
 /* eslint-disable new-cap */
-import { SHARE_KEY, getExposeKey, getHandler, getModuleState, getState } from './core'
+import { SHARE_KEY, getExposeKey, getHandler, getState, getStateVars } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
@@ -12,7 +12,7 @@ export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | 
 export function getBind<M extends Construct | AbConstruct>(module: M) {
   // @ts-expect-error just get bind value
   const instance = new module() as Phecda
-  const keys = getModuleState(instance) as PropertyKey[]
+  const keys = getStateVars(instance) as PropertyKey[]
   const ret: any = {}
   for (const item of keys) {
     const state = getState(instance as any, item) as any
@@ -37,14 +37,15 @@ export function plainToClass<M extends Construct, Data extends Record<PropertyKe
 export async function transformClass<M extends Construct>(instance: InstanceType<M>, force = false) {
   const err: string[] = []
 
-  const stateVars = getModuleState(instance) as PropertyKey[]
-  for (const item of stateVars) {
+  const keys = getExposeKey(instance) as PropertyKey[]
+  for (const item of keys) {
     const handlers = getHandler(instance, item)
 
     if (handlers) {
       for (const handler of handlers) {
         const pipe = handler.pipe
-
+        if (!pipe)
+          continue
         try {
           await pipe(instance)
         }
@@ -53,6 +54,29 @@ export async function transformClass<M extends Construct>(instance: InstanceType
           if (!force)
             return err
         }
+      }
+    }
+  }
+  return err
+}
+
+export async function transformProperty<M extends Construct>(instance: InstanceType<M>, property: string, force = false) {
+  const err: string[] = []
+
+  const handlers = getHandler(instance, property)
+
+  if (handlers) {
+    for (const handler of handlers) {
+      const pipe = handler.pipe
+      if (!pipe)
+        continue
+      try {
+        await pipe(instance)
+      }
+      catch (e) {
+        err.push((e as Error).message)
+        if (!force)
+          return err
       }
     }
   }

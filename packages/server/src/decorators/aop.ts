@@ -1,4 +1,4 @@
-import { SHARE_KEY, setState, setVar } from 'phecda-core'
+import { SHARE_KEY, getOwnState, setState, setStateVar } from 'phecda-core'
 
 export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {
@@ -6,9 +6,9 @@ export function Guard(...guards: string[]): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setVar(target, key)
+    setStateVar(target, key)
 
-    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    const state = getOwnState(target, key)
     if (!state.guards)
       state.guards = []
     state.guards.push(...guards)
@@ -22,9 +22,9 @@ export function Plugin(...plugins: string[]): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setVar(target, key)
+    setStateVar(target, key)
 
-    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    const state = getOwnState(target, key)
     if (!state.plugins)
       state.plugins = []
     state.plugins.push(...plugins)
@@ -38,9 +38,9 @@ export function Interceptor(...interceptors: string[]): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setVar(target, key)
+    setStateVar(target, key)
 
-    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    const state = getOwnState(target, key)
     if (!state.interceptors)
       state.interceptors = []
     state.interceptors.push(...interceptors)
@@ -53,9 +53,9 @@ export function Filter(filter: string): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setVar(target, key)
+    setStateVar(target, key)
 
-    const state = target._namespace.__STATE_NAMESPACE__.get(key) || {}
+    const state = getOwnState(target, key)
     state.filter = filter
     setState(target, key, state)
   }
