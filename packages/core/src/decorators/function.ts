@@ -59,9 +59,40 @@ export function To(...callbacks: ((arg: any, instance: any, key: string) => any)
   return (proto: any, key: PropertyKey) => {
     setStateVar(proto, key)
     setHandler(proto, key, {
-      async pipe(instance: any) {
-        for (const cb of callbacks)
-          instance[key] = await cb(instance[key], instance, key as string)
+      async pipe(instance: any, addError: (msg: string) => void) {
+        for (const cb of callbacks) {
+          try {
+            if (isAsyncFunc(cb))
+              instance[key] = await cb(instance[key], instance, key as string)
+
+            else
+              instance[key] = cb(instance[key], instance, key as string)
+          }
+          catch (e: any) {
+            addError(e.message)
+          }
+        }
+      },
+    })
+  }
+}
+
+export function Rule(...callbacks: ((arg: any,) => string | true)[]) {
+  return (proto: any, key: PropertyKey) => {
+    setStateVar(proto, key)
+    setHandler(proto, key, {
+      async pipe(instance: any, addError: (msg: string) => void) {
+        for (const cb of callbacks) {
+          let ret: any
+          if (isAsyncFunc(cb))
+            ret = await cb(instance[key])
+
+          else
+            ret = cb(instance[key])
+
+          if (typeof ret === 'string')
+            addError(ret)
+        }
       },
     })
   }
