@@ -1,5 +1,12 @@
 # phecda-core
 
+## 3.0.0-alpha.12
+
+### Patch Changes
+
+- 671fbc9: refactor functions in core.ts to support all module/instance/prototype
+- 671fbc9: add params to Err;add transformProperty
+
 ## 3.0.0-alpha.11
 
 ### Minor Changes

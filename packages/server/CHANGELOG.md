@@ -1,5 +1,14 @@
 # phecda-server
 
+## 5.0.0-alpha.18
+
+### Patch Changes
+
+- 1233fd0: fix Mix to support internal abstract class like PGuard...
+- Updated dependencies [671fbc9]
+- Updated dependencies [671fbc9]
+  - phecda-core@3.0.0-alpha.12
+
 ## 5.0.0-alpha.17
 
 ### Patch Changes
