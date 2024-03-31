@@ -1,3 +1,5 @@
+import type { PHECDA_KEY } from './core'
+
 export interface NameSpace {
   [name: string]: Phecda
 }
@@ -23,7 +25,7 @@ export interface Handler {
 }
 export interface Phecda {
   prototype: any
-  _namespace: {
+  [PHECDA_KEY]: {
 
     __EXPOSE_VAR__: Set<PropertyKey>
 

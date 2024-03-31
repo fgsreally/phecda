@@ -41,11 +41,10 @@ export function setConfig<C = any>(key: string, conf: C, force = true) {
 }
 
 export function Mix<C1 extends Construct | AbConstruct, C2 extends Construct>(InternalClass: C1, ExtendClass: C2) {
-  return class extends ExtendClass {
+  return class extends InternalClass {
     constructor(...args: any) {
-      super(...args)
-      // @ts-expect-error extends internal abstract class
-      Object.assign(this, new InternalClass())
+      super()
+      Object.assign(this, new ExtendClass(...args))
     }
   } as new (...args: ConstructorParameters<C2>) => InstanceType<C1> & InstanceType<C2>
 }

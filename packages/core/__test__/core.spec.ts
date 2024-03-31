@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { getExposeKey, getOwnExposeKey, getState, setState, setVar } from '../src'
+import { getExposeKey, getOwnExposeKey, getState, setState, setStateVar } from '../src'
 
 describe('extends won\'t populate namespace', () => {
   it('modelVar', () => {
     function Test(target: any, key: any) {
-      setVar(target, key)
+      setStateVar(target, key)
     }
     class A {
       @Test

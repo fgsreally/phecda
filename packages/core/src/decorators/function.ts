@@ -1,4 +1,4 @@
-import { SHARE_KEY, init, regisHandler, setVar } from '../core'
+import { SHARE_KEY, init, setHandler, setStateVar } from '../core'
 import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
 import { getProperty } from '../di'
@@ -27,8 +27,8 @@ export function Unique(desc?: string) {
 export function Assign(cb: (instance?: any) => any) {
   return (module: any) => {
     init(module.prototype)
-    setVar(module.prototype, SHARE_KEY)
-    regisHandler(module.prototype, SHARE_KEY, {
+    setStateVar(module.prototype, SHARE_KEY)
+    setHandler(module.prototype, SHARE_KEY, {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -42,8 +42,8 @@ export function Assign(cb: (instance?: any) => any) {
 
 export function Global(module: any) {
   init(module.prototype)
-  setVar(module.prototype, SHARE_KEY)
-  regisHandler(module.prototype, SHARE_KEY, {
+  setStateVar(module.prototype, SHARE_KEY)
+  setHandler(module.prototype, SHARE_KEY, {
     init: async (instance: any) => {
       const tag = instance.__TAG__
       if (!tag)
@@ -57,8 +57,8 @@ export function Global(module: any) {
 
 export function To(...callbacks: ((arg: any, instance: any, key: string) => any)[]) {
   return (proto: any, key: PropertyKey) => {
-    setVar(proto, key)
-    regisHandler(proto, key, {
+    setStateVar(proto, key)
+    setHandler(proto, key, {
       async pipe(instance: any) {
         for (const cb of callbacks)
           instance[key] = await cb(instance[key], instance, key as string)
@@ -68,10 +68,10 @@ export function To(...callbacks: ((arg: any, instance: any, key: string) => any)
 }
 
 // @todo  when function return a Promise
-export function Err(cb: (e: Error | any) => void, isCatch = false) {
+export function Err(cb: (e: Error | any, instance: any, key: string) => void, isCatch = false) {
   return (proto: any, key: PropertyKey) => {
-    setVar(proto, key)
-    regisHandler(proto, key, {
+    setStateVar(proto, key)
+    setHandler(proto, key, {
       init: (instance: any) => {
         if (typeof instance[key] === 'function') {
           const oldFn = instance[key].bind(instance)
@@ -81,7 +81,7 @@ export function Err(cb: (e: Error | any) => void, isCatch = false) {
                 await oldFn(...args)
               }
               catch (e) {
-                cb(e)
+                cb(e, instance, key as string)
                 if (!isCatch)
                   throw e
               }
@@ -93,7 +93,7 @@ export function Err(cb: (e: Error | any) => void, isCatch = false) {
                 oldFn(...args)
               }
               catch (e) {
-                cb(e)
+                cb(e, instance, key as string)
                 if (!isCatch)
                   throw e
               }
@@ -123,8 +123,8 @@ export interface WatcherParam {
 export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
   let cb: Function
   return (proto: any, key: string) => {
-    setVar(proto, key)
-    regisHandler(proto, key, {
+    setStateVar(proto, key)
+    setHandler(proto, key, {
       init(instance: any) {
         return cb = getProperty('watcher')?.({ eventName, instance, key, options })
       },
@@ -137,8 +137,8 @@ export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
 
 export function Effect(eventName: string, options?: any) {
   return (proto: any, key: string) => {
-    setVar(proto, key)
-    regisHandler(proto, key, {
+    setStateVar(proto, key)
+    setHandler(proto, key, {
       init(instance: any) {
         instance[`$_${key}`] = instance[key]
         Object.defineProperty(instance, key, {
@@ -173,8 +173,8 @@ export function Storage({ key: storeKey, toJSON, toString }: {
       init(proto)
       tag = storeKey || `${getTag(proto) as string}_${key as string}`
 
-      setVar(proto, key)
-      regisHandler(proto, key, {
+      setStateVar(proto, key)
+      setHandler(proto, key, {
         init: (instance: any) => {
           return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
         },
@@ -183,8 +183,8 @@ export function Storage({ key: storeKey, toJSON, toString }: {
     else {
       init(proto.prototype)
       tag = storeKey || getTag(proto) as string
-      setVar(proto.prototype, SHARE_KEY)
-      regisHandler(proto.prototype, SHARE_KEY, {
+      setStateVar(proto.prototype, SHARE_KEY)
+      setHandler(proto.prototype, SHARE_KEY, {
         init: (instance: any) => {
           return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
         },

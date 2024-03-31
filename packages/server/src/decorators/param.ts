@@ -1,12 +1,13 @@
-import { setState, setVar } from 'phecda-core'
+import { getOwnState, setState, setStateVar } from 'phecda-core'
 
 export function BaseParam(type: string, key: string): any {
   return (target: any, k: PropertyKey, index: number) => {
-    setVar(target, k)
+    setStateVar(target, k)
 
-    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    const state = getOwnState(target, k)
     if (!state.params)
       state.params = []
+
     const existItem = state.params.find((item: any) => item.index === index)
     if (existItem)
       Object.assign(existItem, { type, key })
@@ -20,9 +21,9 @@ export function BaseParam(type: string, key: string): any {
 
 export function Pipe(key?: string, opts?: any) {
   return (target: any, k: PropertyKey, index: number) => {
-    setVar(target, k)
+    setStateVar(target, k)
 
-    const state = target._namespace.__STATE_NAMESPACE__.get(k) || {}
+    const state = getOwnState(target, k)
 
     if (!state.params)
       state.params = []
