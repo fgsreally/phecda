@@ -77,21 +77,22 @@ export function To(...callbacks: ((arg: any, instance: any, key: string) => any)
   }
 }
 
-export function Rule(...callbacks: ((arg: any,) => string | true)[]) {
+export function Rule(cb: ((arg: any,) => boolean | Promise<boolean>), info: string | (() => string)) {
   return (proto: any, key: PropertyKey) => {
     setStateVar(proto, key)
     setHandler(proto, key, {
       async pipe(instance: any, addError: (msg: string) => void) {
-        for (const cb of callbacks) {
-          let ret: any
-          if (isAsyncFunc(cb))
-            ret = await cb(instance[key])
+        let ret: any
+        if (isAsyncFunc(cb))
+          ret = await cb(instance[key])
 
+        else
+          ret = cb(instance[key])
+        if (!ret) {
+          if (typeof info === 'string')
+            addError(info)
           else
-            ret = cb(instance[key])
-
-          if (typeof ret === 'string')
-            addError(ret)
+            addError(info())
         }
       },
     })

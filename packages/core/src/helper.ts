@@ -81,7 +81,7 @@ export async function transformInstanceAsync<M extends Construct>(instance: Inst
   return err
 }
 
-export function transformProperty<M extends Construct>(instance: InstanceType<M>, property: string, force = false) {
+export function transformProperty<M extends Construct>(instance: InstanceType<M>, property: keyof InstanceType<M>, force = false) {
   const err: string[] = []
   const handlers = getHandler(instance, property)
   const addError = err.push.bind(err)
@@ -100,7 +100,7 @@ export function transformProperty<M extends Construct>(instance: InstanceType<M>
   return err
 }
 
-export async function transformPropertyAsync<M extends Construct>(instance: InstanceType<M>, property: string, force = false) {
+export async function transformPropertyAsync<M extends Construct>(instance: InstanceType<M>, property: keyof InstanceType<M>, force = false) {
   const err: string[] = []
   const handlers = getHandler(instance, property)
   const addError = err.push.bind(err)

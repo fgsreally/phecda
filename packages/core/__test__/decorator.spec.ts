@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformInstance } from '../src/index'
+import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, Rule, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformInstance, transformInstanceAsync, transformProperty, transformPropertyAsync } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
@@ -8,6 +8,9 @@ describe('validate&transform', () => {
 
       return p + 1
     })
+    @Rule(async (p) => {
+      return p === 'phecda'
+    }, 'Parent.name should be phecda')
     name: string
 
     get fullname() {
@@ -24,11 +27,13 @@ describe('validate&transform', () => {
   it('plainToClass', async () => {
     // base validate
     const i1 = plainToClass(Parent, { name: 'phecda11' })
-    const err = transformInstance(i1)
-    expect(err[0]).toBe('Parent.name should be phecda')
-    expect(i1).toMatchSnapshot()
+    expect(transformInstance(i1, true)).toEqual(['Parent.name should be phecda'])
+    expect(transformProperty(i1, 'name', true)).toEqual(['Parent.name should be phecda'])
 
-    // method
+    expect(await transformInstanceAsync(i1, true)).toEqual(['Parent.name should be phecda', 'Parent.name should be phecda'])
+    expect(await transformPropertyAsync(i1, 'name', true)).toEqual(['Parent.name should be phecda', 'Parent.name should be phecda'])
+
+    expect(i1).toMatchSnapshot()
 
     const i2 = plainToClass(Parent, { name: 'phecda' })
     expect(i2).toMatchSnapshot()
@@ -38,11 +43,6 @@ describe('validate&transform', () => {
     i2.changeName()
     expect(i2.name).toBe('phecda-changed')
     expect(i2.fullname).toBe('phecda-changed-core')
-
-    // partial
-    // const i3 = plainToClass(Parent, { })
-    // expect(i3).toMatchSnapshot()
-    // expect((await transformInstance(i3, false, true)).length).toBe(0)
   })
 
   it('classToPlain', () => {
