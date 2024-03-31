@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-finally */
 /* eslint-disable new-cap */
 import { SHARE_KEY, getExposeKey, getHandler, getState, getStateVars } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
@@ -34,7 +35,37 @@ export function plainToClass<M extends Construct, Data extends Record<PropertyKe
   return instance
 }
 
-export async function transformClass<M extends Construct>(instance: InstanceType<M>, force = false) {
+export function transformInstance<M extends Construct>(instance: InstanceType<M>, force = false) {
+  const err: string[] = []
+
+  const keys = getExposeKey(instance) as PropertyKey[]
+  for (const item of keys) {
+    const handlers = getHandler(instance, item)
+
+    if (handlers) {
+      for (const handler of handlers) {
+        const pipe = handler.pipe
+        let ret
+        if (!pipe)
+          continue
+        try {
+          ret = pipe(instance)
+        }
+        catch (e) {
+          err.push((e as Error).message)
+          if (!force)
+            return err
+        }
+
+        if (ret instanceof Promise)
+          throw new Error('There is an async pipe handler, use transformInstanceAsync instead')
+      }
+    }
+  }
+  return err
+}
+
+export async function transformInstanceAsync<M extends Construct>(instance: InstanceType<M>, force = false) {
   const err: string[] = []
 
   const keys = getExposeKey(instance) as PropertyKey[]
@@ -60,7 +91,35 @@ export async function transformClass<M extends Construct>(instance: InstanceType
   return err
 }
 
-export async function transformProperty<M extends Construct>(instance: InstanceType<M>, property: string, force = false) {
+export function transformProperty<M extends Construct>(instance: InstanceType<M>, property: string, force = false) {
+  const err: string[] = []
+
+  const handlers = getHandler(instance, property)
+
+  if (handlers) {
+    for (const handler of handlers) {
+      const pipe = handler.pipe
+      let ret: any
+      if (!pipe)
+        continue
+      try {
+        ret = pipe(instance)
+      }
+      catch (e) {
+        err.push((e as Error).message)
+        if (!force)
+          return err
+      }
+      finally {
+        if (ret instanceof Promise)
+          throw new Error('There is an async pipe handler, use transformInstanceAsync instead')
+      }
+    }
+  }
+  return err
+}
+
+export async function transformPropertyAsync<M extends Construct>(instance: InstanceType<M>, property: string, force = false) {
   const err: string[] = []
 
   const handlers = getHandler(instance, property)
@@ -82,7 +141,6 @@ export async function transformProperty<M extends Construct>(instance: InstanceT
   }
   return err
 }
-
 export function classToPlain<M>(instance: M): ClassValue<M> {
   const data = {} as any
   const exposeVars = getExposeKey(instance as any) as PropertyKey[]

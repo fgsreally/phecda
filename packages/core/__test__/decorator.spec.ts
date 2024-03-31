@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformClass } from '../src/index'
+import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformInstance } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
@@ -24,7 +24,7 @@ describe('validate&transform', () => {
   it('plainToClass', async () => {
     // base validate
     const i1 = plainToClass(Parent, { name: 'phecda11' })
-    const err = await transformClass(i1)
+    const err = transformInstance(i1)
     expect(err[0]).toBe('Parent.name should be phecda')
     expect(i1).toMatchSnapshot()
 
@@ -32,7 +32,7 @@ describe('validate&transform', () => {
 
     const i2 = plainToClass(Parent, { name: 'phecda' })
     expect(i2).toMatchSnapshot()
-    await transformClass(i2)
+    transformInstance(i2)
     expect(i2.name).toBe('phecda1')
     expect(i2.fullname).toBe('phecda1-core')
     i2.changeName()
@@ -42,7 +42,7 @@ describe('validate&transform', () => {
     // partial
     // const i3 = plainToClass(Parent, { })
     // expect(i3).toMatchSnapshot()
-    // expect((await transformClass(i3, false, true)).length).toBe(0)
+    // expect((await transformInstance(i3, false, true)).length).toBe(0)
   })
 
   it('classToPlain', () => {
@@ -62,7 +62,7 @@ describe('validate&transform', () => {
       name: string
     }
     const instance = plainToClass(Child, { name: 'phecda11', age: '1' })
-    const err = await transformClass(instance, true)
+    const err = transformInstance(instance, true)
     expect(err.length).toBe(2)
     expect(err[0]).toBe('name should be short')
     expect(classToPlain(instance)).toMatchSnapshot()
@@ -151,7 +151,7 @@ describe('validate&transform', () => {
   //   }
 
   //   const instance = plainToClass(A, { b: { b: 0 } })
-  //   await transformClass(instance)
+  //   await transformInstance(instance)
   //   expect(instance.b.b).toBe(1)
   //   instance.b.change()
   //   expect(instance.b.b).toBe(2)
@@ -171,7 +171,7 @@ describe('validate&transform', () => {
     }
 
     const instance = plainToClass(Test, { count: 0 })
-    await transformClass(instance, true)
+    await transformInstance(instance, true)
     expect(instance.count).toBe(2)
   })
 

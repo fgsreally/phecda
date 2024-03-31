@@ -1,12 +1,12 @@
-import { isPhecda, plainToClass, transformClass } from 'phecda-core'
+import { isPhecda, plainToClass, transformInstance } from 'phecda-core'
 import { ValidateException } from './exception/validate'
 
 import type { P } from './types'
 
-export const defaultPipe: P.Pipe = async ({ arg, reflect, index }: any) => {
+export const defaultPipe: P.Pipe = ({ arg, reflect, index }: any) => {
   if (isPhecda(reflect)) {
     const instance = plainToClass(reflect, arg)
-    const err = await transformClass(instance)
+    const err = transformInstance(instance)
     if (err.length > 0)
       throw new ValidateException(err[0])
 
