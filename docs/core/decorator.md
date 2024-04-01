@@ -8,14 +8,21 @@
 
 ```ts
 // 基本的
+// 初始化时执行该方法
 declare function Init(proto: any, key: PropertyKey): void
+// 卸载时执行该方法
 declare function Unmount(proto: any, key: PropertyKey): void
+// 方法上绑定数据
 declare function Bind(value: any): (proto: any, k: PropertyKey) => void
+// 忽略
 declare function Ignore(proto: any, key: PropertyKey): void
+// 清除其上所有装饰器的效果
 declare function Clear(proto: any, key: PropertyKey): void
+// 暴露
 declare function Expose(proto: any, key: PropertyKey): void
+
 declare function Empty(module: any): void
-// 带其他功能的
+// 带功能的
 declare function Isolate(target: any): void
 declare function Tag(tag: PropertyKey): (module: any) => void
 declare function Unique(desc?: string): (module: any) => void

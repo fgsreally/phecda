@@ -36,6 +36,6 @@ declare function invokeHandler(event: string, instance: Phecda): Promise<any[]>
 declare function Provide<K extends keyof InjectData>(key: K, value: InjectData[K]): void
 declare function Inject<K extends keyof InjectData>(key: K): InjectData[K]
 // 注入与获取（用于实现PC未实现的装饰器）
-declare function injectProperty(key: string, value: any): Record<string, any>
-declare function getProperty(key: string): any
+declare function injectKey(key: string, value: any): Record<string, any>
+declare function getKey(key: string): any
 ```
