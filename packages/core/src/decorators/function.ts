@@ -164,7 +164,7 @@ export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
   }
 }
 
-export function Effect(eventName: string, options?: any) {
+export function Effect(cb: (value: any, instance: any, key: string) => void) {
   return (proto: any, key: string) => {
     setStateVar(proto, key)
     setHandler(proto, key, {
@@ -176,7 +176,7 @@ export function Effect(eventName: string, options?: any) {
           },
           set(v) {
             instance[`$_${key}`] = v
-            getKey(`effect-${eventName}`)?.({ instance, key, value: v, options })
+            cb(v, instance, key)
             return true
           },
         })
