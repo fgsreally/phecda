@@ -30,6 +30,9 @@ declare function getHandler(target: any, key: PropertyKey): any[]
 // 获得类上注册的状态
 declare function getState(target: any, key: PropertyKey): any
 declare function getOwnState(target: any, key: PropertyKey): Record<string, any>
+// 类上添加/获取属性
+declare function set(proto: Phecda, key: string, value: any): void
+declare function get(proto: Phecda, key: string): any
 // 触发实例上注册的handler
 declare function invokeHandler(event: string, instance: Phecda): Promise<any[]>
 // 注入与获取
