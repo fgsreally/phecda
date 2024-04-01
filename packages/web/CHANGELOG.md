@@ -1,5 +1,22 @@
 # phecda-web
 
+## 1.0.1-beta.10
+
+### Patch Changes
+
+- Updated dependencies [d1f7041]
+- Updated dependencies [5a477d0]
+- Updated dependencies [aefd80c]
+  - phecda-core@3.0.0-beta.13
+
+## 1.0.1-alpha.9
+
+### Patch Changes
+
+- Updated dependencies [671fbc9]
+- Updated dependencies [671fbc9]
+  - phecda-core@3.0.0-alpha.12
+
 ## 1.0.1-alpha.8
 
 ### Patch Changes

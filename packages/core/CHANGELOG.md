@@ -1,5 +1,21 @@
 # phecda-core
 
+## 3.0.0-beta.13
+
+### Patch Changes
+
+- d1f7041: break change! add set/get;rename injectProperty/getProperty; refactor core.ts
+  refactor Inject
+- 5a477d0: refactor Effect
+- aefd80c: refactor transform logic to decorator `To` and add decorator `Rule` to separate async transform and transform;
+
+## 3.0.0-alpha.12
+
+### Patch Changes
+
+- 671fbc9: refactor functions in core.ts to support all module/instance/prototype
+- 671fbc9: add params to Err;add transformProperty
+
 ## 3.0.0-alpha.11
 
 ### Minor Changes
