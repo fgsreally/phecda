@@ -1,25 +1,22 @@
-import { SHARE_KEY, init, setHandler, setStateVar } from '../core'
+import { PHECDA_KEY, SHARE_KEY, init, set, setHandler, setStateVar } from '../core'
 import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
-import { getProperty } from '../di'
+import { getKey } from '../di'
 
-export function Isolate(target: any) {
-  init(target.prototype)
-
-  target.prototype.__ISOLATE__ = true
+export function Isolate(module: any) {
+  set(module.prototype, 'isolate', true)
+  module.prototype[PHECDA_KEY].__ISOLATE__ = true
 }
 
 export function Tag(tag: PropertyKey) {
   return (module: any) => {
-    init(module.prototype)
-    module.prototype.__TAG__ = tag
+    set(module.prototype, 'tag', tag)
   }
 }
 
 export function Unique(desc?: string) {
   return (module: any) => {
-    init(module.prototype)
-    module.prototype.__TAG__ = Symbol(desc || module.name)
+    set(module.prototype, 'tag', Symbol(desc || module.name))
   }
 }
 
@@ -45,7 +42,7 @@ export function Global(module: any) {
   setStateVar(module.prototype, SHARE_KEY)
   setHandler(module.prototype, SHARE_KEY, {
     init: async (instance: any) => {
-      const tag = instance.__TAG__
+      const tag = instance[PHECDA_KEY].__TAG__
       if (!tag)
         return
       if (!(globalThis as any).__PHECDA__)
@@ -59,9 +56,41 @@ export function To(...callbacks: ((arg: any, instance: any, key: string) => any)
   return (proto: any, key: PropertyKey) => {
     setStateVar(proto, key)
     setHandler(proto, key, {
-      async pipe(instance: any) {
-        for (const cb of callbacks)
-          instance[key] = await cb(instance[key], instance, key as string)
+      async pipe(instance: any, addError: (msg: string) => void) {
+        for (const cb of callbacks) {
+          try {
+            if (isAsyncFunc(cb))
+              instance[key] = await cb(instance[key], instance, key as string)
+
+            else
+              instance[key] = cb(instance[key], instance, key as string)
+          }
+          catch (e: any) {
+            addError(e.message)
+          }
+        }
+      },
+    })
+  }
+}
+
+export function Rule(cb: ((arg: any,) => boolean | Promise<boolean>), info: string | (() => string)) {
+  return (proto: any, key: PropertyKey) => {
+    setStateVar(proto, key)
+    setHandler(proto, key, {
+      async pipe(instance: any, addError: (msg: string) => void) {
+        let ret: any
+        if (isAsyncFunc(cb))
+          ret = await cb(instance[key])
+
+        else
+          ret = cb(instance[key])
+        if (!ret) {
+          if (typeof info === 'string')
+            addError(info)
+          else
+            addError(info())
+        }
       },
     })
   }
@@ -126,7 +155,7 @@ export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
     setStateVar(proto, key)
     setHandler(proto, key, {
       init(instance: any) {
-        return cb = getProperty('watcher')?.({ eventName, instance, key, options })
+        return cb = getKey('watcher')?.({ eventName, instance, key, options })
       },
       unmount() {
         return cb?.()
@@ -147,7 +176,7 @@ export function Effect(eventName: string, options?: any) {
           },
           set(v) {
             instance[`$_${key}`] = v
-            getProperty(`effect-${eventName}`)?.({ instance, key, value: v, options })
+            getKey(`effect-${eventName}`)?.({ instance, key, value: v, options })
             return true
           },
         })
@@ -176,7 +205,7 @@ export function Storage({ key: storeKey, toJSON, toString }: {
       setStateVar(proto, key)
       setHandler(proto, key, {
         init: (instance: any) => {
-          return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
+          return getKey('storage')?.({ instance, key, tag, toJSON, toString })
         },
       })
     }
@@ -186,7 +215,7 @@ export function Storage({ key: storeKey, toJSON, toString }: {
       setStateVar(proto.prototype, SHARE_KEY)
       setHandler(proto.prototype, SHARE_KEY, {
         init: (instance: any) => {
-          return getProperty('storage')?.({ instance, key, tag, toJSON, toString })
+          return getKey('storage')?.({ instance, key, tag, toJSON, toString })
         },
       })
     }

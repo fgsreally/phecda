@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { getExposeKey, getOwnExposeKey, getState, setState, setStateVar } from '../src'
 
 describe('extends won\'t populate namespace', () => {
-  it('modelVar', () => {
+  it('expose keys', () => {
     function Test(target: any, key: any) {
       setStateVar(target, key)
     }

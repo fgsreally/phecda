@@ -57,7 +57,7 @@ export function Empty(module: any) {
 //   return To(async (property) => {
 //     const instance = plainToClass(module, property)
 
-//     const err = await transformClass(instance)
+//     const err = await transformInstance(instance)
 //     if (err.length > 0)
 //       throw new Error(err[0])
 

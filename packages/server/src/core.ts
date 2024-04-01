@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getProperty, getState, getTag, injectProperty, invokeHandler, isPhecda } from 'phecda-core'
+import { Empty, SHARE_KEY, getExposeKey, getKey, getState, getTag, injectKey, invokeHandler, isPhecda } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
@@ -32,8 +32,8 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   const moduleGraph = new Map<PropertyKey, Set<PropertyKey>>()
   const { http, rpc } = opts
 
-  if (!getProperty('watcher')) {
-    injectProperty('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
+  if (!getKey('watcher')) {
+    injectKey('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
       if (options?.once)
@@ -78,13 +78,13 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   }
 
   async function add(Module: Construct) {
-    const tag = Module.prototype?.__TAG__ || Module.name
+    const tag = getTag(Module)
     const oldInstance = await del(tag)
 
     const { instance: newModule } = await buildNestModule(Module)
 
     if (oldInstance && moduleGraph.has(tag)) {
-      debug(`replace module "${tag}"`);
+      debug(`replace module "${String(tag)}"`);
 
       [...moduleGraph.get(tag)!].forEach((tag) => {
         const module = moduleMap.get(tag)

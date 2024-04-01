@@ -1,7 +1,6 @@
 export * from './filter'
 export * from 'phecda-web'
 // export * from './components'
-export * from './wrapper'
 export * from './phecda'
 export * from './composable'
 export * from './decorator'

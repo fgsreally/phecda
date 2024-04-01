@@ -36,6 +36,8 @@ export interface Phecda {
     __STATE_HANDLER__: Map<PropertyKey, Handler[]>
 
     __STATE_NAMESPACE__: Map<PropertyKey, Object>
+
+    [key: string]: any
   }
 }
 

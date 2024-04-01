@@ -1,6 +1,6 @@
 import type { Server } from 'node:http'
 import type { SuperAgentTest, Test } from 'supertest'
-import type { Construct } from 'phecda-core'
+import { type Construct, getTag } from 'phecda-core'
 import { Factory } from './core'
 
 import type { PickFunc } from './types'
@@ -9,14 +9,14 @@ export async function TestFactory<T extends Construct[]>(...Modules: T) {
 
   return {
     get<C extends T[number]>(Module: C): InstanceType<C> {
-      const tag = Module.prototype?.__TAG__ || Module.name
+      const tag = getTag(Module)
       const instance = moduleMap.get(tag)
 
       if (!instance)
-        throw new Error(`module "${tag}" doesn't exist`)
+        throw new Error(`module "${String(tag)}" doesn't exist`)
 
       if (constructorMap.get(tag) !== Module)
-        throw new Error(`Module ${Module.name} and "${tag}' in modulemap are different modules`)
+        throw new Error(`Module ${Module.name} and "${String(tag)}' in modulemap are different modules`)
 
       return instance
     },
@@ -32,11 +32,11 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
   const Agent = agent(app) as SuperAgentTest & { module: typeof module }
 
   function module<T extends Construct>(Module: T): SuperTestRequest<PickFunc<InstanceType<T>>> {
-    const tag = Module.prototype?.__TAG__ || Module.name
+    const tag = getTag(Module)
 
     const instance = moduleMap.get(tag)
     if (!instance)
-      throw new Error(`module "${tag}" doesn't exist`)
+      throw new Error(`module "${String(tag)}" doesn't exist`)
 
     return new Proxy({}, {
       get(_target, p) {

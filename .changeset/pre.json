@@ -1,21 +1,19 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "beta",
   "initialVersions": {
     "benchmark": "1.0.0",
-    "example-vue-form-table": "0.0.0",
     "example-module": "0.0.0",
     "example-react": "0.0.0",
     "example-server": "0.0.4",
     "example-vue": "0.0.0",
-    "phecda-client": "2.0.3",
-    "phecda-core": "2.1.1",
-    "phecda-module": "1.0.3",
-    "phecda-prompt": "1.0.1",
-    "phecda-react": "0.0.0",
-    "phecda-server": "4.1.0",
-    "phecda-vue": "2.1.2",
-    "phecda-web": "1.0.0"
+    "phecda-client": "2.0.4-alpha.0",
+    "phecda-core": "3.0.0-alpha.11",
+    "phecda-module": "1.0.4-alpha.11",
+    "phecda-react": "0.1.0-alpha.12",
+    "phecda-server": "5.0.0-alpha.17",
+    "phecda-vue": "3.0.0-alpha.14",
+    "phecda-web": "1.0.1-alpha.8"
   },
   "changesets": [
     "angry-hotels-mate",
