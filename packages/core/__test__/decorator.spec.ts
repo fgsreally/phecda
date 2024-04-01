@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, Rule, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectProperty, invokeHandler, isPhecda, plainToClass, transformInstance, transformInstanceAsync, transformProperty, transformPropertyAsync } from '../src/index'
+import { Assign, Bind, Effect, Empty, Err, Expose, Ignore, Init, Pipeline, Rule, SHARE_KEY, Tag, To, addDecoToClass, classToPlain, getBind, getExposeKey, getTag, injectKey, invokeHandler, isPhecda, plainToClass, transformInstance, transformInstanceAsync, transformProperty, transformPropertyAsync } from '../src/index'
 describe('validate&transform', () => {
   class Parent {
     @To((p, i, k) => {
@@ -122,7 +122,7 @@ describe('validate&transform', () => {
       key = 10
     }
 
-    injectProperty('effect-phecda', ({ value }: any) => {
+    injectKey('effect-phecda', ({ value }: any) => {
       fn(value)
     })
     const instance = new Test() as any

@@ -21,11 +21,11 @@ export function Inject<K extends keyof InjectData>(key: K): InjectData[K] {
 
 export const activeInstance: Record<string, any> = {}
 // for function decorators like Watcher Storage
-export function injectProperty(key: string, value: any) {
+export function injectKey(key: string, value: any) {
   activeInstance[key] = value
   return activeInstance
 }
 
-export function getProperty(key: string) {
+export function getKey(key: string) {
   return activeInstance[key]
 }

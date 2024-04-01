@@ -1,8 +1,8 @@
 import type { Construct } from 'phecda-core'
-import { invokeHandler } from 'phecda-core'
+import { getTag, invokeHandler } from 'phecda-core'
 import 'reflect-metadata'
 
-export const moduleMap = new Map<string, InstanceType<Construct>>()
+export const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {
   for (const Module of Modules)
@@ -13,7 +13,7 @@ if (__DEV__) {
   // @ts-expect-error work for hmr
   window.__PHECDA_MODULE_UPDATE__ = (target) => {
     target = Object.values(target)[0]
-    const tag = target.prototype?.__TAG__ || target.name
+    const tag = getTag(target)
     const module = moduleMap.get(tag)
     module.destroy?.()
     moduleMap.delete(tag)
@@ -25,12 +25,12 @@ async function buildNestModule(Module: Construct) {
   const paramtypes = getParamtypes(Module) as Construct[]
 
   let instance: InstanceType<Construct>
-  const tag = Module.prototype?.__TAG__ || Module.name
+  const tag = getTag(Module)
 
   if (moduleMap.has(tag)) {
     instance = moduleMap.get(tag)
     if (!instance)
-      throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${tag}--[module] ${Module}`)
+      throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${String(tag)}--[module] ${Module}`)
 
     return instance
   }

@@ -1,12 +1,12 @@
 /* eslint-disable new-cap */
-import { SHARE_KEY, getExposeKey, getHandler, getState, getStateVars } from './core'
+import { PHECDA_KEY, SHARE_KEY, getExposeKey, getHandler, getState, getStateVars } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
     moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
 
-  return (moduleOrInstance as M).prototype?.__TAG__ || (moduleOrInstance as M).name
+  return (moduleOrInstance as M).prototype[PHECDA_KEY]?.__TAG__ || (moduleOrInstance as M).name
 }
 
 export function getBind<M extends Construct | AbConstruct>(module: M) {

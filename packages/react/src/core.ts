@@ -2,11 +2,11 @@
 import { proxy, useSnapshot } from 'valtio'
 import type { Construct, Events } from 'phecda-web'
 import { useEffect } from 'react'
-import { emitter, getActiveInstance, getTag, invokeHandler, resetActiveInstance } from 'phecda-web'
+import { emitter, get, getActiveInstance, getTag, invokeHandler, resetActiveInstance } from 'phecda-web'
 
 export function useO<T extends Construct>(module: T) {
   const { state, origin } = getActiveInstance()
-  if (module.prototype.__ISOLATE__) {
+  if (get(module.prototype, 'isolate')) {
     const instance = new module()
 
     return instance

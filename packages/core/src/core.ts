@@ -9,7 +9,7 @@ export const PHECDA_KEY = Symbol('phecda')
 // 由于绝大部分的后续使用都是通过实例化（不支持抽象类），故不加AbConstruct
 export function isPhecda(module: any): module is Construct {
   if (typeof module === 'function')
-    return !!module.prototype?.[PHECDA_KEY]
+    return !!module.prototype[PHECDA_KEY]
 
   return false
 }
@@ -48,33 +48,13 @@ export function init(proto: Phecda) {
 }
 function getPhecdaFromTarget(target: any) {
   if (typeof target === 'function')
-    return target.prototype
+    return target.prototype// class/module
 
   if (target.hasOwnProperty(PHECDA_KEY))
-    return target
+    return target// prototype
 
-  return Object.getPrototypeOf(target)
+  return Object.getPrototypeOf(target)// instance
 }
-
-// export function regisInitEvent(module: Phecda, key: string) {
-//   init(module)
-//   module[PHECDA_KEY].__INIT_EVENT__.add(key)
-// }
-
-// export function getOwnInitEvent(instance: Phecda) {
-//   instance=Object.getPrototypeOf(instance)
-//   return [...instance[PHECDA_KEY].__INIT_EVENT__] as string[]
-// }
-// export function getInitEvent(instance: Phecda) {
-//   let proto: Phecda = Object.getPrototypeOf(instance)
-//   const set = new Set<PropertyKey>()
-//   while (proto?.[PHECDA_KEY]) {
-//     proto[PHECDA_KEY].__INIT_EVENT__.forEach(item => set.add(item))
-
-//     proto=Object.getPrototypeOf(proto)
-//   }
-//   return [...set]
-// }
 
 // it should be setmodelVar
 export function setStateVar(proto: Phecda, key: PropertyKey) {
@@ -151,19 +131,13 @@ export function getExposeKey(target: any) {
 export function getOwnIgnoreKey(target: any) {
   const proto: Phecda = getPhecdaFromTarget(target)
 
-  if (!proto?.[PHECDA_KEY])
-    return []
-
-  return [...proto[PHECDA_KEY].__IGNORE_VAR__] as string[]
+  return [...proto[PHECDA_KEY]?.__IGNORE_VAR__] as string[]
 }
 
 export function getOwnHandler(target: any, key: PropertyKey) {
   const proto: Phecda = getPhecdaFromTarget(target)
 
-  if (!proto?.[PHECDA_KEY])
-    return []
-
-  return proto[PHECDA_KEY].__STATE_HANDLER__.get(key) || []
+  return proto[PHECDA_KEY]?.__STATE_HANDLER__.get(key) || []
 }
 
 export function getHandler(target: any, key: PropertyKey) {
@@ -203,4 +177,13 @@ export function invokeHandler(event: string, instance: Phecda) {
   }).flat()
 
   return Promise.all(initHandlers)
+}
+
+export function set(proto: Phecda, key: string, value: any) {
+  init(proto)
+  proto[PHECDA_KEY][`__${key.toUpperCase()}__`] = value
+}
+
+export function get(proto: Phecda, key: string) {
+  return proto[PHECDA_KEY]?.[`__${key.toUpperCase()}__`] as any
 }

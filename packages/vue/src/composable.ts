@@ -3,7 +3,7 @@ import type { UnwrapNestedRefs } from 'vue'
 import { onBeforeUnmount, reactive, shallowReactive, toRaw, toRef } from 'vue'
 
 import type { Construct, Events } from 'phecda-web'
-import { emitter, getActiveInstance, getTag, invokeHandler } from 'phecda-web'
+import { emitter, get, getActiveInstance, getTag, invokeHandler } from 'phecda-web'
 import type { ReplaceInstanceValues } from './types'
 import type { DeepPartial } from './utils'
 import { createSharedReactive, mergeReactiveObjects } from './utils'
@@ -13,9 +13,9 @@ const REF_SYMBOL = Symbol('ref')
 export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
   const { state, origin } = getActiveInstance()
 
-  const proxyFn = module.prototype.__SHALLOW__ ? shallowReactive : reactive
+  const proxyFn = get(module.prototype, 'shallow') ? shallowReactive : reactive
 
-  if (module.prototype.__ISOLATE__) {
+  if (get(module.prototype, 'isolate')) {
     const instance = proxyFn(new module())
     instance._promise = invokeHandler('init', instance)
     return instance

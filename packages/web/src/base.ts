@@ -1,14 +1,18 @@
-import type { Events } from 'phecda-web'
-import { emitter } from 'phecda-web'
+import { type Events, getTag } from 'phecda-core'
+import { emitter } from './plugin'
 
-export class PV {
+export class P {
   constructor() {
 
   }
 
-  get tag() {
-    // @ts-expect-error 如在pv上声明，会覆盖原有_namespace
-    return this.__TAG__
+  get tag(): PropertyKey {
+    return getTag(this)
+  }
+
+  then(cb: () => void, reject?: (e: any) => void) {
+    // @ts-expect-error when Init is async
+    return this._promise.then(cb, reject)
   }
 
   on<Key extends keyof Events>(type: Key, handler: (arg: Events[Key]) => void): void {
