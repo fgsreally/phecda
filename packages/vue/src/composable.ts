@@ -63,7 +63,7 @@ export function useV<T extends Construct>(module: T): ReplaceInstanceValues<Inst
     get(target: any, key) {
       if (typeof target[key] === 'function') {
         if (!cache[key])
-          cache[key] = target[key].bind(this)
+          cache[key] = target[key].bind(target)
         return cache[key]
       }
       if (target[key]?.__v_skip)// markRaw
