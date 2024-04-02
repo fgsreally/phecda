@@ -3,6 +3,7 @@
 exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
+    "ctx": "context",
     "define": {},
     "filter": undefined,
     "guards": [],
@@ -35,6 +36,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 exports[`Factory  > In extended case 1`] = `
 [
   {
+    "ctx": undefined,
     "define": {},
     "filter": undefined,
     "guards": [],
@@ -62,6 +64,7 @@ exports[`Factory  > In extended case 1`] = `
     "tag": "B",
   },
   {
+    "ctx": undefined,
     "define": {},
     "filter": undefined,
     "guards": [],
@@ -94,6 +97,7 @@ exports[`Factory  > In extended case 1`] = `
 exports[`Factory  > multple class extends the same class 1`] = `
 [
   {
+    "ctx": undefined,
     "define": {},
     "filter": undefined,
     "guards": [],
@@ -121,6 +125,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "tag": "B",
   },
   {
+    "ctx": undefined,
     "define": {},
     "filter": undefined,
     "guards": [],
@@ -148,6 +153,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "tag": "B",
   },
   {
+    "ctx": undefined,
     "define": {},
     "filter": undefined,
     "guards": [],
@@ -175,6 +181,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "tag": "C",
   },
   {
+    "ctx": undefined,
     "define": {},
     "filter": undefined,
     "guards": [],

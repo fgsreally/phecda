@@ -46,10 +46,10 @@ export function createPhecda() {
   resetActiveInstance()
   return {
 
-    load(state: any) {
+    load(state?: any) {
       const instance = getActiveInstance()
-
-      instance.state = state
+      if (state)
+        instance.state = state
       return this
     },
 

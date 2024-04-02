@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { Empty, SHARE_KEY, getExposeKey, getKey, getState, getTag, injectKey, invokeHandler, isPhecda } from 'phecda-core'
+import { Empty, SHARE_KEY, get, getExposeKey, getKey, getState, getTag, injectKey, invokeHandler, isPhecda } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter, P } from './types'
 import { Meta } from './meta'
@@ -189,9 +189,12 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   const vars = getExposeKey(instance).filter(item => item !== SHARE_KEY)
   const baseState = (getState(instance, SHARE_KEY) || {}) as P.MetaData
   initState(baseState)
+  const ctx = get(instance, 'context')
 
   return vars.map((i) => {
-    const meta = {} as P.MetaData
+    const meta = {
+      ctx,
+    } as P.MetaData
     const state = (getState(instance, i) || {}) as P.MetaData
     initState(state)
     if (state.http) {
@@ -200,6 +203,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
         type: state.http.type,
       }
     }
+
     if (baseState.rpc)
       meta.rpc = baseState.rpc
     if (state.rpc) {

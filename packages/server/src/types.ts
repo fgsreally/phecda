@@ -64,6 +64,7 @@ export namespace P {
       type: string[]
       isEvent: boolean
     }
+    ctx?: string
     define?: any
     header: Record<string, string>
     params: { type: string; index: number; key: string; pipe?: string; pipeOpts?: any }[]

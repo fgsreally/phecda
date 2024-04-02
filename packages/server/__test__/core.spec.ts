@@ -2,12 +2,15 @@ import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { Factory, Injectable } from '../src/core'
 import { Body, Controller, Get, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
-import { Init, Tag } from '../src'
+import { Ctx, Init, Tag } from '../src'
 
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', async () => {
     @Controller('/base')
     class A {
+      @Ctx
+      context: any
+
       @Get('/test')
       test(@Query('id') id: string, @Body('name') name: string) {
         return id + name
