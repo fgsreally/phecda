@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
@@ -21,8 +21,12 @@ describe('rabbitmq rpc', () => {
   it('create server', async () => {
     const fn = vi.fn()
     class TestRpc {
+      @Ctx
+      ctx: any
+
       @Rpc('rabbitmq')
       run(arg: string) {
+        expect(this.ctx).toBeDefined()
         fn()
         return arg
       }

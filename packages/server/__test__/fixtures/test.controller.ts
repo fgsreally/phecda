@@ -1,5 +1,5 @@
+import { expect } from 'vitest'
 import { Body, Controller, Ctx, Exception, Get, Guard, Interceptor, P, Param, Pipe, Plugin, Post, Query, To } from '../../src'
-
 class Info {
   @To((p) => {
     if (p !== 'phecda')
@@ -50,6 +50,7 @@ export class Test {
 
   @Post('/all/:test')
   all(@Param('test') test: string, @Body() reqBody: any, @Query('id') id: string) {
+    expect(this.ctx).toBeDefined()
     return [test, reqBody, id]
   }
 }

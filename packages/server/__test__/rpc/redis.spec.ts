@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/redis'
 
 function stop(time = 500) {
@@ -22,8 +22,12 @@ describe('redis rpc', () => {
   it('create server', async () => {
     const fn = vi.fn()
     class TestRpc {
+      @Ctx
+      ctx: any
+
       @Rpc('rabbitmq')
       run(arg: string) {
+        expect(this.ctx).toBeDefined()
         fn()
         return arg
       }
