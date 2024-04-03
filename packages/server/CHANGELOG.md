@@ -1,5 +1,14 @@
 # phecda-server
 
+## 5.0.0-beta.20
+
+### Patch Changes
+
+- 532ac3e: add Ctx to support inject context to custom property
+- 074a815: model=class and module=instance
+- Updated dependencies [074a815]
+  - phecda-core@3.0.0-beta.14
+
 ## 5.0.0-beta.19
 
 ### Patch Changes

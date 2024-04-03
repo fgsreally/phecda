@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 3.0.0-beta.18
+
+### Patch Changes
+
+- 074a815: model=class and module=instance
+- Updated dependencies [074a815]
+  - phecda-web@1.0.1-beta.11
+
 ## 3.0.0-beta.17
 
 ### Patch Changes
