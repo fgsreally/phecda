@@ -16,7 +16,7 @@ const debug = Debug('phecda-server')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
-export async function Factory(Modules: (new (...args: any) => any)[], opts: {
+export async function Factory(models: (new (...args: any) => any)[], opts: {
 
   // HTTP generate code path
   http?: string
@@ -26,10 +26,10 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
   const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
   const meta: Meta[] = []
   const constructorMap = new Map()
-
-  // only work for warn
   const constructorSet = new WeakSet()
-  const moduleGraph = new Map<PropertyKey, Set<PropertyKey>>()
+  const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
+  // work for Isolate
+  const isolateSet = new Set<PropertyKey>()
   const { http, rpc } = opts
 
   if (!getKey('watcher')) {
@@ -57,7 +57,7 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
 
     debug(`unmount module "${String(tag)}"`)
 
-    invokeHandler('unmount', instance)
+    await invokeHandler('unmount', instance)
     debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
@@ -77,16 +77,16 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       await del(tag)
   }
 
-  async function add(Module: Construct) {
-    const tag = getTag(Module)
+  async function add(Model: Construct) {
+    const tag = getTag(Model)
     const oldInstance = await del(tag)
 
-    const { instance: newModule } = await buildNestModule(Module)
+    const { instance: newModule } = await buildDepModule(Model)
 
-    if (oldInstance && moduleGraph.has(tag)) {
+    if (oldInstance && dependenceGraph.has(tag)) {
       debug(`replace module "${String(tag)}"`);
 
-      [...moduleGraph.get(tag)!].forEach((tag) => {
+      [...dependenceGraph.get(tag)!].forEach((tag) => {
         const module = moduleMap.get(tag)
         for (const key in module) {
           if (module[key] === oldInstance)
@@ -95,18 +95,22 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       })
     }
   }
-  async function buildNestModule(Module: Construct) {
-    const paramtypes = getParamTypes(Module) as Construct[]
+
+  async function buildDepModule(Model: Construct) {
+    const paramtypes = getParamTypes(Model) as Construct[]
     let instance: InstanceType<Construct>
-    const tag = getTag(Module)
+    const tag = getTag(Model)
+    if (get(Model as any, 'isolate'))
+      isolateSet.add(tag)
+
     if (moduleMap.has(tag)) {
       instance = moduleMap.get(tag)
       if (!instance)
-        throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${String(tag)}--[module] ${Module}`)
+        throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${String(tag)}--[module] ${Model}`)
 
-      if (constructorMap.get(tag) !== Module && !constructorSet.has(Module)) {
-        constructorSet.add(Module)// a module will only warn once
-        log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Module.name}"`, 'warn')
+      if (constructorMap.get(tag) !== Model && !constructorSet.has(Model)) {
+        constructorSet.add(Model)// a module will only warn once
+        log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Model.name}"`, 'warn')
       }
       return { instance, tag }
     }
@@ -116,19 +120,19 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     if (paramtypes) {
       const paramtypesInstances = [] as any[]
       for (const i in paramtypes) {
-        const { instance: sub, tag: subTag } = await buildNestModule(paramtypes[i])
+        const { instance: sub, tag: subTag } = await buildDepModule(paramtypes[i])
         paramtypesInstances[i] = sub
-        if (!moduleGraph.has(subTag))
-          moduleGraph.set(subTag, new Set())
-        moduleGraph.get(subTag)!.add(tag)
+        if (!dependenceGraph.has(subTag))
+          dependenceGraph.set(subTag, new Set())
+        dependenceGraph.get(subTag)!.add(tag)
       }
 
-      instance = new Module(...paramtypesInstances)
+      instance = new Model(...paramtypesInstances)
     }
     else {
-      instance = new Module()
+      instance = new Model()
     }
-    meta.push(...getMetaFromInstance(instance, tag, Module.name))
+    meta.push(...getMetaFromInstance(instance, tag, Model.name))
 
     debug(`init module "${String(tag)}"`)
 
@@ -137,12 +141,12 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
     debug(`add module "${String(tag)}"`)
 
     moduleMap.set(tag, instance)
-    constructorMap.set(tag, Module)
+    constructorMap.set(tag, Model)
     return { instance, tag }
   }
 
-  for (const Module of Modules)
-    await buildNestModule(Module)
+  for (const model of models)
+    await buildDepModule(model)
 
   function writeCode() {
     if (http) {
@@ -165,13 +169,24 @@ export async function Factory(Modules: (new (...args: any) => any)[], opts: {
       debug('reload files ')
 
       for (const file of files) {
-        const module = await import(file)
-        for (const i in module) {
-          if (isPhecda(module[i]))
-            await add(module[i])
+        const models = await import(file)
+        for (const i in models) {
+          if (isPhecda(models[i]))
+            await add(models[i])
         }
       }
       writeCode()
+    })
+  }
+
+  // experiment
+  globalThis.__PS_ISOLATE__ = () => {
+    const tags = [...isolateSet]
+    isolateSet.clear()
+
+    tags.forEach((tag) => {
+      del(tag)
+      add(constructorMap.get(tag))
     })
   }
 

@@ -128,3 +128,7 @@ describe('Factory ', () => {
     expect(fn).toHaveBeenCalledTimes(2)
   })
 })
+
+// 'a'-'b'-'c'
+
+// 'a'-'e'-'c'

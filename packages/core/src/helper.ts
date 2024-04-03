@@ -9,9 +9,9 @@ export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | 
   return (moduleOrInstance as M).prototype[PHECDA_KEY]?.__TAG__ || (moduleOrInstance as M).name
 }
 
-export function getBind<M extends Construct | AbConstruct>(module: M) {
+export function getBind<M extends Construct | AbConstruct>(model: M) {
   // @ts-expect-error just get bind value
-  const instance = new module() as Phecda
+  const instance = new model() as Phecda
   const keys = getStateVars(instance) as PropertyKey[]
   const ret: any = {}
   for (const item of keys) {
@@ -23,8 +23,8 @@ export function getBind<M extends Construct | AbConstruct>(module: M) {
   return ret
 }
 
-export function plainToClass<M extends Construct, Data extends Record<PropertyKey, any>>(module: M, input: Data) {
-  const instance: InstanceType<M> = new module()
+export function plainToClass<M extends Construct, Data extends Record<PropertyKey, any>>(model: M, input: Data) {
+  const instance: InstanceType<M> = new model()
 
   const keys = getExposeKey(instance) as PropertyKey[]
   for (const item of keys)

@@ -4,31 +4,31 @@ import type { Construct, Events } from 'phecda-web'
 import { useEffect } from 'react'
 import { emitter, get, getActiveInstance, getTag, invokeHandler, resetActiveInstance } from 'phecda-web'
 
-export function useO<T extends Construct>(module: T) {
+export function useO<T extends Construct>(model: T) {
   const { state, origin } = getActiveInstance()
-  if (get(module.prototype, 'isolate')) {
-    const instance = new module()
+  if (get(model.prototype, 'isolate')) {
+    const instance = new model()
 
     return instance
   }
 
-  const tag = getTag(module)
+  const tag = getTag(model)
 
   if (tag in state) {
-    if (origin.get(state[tag]) !== module)
-      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
+    if (origin.get(state[tag]) !== model)
+      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
 
     return state[tag]
   }
-  const instance = new module()
+  const instance = new model()
 
   state[tag] = instance
   return instance
 }
 
-export function useR<T extends Construct>(module: T): [InstanceType<T>, InstanceType<T>] {
+export function useR<T extends Construct>(model: T): [InstanceType<T>, InstanceType<T>] {
   const { cache: cacheMap } = getActiveInstance()
-  const instance = useO(module)
+  const instance = useO(model)
   if (cacheMap.has(instance)) {
     const proxyInstance = cacheMap.get(instance)
     return [useSnapshot(proxyInstance), proxyInstance]
@@ -75,9 +75,9 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
   ]
 }
 
-export function initialize<M extends Construct>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
-  const instance = useO(module)
-  const newInstance = new module()
+export function initialize<M extends Construct>(model: M, deleteOtherProperty = true): InstanceType<M> | void {
+  const instance = useO(model)
+  const newInstance = new model()
   Object.assign(instance, newInstance)
   if (deleteOtherProperty) {
     for (const key in instance) {

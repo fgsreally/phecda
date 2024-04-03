@@ -25,23 +25,23 @@ export function serializeState() {
   return JSON.parse(JSON.stringify(activeInstance.state))
 }
 
-export function isModuleLoad(module: Construct) {
+export function isModuleLoad(model: Construct) {
   const { origin, state } = getActiveInstance()
-  const tag = getTag(module)
+  const tag = getTag(model)
   if (tag in state) {
-    if (origin.get(state[tag]) !== module)
-      throw new Error(`Synonym module: Module taged "${String(tag)}" (but not "${module.name}") has been loaded before`)
+    if (origin.get(state[tag]) !== model)
+      throw new Error(`Synonym module: Module taged "${String(tag)}" (but not "${model.name}") has been loaded before`)
 
     return true
   }
   return false
 }
 
-export async function unmountModule(module: Construct | PropertyKey) {
-  if (typeof module === 'object')
-    module = getTag(module)
+export async function unmountModule(model: Construct | PropertyKey) {
+  if (typeof model === 'object')
+    model = getTag(model)
 
   const { state } = getActiveInstance()
-  await invokeHandler('unmount', state[module as PropertyKey])
-  delete state[module as PropertyKey]
+  await invokeHandler('unmount', state[model as PropertyKey])
+  delete state[model as PropertyKey]
 }

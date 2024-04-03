@@ -7,9 +7,9 @@ export const SHARE_KEY = Symbol('phecda')
 export const PHECDA_KEY = Symbol('phecda')
 // type safe
 // 由于绝大部分的后续使用都是通过实例化（不支持抽象类），故不加AbConstruct
-export function isPhecda(module: any): module is Construct {
-  if (typeof module === 'function')
-    return !!module.prototype[PHECDA_KEY]
+export function isPhecda(model: any): model is Construct {
+  if (typeof model === 'function')
+    return !!model.prototype[PHECDA_KEY]
 
   return false
 }
@@ -48,12 +48,12 @@ export function init(proto: Phecda) {
 }
 function getPhecdaFromTarget(target: any) {
   if (typeof target === 'function')
-    return target.prototype// class/module
+    return target.prototype// class/model
 
   if (target.hasOwnProperty(PHECDA_KEY))
     return target// prototype
 
-  return Object.getPrototypeOf(target)// instance
+  return Object.getPrototypeOf(target)// module
 }
 
 // it should be setmodelVar
@@ -169,11 +169,11 @@ export function getOwnState(target: any, key: PropertyKey): Record<string, any> 
   return proto[PHECDA_KEY].__STATE_NAMESPACE__.get(key) || {}
 }
 
-export function invokeHandler(event: string, instance: Phecda) {
-  const stateVars = getExposeKey(instance) as PropertyKey[]
+export function invokeHandler(event: string, module: Phecda) {
+  const stateVars = getExposeKey(module) as PropertyKey[]
 
   const initHandlers = stateVars.map((item) => {
-    return getHandler(instance, item).filter(h => !!h[event]).map(h => h[event](instance))
+    return getHandler(module, item).filter(h => !!h[event]).map(h => h[event](module))
   }).flat()
 
   return Promise.all(initHandlers)
