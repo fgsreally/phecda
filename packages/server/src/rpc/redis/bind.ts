@@ -70,7 +70,7 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
 
       const {
         data: {
-          guards, interceptors, params, name, method, filter,
+          guards, interceptors, params, name, method, filter, ctx,
         },
         paramsType,
       } = meta
@@ -88,7 +88,10 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
         }))
 
-        const funcData = await moduleMap.get(name)[method](...handleArgs)
+        const instance = moduleMap.get(name)
+        if (ctx)
+          instance[ctx] = context.data
+        const funcData = await instance[method](...handleArgs)
         const res = await context.usePostInterceptor(funcData)
 
         queue && pub.publish(queue, JSON.stringify({ data: res, id }))

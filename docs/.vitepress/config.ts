@@ -27,7 +27,7 @@ export default defineConfig({
     },
 
     nav: [
-      { text: '/', link: '/core/', activeMatch: '/core/' },
+      { text: 'core', link: '/core/intro', activeMatch: '/core/' },
 
       { text: 'server', link: '/server/intro', activeMatch: '/server/' },
       { text: 'vue', link: '/vue/base', activeMatch: '/vue/' },
@@ -37,6 +37,30 @@ export default defineConfig({
     ],
 
     sidebar: {
+      '/core/': [
+        {
+          text: '简介',
+          link: '/core/intro',
+        },
+        {
+          text: '标准',
+          link: '/core/standard',
+        },
+        {
+          text: '验证与转换',
+          link: '/core/transform',
+        },
+
+        {
+          text: '核心api',
+          link: '/core/core',
+        },
+        {
+          text: '装饰器',
+          link: '/core/decorator',
+        },
+
+      ],
       '/vue/': [
         {
           text: '基础使用',
@@ -59,6 +83,10 @@ export default defineConfig({
             {
               text: 'intro',
               link: '/server/intro',
+            },
+            {
+              text: '灵感来源',
+              link: '/server/inspire',
             },
 
             {

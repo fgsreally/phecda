@@ -1,5 +1,5 @@
-import { Body, Controller, Exception, Get, Guard, Interceptor, Param, Pipe, Plugin, Post, Query, To } from '../../src'
-
+import { expect } from 'vitest'
+import { Body, Controller, Ctx, Exception, Get, Guard, Interceptor, P, Param, Pipe, Plugin, Post, Query, To } from '../../src'
 class Info {
   @To((p) => {
     if (p !== 'phecda')
@@ -11,6 +11,9 @@ class Info {
 
 @Controller('')
 export class Test {
+  @Ctx
+  ctx: P.HttpContext
+
   @Get('/get')
   get() {
     return { msg: 'test' }
@@ -46,7 +49,8 @@ export class Test {
   }
 
   @Post('/all/:test')
-  all(@Param('test') test: string, @Body() body: any, @Query('id') id: string) {
-    return [test, body, id]
+  all(@Param('test') test: string, @Body() reqBody: any, @Query('id') id: string) {
+    expect(this.ctx).toBeDefined()
+    return [test, reqBody, id]
   }
 }

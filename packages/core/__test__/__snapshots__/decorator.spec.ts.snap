@@ -6,12 +6,6 @@ exports[`validate&transform > classToPlain 1`] = `
 }
 `;
 
-exports[`validate&transform > classToValue 1`] = `
-{
-  "name": "phecda",
-}
-`;
-
 exports[`validate&transform > extend 1`] = `
 {
   "name": "phecda11",
@@ -28,13 +22,6 @@ Parent {
 exports[`validate&transform > plainToClass 2`] = `
 Parent {
   "name": "phecda",
-  "testId": undefined,
-}
-`;
-
-exports[`validate&transform > plainToClass 3`] = `
-Parent {
-  "name": undefined,
   "testId": undefined,
 }
 `;

@@ -4,7 +4,6 @@
 
 本质上是将所有的模块，或者说是类，先控制反转+依赖注入将其实例化
 
-
 然后根据`Tag`或者类名注册到`map`里
 
 ```ts
@@ -30,11 +29,10 @@ import { bindApp } from 'phecda-server/express'
 // ..
 
 const router = express.Router()
-bindApp(router, data)// work for router
+bindApp(router, data) // work for router
 ```
 
 </details>
-
 
 <details>
 <summary>Fastify</summary>
@@ -85,7 +83,6 @@ bindApp(router, data)
 
 </details>
 
-
 ## 创建接口
 
 ```ts
@@ -129,31 +126,31 @@ test3(@User() user:any){
 
 :::
 
-## context
+## 上下文
 
 那以上功能该怎么实现呢，简单！只需要把信息挂到`context`上
+
 > 守卫、拦截器、管道中都可以操作`context`
 
 ```ts
+import { Ctx, Get } from 'phecda-server'
+class TestController {
+  @Ctx
+  context: ExpressCtx
 
-@Get()
-test3(){
-const {user}=this.context//必须在顶部
+  @Get()
+  test3() {
+    const { user } = this.context // 必须在顶部
 
-//...
+    // ...
+  }
 }
-
 ```
 
 简而言之，函数的参数必须是来自客户端，而服务端的东西则通过`context`获得
 
-
-
-
-
-
-
 ## 创建服务
+
 > 具体可以看`模块`这一章
 
 只有一个 `controller` 显然过于单薄，
@@ -197,10 +194,10 @@ class TestService {
 }
 ```
 
-
-
 前文中的
+
 ```ts
 const data = await Factory([TestController])
 ```
-不需要添加TestService,它会作为TestController的依赖被处理
+
+不需要添加 TestService,它会作为 TestController 的依赖被处理

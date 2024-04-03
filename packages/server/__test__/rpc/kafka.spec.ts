@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Kafka } from 'kafkajs'
-import { Arg, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/kafka'
 
 function stop(time = 1000) {
@@ -21,8 +21,12 @@ describe('kafka rpc', () => {
   it('create server', async () => {
     const fn = vi.fn()
     class TestRpc {
+      @Ctx
+      ctx: any
+
       @Rpc('kafka')
       run(arg: string) {
+        expect(this.ctx).toBeDefined()
         fn()
         return arg
       }

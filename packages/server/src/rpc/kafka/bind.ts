@@ -85,7 +85,7 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
       })
       const {
         data: {
-          guards, interceptors, params, name, method, filter,
+          guards, interceptors, params, name, method, filter, ctx,
         },
         paramsType,
       } = meta
@@ -108,7 +108,11 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
         }))
 
-        const funcData = await moduleMap.get(name)[method](...handleArgs)
+        const instance = moduleMap.get(name)
+        if (ctx)
+          instance[ctx] = context.data
+        const funcData = await instance[method](...handleArgs)
+
         const ret = await context.usePostInterceptor(funcData)
 
         if (queue) {

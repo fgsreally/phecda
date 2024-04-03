@@ -39,4 +39,21 @@ declare function To(...callbacks: ((arg: any, instance: any, key: string) => any
 declare function Rule(cb: ((arg: any) => boolean | Promise<boolean>), info: string | (() => string)): (proto: any, key: PropertyKey) => void
 // 错误处理
 declare function Err(cb: (e: Error | any, instance: any, key: string) => void, isCatch?: boolean): (proto: any, key: PropertyKey) => void
+// 数据修改时副作用
+declare function Effect(cb: (value: any, instance: any, key: string) => void): (proto: any, key: string) => void
+```
+
+## 未实现
+
+```ts
+// 监视行为
+declare function Watcher(eventName: keyof Events, options?: {
+  once?: boolean
+}): (proto: any, key: string) => void
+// 存储
+declare function Storage({ key: storeKey, toJSON, toString }?: {
+  toJSON?: (str: string) => any
+  toString?: (arg: any) => string
+  key?: string
+}): (proto: any, key?: PropertyKey) => void
 ```

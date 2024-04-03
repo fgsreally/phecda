@@ -3,29 +3,29 @@ import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
 import { getKey } from '../di'
 
-export function Isolate(module: any) {
-  set(module.prototype, 'isolate', true)
-  module.prototype[PHECDA_KEY].__ISOLATE__ = true
+export function Isolate(model: any) {
+  set(model.prototype, 'isolate', true)
+  model.prototype[PHECDA_KEY].__ISOLATE__ = true
 }
 
 export function Tag(tag: PropertyKey) {
-  return (module: any) => {
-    set(module.prototype, 'tag', tag)
+  return (model: any) => {
+    set(model.prototype, 'tag', tag)
   }
 }
 
 export function Unique(desc?: string) {
-  return (module: any) => {
-    set(module.prototype, 'tag', Symbol(desc || module.name))
+  return (model: any) => {
+    set(model.prototype, 'tag', Symbol(desc || model.name))
   }
 }
 
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
-  return (module: any) => {
-    init(module.prototype)
-    setStateVar(module.prototype, SHARE_KEY)
-    setHandler(module.prototype, SHARE_KEY, {
+  return (model: any) => {
+    init(model.prototype)
+    setStateVar(model.prototype, SHARE_KEY)
+    setHandler(model.prototype, SHARE_KEY, {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -37,10 +37,10 @@ export function Assign(cb: (instance?: any) => any) {
   }
 }
 
-export function Global(module: any) {
-  init(module.prototype)
-  setStateVar(module.prototype, SHARE_KEY)
-  setHandler(module.prototype, SHARE_KEY, {
+export function Global(model: any) {
+  init(model.prototype)
+  setStateVar(model.prototype, SHARE_KEY)
+  setHandler(model.prototype, SHARE_KEY, {
     init: async (instance: any) => {
       const tag = instance[PHECDA_KEY].__TAG__
       if (!tag)

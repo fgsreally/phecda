@@ -90,7 +90,9 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 data: {
                   params,
                   guards,
-                  interceptors, filter,
+                  interceptors,
+                  filter,
+                  ctx,
                 },
               } = metaMap.get(tag)!
 
@@ -114,7 +116,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
                   return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
                 })) as any
-                instance.context = contextData
+                if (ctx)
+                  instance[ctx] = contextData
                 const funcData = await moduleMap.get(name)[method](...args)
                 resolve(await context.usePostInterceptor(funcData))
               }
@@ -147,6 +150,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
           params,
           plugins,
           filter,
+          ctx,
         },
       } = metaMap.get(methodTag)!
 
@@ -180,7 +184,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
               return { arg: resolveDep(context.data[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
             }))
 
-            instance.context = contextData
+            if (ctx)
+              instance[ctx] = contextData
             const funcData = await instance[method](...args)
             const ret = await context.usePostInterceptor(funcData)
 

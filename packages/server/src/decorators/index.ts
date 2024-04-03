@@ -1,4 +1,4 @@
-import { SHARE_KEY, getOwnState, setState, setStateVar } from 'phecda-core'
+import { SHARE_KEY, getOwnState, set, setState, setStateVar } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
@@ -10,6 +10,10 @@ export function Header(name: string, value: string) {
     state.header[name] = value
     setState(target, k, state)
   }
+}
+
+export function Ctx(target: any, key: PropertyKey) {
+  set(target, 'context', key)
 }
 
 export function Define(key: string, value: any) {

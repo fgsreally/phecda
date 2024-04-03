@@ -10,51 +10,51 @@ import { createSharedReactive, mergeReactiveObjects } from './utils'
 
 const REF_SYMBOL = Symbol('ref')
 
-export function useO<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
+export function useO<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
   const { state, origin } = getActiveInstance()
 
-  const proxyFn = get(module.prototype, 'shallow') ? shallowReactive : reactive
+  const proxyFn = get(model.prototype, 'shallow') ? shallowReactive : reactive
 
-  if (get(module.prototype, 'isolate')) {
-    const instance = proxyFn(new module())
+  if (get(model.prototype, 'isolate')) {
+    const instance = proxyFn(new model())
     instance._promise = invokeHandler('init', instance)
     return instance
   }
-  const tag = getTag(module)
+  const tag = getTag(model)
   if (!(tag in state)) {
-    const instance = proxyFn(new module())
+    const instance = proxyFn(new model())
 
     instance._promise = invokeHandler('init', instance)
 
     state[tag] = instance
 
-    origin.set(instance, module)
+    origin.set(instance, model)
   }
 
   // it will cause hmr warn repeatly
   // else {
-  //   if (origin.get(state[tag]) !== module)
-  //     console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${module.name}"`)
+  //   if (origin.get(state[tag]) !== model)
+  //     console.warn(`Synonym model: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
   // }
   return state[tag]
 }
 
-export function useRaw<T extends Construct>(module: T) {
-  return toRaw(useO(module)) as unknown as InstanceType<T>
+export function useRaw<T extends Construct>(model: T) {
+  return toRaw(useO(model)) as unknown as InstanceType<T>
 }
 // like what pinia does
-export function usePatch<T extends Construct>(module: T, Data: DeepPartial<InstanceType<T>>) {
-  const instance = useO(module)
+export function usePatch<T extends Construct>(model: T, Data: DeepPartial<InstanceType<T>>) {
+  const instance = useO(model)
   mergeReactiveObjects(instance, Data)
 }
 
-export function useR<T extends Construct>(module: T): UnwrapNestedRefs<InstanceType<T>> {
-  return useO(module)
+export function useR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
+  return useO(model)
 }
 
-export function useV<T extends Construct>(module: T): ReplaceInstanceValues<InstanceType<T>> {
+export function useV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
   const { cache: cacheMap } = getActiveInstance()
-  const instance = useO(module)
+  const instance = useO(model)
   const cache = cacheMap.get(instance) || {}
 
   if (cache[REF_SYMBOL])
@@ -100,9 +100,9 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
 }
 
 // 还原模块
-export function initialize<M extends Construct>(module: M, deleteOtherProperty = true): InstanceType<M> | void {
-  const instance = useO(module)
-  const newInstance = new module()
+export function initialize<M extends Construct>(model: M, deleteOtherProperty = true): InstanceType<M> | void {
+  const instance = useO(model)
+  const newInstance = new model()
   Object.assign(instance, newInstance)
   if (deleteOtherProperty) {
     for (const key in instance) {
