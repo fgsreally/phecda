@@ -1,5 +1,12 @@
 # phecda-module
 
+## 1.0.4-beta.14
+
+### Patch Changes
+
+- Updated dependencies [074a815]
+  - phecda-core@3.0.0-beta.14
+
 ## 1.0.4-beta.13
 
 ### Patch Changes

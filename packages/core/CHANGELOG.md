@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.0.0-beta.14
+
+### Patch Changes
+
+- 074a815: model=class and module=instance
+
 ## 3.0.0-beta.13
 
 ### Patch Changes
