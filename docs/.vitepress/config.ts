@@ -43,6 +43,15 @@ export default defineConfig({
           link: '/core/intro',
         },
         {
+          text: '标准',
+          link: '/core/standard',
+        },
+        {
+          text: '验证与转换',
+          link: '/core/transform',
+        },
+
+        {
           text: '核心api',
           link: '/core/core',
         },
@@ -50,6 +59,7 @@ export default defineConfig({
           text: '装饰器',
           link: '/core/decorator',
         },
+
       ],
       '/vue/': [
         {
@@ -73,6 +83,10 @@ export default defineConfig({
             {
               text: 'intro',
               link: '/server/intro',
+            },
+            {
+              text: '灵感来源',
+              link: '/server/inspire',
             },
 
             {

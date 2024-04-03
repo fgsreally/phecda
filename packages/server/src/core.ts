@@ -180,20 +180,17 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   }
 
   // experiment
-  globalThis.__PS_ISOLATE__ = () => {
-    const tags = [...isolateSet]
-    isolateSet.clear()
+  // globalThis.__PS_ISOLATE__ = () => {
+  //   const tags = [...isolateSet]
+  //   isolateSet.clear()
 
-    tags.forEach((tag) => {
-      del(tag)
-      add(constructorMap.get(tag))
-    })
-  }
+  //   return tags.map(tag => add(constructorMap.get(tag)))
+  // }
 
   return {
     moduleMap,
-    meta,
     constructorMap,
+    meta,
     add,
     del,
     destroy,

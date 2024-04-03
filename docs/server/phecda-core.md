@@ -30,3 +30,8 @@ class Test {
 > 这里`emitter`用的是`nodejs`中的`eventEmitter`,
 > 如果想更改,可以参考`Factory`的源码实现
 
+::: danger
+
+当前架构无法支持`Isolate`
+
+:::
