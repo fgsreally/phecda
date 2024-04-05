@@ -106,6 +106,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               moduleMap,
               tag,
               next,
+              data: (req as any).data,
               ...argToReq(params, item.args, req.headers),
             }
             const context = new Context<ExpressCtx>(contextData)
@@ -173,6 +174,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           body: req.body,
           params: req.params,
           headers: req.headers,
+          data: (req as any).data,
           next,
         }
 

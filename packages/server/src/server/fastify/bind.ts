@@ -63,9 +63,10 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
     (fastify as any)[APP_SYMBOL] = {
       moduleMap, meta,
     }
-    // fastify.decorateRequest(MODULE_SYMBOL, null)
-    // fastify.decorateRequest(META_SYMBOL, null)
-    // fastify.decorateRequest(MERGE_SYMBOL, false)
+
+    fastify.decorateRequest('data', {})
+    fastify.decorateRequest(MODULE_SYMBOL)
+    fastify.decorateRequest(META_SYMBOL)
 
     fastify.register((fastify, _opts, done) => {
       plugins.forEach((p) => {
@@ -119,6 +120,8 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
                 response: res,
                 moduleMap,
                 tag,
+                data: (req as any).data,
+
                 ...argToReq(params, item.args, req.headers),
 
               }
@@ -197,6 +200,8 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
             body: req.body as any,
             params: req.params as any,
             headers: req.headers,
+            data: (req as any).data,
+
           }
           const context = new Context<FastifyCtx>(contextData)
 

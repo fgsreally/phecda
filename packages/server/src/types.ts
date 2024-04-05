@@ -31,6 +31,7 @@ export namespace P {
     type: string
     tag: string
     [key: string]: any
+
   }
   export interface HttpContext extends BaseContext {
     query: Record<string, any>
@@ -38,6 +39,7 @@ export namespace P {
     body: Record<string, any>
     headers: IncomingHttpHeaders
     index?: number
+    data: any
   }
   export interface Error {
     // as a symbol
