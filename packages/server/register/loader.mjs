@@ -35,7 +35,7 @@ export async function initialize(data) {
   if (data)
     port = data.port
 
-  if (process.env.PS_NO_DTS)
+  if (process.env.PS_UNIMPORT_BAN)
     return
 
   unimportRet = await genUnImportRet()
