@@ -6,16 +6,16 @@ type ToAxios<R> = {
   [K in keyof R]: R[K] extends (...args: any) => any ? (...p: Parameters<R[K]>) => Promise<P.Res<Awaited<ReturnType<R[K]>>> > : R[K]
 }
 
-export type ChainController<T extends Record<string, any>> = {
-  [K in keyof T]: ToAxios<PickFunc<InstanceType<T[K]>>>;
-} & {
-  options(config: AxiosRequestConfig): ChainController<T>
-}
+ type ChainRequester<T extends Record<string, any>> = {
+   [K in keyof T]: ToAxios<PickFunc<InstanceType<T[K]>>>;
+ } & {
+   options(config: AxiosRequestConfig): ChainRequester<T>
+ }
 
 let batchStack: any[] | null
 let batchPromise: any
 
-export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean }): ChainController<C> {
+export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean }): ChainRequester<C> {
   const rc: any = {
     options(config: AxiosRequestConfig) {
       this._options = config

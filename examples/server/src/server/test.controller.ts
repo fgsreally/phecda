@@ -1,6 +1,6 @@
 import type { ExpressCtx } from 'phecda-server/express'
 
-class Tester {
+export class Tester {
   id: string
   name: string
 

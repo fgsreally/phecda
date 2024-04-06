@@ -1,7 +1,7 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { P, RequestType } from 'phecda-server'
+import type { P, PickFunc, RequestType } from 'phecda-server'
 
-export interface RequestArgs {
+interface RequestArgs {
   body: Record<string, any>
   headers: Record<string, string>
   query: Record<string, string>
@@ -11,24 +11,20 @@ export interface RequestArgs {
   tag: string
   args: any[]
 }
-type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'tag' | 'headers'>
-export function toReq(arg: RequestArgs) {
+
+export function createBeacon(baseUrl: string) {
+  return (arg: any) => {
+    const { url, body } = toReq(arg as any)
+
+    navigator.sendBeacon(`${baseUrl}${url}`, JSON.stringify(body))
+  }
+}
+
+function toReq(arg: RequestArgs) {
   const { body, query, method, url, headers } = arg
 
   return { headers, method, url, body, query }
 }
-
-export const merge = (...args: RequestArgs[]) => {
-  const ret = [] as MergedReqArg[]
-  for (const i of args) {
-    const { body, query, params, tag, headers } = i
-    ret.push({ tag, body, query, params, headers })
-  }
-
-  return ret
-}
-
-export type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Parameters<F>) => Promise<ReturnType<F>>
 
 export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.Res<Awaited<R>>>> {
   // @ts-expect-error methods without route decorator won't send request
@@ -61,13 +57,8 @@ export function isError<T = any>(data: T | P.Error): data is P.Error {
   return typeof data === 'object' && (data as any).__PS_ERROR__
 }
 
-// work for vue-request
-// phecda-client request instance + method from class => async function
-export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<typeof createReq>, cb: F): (...params: Parameters<F>) => ReturnType<F> {
-  // @ts-expect-error misdirct
-  return async (...params: Parameters<F>) => {
-    return (await pcRequest(cb(...params as any))).data as any
-  }
+export function useC<T extends new (...args: any) => any>(Module: T): PickFunc<InstanceType<T>> {
+  return new Module()
 }
 
 function addToConfig(origin: any, config: Record<string, any>) {
@@ -80,3 +71,26 @@ function addToConfig(origin: any, config: Record<string, any>) {
   }
   return origin
 }
+
+// // work for vue-request
+// // phecda-client request instance + method from class => async function
+// export function toAsync<F extends (...args: any) => any>(pcRequest: ReturnType<typeof createReq>, cb: F): (...params: Parameters<F>) => ReturnType<F> {
+//   // @ts-expect-error misdirct
+//   return async (...params: Parameters<F>) => {
+//     return (await pcRequest(cb(...params as any))).data as any
+//   }
+// }
+
+// type MergedReqArg = Pick<RequestArgs, 'body' | 'query' | 'params' | 'tag' | 'headers'>
+
+//  const merge = (...args: RequestArgs[]) => {
+//   const ret = [] as MergedReqArg[]
+//   for (const i of args) {
+//     const { body, query, params, tag, headers } = i
+//     ret.push({ tag, body, query, params, headers })
+//   }
+
+//   return ret
+// }
+
+//  type RequestMethod = <F extends (...args: any[]) => any >(fn: F, args: Parameters<F>) => Promise<ReturnType<F>>
