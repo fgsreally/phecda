@@ -1,8 +1,6 @@
 import type { ExpressCtx } from 'phecda-server/express'
 
-import { A } from './test.service'
-
-export class Tester {
+class Tester {
   id: string
   name: string
 
@@ -10,18 +8,16 @@ export class Tester {
     return this.id + this.name
   }
 }
-
 @Controller('/base')
 @Tag('test')
 export class TestController extends Dev {
   static age = 12
   age = 1
   context: ExpressCtx
-  constructor(public fgs: A) {
+  constructor(public fgs: TestService) {
     super()
-
     addGuard('a', () => true)
-    addPlugin('aa', () => {})
+    addPlugin('aa', () => { })
   }
 
   @Init
