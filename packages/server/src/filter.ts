@@ -1,9 +1,9 @@
 import { IS_LOG_BAN } from './common'
 import { Exception, UndefinedException } from './exception'
-import type { P } from './types'
 import { log } from './utils'
+import type { FilterType } from './context'
 
-export const defaultFilter: P.Filter = (e) => {
+export const defaultFilter: FilterType = (e) => {
   if (!(e instanceof Exception)) {
     log(e.message, 'error')
     if (!IS_LOG_BAN)

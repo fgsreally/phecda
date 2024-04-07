@@ -6,6 +6,7 @@ import { TestController } from '../server/test.controller'
 const instance = axios.create({
   baseURL: '/base',
 })
+
 // const beacon = createBeacon('http://localhost:3699')
 const useRequest = createReq(instance)
 const useParallelReq = createParallelReq(instance)
@@ -26,7 +27,6 @@ async function chainRequest() {
 async function request() {
   const { data } = await useRequest(test('110', 'server', toClass<Tester>({ id: '1', name: 'test' })))
   console.log('[normal request]:')
-
   console.log(data)
 }
 

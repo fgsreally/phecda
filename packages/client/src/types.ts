@@ -1,6 +1,4 @@
-import type { PickKeysByValue } from 'phecda-server'
-
- type OmitFunction<T> = Omit<T, PickKeysByValue<T, (...args: any) => any>>
+import type { OmitFunction } from 'phecda-server'
 
 export type Expand<T> = T extends (...args: infer A) => infer R
   ? (...args: Expand<A>) => Expand<R>

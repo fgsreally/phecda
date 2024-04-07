@@ -1,12 +1,12 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { P, PickFunc, RequestType } from 'phecda-server'
+import type { P, ToClientInstance } from 'phecda-server'
 
 interface RequestArgs {
   body: Record<string, any>
   headers: Record<string, string>
   query: Record<string, string>
   params: Record<string, string>
-  method: RequestType
+  method: P.RequestType
   url: string
   tag: string
   args: any[]
@@ -26,7 +26,7 @@ function toReq(arg: RequestArgs) {
   return { headers, method, url, body, query }
 }
 
-export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.Res<Awaited<R>>>> {
+export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>>> {
   // @ts-expect-error methods without route decorator won't send request
   return (arg: any, config?: AxiosRequestConfig) => {
     const { url, body, method, headers, query } = toReq(arg as RequestArgs)
@@ -46,7 +46,9 @@ export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRe
   }
 }
 
-export function createParallelReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<P.ResOrErr<P.Res<R>>>> {
+export function createParallelReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<{
+  [K in keyof R]: Awaited<R[K]> | P.Error
+}>> {
   // @ts-expect-error misdirction
   return (args: RequestArgs[], config?: AxiosRequestConfig) => {
     return instance.post(key, args, config)
@@ -57,7 +59,7 @@ export function isError<T = any>(data: T | P.Error): data is P.Error {
   return typeof data === 'object' && (data as any).__PS_ERROR__
 }
 
-export function useC<T extends new (...args: any) => any>(Module: T): PickFunc<InstanceType<T>> {
+export function useC<T extends new (...args: any) => any>(Module: T): ToClientInstance<InstanceType<T>> {
   return new Module()
 }
 

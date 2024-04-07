@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type { Kafka } from 'kafkajs'
-import type { ToControllerMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(kafka: Kafka, topic: string, controllers: S): Promise<ToControllerMap<S>> {
+import type { ToClientMap } from '../../types'
+export async function createClient<S extends Record<string, any>>(kafka: Kafka, topic: string, controllers: S): Promise<ToClientMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
   const uniQueue = `PS:${topic}-${randomUUID()}`

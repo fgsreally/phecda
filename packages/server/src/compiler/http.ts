@@ -1,4 +1,4 @@
-import type { P } from '../types'
+import type { MetaData } from '../meta'
 
 class Compiler {
   classMap: Record<string, { [key: string]: string }> = {}
@@ -23,7 +23,7 @@ class Compiler {
   //     return content
   // }
 
-  addMethod(args: P.MetaData) {
+  addMethod(args: MetaData) {
     const {
       http, name, method, params, tag,
     } = args
@@ -43,7 +43,7 @@ return ret
   }
 }
 
-export function generateHTTPCode(meta: P.MetaData[]) {
+export function generateHTTPCode(meta: MetaData[]) {
   const compiler = new Compiler()
 
   for (const i of meta)

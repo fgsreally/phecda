@@ -4,7 +4,8 @@ import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
 import { Empty, SHARE_KEY, get, getExposeKey, getKey, getState, getTag, injectKey, invokeHandler, isPhecda } from 'phecda-core'
 import Debug from 'debug'
-import type { Emitter, P } from './types'
+import type { Emitter } from './types'
+import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
 import { IS_DEV } from './common'
@@ -199,15 +200,15 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 
 function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   const vars = getExposeKey(instance).filter(item => item !== SHARE_KEY)
-  const baseState = (getState(instance, SHARE_KEY) || {}) as P.MetaData
+  const baseState = (getState(instance, SHARE_KEY) || {}) as MetaData
   initState(baseState)
   const ctx = get(instance, 'context')
 
   return vars.map((i) => {
     const meta = {
       ctx,
-    } as P.MetaData
-    const state = (getState(instance, i) || {}) as P.MetaData
+    } as MetaData
+    const state = (getState(instance, i) || {}) as MetaData
     initState(state)
     if (state.http) {
       meta.http = {
@@ -246,7 +247,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
     meta.guards = [...new Set([...baseState.guards, ...state.guards])]
     meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
 
-    return new Meta(meta as unknown as P.MetaData, getParamTypes(instance, i as string) || [])
+    return new Meta(meta as unknown as MetaData, getParamTypes(instance, i as string) || [])
   })
 }
 

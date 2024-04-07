@@ -1,9 +1,9 @@
 import { randomUUID } from 'crypto'
 import EventEmitter from 'events'
 import Redis from 'ioredis'
-import type { ToControllerMap } from '../../types'
+import type { ToClientMap } from '../../types'
 
-export function createClient<S extends Record<string, any>>(redis: Redis, queue: string, controllers: S): ToControllerMap<S> {
+export function createClient<S extends Record<string, any>>(redis: Redis, queue: string, controllers: S): ToClientMap<S> {
   const ret = {} as any
   const sub = new Redis(redis.options)
   const uniQueue = `PS:${queue}-${randomUUID()}`
