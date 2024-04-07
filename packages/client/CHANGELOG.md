@@ -1,5 +1,13 @@
 # phecda-client
 
+## 2.0.4-beta.1
+
+### Patch Changes
+
+- 6b5b307: refactor types system
+- c563af1: add Expand/ExpandRecursively types
+  client only export import api
+
 ## 2.0.4-alpha.0
 
 ### Patch Changes
