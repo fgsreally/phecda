@@ -1,21 +1,15 @@
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import type { P, PickFunc } from 'phecda-server'
-import { useC } from '..'
-import { createParallelReq, createReq, isError } from './base'
-type ToAxios<R> = {
-  [K in keyof R]: R[K] extends (...args: any) => any ? (...p: Parameters<R[K]>) => Promise<P.Res<Awaited<ReturnType<R[K]>>> > : R[K]
-}
+import type { ToClientMap } from 'phecda-server'
+import { createParallelReq, createReq, isError, useC } from './base'
 
-export type ChainController<T extends Record<string, any>> = {
-  [K in keyof T]: ToAxios<PickFunc<InstanceType<T[K]>>>;
-} & {
-  options(config: AxiosRequestConfig): ChainController<T>
-}
+ type ChainRequester<T extends Record<string, any>> = ToClientMap<T> & {
+   options(config: AxiosRequestConfig): ChainRequester<T>
+ }
 
 let batchStack: any[] | null
 let batchPromise: any
 
-export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean }): ChainController<C> {
+export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean }): ChainRequester<C> {
   const rc: any = {
     options(config: AxiosRequestConfig) {
       this._options = config

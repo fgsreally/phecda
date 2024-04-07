@@ -1,11 +1,10 @@
 import { fileURLToPath, pathToFileURL } from 'url'
-import { existsSync } from 'fs'
 import { writeFile } from 'fs/promises'
 import { extname, isAbsolute, relative } from 'path'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { PS_FILE_RE, log } from '../dist/index.mjs'
-import { compile, genUnImportRet } from './utils.mjs'
+import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
 let port
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.18
 // this part is important or not?
@@ -35,15 +34,14 @@ export async function initialize(data) {
   if (data)
     port = data.port
 
-  if (process.env.PS_NO_DTS)
+  if (process.env.PS_UNIMPORT_BAN)
     return
 
   unimportRet = await genUnImportRet()
 
   if (unimportRet) {
     log('auto import...')
-    if (!existsSync(dtsPath))
-      writeFile(dtsPath, await unimportRet.generateTypeDeclarations())
+    writeFile(dtsPath, handleClassTypes(await unimportRet.generateTypeDeclarations()))
   }
 }
 

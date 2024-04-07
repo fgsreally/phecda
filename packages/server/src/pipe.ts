@@ -1,9 +1,9 @@
 import { isPhecda, plainToClass, transformInstance } from 'phecda-core'
 import { ValidateException } from './exception/validate'
 
-import type { P } from './types'
+import type { PipeType } from './context'
 
-export const defaultPipe: P.Pipe = ({ arg, reflect, index }: any) => {
+export const defaultPipe: PipeType = ({ arg, reflect, index }: any) => {
   if (isPhecda(reflect)) {
     const instance = plainToClass(reflect, arg)
     const err = transformInstance(instance)

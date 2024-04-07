@@ -12,7 +12,6 @@ describe('compiler generate code', () => {
     }
     const { meta } = await Factory([A])
     const code = generateHTTPCode(meta.map(item => item.data))
-
     expect(code).toMatchSnapshot()
   })
 

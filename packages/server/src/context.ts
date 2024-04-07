@@ -7,23 +7,28 @@ import type { P } from './types'
 import { IS_DEV, IS_STRICT } from './common'
 import type { Meta } from './meta'
 import { log } from './utils'
-export const guardRecord = {} as Record<string, P.Guard>
+import type { Exception } from './exception'
+
+export type GuardType<C extends P.BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
+export type InterceptorType<C extends P.BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
+export type PipeType<C extends P.BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
+export type FilterType<C extends P.BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
 export class Context<Data extends P.BaseContext> {
   method: string
   params: string[]
   history = new Histroy()
 
-  static filterRecord: Record<PropertyKey, P.Filter> = {
+  static filterRecord: Record<PropertyKey, FilterType> = {
     default: defaultFilter,
   }
 
-  static pipeRecord: Record<PropertyKey, P.Pipe> = {
+  static pipeRecord: Record<PropertyKey, PipeType> = {
     default: defaultPipe,
   }
 
-  static guardRecord: Record<PropertyKey, P.Guard> = {}
-  static interceptorRecord: Record<PropertyKey, P.Interceptor> = {}
+  static guardRecord: Record<PropertyKey, GuardType> = {}
+  static interceptorRecord: Record<PropertyKey, InterceptorType> = {}
 
   static pluginRecord: Record<PropertyKey, any> = {}
   postInterceptors: Function[]
@@ -117,6 +122,7 @@ export class Context<Data extends P.BaseContext> {
     return ret as any[]
   }
 }
+
 export function addPlugin<T>(key: PropertyKey, handler: T) {
   if (Context.pluginRecord[key] && Context.pluginRecord[key] !== handler)
     log(`overwrite Plugin "${String(key)}"`, 'warn')
@@ -124,27 +130,27 @@ export function addPlugin<T>(key: PropertyKey, handler: T) {
   Context.pluginRecord[key] = handler
 }
 
-export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: P.Pipe<C>) {
+export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: PipeType<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
-    log(`overwrite Pipe "${String(key)}"`, 'warn')
+    log(`overwrite PipeType "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = handler
 }
 
-export function addFilter<C extends P.BaseContext>(key: PropertyKey, handler: P.Filter<C>) {
+export function addFilter<C extends P.BaseContext>(key: PropertyKey, handler: FilterType<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
-    log(`overwrite Filter "${String(key)}"`, 'warn')
+    log(`overwrite FilterType "${String(key)}"`, 'warn')
   Context.filterRecord[key] = handler
 }
 
-export function addGuard<C extends P.BaseContext>(key: PropertyKey, handler: P.Guard<C>) {
+export function addGuard<C extends P.BaseContext>(key: PropertyKey, handler: GuardType<C>) {
   if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
-    log(`overwrite Guard "${String(key)}"`, 'warn')
+    log(`overwrite GuardType "${String(key)}"`, 'warn')
   Context.guardRecord[key] = handler
 }
 
-export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handler: P.Interceptor<C>) {
+export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
   if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
-    log(`overwrite Interceptor "${String(key)}"`, 'warn')
+    log(`overwrite InterceptorType "${String(key)}"`, 'warn')
   Context.interceptorRecord[key] = handler
 }
 
@@ -183,14 +189,14 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
   if (missPlugins.length)
     log(`${pc.white(`Plugin [${missPlugins.join(',')}]`)} doesn't exist`, 'warn')
   if (missGuards.length)
-    log(`${pc.magenta(`Guard [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.magenta(`GuardType [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
 
   if (missInterceptors.length)
-    log(`${pc.cyan(`Interceptor [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.cyan(`InterceptorType [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
 
   if (missPipes.length)
-    log(`${pc.blue(`Pipe [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.blue(`PipeType [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
 
   if (missFilters.length)
-    log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.red(`FilterType [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
 }

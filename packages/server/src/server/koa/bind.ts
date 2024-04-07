@@ -104,6 +104,8 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               moduleMap,
               parallel: true,
               next,
+              data: (ctx as any).data,
+
               ...argToReq(params, item.args, ctx.headers),
               tag,
             }
@@ -170,6 +172,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           params: ctx.params,
           body: (ctx.request as any).body,
           headers: ctx.headers,
+          data: (ctx as any).data,
           next,
         }
         const context = new Context<KoaCtx>(contextData)

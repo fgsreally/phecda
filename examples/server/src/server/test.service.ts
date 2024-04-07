@@ -25,6 +25,6 @@ abstract class BaseService<T extends new (...args: any) => any> extends Dev {
 }
 
 @Empty
-export class A extends BaseService<typeof C> {
+export class TestService extends BaseService<typeof C> {
   fgs = new C()
 }

@@ -104,6 +104,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
                 meta,
                 moduleMap,
                 tag,
+                data: (event as any).data,
                 ...argToReq(params, item.args, getRequestHeaders(event)),
               }
               const context = new Context<H3Ctx>(contextData)
@@ -169,6 +170,8 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
             headers: getRequestHeaders(event) as IncomingHttpHeaders,
             params: getRouterParams(event),
             query: getQuery(event),
+            data: (event as any).data,
+
             body: needBody ? await readBody(event, { strict: true }) : undefined,
           }
           const context = new Context<H3Ctx>(contextData)
