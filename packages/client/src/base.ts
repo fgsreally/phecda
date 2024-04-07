@@ -1,16 +1,7 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { P, ToClientInstance } from 'phecda-server'
-
-interface RequestArgs {
-  body: Record<string, any>
-  headers: Record<string, string>
-  query: Record<string, string>
-  params: Record<string, string>
-  method: P.RequestType
-  url: string
-  tag: string
-  args: any[]
-}
+import type { RequestArgs } from './helper'
+import { toReq } from './helper'
 
 export function createBeacon(baseUrl: string) {
   return (arg: any) => {
@@ -20,20 +11,11 @@ export function createBeacon(baseUrl: string) {
   }
 }
 
-function toReq(arg: RequestArgs) {
-  const { body, query, method, url, headers } = arg
-
-  return { headers, method, url, body, query }
-}
-
 export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<Awaited<R>>> {
-  // @ts-expect-error methods without route decorator won't send request
   return (arg: any, config?: AxiosRequestConfig) => {
     const { url, body, method, headers, query } = toReq(arg as RequestArgs)
-    if (!method) {
-      console.warn('methods without route decorator won\'t send request')
-      return
-    }
+    if (!method)
+      throw new Error ('methods without route decorator won\'t send request')
 
     const ret = [url] as any[]
 

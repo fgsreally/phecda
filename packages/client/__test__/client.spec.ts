@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toReq } from '../src'
+import { toReq } from '../src/helper'
 
 describe('client ', () => {
   it('handle request data', () => {

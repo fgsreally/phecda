@@ -1,16 +1,24 @@
-import axios from 'axios'
 import { describe, expectTypeOf, it } from 'vitest'
 import type { P } from 'phecda-server'
+import axios from 'axios'
 import { createChainReq, createParallelReq, createReq, isError, useC } from '../src'
 
 describe('client types', () => {
   class TestController {
     name: string
-    test: (name: string, age: number) => { name: string }
-    test2: () => boolean
+    test(name: string, age: number) {
+      return {
+        name: name + age,
+
+      }
+    }
+
+    test2() {
+      return true
+    }
   }
 
-  const instance = axios.create({})
+  const instance = axios.create()
 
   it('base', async () => {
     const { test, test2 } = useC(TestController)

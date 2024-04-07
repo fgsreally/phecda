@@ -73,7 +73,7 @@ export class Context<Data extends P.BaseContext> {
           continue
         }
         if (!await Context.guardRecord[guard](this.data))
-          throw new ForbiddenException(`GuardType exception--${guard}`)
+          throw new ForbiddenException(`Guard exception--${guard}`)
       }
     }
   }
