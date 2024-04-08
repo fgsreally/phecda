@@ -1,5 +1,13 @@
 # phecda-core
 
+## 3.0.0-beta.15
+
+### Patch Changes
+
+- 79484c3: refactor to support Clear and Ignore(now it work intuitively) and reduce the number of assignments when get data from Phecda;
+
+  rename all var to key
+
 ## 3.0.0-beta.14
 
 ### Patch Changes
