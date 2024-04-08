@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.0.0-beta.24
+
+### Patch Changes
+
+- Updated dependencies [b041748]
+- Updated dependencies [b041748]
+  - phecda-core@3.0.0-beta.16
+
 ## 5.0.0-beta.23
 
 ### Patch Changes

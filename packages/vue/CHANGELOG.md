@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 3.0.0-beta.20
+
+### Patch Changes
+
+- Updated dependencies [b041748]
+  - phecda-web@1.0.1-beta.13
+
 ## 3.0.0-beta.19
 
 ### Patch Changes

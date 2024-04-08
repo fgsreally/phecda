@@ -1,5 +1,14 @@
 # phecda-web
 
+## 1.0.1-beta.13
+
+### Patch Changes
+
+- b041748: fix and refactor Storage; fix getTag
+- Updated dependencies [b041748]
+- Updated dependencies [b041748]
+  - phecda-core@3.0.0-beta.16
+
 ## 1.0.1-beta.12
 
 ### Patch Changes
