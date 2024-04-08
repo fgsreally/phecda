@@ -1,6 +1,6 @@
 {
   "name": "phecda-web",
-  "version": "1.0.1-beta.11",
+  "version": "1.0.1-beta.12",
   "description": "provide web function for phecda",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
