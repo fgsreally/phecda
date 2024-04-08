@@ -37,7 +37,7 @@ Factory([TestController, Cache])
 
 ### 全局使用
 ```ts
-bindApp(app, data, {
+bind(app, data, {
   globalInterceptors: ['Cache'],
 })
 ```

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { bindApp } from 'phecda-server/express'
+import { bind } from 'phecda-server/express'
 import { Factory } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
@@ -33,7 +33,7 @@ app.all('*', (req, res, next) => {
   next()
 })
 app.use(express.json())
-bindApp(router, data, {
+bind(router, data, {
   globalGuards: ['a'],
   globalInterceptors: ['b'],
 })

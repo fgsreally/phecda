@@ -39,7 +39,7 @@ Factory([Auth, TestController])
 
 ### 全局使用
 ```ts
-bindApp(app, data, {
+bind(app, data, {
   globalGuards: ['Auth'],
 })
 ```

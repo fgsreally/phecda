@@ -4,7 +4,7 @@ import Koa from 'koa'
 import { koaBody } from 'koa-body'
 import Router from '@koa/router'
 import type { KoaCtx, Options } from '../../src/server/koa'
-import { bindApp } from '../../src/server/koa'
+import { bind } from '../../src/server/koa'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
@@ -13,7 +13,7 @@ async function createServer(opts?: Options) {
   const app = new Koa()
   app.use(koaBody())
   const router = new Router()
-  bindApp(router, data, opts)
+  bind(router, data, opts)
   app.use(router.routes()).use(router.allowedMethods())
 
   return app.listen()

@@ -49,7 +49,7 @@ Factory([Test, TestController])
 
 但专用路由中，是无法触发接口上的插件的！只能这样
 ```ts
-bindApp(app, data, {
+bind(app, data, {
   plugins: ['Test'],
 })
 ```

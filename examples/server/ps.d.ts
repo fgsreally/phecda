@@ -1,6 +1,6 @@
 export {}
 declare global {
-  const APP_SYMBOL: typeof import('phecda-server')['APP_SYMBOL']
+  const PS_SYMBOL: typeof import('phecda-server')['PS_SYMBOL']
   const Arg: typeof import('phecda-server')['Arg']
   const Assign: typeof import('phecda-server')['Assign']
   const BadGatewayException: typeof import('phecda-server')['BadGatewayException']

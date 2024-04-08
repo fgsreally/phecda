@@ -1,6 +1,6 @@
 import type { Request, Response, Router } from 'hyper-express'
 import { argToReq, resolveDep } from '../helper'
-import { APP_SYMBOL, IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL } from '../../common'
+import { IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -34,7 +34,7 @@ export interface Options {
 
 }
 
-export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   IS_DEV && isAopDepInject(meta, {
     plugins,
@@ -42,7 +42,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
     interceptors: globalInterceptors,
   });
 
-  (router as any)[APP_SYMBOL] = { moduleMap, meta }
+  (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
   function handleMeta() {
