@@ -49,6 +49,8 @@ export class TestController extends Dev {
   @Define('user', 'A')
   @Get('/get')
   async get() {
+    emitter.emit('watch', 1)
+
     return {
       data: Date.now(),
 
@@ -61,7 +63,8 @@ export class TestController extends Dev {
   }
 
   @Watcher('watch')
-  watch() {
+  watch(/** value */) {
+    // console.log('watch', value)
     // publish()
   }
 }

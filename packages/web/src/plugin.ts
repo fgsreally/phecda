@@ -29,8 +29,8 @@ export function defaultWebInject() {
     injectKey('storage', ({ tag, key, instance, toJSON, toString }: StorageParam) => {
       if (!tag)
         return
+      tag = `phecda:${tag}`
       const initstr = localStorage.getItem(tag)
-
       if (initstr) {
         const data = toJSON(initstr)
         if (key) {
@@ -43,6 +43,8 @@ export function defaultWebInject() {
           }
         }
       }
+      localStorage.setItem(tag, toString(key ? instance[key] : instance))
+
       globalThis.addEventListener('beforeunload', () => {
         localStorage.setItem(tag, toString(key ? instance[key] : instance))
       })

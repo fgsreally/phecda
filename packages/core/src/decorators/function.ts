@@ -185,16 +185,17 @@ export function Effect(cb: (value: any, instance: any, key: string) => void) {
   }
 }
 
-export function Storage({ key: storeKey, toJSON, toString }: {
-  toJSON?: (str: string) => any
-  toString?: (arg: any) => string
+export function Storage({ key: storeKey, json, stringify }: {
+  json?: (str: string) => any
+  stringify?: (arg: any) => string
   key?: string
 } = {}) {
-  if (!toJSON)
-    toJSON = v => JSON.parse(v)
+  if (!json)
+    json = v => JSON.parse(v)
 
-  if (!toString)
-    toString = v => JSON.stringify(v)
+  if (!stringify)
+    stringify = v => JSON.stringify(v)
+
   return (proto: any, key?: PropertyKey) => {
     let tag: string
 
@@ -205,7 +206,7 @@ export function Storage({ key: storeKey, toJSON, toString }: {
       setStateKey(proto, key)
       setHandler(proto, key, {
         init: (instance: any) => {
-          return getKey('storage')?.({ instance, key, tag, toJSON, toString })
+          return getKey('storage')?.({ instance, key, tag, toJSON: json, toString: stringify })
         },
       })
     }
@@ -215,7 +216,7 @@ export function Storage({ key: storeKey, toJSON, toString }: {
       setStateKey(proto.prototype, SHARE_KEY)
       setHandler(proto.prototype, SHARE_KEY, {
         init: (instance: any) => {
-          return getKey('storage')?.({ instance, key, tag, toJSON, toString })
+          return getKey('storage')?.({ instance, key, tag, toJSON: json, toString: stringify })
         },
       })
     }

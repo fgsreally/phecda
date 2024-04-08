@@ -1,9 +1,9 @@
-import { PV, Shallow, Tag, useV } from 'phecda-vue'
+import { P, Shallow, Tag, useV } from 'phecda-vue'
 import { HomeModel } from './home'
 
 @Tag('about')
 @Shallow
-export class AboutModel extends PV {
+export class AboutModel extends P {
   data = {
     name: 'fgs',
   }
@@ -17,7 +17,7 @@ export class AboutModel extends PV {
   emit_update() {
     this.emit('add', null)
     this.emit('update', {
-      from: this.tag,
+      from: this.tag as string,
       value: 'value from emitter',
       type: 'update',
     })
