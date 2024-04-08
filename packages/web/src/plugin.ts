@@ -1,13 +1,13 @@
 import type { StorageParam, WatcherParam } from 'phecda-core'
-import { getKey, injectKey } from 'phecda-core'
+import { SHARE_KEY, getInject, setInject } from 'phecda-core'
 import mitt from 'mitt'
 import type { PhecdaEmitter } from './types'
 
 export const emitter: PhecdaEmitter = mitt()
 
 export function defaultWebInject() {
-  if (!getKey('watcher')) {
-    injectKey('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
+  if (!getInject('watcher')) {
+    setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
       if (options?.once) {
@@ -25,11 +25,12 @@ export function defaultWebInject() {
     })
   }
 
-  if (!getKey('storage')) {
-    injectKey('storage', ({ tag, key, instance, toJSON, toString }: StorageParam) => {
-      if (!tag)
-        return
-      tag = `phecda:${key ? `${tag}-${key}` : tag}`
+  if (!getInject('storage')) {
+    setInject('storage', ({ tag, key, instance, toJSON, toString }: StorageParam) => {
+      if (key === SHARE_KEY)
+        key = ''
+
+      tag = `phecda:${key ? `${tag}-${key as string}` : tag}`
       const initstr = localStorage.getItem(tag)
       if (initstr) {
         const data = toJSON(initstr)

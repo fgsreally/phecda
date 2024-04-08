@@ -9,7 +9,7 @@ export class AboutModel extends P {
   }
 
   change_home_name() {
-    this.data = { name: 'fgp' }
+    this.data.name = 'fgp'
     useV(HomeModel).changeName()
     // console.log(this.tag)
   }

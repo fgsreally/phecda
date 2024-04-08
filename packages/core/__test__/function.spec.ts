@@ -25,10 +25,15 @@ describe('helper', () => {
       name: string
     }
 
+    @Tag('test2')
+    class Test2 extends Test {
+    }
+
     addDecoToClass(Test, 'name', Expose)
-    expect(getExposeKey(new Test() as any)).toMatchSnapshot()
+    expect(getExposeKey(Test)).toMatchSnapshot()
     addDecoToClass(Test, SHARE_KEY, Tag('test'))
     expect(getTag(Test)).toBe('test')
+    expect(getTag(Test2)).toBe('test2')
   })
   it('Assign', async () => {
     @Assign(() => new Promise(resolve => resolve({ key: 'test2' })))

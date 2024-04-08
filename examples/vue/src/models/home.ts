@@ -2,15 +2,16 @@ import { Clear, Global, Init, Storage, Tag, Watcher, markRaw, useEvent } from 'p
 @Tag('base')
 
 export class Base {
-  name = 'base11'
+  name = 'base'
   @Init
   async run() {
     // console.log('init')
   }
 }
 @Global
-@Tag('aa')
 @Storage()
+@Tag('aa')
+
 // @Tag('home')
 export class HomeModel<T> extends Base {
   // name = 'home'

@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { Empty, SHARE_KEY, get, getExposeKey, getKey, getState, getTag, injectKey, invokeHandler, isPhecda } from 'phecda-core'
+import { Empty, SHARE_KEY, get, getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter } from './types'
 import type { MetaData } from './meta'
@@ -33,8 +33,8 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   const isolateSet = new Set<PropertyKey>()
   const { http, rpc } = opts
 
-  if (!getKey('watcher')) {
-    injectKey('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
+  if (!getInject('watcher')) {
+    setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
 
       if (options?.once)
