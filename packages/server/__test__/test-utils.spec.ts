@@ -45,8 +45,9 @@ describe('test utils', () => {
     const data = await Factory([Http])
     const app = express()
     app.use(express.json())
-
-    bindExpress(app, data)
+    const router = express.Router()
+    app.use(router)
+    bindExpress(router, data)
 
     const { module } = await TestHttp(app, data)
 

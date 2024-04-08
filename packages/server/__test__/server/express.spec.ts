@@ -10,7 +10,9 @@ async function createServer(opts?: Options) {
   const data = await Factory([Test])
   const app = express()
   app.use(express.json())
-  bindApp(app, data, opts)
+  const router = express.Router()
+  bindApp(router, data, opts)
+  app.use(router)
   return app
 }
 
