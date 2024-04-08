@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "5.0.0-beta.21",
+  "version": "5.0.0-beta.22",
   "description": "provide express middlewares, `nestjs` format",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -54,7 +54,6 @@
       "import": "./dist/rpc/rabbitmq/index.mjs",
       "require": "./dist/rpc/rabbitmq/index.js"
     },
-
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
