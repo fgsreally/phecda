@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.0.0-beta.22
+
+### Patch Changes
+
+- 2ddaef9: support hyper-express; add example
+
 ## 5.0.0-beta.21
 
 ### Patch Changes
