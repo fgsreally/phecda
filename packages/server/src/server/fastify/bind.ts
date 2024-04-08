@@ -176,6 +176,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
           plugins,
           filter,
           ctx,
+          define,
         },
       } = metaMap.get(methodTag)!
 
@@ -185,7 +186,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
 
           fastify.register(p)
         })
-        fastify[http.type](http.route, async (req, res) => {
+        fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
           (req as any)[MODULE_SYMBOL] = moduleMap;
           (req as any)[META_SYMBOL] = meta
           const instance = moduleMap.get(tag)!
