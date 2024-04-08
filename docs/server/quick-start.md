@@ -48,7 +48,7 @@ class UserController {
 入口程序如下
 ```ts
 import { Factory } from 'phecda-server'
-import { bindApp } from 'phecda-server/express'
+import { bind } from 'phecda-server/express'
 import express from 'express'
 import { UserController } from './user.controller'
 
@@ -59,7 +59,7 @@ const app = express()
 const router = express.Router()
 
 app.use(express.json())
-bindApp(router, data)// 这里相当于给了app绑定了一堆express中间件
+bind(router, data)// 这里相当于给了app绑定了一堆express中间件
 app.use(router)
 app.listen(3000)
 ```

@@ -3,14 +3,14 @@ import request from 'supertest'
 
 import fastify from 'fastify'
 import type { FastifyCtx, Options } from '../../src/server/fastify'
-import { bindApp } from '../../src/server/fastify'
+import { bind } from '../../src/server/fastify'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
 async function createServer(opts?: Options) {
   const data = await Factory([Test])
   const app = fastify()
-  app.register(bindApp(app, data, opts))
+  app.register(bind(app, data, opts))
   await app.ready()
   return app.server
 }

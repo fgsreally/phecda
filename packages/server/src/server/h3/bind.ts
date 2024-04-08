@@ -2,7 +2,7 @@ import type { IncomingHttpHeaders } from 'node:http'
 import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
 import type { H3Event, Router } from 'h3'
 import { argToReq, resolveDep } from '../helper'
-import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
+import { IS_DEV, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -34,7 +34,7 @@ export interface Options {
 
 }
 
-export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
 
   IS_DEV && isAopDepInject(meta, {
@@ -43,7 +43,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
     interceptors: globalInterceptors,
   });
 
-  (router as any)[APP_SYMBOL] = { moduleMap, meta }
+  (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const prePlugin = defineRequestMiddleware((event) => {
     (event as any)[MODULE_SYMBOL] = moduleMap;

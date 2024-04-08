@@ -132,25 +132,25 @@ export function addPlugin<T>(key: PropertyKey, handler: T) {
 
 export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: PipeType<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
-    log(`overwrite PipeType "${String(key)}"`, 'warn')
+    log(`overwrite Pipe "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = handler
 }
 
 export function addFilter<C extends P.BaseContext>(key: PropertyKey, handler: FilterType<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
-    log(`overwrite FilterType "${String(key)}"`, 'warn')
+    log(`overwrite Filter "${String(key)}"`, 'warn')
   Context.filterRecord[key] = handler
 }
 
 export function addGuard<C extends P.BaseContext>(key: PropertyKey, handler: GuardType<C>) {
   if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
-    log(`overwrite GuardType "${String(key)}"`, 'warn')
+    log(`overwrite Guard "${String(key)}"`, 'warn')
   Context.guardRecord[key] = handler
 }
 
 export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
   if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
-    log(`overwrite InterceptorType "${String(key)}"`, 'warn')
+    log(`overwrite Interceptor "${String(key)}"`, 'warn')
   Context.interceptorRecord[key] = handler
 }
 
@@ -189,14 +189,14 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
   if (missPlugins.length)
     log(`${pc.white(`Plugin [${missPlugins.join(',')}]`)} doesn't exist`, 'warn')
   if (missGuards.length)
-    log(`${pc.magenta(`GuardType [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.magenta(`Guard [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
 
   if (missInterceptors.length)
-    log(`${pc.cyan(`InterceptorType [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.cyan(`Interceptor [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
 
   if (missPipes.length)
-    log(`${pc.blue(`PipeType [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.blue(`Pipe [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
 
   if (missFilters.length)
-    log(`${pc.red(`FilterType [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
+    log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
 }

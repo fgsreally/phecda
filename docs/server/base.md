@@ -24,12 +24,12 @@ data.modulemap.get('test2') //  Test2Module 实例,此时使用了tag
 <summary>Express</summary>
 
 ```ts
-import { bindApp } from 'phecda-server/express'
+import { bind } from 'phecda-server/express'
 
 // ..
 
 const router = express.Router()
-bindApp(router, data) // work for router
+bind(router, data) // work for router
 ```
 
 </details>
@@ -38,12 +38,12 @@ bindApp(router, data) // work for router
 <summary>Fastify</summary>
 
 ```ts
-import { bindApp } from 'phecda-server/fastify'
+import { bind } from 'phecda-server/fastify'
 const app = Fastify({
   logger: true,
 })
 
-app.register(bindApp(app, data))
+app.register(bind(app, data))
 ```
 
 </details>
@@ -55,7 +55,7 @@ app.register(bindApp(app, data))
 import Koa from 'koa'
 import { koaBody } from 'koa-body'
 import Router from '@koa/router'
-import { bindApp } from 'phecda-server/koa'
+import { bind } from 'phecda-server/koa'
 import { Factory } from 'phecda-server'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
@@ -66,7 +66,7 @@ const router = new Router()
 
 app.use(koaBody())
 
-bindApp(router, data)
+bind(router, data)
 app.use(router.routes()).use(router.allowedMethods())
 ```
 
@@ -75,10 +75,10 @@ app.use(router.routes()).use(router.allowedMethods())
 <summary>h3</summary>
 
 ```ts
-import { bindApp } from 'phecda-server/h3'
+import { bind } from 'phecda-server/h3'
 
 const router = createRouter()
-bindApp(router, data)
+bind(router, data)
 ```
 
 </details>

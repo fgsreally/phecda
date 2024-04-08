@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest'
 import Fastify from 'fastify'
 import { createApp, createRouter, toNodeListener } from 'h3'
 import { Body, Controller, Factory, Get, Param, Post, Put, Query } from '../src'
-import { bindApp as bindExpress } from '../src/server/express'
-import { bindApp as bindFastify } from '../src/server/fastify'
-import { bindApp as bindH3 } from '../src/server/h3'
+import { bind as bindExpress } from '../src/server/express'
+import { bind as bindFastify } from '../src/server/fastify'
+import { bind as bindH3 } from '../src/server/h3'
 
 import { TestFactory, TestHttp } from '../src/test'
 describe('test utils', () => {
@@ -45,8 +45,9 @@ describe('test utils', () => {
     const data = await Factory([Http])
     const app = express()
     app.use(express.json())
-
-    bindExpress(app, data)
+    const router = express.Router()
+    app.use(router)
+    bindExpress(router, data)
 
     const { module } = await TestHttp(app, data)
 

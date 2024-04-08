@@ -29,7 +29,7 @@ export class TestController {
 ```ts
 // in server.ts
 import fs from 'fs'
-import { Factory, bindApp } from 'phecda-server'
+import { Factory, bind } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 const data = await Factory([TestController])
@@ -43,7 +43,7 @@ app.all('*', (req, res, next) => {
 })
 app.use(express.json())
 
-bindApp(app, data)
+bind(app, data)
 ```
 
 ### client side

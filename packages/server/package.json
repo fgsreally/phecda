@@ -38,6 +38,10 @@
       "import": "./dist/server/fastify/index.mjs",
       "require": "./dist/server/fastify/index.js"
     },
+    "./hyper-express": {
+      "import": "./dist/server/hyper-express/index.mjs",
+      "require": "./dist/server/hyper-express/index.js"
+    },
     "./redis": {
       "import": "./dist/rpc/redis/index.mjs",
       "require": "./dist/rpc/redis/index.js"
@@ -50,6 +54,7 @@
       "import": "./dist/rpc/rabbitmq/index.mjs",
       "require": "./dist/rpc/rabbitmq/index.js"
     },
+
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
@@ -72,6 +77,9 @@
       ],
       "fastify": [
         "dist/server/fastify/index.d.ts"
+      ],
+      "hyper-express": [
+        "dist/server/hyper-express/index.d.ts"
       ],
       "redis": [
         "dist/rpc/redis/index.d.ts"
@@ -119,11 +127,11 @@
     "supertest": "^6.3.3",
     "tsup": "^6.5.0",
     "typescript": "^5.2.2",
-    "unimport": "^3.7.1",
-    "vite": "^4.0.0"
+    "unimport": "^3.7.1"
   },
   "dependencies": {
     "debug": "^4.3.4",
+    "hyper-express": "^6.15.2",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13"

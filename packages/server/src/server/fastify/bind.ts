@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
 import { argToReq, resolveDep } from '../helper'
-import { APP_SYMBOL, IS_DEV, META_SYMBOL, MODULE_SYMBOL } from '../../common'
+import { IS_DEV, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -35,9 +35,9 @@ export interface Options {
 
 }
 
-export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
+export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
-  (app as any).server[APP_SYMBOL] = { moduleMap, meta }
+  (app as any).server[PS_SYMBOL] = { moduleMap, meta }
 
   IS_DEV && isAopDepInject(meta, {
     plugins,
@@ -60,7 +60,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
   handleMeta()
 
   return (fastify, _, done) => {
-    (fastify as any)[APP_SYMBOL] = {
+    (fastify as any)[PS_SYMBOL] = {
       moduleMap, meta,
     }
 
@@ -176,6 +176,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
           plugins,
           filter,
           ctx,
+          define,
         },
       } = metaMap.get(methodTag)!
 
@@ -185,7 +186,7 @@ export function bindApp(app: FastifyInstance, { moduleMap, meta }: Awaited<Retur
 
           fastify.register(p)
         })
-        fastify[http.type](http.route, async (req, res) => {
+        fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
           (req as any)[MODULE_SYMBOL] = moduleMap;
           (req as any)[META_SYMBOL] = meta
           const instance = moduleMap.get(tag)!

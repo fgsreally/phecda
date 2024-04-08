@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import { createApp as createH3, createRouter, toNodeListener } from 'h3'
 import type { H3Ctx, Options } from '../../src/server/h3'
-import { bindApp } from '../../src/server/h3'
+import { bind } from '../../src/server/h3'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
@@ -10,7 +10,7 @@ async function createServer(opts?: Options) {
   const data = await Factory([Test])
   const app = createH3()
   const router = createRouter()
-  bindApp(router, data, opts)
+  bind(router, data, opts)
   app.use(router)
   return toNodeListener(app)
 }

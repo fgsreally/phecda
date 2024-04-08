@@ -1,4 +1,4 @@
-import { bindApp } from 'phecda-server/fastify'
+import { bind } from 'phecda-server/fastify'
 
 import { Factory } from 'phecda-server'
 import Fastify from 'fastify'
@@ -30,7 +30,7 @@ const fastify = Fastify({
 //   done()
 // })
 
-fastify.register(bindApp(fastify, data), {
+fastify.register(bind(fastify, data), {
   prefix: '/base',
 })
 

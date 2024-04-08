@@ -2,7 +2,7 @@
 /* eslint-disable import/first */
 
 console.time('cold-start')
-import { bindApp } from 'phecda-server/koa'
+import { bind } from 'phecda-server/koa'
 import { Factory } from 'phecda-server'
 // @ts-expect-error miss types
 import Koa from 'koa'
@@ -17,7 +17,7 @@ async function start() {
   const app = new Koa()
 
   app.use(koaBody())
-  bindApp(router, data)
+  bind(router, data)
   app.use(router.routes()).use(router.allowedMethods())
 
   app.listen(process.env.PORT, () => {

@@ -2,7 +2,7 @@
 import Koa from 'koa'
 import { koaBody } from 'koa-body'
 import Router from '@koa/router'
-import { bindApp } from 'phecda-server/koa'
+import { bind } from 'phecda-server/koa'
 import { Factory } from 'phecda-server'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
@@ -15,7 +15,7 @@ const router = new Router({
 
 app.use(koaBody())
 
-bindApp(router, data)
+bind(router, data)
 app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(3008, () => {

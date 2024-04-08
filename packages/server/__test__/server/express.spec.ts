@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import type { ExpressCtx, Options } from '../../src/server/express'
-import { bindApp } from '../../src/server/express'
+import { bind } from '../../src/server/express'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
@@ -10,7 +10,9 @@ async function createServer(opts?: Options) {
   const data = await Factory([Test])
   const app = express()
   app.use(express.json())
-  bindApp(app, data, opts)
+  const router = express.Router()
+  bind(router, data, opts)
+  app.use(router)
   return app
 }
 

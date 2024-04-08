@@ -209,7 +209,7 @@
 - 6b6036a: add pickFunc to improve types support when using request
 - 9670308: add getConfig/setConfig
 - d052702: improve TestHttp flexible;
-  refactor bindApp in fastfiy to unified writing;
+  refactor bind in fastfiy to unified writing;
 - Updated dependencies [99b458d]
   - phecda-core@2.1.1
 
@@ -304,7 +304,7 @@
 - 738ef7a: bind modulemap and meta to express
 - 1dd0831: moduleGraph should depends on tag(not class instance)
 - 7bca1f5: add debug and log to help debug
-- fae8d80: bindApp in express support hmr
+- fae8d80: bind in express support hmr
 - 738ef7a: won't output metaFile if file is empty
 - 95a0564: add context to rpc
 - 9c023e7: rename symbol and global function. bind modulemap/metat to req
@@ -434,7 +434,7 @@
 
 - fae8d80: add cli command to run a child process for entry file hmr
 - 7bca1f5: add debug and log to help debug
-- fae8d80: bindApp in express support hmr
+- fae8d80: bind in express support hmr
 
 ## 3.1.0
 

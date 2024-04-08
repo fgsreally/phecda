@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { bindApp } from 'phecda-server/express'
+import { bind } from 'phecda-server/express'
 import { Factory } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
@@ -9,13 +9,16 @@ const data = await Factory([TestController], {
 })
 const router = express.Router()
 
+router.get('/', (req, res) => {
+  res.send('1')
+})
+
 // addFilter('test', (e, tag, ctx) => {
 //   const readableStream = fs.createReadStream('./index.html')
 //   readableStream.pipe(ctx.response)
 
 //   return new Promise((resolve) => {
 //     readableStream.on('finish', () => {
-//     // 当数据流传输完成时，中止后续中间件的执行
 //       resolve({ error: false })
 //     })
 //   })
@@ -30,7 +33,7 @@ app.all('*', (req, res, next) => {
   next()
 })
 app.use(express.json())
-bindApp(router, data, {
+bind(router, data, {
   globalGuards: ['a'],
   globalInterceptors: ['b'],
 })

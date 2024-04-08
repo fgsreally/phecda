@@ -1,4 +1,4 @@
-import type { Express, Request, Response, Router } from 'express'
+import type { Request, Response, Router } from 'hyper-express'
 import { argToReq, resolveDep } from '../helper'
 import { IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -7,8 +7,8 @@ import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
 
-export interface ExpressCtx extends P.HttpContext {
-  type: 'express'
+export interface HyperExpressCtx extends P.HttpContext {
+  type: 'hyper-express'
   request: Request
   response: Response
   next: Function
@@ -44,7 +44,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
   (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
-  const originStack = router.stack.slice(0, router.stack.length)
   const metaMap = new Map<string, Meta>()
   function handleMeta() {
     metaMap.clear()
@@ -58,14 +57,18 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    (router as Express).post(route, (req, _res, next) => {
-      (req as any)[MERGE_SYMBOL] = true;
-      (req as any)[MODULE_SYMBOL] = moduleMap;
-      (req as any)[META_SYMBOL] = meta
+    router.post(route, {
+      middlewares: [
+        (req, _res, next) => {
+          (req as any)[MERGE_SYMBOL] = true;
+          (req as any)[MODULE_SYMBOL] = moduleMap;
+          (req as any)[META_SYMBOL] = meta
 
-      next()
-    }, ...Context.usePlugin(plugins), async (req, res, next) => {
-      const { body } = req
+          next()
+        }, ...Context.usePlugin(plugins),
+      ],
+    }, async (req, res, next) => {
+      const body = await req.json()
 
       async function errorHandler(e: any) {
         const error = await Context.filterRecord.default(e)
@@ -99,7 +102,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             const instance = moduleMap.get(name)
 
             const contextData = {
-              type: 'express' as const,
+              type: 'hyper-express' as const,
               request: req,
               index: i,
               meta,
@@ -110,7 +113,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               data: (req as any).data,
               ...argToReq(params, item.args, req.headers),
             }
-            const context = new Context<ExpressCtx>(contextData)
+            const context = new Context<HyperExpressCtx>(contextData)
 
             try {
               await context.useGuard([...globalGuards, ...guards])
@@ -155,31 +158,33 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           plugins,
           filter,
         },
-      } = metaMap.get(methodTag)!;
+      } = metaMap.get(methodTag)!
+      const needBody = params.some(item => item.type === 'body')
 
-      (router as Express)[http.type](http.route, (req, _res, next) => {
+      router[http.type](http.route, (req, _res, next) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
         (req as any)[META_SYMBOL] = meta
         next()
       }, ...Context.usePlugin(plugins), async (req, res, next) => {
         const instance = moduleMap.get(tag)!
         const contextData = {
-          type: 'express' as const,
+          type: 'hyper-express' as const,
           request: req,
           meta: i,
           response: res,
           moduleMap,
           parallel: false,
           tag: methodTag,
-          query: req.query,
-          body: req.body,
-          params: req.params,
+          query: req.query_parameters,
+          body: needBody ? await req.json({}) : undefined,
+
+          params: req.path_parameters,
           headers: req.headers,
           data: (req as any).data,
           next,
         }
 
-        const context = new Context<ExpressCtx>(contextData)
+        const context = new Context<HyperExpressCtx>(contextData)
 
         try {
           for (const name in header)
@@ -232,9 +237,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         guards: globalGuards,
         interceptors: globalInterceptors,
       })
-      router.stack = originStack// router.stack.slice(0, 1)
       handleMeta()
-      createRoute()
+    //   createRoute()
     })
   }
 }
