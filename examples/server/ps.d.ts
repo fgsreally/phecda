@@ -76,11 +76,11 @@ declare global {
   const Storage: typeof import('phecda-server')['Storage']
   const Tag: typeof import('phecda-server')['Tag']
   const TestController: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']
-type TestController = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']>
-
+  type TestController = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']>
   const TestService: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']
-type TestService = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']>
-
+  type TestService = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']>
+  const Tester: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['Tester']
+  type Tester = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['Tester']>
   const TimeoutException: typeof import('phecda-server')['TimeoutException']
   const To: typeof import('phecda-server')['To']
   const UNMOUNT_SYMBOL: typeof import('phecda-server')['UNMOUNT_SYMBOL']
@@ -118,7 +118,6 @@ type TestService = InstanceType<typeof import('D:/MyProject/2024/1/phecda/exampl
   const getState: typeof import('phecda-server')['getState']
   const getStateVars: typeof import('phecda-server')['getStateVars']
   const getTag: typeof import('phecda-server')['getTag']
-  const guardRecord: typeof import('phecda-server')['guardRecord']
   const init: typeof import('phecda-server')['init']
   const injectKey: typeof import('phecda-server')['injectKey']
   const invokeHandler: typeof import('phecda-server')['invokeHandler']
