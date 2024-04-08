@@ -27,17 +27,18 @@ export interface Phecda {
   prototype: any
   [PHECDA_KEY]: {
 
-    __EXPOSE_VAR__: Set<PropertyKey>
+    __EXPOSE_KEY: Set<PropertyKey>
 
-    __IGNORE_VAR__: Set<PropertyKey>
+    __IGNORE_KEY: Set<PropertyKey>
 
-    __STATE_VAR__: Set<PropertyKey>
+    __CLEAR_KEY: Set<PropertyKey>
+    __STATE_KEY: Set<PropertyKey>
 
     __STATE_HANDLER__: Map<PropertyKey, Handler[]>
 
     __STATE_NAMESPACE__: Map<PropertyKey, Object>
 
-    [key: string]: any
+    // [key: string]: any
   }
 }
 

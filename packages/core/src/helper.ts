@@ -1,18 +1,18 @@
 /* eslint-disable new-cap */
-import { PHECDA_KEY, SHARE_KEY, getExposeKey, getHandler, getState, getStateVars } from './core'
+import { SHARE_KEY, get, getExposeKey, getHandler, getState, getStateKey } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
     moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
 
-  return (moduleOrInstance as M).prototype[PHECDA_KEY]?.__TAG__ || (moduleOrInstance as M).name
+  return get(moduleOrInstance.prototype, 'tag') || (moduleOrInstance as M).name
 }
 
 export function getBind<M extends Construct | AbConstruct>(model: M) {
   // @ts-expect-error just get bind value
   const instance = new model() as Phecda
-  const keys = getStateVars(instance) as PropertyKey[]
+  const keys = getStateKey(instance) as PropertyKey[]
   const ret: any = {}
   for (const item of keys) {
     const state = getState(instance as any, item) as any

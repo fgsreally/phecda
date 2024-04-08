@@ -1,8 +1,8 @@
-import { SHARE_KEY, getOwnState, set, setState, setStateVar } from 'phecda-core'
+import { SHARE_KEY, getOwnState, set, setState, setStateKey } from 'phecda-core'
 
 export function Header(name: string, value: string) {
   return (target: any, k: PropertyKey) => {
-    setStateVar(target, k)
+    setStateKey(target, k)
     const state = getOwnState(target, k)
     if (!state.header)
       state.header = {}
@@ -23,7 +23,7 @@ export function Define(key: string, value: any) {
       target = target.prototype
     }
 
-    setStateVar(target, k)
+    setStateKey(target, k)
     const state = getOwnState(target, k)
     if (!state.define)
       state.define = {}

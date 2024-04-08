@@ -1,4 +1,4 @@
-import { SHARE_KEY, getOwnState, setState, setStateVar } from 'phecda-core'
+import { SHARE_KEY, getOwnState, setState, setStateKey } from 'phecda-core'
 
 export function Route(route: string, type?: string): any {
   return (target: any, key?: PropertyKey) => {
@@ -6,7 +6,7 @@ export function Route(route: string, type?: string): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setStateVar(target, key)
+    setStateKey(target, key)
 
     const state = getOwnState(target, key)
     state.http = {
@@ -43,7 +43,7 @@ export function Rpc(...types: ('rabbitmq' | 'redis' | 'kafka' | string)[]) {
     if (!key)
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
-    setStateVar(target, key)
+    setStateKey(target, key)
     const state = getOwnState(target, key)
     if (!state.rpc)
       state.rpc = {}
@@ -57,7 +57,7 @@ export function Event(isEvent = true) {
     if (!key)
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
-    setStateVar(target, key)
+    setStateKey(target, key)
     const state = getOwnState(target, key)
     if (!state.rpc)
       state.rpc = {}
