@@ -15,8 +15,15 @@ export function useO<T extends Construct>(model: T) {
   const tag = getTag(model)
 
   if (tag in state) {
-    if (origin.get(state[tag]) !== model)
-      console.warn(`Synonym module: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
+    if (process.env.NODE_ENV === 'development') {
+      if (origin.get(state[tag]) === model)
+        return state[tag]
+    }
+    else {
+      if (origin.get(state[tag]) !== model)
+        console.warn(`Synonym model: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
+      return state[tag]
+    }
 
     return state[tag]
   }
