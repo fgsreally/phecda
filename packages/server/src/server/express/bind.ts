@@ -44,6 +44,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
 
   (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
+  const originStack = router.stack.slice(0, router.stack.length)
   const metaMap = new Map<string, Meta>()
   function handleMeta() {
     metaMap.clear()
@@ -231,7 +232,7 @@ export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<
         guards: globalGuards,
         interceptors: globalInterceptors,
       })
-      router.stack = []// router.stack.slice(0, 1)
+      router.stack = originStack// router.stack.slice(0, 1)
       handleMeta()
       createRoute()
     })

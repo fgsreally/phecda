@@ -34,15 +34,17 @@ export interface Options {
 
 }
 
-export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
+export function bindApp(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   IS_DEV && isAopDepInject(meta, {
     plugins,
     guards: globalGuards,
     interceptors: globalInterceptors,
-  });
+  })
 
-  (app as any)[APP_SYMBOL] = { moduleMap, meta }
+  const originStack = router.stack.slice(0, router.stack.length);
+
+  (router as any)[APP_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Meta>()
   function handleMeta() {
@@ -57,7 +59,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    app.post(route, async (ctx, next) => {
+    router.post(route, async (ctx, next) => {
       ctx[MERGE_SYMBOL] = true
       ctx[MODULE_SYMBOL] = moduleMap
       ctx[META_SYMBOL] = meta
@@ -155,7 +157,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           ctx: CTX,
         },
       } = metaMap.get(methodTag)!
-      app[http.type](http.route, async (ctx, next) => {
+      router[http.type](http.route, async (ctx, next) => {
         ctx[MODULE_SYMBOL] = moduleMap
         ctx[META_SYMBOL] = meta
         await next()
@@ -220,7 +222,7 @@ export function bindApp(app: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         interceptors: globalInterceptors,
       })
 
-      app.stack = []// app.stack.slice(0, 1)
+      router.stack = originStack// router.stack.slice(0, 1)
       handleMeta()
       createRoute()
     })
