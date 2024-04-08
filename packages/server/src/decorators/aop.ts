@@ -1,4 +1,4 @@
-import { SHARE_KEY, getOwnState, setState, setStateVar } from 'phecda-core'
+import { SHARE_KEY, getOwnState, setState, setStateKey } from 'phecda-core'
 
 export function Guard(...guards: string[]): any {
   return (target: any, key?: PropertyKey) => {
@@ -6,7 +6,7 @@ export function Guard(...guards: string[]): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setStateVar(target, key)
+    setStateKey(target, key)
 
     const state = getOwnState(target, key)
     if (!state.guards)
@@ -22,7 +22,7 @@ export function Plugin(...plugins: string[]): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setStateVar(target, key)
+    setStateKey(target, key)
 
     const state = getOwnState(target, key)
     if (!state.plugins)
@@ -38,7 +38,7 @@ export function Interceptor(...interceptors: string[]): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setStateVar(target, key)
+    setStateKey(target, key)
 
     const state = getOwnState(target, key)
     if (!state.interceptors)
@@ -53,7 +53,7 @@ export function Filter(filter: string): any {
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
 
-    setStateVar(target, key)
+    setStateKey(target, key)
 
     const state = getOwnState(target, key)
     state.filter = filter

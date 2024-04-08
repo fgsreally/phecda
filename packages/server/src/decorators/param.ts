@@ -1,8 +1,8 @@
-import { getOwnState, setState, setStateVar } from 'phecda-core'
+import { getOwnState, setState, setStateKey } from 'phecda-core'
 
 export function BaseParam(type: string, key: string): any {
   return (target: any, k: PropertyKey, index: number) => {
-    setStateVar(target, k)
+    setStateKey(target, k)
 
     const state = getOwnState(target, k)
     if (!state.params)
@@ -21,7 +21,7 @@ export function BaseParam(type: string, key: string): any {
 
 export function Pipe(key?: string, opts?: any) {
   return (target: any, k: PropertyKey, index: number) => {
-    setStateVar(target, k)
+    setStateKey(target, k)
 
     const state = getOwnState(target, k)
 

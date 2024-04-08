@@ -26,6 +26,32 @@ exports[`extends won't populate namespace > expose keys 4`] = `
 ]
 `;
 
+exports[`extends won't populate namespace > expose keys 5`] = `
+[
+  "a",
+]
+`;
+
+exports[`extends won't populate namespace > expose keys 6`] = `
+[
+  "c",
+]
+`;
+
+exports[`extends won't populate namespace > expose keys 7`] = `
+[
+  "e",
+  "c",
+  "a",
+]
+`;
+
+exports[`extends won't populate namespace > expose keys 8`] = `
+[
+  "e",
+]
+`;
+
 exports[`extends won't populate namespace > setState 1`] = `
 {
   "a": 1,

@@ -25,9 +25,3 @@ Parent {
   "testId": undefined,
 }
 `;
-
-exports[`validate&transform > use function to add decorator 1`] = `
-[
-  "name",
-]
-`;

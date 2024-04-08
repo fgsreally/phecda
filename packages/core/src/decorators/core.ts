@@ -1,7 +1,8 @@
-import { PHECDA_KEY, init, setExposeKey, setHandler, setIgnoreKey, setState, setStateVar } from '../core'
+import { PHECDA_KEY, SHARE_KEY, init, setExposeKey, setHandler, setIgnoreKey, setState, setStateKey } from '../core'
+import type { Phecda } from '../types'
 
 export function Init(proto: any, key: PropertyKey) {
-  setStateVar(proto, key)
+  setStateKey(proto, key)
 
   setHandler(proto, key, {
     async init(instance: any) {
@@ -11,7 +12,7 @@ export function Init(proto: any, key: PropertyKey) {
 }
 
 export function Unmount(proto: any, key: PropertyKey) {
-  setStateVar(proto, key)
+  setStateKey(proto, key)
 
   setHandler(proto, key, {
     async unmount(instance: any) {
@@ -24,25 +25,21 @@ export function Unmount(proto: any, key: PropertyKey) {
 // won't assign
 export function Bind(value: any) {
   return (proto: any, k: PropertyKey) => {
-    setStateVar(proto, k)
+    setStateKey(proto, k)
     setState(proto, k, {
       value,
     })
   }
 }
 
-export function Ignore(proto: any, key: PropertyKey) {
+export function Ignore(proto: any, key: PropertyKey = SHARE_KEY) {
   setIgnoreKey(proto, key)
 }
 
-export function Clear(proto: any, key: PropertyKey) {
-  init(proto)
+export function Clear(proto: any, key: PropertyKey = SHARE_KEY) {
+  init(proto);
 
-  proto[PHECDA_KEY].__EXPOSE_VAR__.delete(key)
-  proto[PHECDA_KEY].__IGNORE_VAR__.delete(key)
-  proto[PHECDA_KEY].__STATE_VAR__.delete(key)
-  proto[PHECDA_KEY].__STATE_HANDLER__.delete(key)
-  proto[PHECDA_KEY].__STATE_NAMESPACE__.delete(key)
+  (proto as Phecda)[PHECDA_KEY].__CLEAR_KEY.add(key)
 }
 
 export function Expose(proto: any, key: PropertyKey) {
