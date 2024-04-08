@@ -1,5 +1,12 @@
 # phecda-core
 
+## 3.0.0-beta.16
+
+### Patch Changes
+
+- b041748: refactor set/get to keep it simple; rename getKey to getInject
+- b041748: fix and refactor Storage; fix getTag
+
 ## 3.0.0-beta.15
 
 ### Patch Changes
