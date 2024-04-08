@@ -197,11 +197,10 @@ export function Storage({ key: storeKey, json, stringify }: {
     stringify = v => JSON.stringify(v)
 
   return (proto: any, key?: PropertyKey) => {
-    let tag: string
+    const tag = storeKey || String(getTag(proto))
 
     if (key) {
       init(proto)
-      tag = storeKey || `${getTag(proto) as string}_${key as string}`
 
       setStateKey(proto, key)
       setHandler(proto, key, {
@@ -212,7 +211,6 @@ export function Storage({ key: storeKey, json, stringify }: {
     }
     else {
       init(proto.prototype)
-      tag = storeKey || getTag(proto) as string
       setStateKey(proto.prototype, SHARE_KEY)
       setHandler(proto.prototype, SHARE_KEY, {
         init: (instance: any) => {

@@ -2,7 +2,7 @@ import { Clear, Global, Init, Storage, Tag, Watcher, markRaw, useEvent } from 'p
 @Tag('base')
 
 export class Base {
-  name = 'base'
+  name = 'base11'
   @Init
   async run() {
     // console.log('init')

@@ -29,7 +29,7 @@ export function defaultWebInject() {
     injectKey('storage', ({ tag, key, instance, toJSON, toString }: StorageParam) => {
       if (!tag)
         return
-      tag = `phecda:${tag}`
+      tag = `phecda:${key ? `${tag}-${key}` : tag}`
       const initstr = localStorage.getItem(tag)
       if (initstr) {
         const data = toJSON(initstr)
