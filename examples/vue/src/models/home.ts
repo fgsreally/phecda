@@ -9,8 +9,9 @@ export class Base {
   }
 }
 @Global
+@Storage()
 @Tag('aa')
-@Storage('fgs')
+
 // @Tag('home')
 export class HomeModel<T> extends Base {
   // name = 'home'

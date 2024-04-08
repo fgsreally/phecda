@@ -196,12 +196,12 @@ export function invokeHandler(event: string, module: Phecda) {
   return Promise.all(initHandlers)
 }
 
-export function set(proto: Phecda, key: string, value: any) {
+export function set(proto: any, key: string, value: any) {
   init(proto)
-
-  setState(proto, SHARE_KEY, { [`__${key.toUpperCase()}__`]: value })
+  proto[`__${key.toUpperCase()}__`] = value
+  // setState(proto, SHARE_KEY, { [`__${key.toUpperCase()}__`]: value })
 }
 
-export function get(proto: Phecda, key: string) {
-  return getState(proto, SHARE_KEY)[`__${key.toUpperCase()}__`]
+export function get(proto: any, key: string) {
+  return proto[`__${key.toUpperCase()}__`]
 }

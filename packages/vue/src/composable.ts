@@ -10,32 +10,38 @@ import { createSharedReactive, mergeReactiveObjects } from './utils'
 
 const REF_SYMBOL = Symbol('ref')
 
+function initInstance(model: Construct) {
+  const proxyFn = get(model.prototype, 'shallow') ? shallowReactive : reactive
+  const instance = proxyFn(new model())
+  instance._promise = invokeHandler('init', instance)
+  return instance
+}
+
 export function useO<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
   const { state, origin } = getActiveInstance()
 
-  const proxyFn = get(model.prototype, 'shallow') ? shallowReactive : reactive
+  if (get(model.prototype, 'isolate'))
 
-  if (get(model.prototype, 'isolate')) {
-    const instance = proxyFn(new model())
-    instance._promise = invokeHandler('init', instance)
-    return instance
-  }
+    return initInstance(model)
+
   const tag = getTag(model)
-  if (!(tag in state)) {
-    const instance = proxyFn(new model())
-
-    instance._promise = invokeHandler('init', instance)
-
-    state[tag] = instance
-
-    origin.set(instance, model)
+  if (tag in state) {
+    if (process.env.NODE_ENV === 'development') {
+      if (origin.get(state[tag]) === model)
+        return state[tag]
+    }
+    else {
+      if (origin.get(state[tag]) !== model)
+        console.warn(`Synonym model: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
+      return state[tag]
+    }
   }
 
-  // it will cause hmr warn repeatly
-  // else {
-  //   if (origin.get(state[tag]) !== model)
-  //     console.warn(`Synonym model: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
-  // }
+  const instance = initInstance(model)
+
+  state[tag] = instance
+
+  origin.set(instance, model)
   return state[tag]
 }
 
