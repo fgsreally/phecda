@@ -2,10 +2,11 @@ import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type amqplib from 'amqplib'
 import type { ToClientMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S): Promise<ToClientMap<S>> {
+import type { RpcOpts } from '../types'
+export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S, opts?: RpcOpts): Promise<ToClientMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
-  const uniQueue = `PS:${queue}-${randomUUID()}`
+  const uniQueue = opts?.queue ? `PS:${opts.queue}` : `PS:${queue}-${randomUUID()}`
 
   await ch.assertQueue(uniQueue)
   ch.consume(uniQueue, (msg) => {
@@ -18,7 +19,6 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
       get(target, p: string) {
-        const id = randomUUID()
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
@@ -26,6 +26,8 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
         if (!rpc.includes('rabbitmq'))
           throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
         return (...args: any) => {
+          const id = randomUUID()
+
           ch.sendToQueue(queue, Buffer.from(
             JSON.stringify(
               {
