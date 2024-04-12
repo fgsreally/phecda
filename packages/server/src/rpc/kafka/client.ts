@@ -28,7 +28,6 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
       get(target, p: string) {
-        const id = randomUUID()
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
@@ -36,6 +35,8 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
         if (!rpc.includes('kafka'))
           throw new Error(`"${p}" in "${i}" doesn't support kafka`)
         return (...args: any) => {
+          const id = randomUUID()
+
           producer.send({
             topic,
             messages: [
