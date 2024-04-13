@@ -1,10 +1,10 @@
-import type { Kafka } from 'kafkajs'
+import type { Consumer, Producer } from 'kafkajs'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
-import { BadRequestException } from '../../exception'
 import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
 
 export interface Options {
   globalGuards?: string[]
@@ -19,83 +19,79 @@ export interface KafkaCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
-  const metaMap = new Map<string, Meta>()
-
+export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const producer = kafka.producer()
-  await producer.connect()
+  const existQueueMetaMap = new Map<string, Meta>()
 
-  const consumer = kafka.consumer({ groupId: 'phecda-server' })
+  await producer.connect()
   await consumer.connect()
 
-  await consumer.subscribe({ topic, fromBeginning: true })
-
-  function handleMeta() {
+  function detect() {
     IS_DEV && isAopDepInject(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })
+  }
 
+  detect()
+  subscribeQueues()
+  async function subscribeQueues() {
     for (const item of meta) {
-      const { data: { rpc, method, name } } = item
+      const {
+        data: {
+          rpc, tag,
+        },
+      } = item
+      if (rpc?.type && (rpc.type.includes('kafka') || rpc.type.includes('*'))) {
+        const queue = `PS:${tag as string}`
 
-      if (rpc?.type && rpc.type.includes('kafka'))
-        metaMap.set(`${name}-${method}`, item)
+        if (existQueueMetaMap.has(queue))
+          continue
+
+        existQueueMetaMap.set(queue, item)
+        await consumer.subscribe({ topic: queue, fromBeginning: true })
+      }
     }
   }
 
-  handleMeta()
   await consumer.run({
     eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
-      const data = JSON.parse(message.value!.toString())
-      const { tag, args, queue, id } = data
-
-      if (!metaMap.has(tag)) {
-        if (queue) {
-          producer.send({
-            topic: queue,
-            messages: [
-              {
-                value: JSON.stringify({
-                  data: new BadRequestException(`service "${tag}" doesn't exist`).data,
-                  error: true,
-                  id,
-                }),
-              },
-            ],
-          })
-        }
-
+      if (!existQueueMetaMap.has(topic))
         return
-      }
 
-      const meta = metaMap.get(tag)!
+      const meta = existQueueMetaMap.get(topic)!
+      const returnQueue = `${topic}/return`
+      const {
+        data: {
+          guards, interceptors, params, name, filter, ctx, tag, rpc,
+        },
+        paramsType,
+      } = meta
+      const isEvent = rpc!.isEvent
+
+      const data = JSON.parse(message.value!.toString())
+      const { method, args, id } = data
+
       const context = new Context<KafkaCtx>({
         type: 'kafka',
         moduleMap,
         meta,
-        tag,
+        tag: tag as string,
         partition,
         topic,
         heartbeat,
         pause,
         data,
       })
-      const {
-        data: {
-          guards, interceptors, params, name, method, filter, ctx,
-        },
-        paramsType,
-      } = meta
+
       try {
         await context.useGuard([...globalGuards, ...guards])
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
-          if (queue) {
+          if (!isEvent) {
             producer.send({
-              topic: queue,
+              topic: returnQueue,
               messages: [
                 { value: JSON.stringify({ data: cache, id }) },
               ],
@@ -115,9 +111,9 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
 
         const ret = await context.usePostInterceptor(funcData)
 
-        if (queue) {
+        if (!isEvent) {
           producer.send({
-            topic: queue,
+            topic: returnQueue,
             messages: [
               { value: JSON.stringify({ data: ret, id }) },
             ],
@@ -126,9 +122,9 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)
-        if (queue) {
+        if (!isEvent) {
           producer.send({
-            topic: queue,
+            topic: returnQueue,
             messages: [
               {
                 value: JSON.stringify({
@@ -144,9 +140,9 @@ export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awa
     },
   })
 
-  if (IS_DEV) {
-    globalThis.__PS_HMR__?.push(async () => {
-      handleMeta()
-    })
-  }
+  HMR(async () => {
+    detect()
+    existQueueMetaMap.clear()
+    subscribeQueues()
+  })
 }

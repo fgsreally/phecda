@@ -1,10 +1,10 @@
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
-import { BadRequestException } from '../../exception'
 import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
 
 export interface Options {
   globalGuards?: string[]
@@ -19,67 +19,75 @@ export interface RedisCtx extends P.BaseContext {
 
 }
 
-export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
-  const metaMap = new Map<string, Meta>()
-
-  const pub = new Redis(redis.options)
+export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
+  const existQueueMetaMap = new Map<string, Meta>()
 
-  function handleMeta() {
+  function detect() {
     IS_DEV && isAopDepInject(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })
+  }
 
+  detect()
+  subscribeQueues()
+
+  async function subscribeQueues() {
     for (const item of meta) {
-      const { data: { rpc, method, name } } = item
+      const {
+        data: {
+          rpc, tag,
+        },
+      } = item
 
-      if (rpc?.type && rpc.type.includes('rabbitmq'))
-        metaMap.set(`${name}-${method}`, item)
+      if (rpc?.type && (rpc.type.includes('redis') || rpc.type.includes('*'))) {
+        const queue = `PS:${tag as string}`
+
+        if (existQueueMetaMap.has(queue))
+          continue
+
+        existQueueMetaMap.set(queue, item)
+
+        await sub.subscribe(queue)
+      }
     }
   }
 
-  handleMeta()
+  sub.on('message', async (channel, msg) => {
+    const meta = existQueueMetaMap.get(channel)
+    if (!meta)
+      return
 
-  redis.subscribe(channel)
-
-  redis.on('message', async (channel, msg) => {
     if (msg) {
-      const data = JSON.parse(msg)
-      const { tag, args, id, queue } = data
-      if (!metaMap.has(tag)) {
-        queue && pub.publish(queue, JSON.stringify({
-          data: new BadRequestException(`service "${tag}" doesn't exist`).data,
-          error: true,
-          id,
-        }))
-        return
-      }
+      const returnQueue = `${channel}/return`
 
-      const meta = metaMap.get(tag)!
+      const {
+        data: { rpc, tag, guards, interceptors, params, name, filter, ctx },
+        paramsType,
+      } = meta
+
+      const isEvent = rpc!.isEvent
+      const data = JSON.parse(msg)
+      const { method, args, id } = data
+
       const context = new Context({
         type: 'redis',
         moduleMap,
-        redis,
+        redis: sub,
         meta,
         msg,
         channel,
-        tag,
+        tag: tag as string,
         data,
       })
 
-      const {
-        data: {
-          guards, interceptors, params, name, method, filter, ctx,
-        },
-        paramsType,
-      } = meta
       try {
         await context.useGuard([...globalGuards, ...guards])
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
-          if (queue)
-            pub.publish(queue, JSON.stringify({ data: cache, id }))
+          if (!isEvent)
+            pub.publish(returnQueue, JSON.stringify({ data: cache, id }))
 
           return
         }
@@ -94,22 +102,26 @@ export function bind(redis: Redis, channel: string, { moduleMap, meta }: Awaited
         const funcData = await instance[method](...handleArgs)
         const res = await context.usePostInterceptor(funcData)
 
-        queue && pub.publish(queue, JSON.stringify({ data: res, id }))
+        if (!isEvent)
+          pub.publish(returnQueue, JSON.stringify({ data: res, id }))
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)
-        queue && pub.publish(queue, JSON.stringify({
-          data: ret,
-          error: true,
-          id,
-        }))
+        if (!isEvent) {
+          pub.publish(returnQueue, JSON.stringify({
+            data: ret,
+            error: true,
+            id,
+          }))
+        }
       }
     }
   })
-
-  if (IS_DEV) {
-    globalThis.__PS_HMR__?.push(async () => {
-      handleMeta()
-    })
-  }
+  HMR(async () => {
+    detect()
+    for (const queue of Object.keys(existQueueMetaMap))
+      await sub.unsubscribe(queue)
+    existQueueMetaMap.clear()
+    subscribeQueues()
+  })
 }

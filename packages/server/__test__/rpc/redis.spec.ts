@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
 import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
@@ -10,10 +10,22 @@ function stop(time = 500) {
   })
 }
 describe('redis rpc', () => {
+  let sub: Redis, pub: Redis
+
+  beforeEach(() => {
+    sub = new Redis('redis://localhost')
+
+    pub = new Redis('redis://localhost')
+  })
+
+  afterEach(() => {
+    sub.removeAllListeners('message')
+  })
+
   class Faker {
     run() {
       return {
-        tag: 'TestRpc-run',
+        tag: 'TestRpc',
         rpc: ['redis'],
       }
     }
@@ -25,7 +37,7 @@ describe('redis rpc', () => {
       @Ctx
       ctx: any
 
-      @Rpc('rabbitmq')
+      @Rpc('*')
       run(arg: string) {
         expect(this.ctx).toBeDefined()
         fn()
@@ -34,16 +46,12 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    bind(sub, pub, data)
 
-    bind(redis, 'test', data)
-
-    pub.publish('test', JSON.stringify({
+    pub.publish('PS:TestRpc', JSON.stringify({
       args: [1],
-      tag: 'TestRpc-run',
-
+      method: 'run',
     }))
 
     await stop()
@@ -54,7 +62,7 @@ describe('redis rpc', () => {
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('*')
       run(@Arg() arg: number) {
         fn()
         return arg
@@ -62,13 +70,10 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    bind(sub, pub, data)
 
-    bind(redis, 'test2', data)
-
-    const client = await createClient(pub, 'test2', {
+    const client = await createClient(pub, sub, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -79,12 +84,12 @@ describe('redis rpc', () => {
 
   it('guard', async () => {
     addGuard('g1', (ctx) => {
-      expect(ctx.tag).toBe('TestRpc-run')
+      expect(ctx.tag).toBe('TestRpc')
 
       return true
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('*')
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -93,13 +98,10 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    bind(sub, pub, data)
 
-    bind(redis, 'test3', data)
-
-    const client = await createClient(pub, 'test3', {
+    const client = await createClient(pub, sub, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -108,14 +110,14 @@ describe('redis rpc', () => {
 
   it('interceptor', async () => {
     addInterceptor('i1', (ctx) => {
-      expect(ctx.tag).toBe('TestRpc-run')
+      expect(ctx.tag).toBe('TestRpc')
       return (ret: number) => {
         expect(ret).toBe(2)
         return ++ret
       }
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('*')
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -124,13 +126,10 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    bind(sub, pub, data)
 
-    bind(redis, 'test4', data)
-
-    const client = await createClient(pub, 'test4', {
+    const client = await createClient(pub, sub, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -143,7 +142,7 @@ describe('redis rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('*')
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -151,13 +150,10 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    bind(sub, pub, data)
 
-    bind(redis, 'test5', data)
-
-    const client = await createClient(pub, 'test5', {
+    const client = await createClient(pub, sub, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -173,7 +169,7 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('rabbitmq')
+      @Rpc('*')
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)
@@ -181,13 +177,10 @@ describe('redis rpc', () => {
     }
 
     const data = await Factory([TestRpc])
-    const redis = new Redis('redis://localhost')
 
-    const pub = new Redis('redis://localhost')
+    bind(sub, pub, data)
 
-    bind(redis, 'test6', data)
-
-    const client = await createClient(pub, 'test6', {
+    const client = await createClient(pub, sub, {
       test: Faker as unknown as typeof TestRpc,
     })
 

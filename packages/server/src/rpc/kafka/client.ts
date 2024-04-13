@@ -1,30 +1,16 @@
 import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
-import type { Kafka } from 'kafkajs'
+import type { Consumer, Producer } from 'kafkajs'
 import type { ToClientMap } from '../../types'
-import type { RpcOpts } from '../types'
-export async function createClient<S extends Record<string, any>>(kafka: Kafka, topic: string, controllers: S, opts?: RpcOpts): Promise<ToClientMap<S>> {
-  const ret = {} as any
-  const emitter = new EventEmitter()
-  const uniQueue = opts?.queue ? `PS:${opts.queue}` : `PS:${topic}-${randomUUID()}`
-  const producer = kafka.producer()
+export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S): Promise<ToClientMap<S>> {
   await producer.connect()
-
-  const consumer = kafka.consumer({ groupId: 'phecda-server' })
   await consumer.connect()
 
-  await consumer.subscribe({ topic: uniQueue, fromBeginning: true })
-
-  await consumer.run(
-    {
-      eachMessage: async ({ message }) => {
-        if (!message.value)
-          return
-        const { data, id, error } = JSON.parse(message.value.toString())
-        emitter.emit(id, data, error)
-      },
-    },
-  )
+  const ret = {} as any
+  const emitter = new EventEmitter()
+  const genQueue = (name: string) => `PS:${name}`
+  const genReturnQueue = (name: string) => `${name}/return`
+  const existQueue = new Set<string>()
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -33,20 +19,25 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
         const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('kafka'))
+        if (!rpc.includes('*') && !rpc.includes('kafka'))
           throw new Error(`"${p}" in "${i}" doesn't support kafka`)
-        return (...args: any) => {
-          const id = randomUUID()
+        return async (...args: any) => {
+          const queue = genQueue(tag)
+          const returnQueue = genReturnQueue(queue)
+          if (!isEvent && !existQueue.has(returnQueue)) {
+            existQueue.add(returnQueue)
 
+            await consumer.subscribe({ topic: queue, fromBeginning: true })
+          }
+          const id = isEvent ? '' : randomUUID()
           producer.send({
-            topic,
+            topic: queue,
             messages: [
               {
                 value: JSON.stringify({
                   id,
-                  tag,
+                  method: p,
                   args,
-                  queue: isEvent ? undefined : uniQueue,
                 }),
               },
             ],
@@ -67,6 +58,18 @@ export async function createClient<S extends Record<string, any>>(kafka: Kafka, 
       },
     })
   }
+  await consumer.run(
+    {
+      eachMessage: async ({ message, topic }) => {
+        if (!message.value || !existQueue.has(topic))
+          return
+
+        const { data, id, error } = JSON.parse(message.value.toString())
+
+        emitter.emit(id, data, error)
+      },
+    },
+  )
 
   return ret
 }

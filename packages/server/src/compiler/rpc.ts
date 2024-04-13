@@ -26,7 +26,7 @@ class Compiler {
       this.classMap[name] = {}
     this.classMap[name][method] = `
     ${method}(){
-      return {tag:'${tag as string}-${method}',isEvent:${!!rpc.isEvent},rpc:[${rpc.type.reduce((p, c) => {
+      return {tag:'${tag as string}',isEvent:${!!rpc.isEvent},rpc:[${rpc.type.reduce((p, c) => {
         return `${p}"${c}",`
       }, '')}]}
 

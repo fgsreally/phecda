@@ -2,19 +2,12 @@ import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type amqplib from 'amqplib'
 import type { ToClientMap } from '../../types'
-import type { RpcOpts } from '../types'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S, opts?: RpcOpts): Promise<ToClientMap<S>> {
+export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S): Promise<ToClientMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
-  const uniQueue = opts?.queue ? `PS:${opts.queue}` : `PS:${queue}-${randomUUID()}`
-
-  await ch.assertQueue(uniQueue)
-  ch.consume(uniQueue, (msg) => {
-    if (!msg)
-      return
-    const { data, id, error } = JSON.parse(msg.content.toString())
-    emitter.emit(id, data, error)
-  })
+  const genQueue = (name: string) => `PS:${name}`
+  const genReturnQueue = (name: string) => `${name}/return`
+  const existQueue = new Set<string>()
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -23,18 +16,36 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
         const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('rabbitmq'))
+        if (!rpc.includes('*') && !rpc.includes('rabbitmq'))
           throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
-        return (...args: any) => {
-          const id = randomUUID()
+
+        return async (...args: any) => {
+          const queue = genQueue(tag)
+          const returnQueue = genReturnQueue(queue)
+
+          // if (!existQueue.has(queue)) {
+          //   existQueue.add(queue)
+          //   await ch.assertQueue(queue)
+
+          // }
+          if (!isEvent && !existQueue.has(returnQueue)) {
+            existQueue.add(returnQueue)
+            await ch.assertQueue(returnQueue)
+            ch.consume(returnQueue, (msg) => {
+              if (!msg)
+                return
+              const { data, id, error } = JSON.parse(msg.content.toString())
+              emitter.emit(id, data, error)
+            })
+          }
+          const id = isEvent ? '' : randomUUID()
 
           ch.sendToQueue(queue, Buffer.from(
             JSON.stringify(
               {
                 id,
-                tag,
                 args,
-                queue: isEvent ? undefined : uniQueue,
+                method: p,
               },
             ),
           ))

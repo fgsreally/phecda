@@ -6,6 +6,7 @@ import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
 
 export interface ExpressCtx extends P.HttpContext {
   type: 'express'
@@ -225,16 +226,14 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   handleMeta()
   createRoute()
 
-  if (IS_DEV) {
-    globalThis.__PS_HMR__?.push(async () => {
-      isAopDepInject(meta, {
-        plugins,
-        guards: globalGuards,
-        interceptors: globalInterceptors,
-      })
-      router.stack = originStack// router.stack.slice(0, 1)
-      handleMeta()
-      createRoute()
+  HMR(async () => {
+    isAopDepInject(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
     })
-  }
+    router.stack = originStack// router.stack.slice(0, 1)
+    handleMeta()
+    createRoute()
+  })
 }

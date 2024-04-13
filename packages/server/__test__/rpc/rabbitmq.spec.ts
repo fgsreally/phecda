@@ -12,7 +12,7 @@ describe('rabbitmq rpc', () => {
   class Faker {
     run() {
       return {
-        tag: 'TestRpc-run',
+        tag: 'TestRpc',
         rpc: ['rabbitmq'],
       }
     }
@@ -38,11 +38,13 @@ describe('rabbitmq rpc', () => {
     const ch = await conn.createChannel()
     const pub = await conn.createChannel()
 
-    await bind(ch, 'test', data)
+    await bind(ch, data)
 
-    pub.sendToQueue('test', Buffer.from(JSON.stringify({
+    pub.sendToQueue('PS:TestRpc', Buffer.from(JSON.stringify({
       args: [1],
-      tag: 'TestRpc-run',
+      tag: 'TestRpc',
+      method: 'run',
+
     })))
 
     await stop()
@@ -65,9 +67,9 @@ describe('rabbitmq rpc', () => {
     const clientCh = await conn.createChannel()
     const serverCh = await conn.createChannel()
 
-    await bind(serverCh, 'test', data)
+    await bind(serverCh, data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(clientCh, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -78,7 +80,7 @@ describe('rabbitmq rpc', () => {
 
   it('guard', async () => {
     addGuard('g1', (ctx) => {
-      expect(ctx.tag).toBe('TestRpc-run')
+      expect(ctx.tag).toBe('TestRpc')
 
       return true
     })
@@ -97,9 +99,9 @@ describe('rabbitmq rpc', () => {
     const clientCh = await conn.createChannel()
     const serverCh = await conn.createChannel()
 
-    await bind(serverCh, 'test', data)
+    await bind(serverCh, data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(clientCh, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -108,7 +110,7 @@ describe('rabbitmq rpc', () => {
 
   it('interceptor', async () => {
     addInterceptor('i1', (ctx) => {
-      expect(ctx.tag).toBe('TestRpc-run')
+      expect(ctx.tag).toBe('TestRpc')
       return (ret: number) => {
         expect(ret).toBe(2)
         return ++ret
@@ -129,9 +131,9 @@ describe('rabbitmq rpc', () => {
     const clientCh = await conn.createChannel()
     const serverCh = await conn.createChannel()
 
-    await bind(serverCh, 'test', data)
+    await bind(serverCh, data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(clientCh, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -157,9 +159,9 @@ describe('rabbitmq rpc', () => {
     const clientCh = await conn.createChannel()
     const serverCh = await conn.createChannel()
 
-    await bind(serverCh, 'test', data)
+    await bind(serverCh, data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(clientCh, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -187,9 +189,9 @@ describe('rabbitmq rpc', () => {
     const clientCh = await conn.createChannel()
     const serverCh = await conn.createChannel()
 
-    await bind(serverCh, 'test', data)
+    await bind(serverCh, data)
 
-    const client = await createClient(clientCh, 'test', {
+    const client = await createClient(clientCh, {
       test: Faker as unknown as typeof TestRpc,
     })
     await expect(client.test.run()).rejects.toEqual({ error: true, info: 'rpc error' })
