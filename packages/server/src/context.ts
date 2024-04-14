@@ -155,7 +155,7 @@ export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handle
 }
 
 // detect whether plugin/filter/pipe/guard/intercept is injected
-export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: {
+export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]
@@ -199,4 +199,12 @@ export function isAopDepInject(meta: Meta[], { guards, interceptors, plugins }: 
 
   if (missFilters.length)
     log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
+
+  return {
+    missPlugins,
+    missGuards,
+    missInterceptors,
+    missPipes,
+    missFilters,
+  }
 }

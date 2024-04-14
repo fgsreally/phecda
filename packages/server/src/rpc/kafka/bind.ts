@@ -1,16 +1,12 @@
 import type { Consumer, Producer } from 'kafkajs'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
-import { Context, isAopDepInject } from '../../context'
-import { IS_DEV } from '../../common'
+import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
+import type { RpcOptions } from '../helper'
 import { generateReturnQueue } from '../helper'
 
-export interface Options {
-  globalGuards?: string[]
-  globalInterceptors?: string[]
-}
 export interface KafkaCtx extends P.BaseContext {
   type: 'kafka'
   topic: string
@@ -20,27 +16,24 @@ export interface KafkaCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
+export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   await producer.connect()
   await consumer.connect()
-
-  function detect() {
-    IS_DEV && isAopDepInject(meta, {
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-  }
 
   const metaMap = new Map<string, Record<string, Meta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, http } = item.data
-      if (!http?.type)
+      const { tag, method, rpc, interceptors, guards } = item.data
+      if (!rpc)
         continue
+      detectAopDep(meta, {
+        guards,
+        interceptors,
+      })
       if (metaMap.has(tag))
         metaMap.get(tag)![method] = item
 
@@ -151,14 +144,19 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     },
   })
 
-  detect()
+  detectAopDep(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
   handleMeta()
   subscribeQueues()
 
   HMR(async () => {
-    detect()
+    detectAopDep(meta, {
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
     handleMeta()
-
     subscribeQueues()
   })
 }

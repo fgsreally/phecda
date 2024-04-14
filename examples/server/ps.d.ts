@@ -122,7 +122,7 @@ declare global {
   const init: typeof import('phecda-server')['init']
   const setInject: typeof import('phecda-server')['setInject']
   const invokeHandler: typeof import('phecda-server')['invokeHandler']
-  const isAopDepInject: typeof import('phecda-server')['isAopDepInject']
+  const detectAopDep: typeof import('phecda-server')['detectAopDep']
   const isAsyncFunc: typeof import('phecda-server')['isAsyncFunc']
   const isPhecda: typeof import('phecda-server')['isPhecda']
   const log: typeof import('phecda-server')['log']

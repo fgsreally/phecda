@@ -2,11 +2,11 @@ import type { IncomingHttpHeaders } from 'node:http'
 import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
 import type { H3Event, Router } from 'h3'
 import { argToReq, resolveDep } from '../helper'
-import { IS_DEV, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
+import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context, isAopDepInject } from '../../context'
+import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 
@@ -14,7 +14,7 @@ export interface H3Ctx extends P.HttpContext {
   type: 'h3'
   event: H3Event
 }
-export interface Options {
+export interface ServerOptions {
 
   /**
  * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
@@ -35,8 +35,8 @@ export interface Options {
 
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
 
   (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
@@ -45,21 +45,19 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     (event as any)[META_SYMBOL] = meta
   })
 
-  function detect() {
-    IS_DEV && isAopDepInject(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-  }
-
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, http } = item.data
+      const { tag, method, http, guards, interceptors } = item.data
       if (!http?.type)
         continue
+
+      detectAopDep(meta, {
+        plugins,
+        guards,
+        interceptors,
+      })
       if (metaMap.has(tag))
         metaMap.get(tag)![method] = item
 
@@ -210,12 +208,21 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
-  detect()
+  detectAopDep(meta, {
+    plugins,
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
+
   handleMeta()
   createRoute()
 
   HMR(async () => {
-    detect()
+    detectAopDep(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
     handleMeta()
   })
 }

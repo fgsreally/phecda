@@ -2,7 +2,7 @@ import type { Kafka } from 'kafkajs'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { BadRequestException } from '../../exception'
-import { Context, isAopDepInject } from '../../context'
+import { Context, detectAopDep } from '../../context'
 import { IS_DEV } from '../../common'
 import type { P } from '../../types'
 
@@ -19,7 +19,7 @@ export interface BullmqCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(kafka: Kafka,  { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
+export async function bind(kafka: Kafka, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const metaMap = new Map<string, Meta>()
 
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
@@ -33,7 +33,7 @@ export async function bind(kafka: Kafka,  { moduleMap, meta }: Awaited<ReturnTyp
   await consumer.subscribe({ topic, fromBeginning: true })
 
   function handleMeta() {
-    IS_DEV && isAopDepInject(meta, {
+    IS_DEV && detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })

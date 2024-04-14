@@ -1,10 +1,11 @@
 import type { Express, Request, Response, Router } from 'express'
+import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
+import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context, isAopDepInject } from '../../context'
+import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 
@@ -14,36 +15,10 @@ export interface ExpressCtx extends P.HttpContext {
   response: Response
   next: Function
 }
-export interface Options {
 
-  /**
- * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
- */
-  route?: string
-  /**
- * 全局守卫
- */
-  globalGuards?: string[]
-  /**
- * 全局拦截器
- */
-  globalInterceptors?: string[]
-  /**
- * 专用路由的插件(work for merge request)，
- */
-  plugins?: string[]
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
 
-}
-
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
-  function detect() {
-    IS_DEV && isAopDepInject(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-  }
   (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const originStack = router.stack.slice(0, router.stack.length)
@@ -51,9 +26,15 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, http } = item.data
+      const { tag, method, http, guards, interceptors } = item.data
       if (!http?.type)
         continue
+
+      detectAopDep(meta, {
+        plugins,
+        guards,
+        interceptors,
+      })
       if (metaMap.has(tag))
         metaMap.get(tag)![method] = item
 
@@ -226,13 +207,21 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
-  detect()
+  detectAopDep(meta, {
+    plugins,
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
   handleMeta()
   createRoute()
 
   HMR(async () => {
     router.stack = originStack// router.stack.slice(0, 1)
-    detect()
+    detectAopDep(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
     handleMeta()
     createRoute()
   })
