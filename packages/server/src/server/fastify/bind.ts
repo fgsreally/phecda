@@ -8,6 +8,7 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
+import { log } from '../../utils'
 
 export interface FastifyCtx extends P.HttpContext {
   type: 'fastify'
@@ -27,6 +28,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
       if (!http?.type)
         continue
 
+      log(`"${method}" in "${tag}": `)
       detectAopDep(meta, {
         plugins,
         guards,

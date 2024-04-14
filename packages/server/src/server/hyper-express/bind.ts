@@ -8,6 +8,7 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
+import { log } from '../../utils'
 
 export interface HyperExpressCtx extends P.HttpContext {
   type: 'hyper-express'
@@ -29,6 +30,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
+      log(`"${method}" in "${tag}":`)
       detectAopDep(meta, {
         plugins,
         guards,

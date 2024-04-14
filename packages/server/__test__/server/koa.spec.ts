@@ -3,7 +3,9 @@ import request from 'supertest'
 import Koa from 'koa'
 import { koaBody } from 'koa-body'
 import Router from '@koa/router'
-import type { KoaCtx, Options } from '../../src/server/koa'
+import type { KoaCtx } from '../../src/server/koa'
+import type { ServerOptions as Options } from '../../src'
+
 import { bind } from '../../src/server/koa'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
@@ -29,10 +31,12 @@ describe('koa ', () => {
 
     const res3 = await request(app).post('/__PHECDA_SERVER__').send([
       {
-        tag: 'Test-post',
+        tag: 'Test',
+        method: 'post',
         args: ['phecda', 'server', '1'],
       }, {
-        tag: 'Test-get',
+        tag: 'Test',
+        method: 'get',
         args: [],
       },
 
@@ -75,7 +79,8 @@ describe('koa ', () => {
     await request(app).get('/plugin')
     expect(fn).toHaveBeenCalledTimes(1)
     await request(app).post('/__PHECDA_SERVER__').send([{
-      tag: 'Test-plugin',
+      tag: 'Test',
+      method: 'plugin',
       args: [],
     }])
 
@@ -122,11 +127,14 @@ describe('koa ', () => {
     await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
-          tag: 'Test-aop',
+          tag: 'Test',
+          method: 'aop',
           args: ['test1'],
         },
         {
-          tag: 'Test-aop',
+          tag: 'Test',
+          method: 'aop',
+
           args: ['test2'],
         },
       ],
@@ -151,11 +159,14 @@ describe('koa ', () => {
     await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
-          tag: 'Test-all',
+          tag: 'Test',
+          method: 'all',
           args: ['test', { name: 'test' }, '1'],
         },
         {
-          tag: 'Test-all',
+          tag: 'Test',
+          method: 'all',
+
           args: ['test', { name: 'test' }, '2'],
         },
       ],

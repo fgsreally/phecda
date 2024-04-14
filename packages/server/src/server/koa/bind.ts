@@ -10,6 +10,8 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
+import { log } from '../../utils'
+
 export interface KoaCtx extends P.HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
@@ -30,6 +32,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { tag, method, http, guards, interceptors } = item.data
       if (!http?.type)
         continue
+
+      log(`"${method}" in "${tag}": `)
 
       detectAopDep(meta, {
         plugins,
@@ -67,6 +71,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag, method } = item
+
             const meta = metaMap.get(tag)![method]
             if (!meta)
               return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))

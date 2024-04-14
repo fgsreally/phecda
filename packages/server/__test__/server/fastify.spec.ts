@@ -2,8 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 
 import fastify from 'fastify'
-import type { FastifyCtx, Options } from '../../src/server/fastify'
+import type { FastifyCtx } from '../../src/server/fastify'
 import { bind } from '../../src/server/fastify'
+import type { ServerOptions as Options } from '../../src'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
@@ -25,10 +26,13 @@ describe('fastify ', () => {
 
     const res3 = await request(app).post('/__PHECDA_SERVER__').send([
       {
-        tag: 'Test-post',
+        tag: 'Test',
+        method: 'post',
         args: ['phecda', 'server', '1'],
       }, {
-        tag: 'Test-get',
+        tag: 'Test',
+        method: 'get',
+
         args: [],
       },
 
@@ -120,11 +124,14 @@ describe('fastify ', () => {
     await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
-          tag: 'Test-aop',
+          tag: 'Test',
+          method: 'aop',
           args: ['test1'],
         },
         {
-          tag: 'Test-aop',
+          tag: 'Test',
+          method: 'aop',
+
           args: ['test2'],
         },
       ],
@@ -150,11 +157,15 @@ describe('fastify ', () => {
     await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
-          tag: 'Test-all',
+          tag: 'Test',
+          method: 'all',
+
           args: ['test', { name: 'test' }, '1'],
         },
         {
-          tag: 'Test-all',
+          tag: 'Test',
+          method: 'all',
+
           args: ['test', { name: 'test' }, '2'],
         },
       ],

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/redis'
 
 function stop(time = 500) {
@@ -37,7 +37,8 @@ describe('redis rpc', () => {
       @Ctx
       ctx: any
 
-      @Rpc('*')
+      @Queue('create server')
+      @Rpc()
       run(arg: string) {
         expect(this.ctx).toBeDefined()
         fn()
@@ -49,9 +50,10 @@ describe('redis rpc', () => {
 
     bind(sub, pub, data)
 
-    pub.publish('PS:TestRpc', JSON.stringify({
+    pub.publish('create server', JSON.stringify({
       args: [1],
       method: 'run',
+      tag: 'TestRpc',
     }))
 
     await stop()
@@ -62,7 +64,7 @@ describe('redis rpc', () => {
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc('*')
+      @Rpc()
       run(@Arg() arg: number) {
         fn()
         return arg
@@ -89,7 +91,7 @@ describe('redis rpc', () => {
       return true
     })
     class TestRpc {
-      @Rpc('*')
+      @Rpc()
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -117,7 +119,7 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('*')
+      @Rpc()
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -142,7 +144,7 @@ describe('redis rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc('*')
+      @Rpc()
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -169,7 +171,7 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc('*')
+      @Rpc()
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)

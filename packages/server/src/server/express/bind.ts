@@ -8,7 +8,7 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-
+import { log } from '../../utils'
 export interface ExpressCtx extends P.HttpContext {
   type: 'express'
   request: Request
@@ -29,6 +29,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const { tag, method, http, guards, interceptors } = item.data
       if (!http?.type)
         continue
+
+      log(`"${method}" in "${tag}": `)
 
       detectAopDep(meta, {
         plugins,
