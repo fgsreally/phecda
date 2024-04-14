@@ -5,6 +5,7 @@ import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
+import { generateReturnQueue } from '../helper'
 
 export interface Options {
   globalGuards?: string[]
@@ -21,7 +22,6 @@ export interface RedisCtx extends P.BaseContext {
 
 export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
-  const existQueueMetaMap = new Map<string, Meta>()
 
   function detect() {
     IS_DEV && isAopDepInject(meta, {
@@ -30,46 +30,52 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
     })
   }
 
-  detect()
-  subscribeQueues()
+  const metaMap = new Map<string, Record<string, Meta>>()
+  const existQueue = new Set<string>()
+  function handleMeta() {
+    metaMap.clear()
+    for (const item of meta) {
+      const { tag, method, http } = item.data
+      if (!http?.type)
+        continue
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
+    }
+  }
 
   async function subscribeQueues() {
+    existQueue.clear()
     for (const item of meta) {
       const {
         data: {
           rpc, tag,
         },
       } = item
-
-      if (rpc?.type && (rpc.type.includes('redis') || rpc.type.includes('*'))) {
-        const queue = `PS:${tag as string}`
-
-        if (existQueueMetaMap.has(queue))
-          continue
-
-        existQueueMetaMap.set(queue, item)
-
+      if (rpc) {
+        const queue = rpc.queue || tag
+        existQueue.add(queue)
         await sub.subscribe(queue)
       }
     }
   }
 
   sub.on('message', async (channel, msg) => {
-    const meta = existQueueMetaMap.get(channel)
-    if (!meta)
+    if (!existQueue.has(channel))
       return
 
     if (msg) {
-      const returnQueue = `${channel}/return`
+      const returnQueue = generateReturnQueue(channel)
+      const data = JSON.parse(msg)
+      const { method, args, id, tag } = data
+      const meta = metaMap.get(tag)![method]
 
       const {
-        data: { rpc, tag, guards, interceptors, params, name, filter, ctx },
+        data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
         paramsType,
       } = meta
-
-      const isEvent = rpc!.isEvent
-      const data = JSON.parse(msg)
-      const { method, args, id } = data
 
       const context = new Context({
         type: 'redis',
@@ -78,7 +84,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         meta,
         msg,
         channel,
-        tag: tag as string,
+        tag,
+        method,
         data,
       })
 
@@ -117,11 +124,16 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       }
     }
   })
+
+  detect()
+  handleMeta()
+  subscribeQueues()
   HMR(async () => {
     detect()
-    for (const queue of Object.keys(existQueueMetaMap))
+    handleMeta()
+    for (const queue of existQueue)
       await sub.unsubscribe(queue)
-    existQueueMetaMap.clear()
+
     subscribeQueues()
   })
 }

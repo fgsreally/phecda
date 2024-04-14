@@ -5,6 +5,7 @@ import { Context, isAopDepInject } from '../../context'
 import { IS_DEV } from '../../common'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
+import { generateReturnQueue } from '../helper'
 
 export interface Options {
   globalGuards?: string[]
@@ -22,8 +23,6 @@ export interface KafkaCtx extends P.BaseContext {
 export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const existQueueMetaMap = new Map<string, Meta>()
-
   await producer.connect()
   await consumer.connect()
 
@@ -34,22 +33,34 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     })
   }
 
-  detect()
-  subscribeQueues()
+  const metaMap = new Map<string, Record<string, Meta>>()
+  const existQueue = new Set<string>()
+  function handleMeta() {
+    metaMap.clear()
+    for (const item of meta) {
+      const { tag, method, http } = item.data
+      if (!http?.type)
+        continue
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
+    }
+  }
+
   async function subscribeQueues() {
+    existQueue.clear()
+
     for (const item of meta) {
       const {
         data: {
           rpc, tag,
         },
       } = item
-      if (rpc?.type && (rpc.type.includes('kafka') || rpc.type.includes('*'))) {
-        const queue = `PS:${tag as string}`
-
-        if (existQueueMetaMap.has(queue))
-          continue
-
-        existQueueMetaMap.set(queue, item)
+      if (rpc) {
+        const queue = rpc.queue || tag
+        existQueue.add(queue)
         await consumer.subscribe({ topic: queue, fromBeginning: true })
       }
     }
@@ -57,27 +68,27 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
   await consumer.run({
     eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
-      if (!existQueueMetaMap.has(topic))
+      if (!existQueue.has(topic))
         return
 
-      const meta = existQueueMetaMap.get(topic)!
-      const returnQueue = `${topic}/return`
+      const data = JSON.parse(message.value!.toString())
+      const { tag, method, args, id } = data
+      const meta = metaMap.get(tag)![method]
+      const returnQueue = generateReturnQueue(topic)
       const {
         data: {
-          guards, interceptors, params, name, filter, ctx, tag, rpc,
+          guards, interceptors, params, name, filter, ctx, rpc,
         },
         paramsType,
       } = meta
       const isEvent = rpc!.isEvent
 
-      const data = JSON.parse(message.value!.toString())
-      const { method, args, id } = data
-
       const context = new Context<KafkaCtx>({
         type: 'kafka',
         moduleMap,
         meta,
-        tag: tag as string,
+        tag,
+        method,
         partition,
         topic,
         heartbeat,
@@ -140,9 +151,14 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     },
   })
 
+  detect()
+  handleMeta()
+  subscribeQueues()
+
   HMR(async () => {
     detect()
-    existQueueMetaMap.clear()
+    handleMeta()
+
     subscribeQueues()
   })
 }

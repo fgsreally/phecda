@@ -59,10 +59,7 @@ export function Queue(queue: string) {
     target = key === SHARE_KEY ? target.prototype : target
     setStateKey(target, key)
     const state = getOwnState(target, key)
-    if (!state.rpc)
-      state.rpc = {}
 
     state.rpc.queue = queue
-    setState(target, key, state)
   }
 }

@@ -2,11 +2,11 @@ import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type amqplib from 'amqplib'
 import type { ToClientMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S): Promise<ToClientMap<S>> {
+import { generateReturnQueue } from '../helper'
+export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S, opts?: { timeout?: number }): Promise<ToClientMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
-  const genQueue = (name: string) => `PS:${name}`
-  const genReturnQueue = (name: string) => `${name}/return`
+
   const existQueue = new Set<string>()
 
   for (const i in controllers) {
@@ -15,19 +15,13 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-        const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('*') && !rpc.includes('rabbitmq'))
-          throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
+        let { tag, queue, isEvent } = target[p]()
 
         return async (...args: any) => {
-          const queue = genQueue(tag)
-          const returnQueue = genReturnQueue(queue)
+          if (!queue)
+            queue = tag
+          const returnQueue = generateReturnQueue(queue)
 
-          // if (!existQueue.has(queue)) {
-          //   existQueue.add(queue)
-          //   await ch.assertQueue(queue)
-
-          // }
           if (!isEvent && !existQueue.has(returnQueue)) {
             existQueue.add(returnQueue)
             await ch.assertQueue(returnQueue)
@@ -45,6 +39,7 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
               {
                 id,
                 args,
+                tag,
                 method: p,
               },
             ),
@@ -53,12 +48,21 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
             return null
 
           return new Promise((resolve, reject) => {
-            emitter.once(id, (data: any, error: boolean) => {
+            const timer = setTimeout(() => {
+              emitter.off(id, listener)
+              // eslint-disable-next-line prefer-promise-reject-errors
+              reject({ message: 'timeout' })
+            }, opts?.timeout || 5000)
+
+            function listener(data: any, error: boolean) {
+              clearTimeout(timer)
               if (error)
                 reject(data)
 
-              else resolve(data)
-            })
+              else
+                resolve(data)
+            }
+            emitter.once(id, listener)
           })
         }
       },

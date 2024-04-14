@@ -2,14 +2,14 @@ import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type { Consumer, Producer } from 'kafkajs'
 import type { ToClientMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S): Promise<ToClientMap<S>> {
+import { generateReturnQueue } from '../helper'
+export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: { timeout?: number }): Promise<ToClientMap<S>> {
   await producer.connect()
   await consumer.connect()
 
   const ret = {} as any
   const emitter = new EventEmitter()
-  const genQueue = (name: string) => `PS:${name}`
-  const genReturnQueue = (name: string) => `${name}/return`
+
   const existQueue = new Set<string>()
 
   for (const i in controllers) {
@@ -18,12 +18,12 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-        const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('*') && !rpc.includes('kafka'))
-          throw new Error(`"${p}" in "${i}" doesn't support kafka`)
+        let { tag, queue, isEvent } = target[p]()
+
         return async (...args: any) => {
-          const queue = genQueue(tag)
-          const returnQueue = genReturnQueue(queue)
+          if (!queue)
+            queue = tag
+          const returnQueue = generateReturnQueue(queue)
           if (!isEvent && !existQueue.has(returnQueue)) {
             existQueue.add(returnQueue)
 
@@ -36,6 +36,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
               {
                 value: JSON.stringify({
                   id,
+                  tag,
                   method: p,
                   args,
                 }),
@@ -47,12 +48,21 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
             return null
 
           return new Promise((resolve, reject) => {
-            emitter.once(id, (data: any, error: boolean) => {
+            const timer = setTimeout(() => {
+              emitter.off(id, listener)
+              // eslint-disable-next-line prefer-promise-reject-errors
+              reject({ message: 'timeout' })
+            }, opts?.timeout || 5000)
+
+            function listener(data: any, error: boolean) {
+              clearTimeout(timer)
               if (error)
                 reject(data)
 
-              else resolve(data)
-            })
+              else
+                resolve(data)
+            }
+            emitter.once(id, listener)
           })
         }
       },

@@ -2,11 +2,11 @@ import { randomUUID } from 'crypto'
 import EventEmitter from 'events'
 import type Redis from 'ioredis'
 import type { ToClientMap } from '../../types'
+import { generateReturnQueue } from '../helper'
 
 export function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: { timeout?: number }): ToClientMap<S> {
   const ret = {} as any
-  const genQueue = (name: string) => `PS:${name}`
-  const genReturnQueue = (name: string) => `${name}/return`
+
   const existQueue = new Set<string>()
   const emitter = new EventEmitter()
 
@@ -16,12 +16,12 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-        const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('*') && !rpc.includes('redis'))
-          throw new Error(`"${p}" in "${i}" doesn't support redis`)
+        let { tag, queue, isEvent } = target[p]()
+
         return async (...args: any) => {
-          const queue = genQueue(tag)
-          const returnQueue = genReturnQueue(queue)
+          if (!queue)
+            queue = tag
+          const returnQueue = generateReturnQueue(queue)
 
           if (!isEvent) {
             if (!existQueue.has(returnQueue)
@@ -36,6 +36,7 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
           pub.publish(queue, JSON.stringify({
             args,
             id,
+            tag,
             method: p,
           }))
           if (isEvent)

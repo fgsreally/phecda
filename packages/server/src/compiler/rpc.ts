@@ -20,15 +20,13 @@ class Compiler {
     const {
       rpc, name, method, tag,
     } = args
-    if (!rpc || !rpc.type)
+    if (!rpc)
       return
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][method] = `
     ${method}(){
-      return {tag:'${tag as string}',isEvent:${!!rpc.isEvent},rpc:[${rpc.type.reduce((p, c) => {
-        return `${p}"${c}",`
-      }, '')}]}
+      return {tag:'${tag as string}',method:"${method}",isEvent:${!!rpc.isEvent},queue:"${rpc.queue || ''}"}
 
     }
     `
