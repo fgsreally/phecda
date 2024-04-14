@@ -19,7 +19,7 @@ export interface BullmqCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(kafka: Kafka, topic: string, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
+export async function bind(kafka: Kafka,  { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
   const metaMap = new Map<string, Meta>()
 
   const { globalGuards = [], globalInterceptors = [] } = opts || {}

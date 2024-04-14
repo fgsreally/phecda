@@ -8,6 +8,7 @@ import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
 
 export interface H3Ctx extends P.HttpContext {
   type: 'h3'
@@ -37,27 +38,33 @@ export interface Options {
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
 
-  IS_DEV && isAopDepInject(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  });
-
   (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const prePlugin = defineRequestMiddleware((event) => {
     (event as any)[MODULE_SYMBOL] = moduleMap;
     (event as any)[META_SYMBOL] = meta
   })
-  const metaMap = new Map<string, Meta>()
+
+  function detect() {
+    IS_DEV && isAopDepInject(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
+  }
+
+  const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
       const { tag, method, http } = item.data
       if (!http?.type)
         continue
-      const methodTag = `${tag as string}-${method}`
-      metaMap.set(methodTag, item)
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
     }
   }
 
@@ -79,12 +86,11 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
-              const { tag } = item
-              const meta = metaMap.get(tag)!
+              const { tag, method } = item
+              const meta = metaMap.get(tag)![method]
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              const [name, method] = tag.split('-')
               const {
                 paramsType,
                 data: {
@@ -94,9 +100,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                   filter,
                   ctx,
                 },
-              } = metaMap.get(tag)!
+              } = meta
 
-              const instance = moduleMap.get(name)
+              const instance = moduleMap.get(tag)
               const contextData = {
                 type: 'h3' as const,
                 index: i,
@@ -104,6 +110,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 meta,
                 moduleMap,
                 tag,
+                method,
                 data: (event as any).data,
                 ...argToReq(params, item.args, getRequestHeaders(event)),
               }
@@ -119,7 +126,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 })) as any
                 if (ctx)
                   instance[ctx] = contextData
-                const funcData = await moduleMap.get(name)[method](...args)
+                const funcData = await instance[method](...args)
                 resolve(await context.usePostInterceptor(funcData))
               }
               catch (e: any) {
@@ -141,8 +148,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      const methodTag = `${tag as string}-${method}`
-
       const {
         paramsType,
         data: {
@@ -153,7 +158,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           filter,
           ctx,
         },
-      } = metaMap.get(methodTag)!
+      } = metaMap.get(tag)![method]
 
       const needBody = params.some(item => item.type === 'body')
       router[http.type](http.route, eventHandler({
@@ -166,7 +171,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             meta: i,
             event,
             moduleMap,
-            tag: methodTag,
+            tag,
+            method,
             headers: getRequestHeaders(event) as IncomingHttpHeaders,
             params: getRouterParams(event),
             query: getQuery(event),
@@ -204,16 +210,12 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
+  detect()
   handleMeta()
   createRoute()
-  if (IS_DEV) {
-    globalThis.__PS_HMR__?.push(async () => {
-      isAopDepInject(meta, {
-        plugins,
-        guards: globalGuards,
-        interceptors: globalInterceptors,
-      })
-      handleMeta()
-    })
-  }
+
+  HMR(async () => {
+    detect()
+    handleMeta()
+  })
 }

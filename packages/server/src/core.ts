@@ -230,7 +230,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       log(`can't use Tag with ${typeof tag} on http/rpc controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
 
     meta.name = name
-    meta.tag = tag
+    meta.tag = tag as string
     meta.method = i as string
     const params = [] as any[]
     for (const i of state.params || []) {

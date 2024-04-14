@@ -6,6 +6,7 @@ import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, isAopDepInject } from '../../context'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
 
 export interface FastifyCtx extends P.HttpContext {
   type: 'fastify'
@@ -39,24 +40,30 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
   (app as any).server[PS_SYMBOL] = { moduleMap, meta }
 
-  IS_DEV && isAopDepInject(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
+  function detect() {
+    IS_DEV && isAopDepInject(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
+  }
 
-  const metaMap = new Map<string, Meta>()
+  const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
       const { tag, method, http } = item.data
       if (!http?.type)
         continue
-      const methodTag = `${tag as string}-${method}`
-      metaMap.set(methodTag, item)
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
     }
   }
 
+  detect()
   handleMeta()
 
   return (fastify, _, done) => {
@@ -92,13 +99,12 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
           return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
-              const { tag } = item
-              const meta = metaMap.get(tag)
+              const { tag, method } = item
+              const meta = metaMap.get(tag)![method]
 
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              const [name, method] = tag.split('-')
               const {
                 paramsType,
 
@@ -111,7 +117,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 },
               } = meta
 
-              const instance = moduleMap.get(name)
+              const instance = moduleMap.get(tag)
               const contextData = {
                 type: 'fastify' as const,
                 request: req,
@@ -120,6 +126,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 response: res,
                 moduleMap,
                 tag,
+                method,
                 data: (req as any).data,
 
                 ...argToReq(params, item.args, req.headers),
@@ -140,7 +147,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 })) as any
                 if (ctx)
                   instance[ctx] = contextData
-                const funcData = await moduleMap.get(name)[method](...args)
+                const funcData = await instance[method](...args)
                 resolve(await context.usePostInterceptor(funcData))
               }
               catch (e: any) {
@@ -165,8 +172,6 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
       if (!http?.type)
         continue
 
-      const methodTag = `${tag as string}-${method}`
-
       const {
         paramsType,
         data: {
@@ -178,7 +183,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
           ctx,
           define,
         },
-      } = metaMap.get(methodTag)!
+      } = metaMap.get(tag)![method]
 
       fastify.register((fastify, _opts, done) => {
         Context.usePlugin(plugins).forEach((p) => {
@@ -196,7 +201,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
             meta: i,
             response: res,
             moduleMap,
-            tag: methodTag,
+            tag,
+            method,
             query: req.query as any,
             body: req.body as any,
             params: req.params as any,
@@ -242,15 +248,9 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
 
     done()
 
-    if (IS_DEV) {
-      globalThis.__PS_HMR__?.push(async () => {
-        isAopDepInject(meta, {
-          plugins,
-          guards: globalGuards,
-          interceptors: globalInterceptors,
-        })
-        handleMeta()
-      })
-    }
+    HMR(async () => {
+      detect()
+      handleMeta()
+    })
   }
 }

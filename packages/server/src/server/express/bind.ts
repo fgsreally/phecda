@@ -37,24 +37,28 @@ export interface Options {
 
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
-  IS_DEV && isAopDepInject(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  });
-
+  function detect() {
+    IS_DEV && isAopDepInject(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
+  }
   (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const originStack = router.stack.slice(0, router.stack.length)
-  const metaMap = new Map<string, Meta>()
+  const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
       const { tag, method, http } = item.data
       if (!http?.type)
         continue
-      const methodTag = `${tag as string}-${method}`
-      metaMap.set(methodTag, item)
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
     }
   }
 
@@ -80,12 +84,11 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
-            const { tag } = item
-            const meta = metaMap.get(tag)
+            const { tag, method } = item
+            const meta = metaMap.get(tag)![method]
             if (!meta)
               return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-            const [name, method] = tag.split('-')
             const {
               paramsType,
 
@@ -97,7 +100,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               },
             } = meta
 
-            const instance = moduleMap.get(name)
+            const instance = moduleMap.get(tag)
 
             const contextData = {
               type: 'express' as const,
@@ -107,6 +110,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               response: res,
               moduleMap,
               tag,
+              method,
               next,
               data: (req as any).data,
               ...argToReq(params, item.args, req.headers),
@@ -123,7 +127,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               })) as any
               if (ctx)
                 instance[ctx] = contextData
-              const funcData = await moduleMap.get(name)[method](...args)
+              const funcData = await instance[method](...args)
               resolve(await context.usePostInterceptor(funcData))
             }
             catch (e: any) {
@@ -144,8 +148,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      const methodTag = `${tag as string}-${method}`
-
       const {
         paramsType,
         data: {
@@ -156,7 +158,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           plugins,
           filter,
         },
-      } = metaMap.get(methodTag)!;
+      } = metaMap.get(tag)![method];
 
       (router as Express)[http.type](http.route, (req, _res, next) => {
         (req as any)[MODULE_SYMBOL] = moduleMap;
@@ -171,7 +173,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           response: res,
           moduleMap,
           parallel: false,
-          tag: methodTag,
+          tag,
+          method,
           query: req.query,
           body: req.body,
           params: req.params,
@@ -223,16 +226,13 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
+  detect()
   handleMeta()
   createRoute()
 
   HMR(async () => {
-    isAopDepInject(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
     router.stack = originStack// router.stack.slice(0, 1)
+    detect()
     handleMeta()
     createRoute()
   })
