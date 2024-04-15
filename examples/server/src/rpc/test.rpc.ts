@@ -1,14 +1,15 @@
 /* eslint-disable no-console */
-import { Arg, Event, Rpc } from 'phecda-server'
+import { Arg, Queue, Rpc } from 'phecda-server'
 
-@Rpc('redis', 'mq')
+@Rpc()
 export class TestRpc {
   run(@Arg() arg: string) {
     console.log(`arg is ${arg}`)
     return arg
   }
 
-  @Event()
+  @Queue('test')
+  @Rpc(true)
   event(@Arg() arg: string) {
     console.log(`arg is ${arg}`)
   }

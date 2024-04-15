@@ -2,37 +2,45 @@ import { EventEmitter } from 'events'
 import { randomUUID } from 'crypto'
 import type amqplib from 'amqplib'
 import type { ToClientMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, queue: string, controllers: S): Promise<ToClientMap<S>> {
+import { generateReturnQueue } from '../helper'
+export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S, opts?: { timeout?: number }): Promise<ToClientMap<S>> {
   const ret = {} as any
   const emitter = new EventEmitter()
-  const uniQueue = `PS:${queue}-${randomUUID()}`
 
-  await ch.assertQueue(uniQueue)
-  ch.consume(uniQueue, (msg) => {
-    if (!msg)
-      return
-    const { data, id, error } = JSON.parse(msg.content.toString())
-    emitter.emit(id, data, error)
-  })
+  const existQueue = new Set<string>()
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
       get(target, p: string) {
-        const id = randomUUID()
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-        const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('rabbitmq'))
-          throw new Error(`"${p}" in "${i}" doesn't support rabbitmq`)
-        return (...args: any) => {
+        let { tag, queue, isEvent } = target[p]()
+
+        return async (...args: any) => {
+          if (!queue)
+            queue = tag
+          const returnQueue = generateReturnQueue(queue)
+
+          if (!isEvent && !existQueue.has(returnQueue)) {
+            existQueue.add(returnQueue)
+            await ch.assertQueue(returnQueue)
+            ch.consume(returnQueue, (msg) => {
+              if (!msg)
+                return
+              const { data, id, error } = JSON.parse(msg.content.toString())
+              emitter.emit(id, data, error)
+            })
+          }
+          const id = isEvent ? '' : randomUUID()
+
           ch.sendToQueue(queue, Buffer.from(
             JSON.stringify(
               {
                 id,
-                tag,
                 args,
-                queue: isEvent ? undefined : uniQueue,
+                tag,
+                method: p,
               },
             ),
           ))
@@ -40,12 +48,21 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
             return null
 
           return new Promise((resolve, reject) => {
-            emitter.once(id, (data: any, error: boolean) => {
+            const timer = setTimeout(() => {
+              emitter.off(id, listener)
+              // eslint-disable-next-line prefer-promise-reject-errors
+              reject({ message: 'timeout' })
+            }, opts?.timeout || 5000)
+
+            function listener(data: any, error: boolean) {
+              clearTimeout(timer)
               if (error)
                 reject(data)
 
-              else resolve(data)
-            })
+              else
+                resolve(data)
+            }
+            emitter.once(id, listener)
           })
         }
       },

@@ -6,8 +6,8 @@ export interface MetaData {
     route: string
   }
   rpc?: {
-    type: string[]
-    isEvent: boolean
+    queue?: string
+    isEvent?: boolean
   }
   ctx?: string
   define?: any
@@ -19,7 +19,7 @@ export interface MetaData {
   plugins: string[]
   method: string
   name: string
-  tag: PropertyKey
+  tag: string
 }
 
 export class Meta {

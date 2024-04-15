@@ -38,21 +38,7 @@ export function Delete(route = '') {
 export function Controller(route = '') {
   return Route(route)
 }
-export function Rpc(...types: ('rabbitmq' | 'redis' | 'kafka' | string)[]) {
-  return (target: any, key?: PropertyKey) => {
-    if (!key)
-      key = SHARE_KEY
-    target = key === SHARE_KEY ? target.prototype : target
-    setStateKey(target, key)
-    const state = getOwnState(target, key)
-    if (!state.rpc)
-      state.rpc = {}
-
-    state.rpc.type = types
-    setState(target, key, state)
-  }
-}
-export function Event(isEvent = true) {
+export function Rpc(isEvent = false) {
   return (target: any, key?: PropertyKey) => {
     if (!key)
       key = SHARE_KEY
@@ -64,5 +50,16 @@ export function Event(isEvent = true) {
 
     state.rpc.isEvent = isEvent
     setState(target, key, state)
+  }
+}
+export function Queue(queue: string) {
+  return (target: any, key?: PropertyKey) => {
+    if (!key)
+      key = SHARE_KEY
+    target = key === SHARE_KEY ? target.prototype : target
+    setStateKey(target, key)
+    const state = getOwnState(target, key)
+
+    state.rpc.queue = queue
   }
 }

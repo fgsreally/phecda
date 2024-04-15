@@ -9,6 +9,7 @@ export namespace P {
     parallel?: boolean
     type: string
     tag: string
+    method: string
     [key: string]: any
 
   }

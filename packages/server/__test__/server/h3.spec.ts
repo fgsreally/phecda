@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import { createApp as createH3, createRouter, toNodeListener } from 'h3'
-import type { H3Ctx, Options } from '../../src/server/h3'
+import type { H3Ctx } from '../../src/server/h3'
+import type { ServerOptions as Options } from '../../src'
+
 import { bind } from '../../src/server/h3'
 import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe, addPlugin } from '../../src'
 import { Test } from '../fixtures/test.controller'
@@ -25,10 +27,13 @@ describe('h3 ', () => {
 
     const res3 = await request(app).post('/__PHECDA_SERVER__').send([
       {
-        tag: 'Test-post',
+        tag: 'Test',
+        method: 'post',
         args: ['phecda', 'server', '1'],
       }, {
-        tag: 'Test-get',
+        tag: 'Test',
+        method: 'get',
+
         args: [],
       },
 
@@ -70,7 +75,8 @@ describe('h3 ', () => {
     await request(app).get('/plugin')
     expect(fn).toHaveBeenCalledTimes(1)
     await request(app).post('/__PHECDA_SERVER__').send([{
-      tag: 'Test-plugin',
+      tag: 'Test',
+      method: 'plugin',
       args: [],
     }])
 
@@ -117,11 +123,14 @@ describe('h3 ', () => {
     await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
-          tag: 'Test-aop',
+          tag: 'Test',
+          method: 'aop',
           args: ['test1'],
         },
         {
-          tag: 'Test-aop',
+          tag: 'Test',
+          method: 'aop',
+
           args: ['test2'],
         },
       ],
@@ -146,11 +155,15 @@ describe('h3 ', () => {
     await request(app).post('/__PHECDA_SERVER__').send(
       [
         {
-          tag: 'Test-all',
+          tag: 'Test',
+          method: 'all',
+
           args: ['test', { name: 'test' }, '1'],
         },
         {
-          tag: 'Test-all',
+          tag: 'Test',
+          method: 'all',
+
           args: ['test', { name: 'test' }, '2'],
         },
       ],

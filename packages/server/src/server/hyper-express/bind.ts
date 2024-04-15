@@ -1,11 +1,14 @@
 import type { Request, Response, Router } from 'hyper-express'
+import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { IS_DEV, MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
+import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context, isAopDepInject } from '../../context'
+import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
+import { log } from '../../utils'
 
 export interface HyperExpressCtx extends P.HttpContext {
   type: 'hyper-express'
@@ -13,49 +16,33 @@ export interface HyperExpressCtx extends P.HttpContext {
   response: Response
   next: Function
 }
-export interface Options {
 
-  /**
- * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
- */
-  route?: string
-  /**
- * 全局守卫
- */
-  globalGuards?: string[]
-  /**
- * 全局拦截器
- */
-  globalInterceptors?: string[]
-  /**
- * 专用路由的插件(work for merge request)，
- */
-  plugins?: string[]
-
-}
-
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
-  IS_DEV && isAopDepInject(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  });
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
 
   (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
-  const metaMap = new Map<string, Meta>()
+  const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, http } = item.data
+      const { tag, method, http, guards, interceptors } = item.data
       if (!http?.type)
         continue
-      const methodTag = `${tag as string}-${method}`
-      metaMap.set(methodTag, item)
+
+      log(`"${method}" in "${tag}":`)
+      detectAopDep(meta, {
+        plugins,
+        guards,
+        interceptors,
+      })
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
     }
   }
-
   async function createRoute() {
     router.post(route, {
       middlewares: [
@@ -82,12 +69,11 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
-            const { tag } = item
-            const meta = metaMap.get(tag)
+            const { tag, method } = item
+            const meta = metaMap.get(tag)![method]
             if (!meta)
               return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-            const [name, method] = tag.split('-')
             const {
               paramsType,
 
@@ -99,7 +85,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               },
             } = meta
 
-            const instance = moduleMap.get(name)
+            const instance = moduleMap.get(tag)
 
             const contextData = {
               type: 'hyper-express' as const,
@@ -109,6 +95,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               response: res,
               moduleMap,
               tag,
+              method,
               next,
               data: (req as any).data,
               ...argToReq(params, item.args, req.headers),
@@ -125,7 +112,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               })) as any
               if (ctx)
                 instance[ctx] = contextData
-              const funcData = await moduleMap.get(name)[method](...args)
+              const funcData = await instance[method](...args)
               resolve(await context.usePostInterceptor(funcData))
             }
             catch (e: any) {
@@ -146,8 +133,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      const methodTag = `${tag as string}-${method}`
-
       const {
         paramsType,
         data: {
@@ -158,7 +143,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           plugins,
           filter,
         },
-      } = metaMap.get(methodTag)!
+      } = metaMap.get(tag)![method]
+
       const needBody = params.some(item => item.type === 'body')
 
       router[http.type](http.route, (req, _res, next) => {
@@ -174,7 +160,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           response: res,
           moduleMap,
           parallel: false,
-          tag: methodTag,
+          tag,
+          method,
           query: req.query_parameters,
           body: needBody ? await req.json({}) : undefined,
 
@@ -227,18 +214,21 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
 
+  detectAopDep(meta, {
+    plugins,
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
   handleMeta()
   createRoute()
 
-  if (IS_DEV) {
-    globalThis.__PS_HMR__?.push(async () => {
-      isAopDepInject(meta, {
-        plugins,
-        guards: globalGuards,
-        interceptors: globalInterceptors,
-      })
-      handleMeta()
-    //   createRoute()
+  HMR(() => {
+    detectAopDep(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
     })
-  }
+
+    handleMeta()
+  })
 }

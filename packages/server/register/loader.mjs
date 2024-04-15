@@ -1,11 +1,12 @@
 import { fileURLToPath, pathToFileURL } from 'url'
 import { writeFile } from 'fs/promises'
-import { extname, isAbsolute, relative } from 'path'
+import { extname, isAbsolute, relative, resolve as resolvePath } from 'path'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { PS_FILE_RE, log } from '../dist/index.mjs'
 import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
 let port
+
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.18
 // this part is important or not?
 const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
@@ -30,12 +31,21 @@ const dtsPath = 'ps.d.ts'
 if (isLowVersion)
   await initialize()
 
+let httpCodeUrl
+let rpcCodeUrl
+
 export async function initialize(data) {
   if (data)
     port = data.port
 
   if (process.env.PS_UNIMPORT_BAN)
     return
+
+  if (process.env.PS_HTTP_CODE)
+    httpCodeUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_HTTP_CODE)).href
+
+  if (process.env.PS_RPC_CODE)
+    rpcCodeUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_RPC_CODE)).href
 
   unimportRet = await genUnImportRet()
 
@@ -111,6 +121,22 @@ export const resolve = async (specifier, context, nextResolve) => {
       pathToFileURL(resolvedModule.resolvedFileName).href,
       context.parentURL.split('?')[0],
     )
+
+    if (rpcCodeUrl && /\.client\.ts$/.test(context.parentURL) && /\.rpc\.ts$/.test(resolvedModule.resolvedFileName)) {
+      return {
+        format: 'ts',
+        url: rpcCodeUrl,
+        shortCircuit: true,
+      }
+    }
+
+    if (httpCodeUrl && /\.http\.ts$/.test(context.parentURL) && /\.controller\.ts$/.test(resolvedModule.resolvedFileName)) {
+      return {
+        format: 'ts',
+        url: httpCodeUrl,
+        shortCircuit: true,
+      }
+    }
 
     return {
       format: 'ts',

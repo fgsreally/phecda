@@ -1,56 +1,78 @@
 import { randomUUID } from 'crypto'
 import EventEmitter from 'events'
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import type { ToClientMap } from '../../types'
+import { generateReturnQueue } from '../helper'
 
-export function createClient<S extends Record<string, any>>(redis: Redis, queue: string, controllers: S): ToClientMap<S> {
+export function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: { timeout?: number }): ToClientMap<S> {
   const ret = {} as any
-  const sub = new Redis(redis.options)
-  const uniQueue = `PS:${queue}-${randomUUID()}`
 
+  const existQueue = new Set<string>()
   const emitter = new EventEmitter()
-  sub.subscribe(uniQueue)
-
-  sub.on('message', (_, msg) => {
-    const { data, id, error } = JSON.parse(msg)
-    emitter.emit(id, data, error)
-  })
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
       get(target, p: string) {
-        return (...args: any) => {
-          const id = randomUUID()
-          if (typeof target[p] !== 'function')
-            throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
+        if (typeof target[p] !== 'function')
+          throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-          const { tag, rpc, isEvent } = target[p]()
-          if (!rpc.includes('redis'))
-            throw new Error(`"${p}" in "${i}" doesn't support redis`)
+        let { tag, queue, isEvent } = target[p]()
 
-          redis.publish(queue, JSON.stringify({
+        return async (...args: any) => {
+          if (!queue)
+            queue = tag
+          const returnQueue = generateReturnQueue(queue)
+
+          if (!isEvent) {
+            if (!existQueue.has(returnQueue)
+            ) {
+              existQueue.add(returnQueue)
+              await sub.subscribe(returnQueue)
+            }
+          }
+
+          const id = isEvent ? '' : randomUUID()
+
+          pub.publish(queue, JSON.stringify({
             args,
             id,
             tag,
-            queue: isEvent ? undefined : uniQueue,
-
+            method: p,
           }))
           if (isEvent)
             return null
 
           return new Promise((resolve, reject) => {
-            emitter.once(id, (data, error) => {
+            const timer = setTimeout(() => {
+              emitter.off(id, listener)
+              // eslint-disable-next-line prefer-promise-reject-errors
+              reject({ message: 'timeout' })
+            }, opts?.timeout || 5000)
+
+            function listener(data: any, error: boolean) {
+              clearTimeout(timer)
               if (error)
                 reject(data)
 
               else
                 resolve(data)
-            })
+            }
+            emitter.once(id, listener)
           })
         }
       },
     })
   }
+
+  sub.on('message', async (channel, msg) => {
+    if (existQueue.has(channel)) {
+      if (!msg)
+        return
+      const { data, id, error } = JSON.parse(msg)
+
+      emitter.emit(id, data, error)
+    }
+  })
 
   return ret
 }

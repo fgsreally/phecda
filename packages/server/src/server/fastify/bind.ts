@@ -1,63 +1,62 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
+import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { IS_DEV, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
+import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
-import { Context, isAopDepInject } from '../../context'
+import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
+import { HMR } from '../../hmr'
+import { log } from '../../utils'
 
 export interface FastifyCtx extends P.HttpContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
-
-}
-export interface Options {
-
-  /**
- * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
- */
-  route?: string
-  /**
- * 全局守卫
- */
-  globalGuards?: string[]
-  /**
- * 全局拦截器
- */
-  globalInterceptors?: string[]
-
-  /**
- * 专用路由的插件(work for merge request)，
- */
-  plugins?: string[]
-
 }
 
-export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, options: Options = {}): FastifyPluginCallback {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...options } as Required<Options>
+export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}): FastifyPluginCallback {
+  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
   (app as any).server[PS_SYMBOL] = { moduleMap, meta }
 
-  IS_DEV && isAopDepInject(meta, {
+  const metaMap = new Map<string, Record<string, Meta>>()
+  function handleMeta() {
+    metaMap.clear()
+    for (const item of meta) {
+      const { tag, method, http, guards, interceptors } = item.data
+      if (!http?.type)
+        continue
+
+      log(`"${method}" in "${tag}": `)
+      detectAopDep(meta, {
+        plugins,
+        guards,
+        interceptors,
+      })
+      if (metaMap.has(tag))
+        metaMap.get(tag)![method] = item
+
+      else
+        metaMap.set(tag, { [method]: item })
+    }
+  }
+
+  detectAopDep(meta, {
     plugins,
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
-
-  const metaMap = new Map<string, Meta>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, method, http } = item.data
-      if (!http?.type)
-        continue
-      const methodTag = `${tag as string}-${method}`
-      metaMap.set(methodTag, item)
-    }
-  }
-
   handleMeta()
+
+  HMR(async () => {
+    detectAopDep(meta, {
+      plugins,
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
+    handleMeta()
+  })
 
   return (fastify, _, done) => {
     (fastify as any)[PS_SYMBOL] = {
@@ -92,13 +91,12 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
           return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
-              const { tag } = item
-              const meta = metaMap.get(tag)
+              const { tag, method } = item
+              const meta = metaMap.get(tag)![method]
 
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
 
-              const [name, method] = tag.split('-')
               const {
                 paramsType,
 
@@ -111,7 +109,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 },
               } = meta
 
-              const instance = moduleMap.get(name)
+              const instance = moduleMap.get(tag)
               const contextData = {
                 type: 'fastify' as const,
                 request: req,
@@ -120,6 +118,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 response: res,
                 moduleMap,
                 tag,
+                method,
                 data: (req as any).data,
 
                 ...argToReq(params, item.args, req.headers),
@@ -140,7 +139,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 })) as any
                 if (ctx)
                   instance[ctx] = contextData
-                const funcData = await moduleMap.get(name)[method](...args)
+                const funcData = await instance[method](...args)
                 resolve(await context.usePostInterceptor(funcData))
               }
               catch (e: any) {
@@ -165,8 +164,6 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
       if (!http?.type)
         continue
 
-      const methodTag = `${tag as string}-${method}`
-
       const {
         paramsType,
         data: {
@@ -178,7 +175,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
           ctx,
           define,
         },
-      } = metaMap.get(methodTag)!
+      } = metaMap.get(tag)![method]
 
       fastify.register((fastify, _opts, done) => {
         Context.usePlugin(plugins).forEach((p) => {
@@ -196,7 +193,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
             meta: i,
             response: res,
             moduleMap,
-            tag: methodTag,
+            tag,
+            method,
             query: req.query as any,
             body: req.body as any,
             params: req.params as any,
@@ -241,16 +239,5 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
     }
 
     done()
-
-    if (IS_DEV) {
-      globalThis.__PS_HMR__?.push(async () => {
-        isAopDepInject(meta, {
-          plugins,
-          guards: globalGuards,
-          interceptors: globalInterceptors,
-        })
-        handleMeta()
-      })
-    }
   }
 }

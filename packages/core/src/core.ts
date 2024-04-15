@@ -199,7 +199,6 @@ export function invokeHandler(event: string, module: Phecda) {
 export function set(proto: any, key: string, value: any) {
   init(proto)
   proto[`__${key.toUpperCase()}__`] = value
-  // setState(proto, SHARE_KEY, { [`__${key.toUpperCase()}__`]: value })
 }
 
 export function get(proto: any, key: string) {

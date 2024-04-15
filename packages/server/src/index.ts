@@ -6,8 +6,11 @@ export * from './exception'
 export * from './pipe'
 export * from './meta'
 export * from 'phecda-core'
-export * from './server/helper'
 export * from './common'
 export * from './modules'
 export * from './compiler'
 export * from './utils'
+
+// for custom framework bind
+export * from './rpc/helper'
+export * from './server/helper'

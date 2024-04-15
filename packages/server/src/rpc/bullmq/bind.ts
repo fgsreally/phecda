@@ -1,14 +1,17 @@
-import type { Consumer, Producer } from 'kafkajs'
+import type { Kafka } from 'kafkajs'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
+import { BadRequestException } from '../../exception'
 import { Context, detectAopDep } from '../../context'
+import { IS_DEV } from '../../common'
 import type { P } from '../../types'
-import { HMR } from '../../hmr'
-import type { RpcOptions } from '../helper'
-import { generateReturnQueue } from '../helper'
 
-export interface KafkaCtx extends P.BaseContext {
-  type: 'kafka'
+export interface Options {
+  globalGuards?: string[]
+  globalInterceptors?: string[]
+}
+export interface BullmqCtx extends P.BaseContext {
+  type: 'bullmq'
   topic: string
   partition: number
   heartbeat(): Promise<void>
@@ -16,86 +19,83 @@ export interface KafkaCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
+export async function bind(kafka: Kafka, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: Options) {
+  const metaMap = new Map<string, Meta>()
+
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
+  const producer = kafka.producer()
   await producer.connect()
+
+  const consumer = kafka.consumer({ groupId: 'phecda-server' })
   await consumer.connect()
 
-  const metaMap = new Map<string, Record<string, Meta>>()
-  const existQueue = new Set<string>()
+  await consumer.subscribe({ topic, fromBeginning: true })
+
   function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, method, rpc, interceptors, guards } = item.data
-      if (!rpc)
-        continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
-      if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+    IS_DEV && detectAopDep(meta, {
+      guards: globalGuards,
+      interceptors: globalInterceptors,
+    })
 
-      else
-        metaMap.set(tag, { [method]: item })
+    for (const item of meta) {
+      const { data: { rpc, method, name } } = item
+
+      if (rpc?.type && rpc.type.includes('kafka'))
+        metaMap.set(`${name}-${method}`, item)
     }
   }
 
-  async function subscribeQueues() {
-    existQueue.clear()
-
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
-      if (rpc) {
-        const queue = rpc.queue || tag
-        existQueue.add(queue)
-        await consumer.subscribe({ topic: queue, fromBeginning: true })
-      }
-    }
-  }
-
+  handleMeta()
   await consumer.run({
     eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
-      if (!existQueue.has(topic))
-        return
-
       const data = JSON.parse(message.value!.toString())
-      const { tag, method, args, id } = data
-      const meta = metaMap.get(tag)![method]
-      const returnQueue = generateReturnQueue(topic)
-      const {
-        data: {
-          guards, interceptors, params, name, filter, ctx, rpc,
-        },
-        paramsType,
-      } = meta
-      const isEvent = rpc!.isEvent
+      const { tag, args, queue, id } = data
 
-      const context = new Context<KafkaCtx>({
-        type: 'kafka',
+      if (!metaMap.has(tag)) {
+        if (queue) {
+          producer.send({
+            topic: queue,
+            messages: [
+              {
+                value: JSON.stringify({
+                  data: new BadRequestException(`service "${tag}" doesn't exist`).data,
+                  error: true,
+                  id,
+                }),
+              },
+            ],
+          })
+        }
+
+        return
+      }
+
+      const meta = metaMap.get(tag)!
+      const context = new Context<BullmqCtx>({
+        type: 'bullmq',
         moduleMap,
         meta,
         tag,
-        method,
         partition,
         topic,
         heartbeat,
         pause,
         data,
       })
-
+      const {
+        data: {
+          guards, interceptors, params, name, method, filter, ctx,
+        },
+        paramsType,
+      } = meta
       try {
         await context.useGuard([...globalGuards, ...guards])
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
-          if (!isEvent) {
+          if (queue) {
             producer.send({
-              topic: returnQueue,
+              topic: queue,
               messages: [
                 { value: JSON.stringify({ data: cache, id }) },
               ],
@@ -115,9 +115,9 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
         const ret = await context.usePostInterceptor(funcData)
 
-        if (!isEvent) {
+        if (queue) {
           producer.send({
-            topic: returnQueue,
+            topic: queue,
             messages: [
               { value: JSON.stringify({ data: ret, id }) },
             ],
@@ -126,9 +126,9 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)
-        if (!isEvent) {
+        if (queue) {
           producer.send({
-            topic: returnQueue,
+            topic: queue,
             messages: [
               {
                 value: JSON.stringify({
@@ -144,19 +144,9 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     },
   })
 
-  detectAopDep(meta, {
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-  handleMeta()
-  subscribeQueues()
-
-  HMR(async () => {
-    detectAopDep(meta, {
-      guards: globalGuards,
-      interceptors: globalInterceptors,
+  if (IS_DEV) {
+    globalThis.__PS_HMR__?.push(async () => {
+      handleMeta()
     })
-    handleMeta()
-    subscribeQueues()
-  })
+  }
 }
