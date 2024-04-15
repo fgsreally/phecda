@@ -1,5 +1,11 @@
 # phecda-react
 
+## 0.1.0-beta.18
+
+### Patch Changes
+
+- c258596: fix hmr problem
+
 ## 0.1.0-beta.17
 
 ### Patch Changes

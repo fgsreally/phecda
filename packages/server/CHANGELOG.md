@@ -1,5 +1,14 @@
 # phecda-server
 
+## 5.0.0-beta.25
+
+### Patch Changes
+
+- 26f29d7: loader can redirect import path to http/rpc code path(only when set env PS_HTTP_CODE/PS_RPC_CODE),it will be helpful for types
+- 12d8d62: refactor parallel route; tag in PS must be string;all context should has both tag and method
+- 9c89c0e: refactor rpc, add Queue to support custom queue;(methods on the same module use the same queue in default)
+  add timeout for rpc client
+
 ## 5.0.0-beta.24
 
 ### Patch Changes
