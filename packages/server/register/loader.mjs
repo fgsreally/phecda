@@ -31,8 +31,8 @@ const dtsPath = 'ps.d.ts'
 if (isLowVersion)
   await initialize()
 
-let httpCodeFileUrl
-let rpcCodeFileUrl
+let httpCodeUrl
+let rpcCodeUrl
 
 export async function initialize(data) {
   if (data)
@@ -42,10 +42,10 @@ export async function initialize(data) {
     return
 
   if (process.env.PS_HTTP_CODE)
-    httpCodeFileUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_HTTP_CODE))
+    httpCodeUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_HTTP_CODE)).href
 
   if (process.env.PS_RPC_CODE)
-    rpcCodeFileUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_RPC_CODE))
+    rpcCodeUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_RPC_CODE)).href
 
   unimportRet = await genUnImportRet()
 
@@ -122,18 +122,18 @@ export const resolve = async (specifier, context, nextResolve) => {
       context.parentURL.split('?')[0],
     )
 
-    if (rpcCodeFileUrl && /\.client\.ts$/.test(context.parentURL) && /\.rpc\.ts$/.test(resolvedModule.resolvedFileName)) {
+    if (rpcCodeUrl && /\.client\.ts$/.test(context.parentURL) && /\.rpc\.ts$/.test(resolvedModule.resolvedFileName)) {
       return {
-        format: 'mjs',
-        url: rpcCodeFileUrl,
+        format: 'ts',
+        url: rpcCodeUrl,
         shortCircuit: true,
       }
     }
 
-    if (httpCodeFileUrl && /\.http\.ts$/.test(context.parentURL) && /\.controller\.ts$/.test(resolvedModule.resolvedFileName)) {
+    if (httpCodeUrl && /\.http\.ts$/.test(context.parentURL) && /\.controller\.ts$/.test(resolvedModule.resolvedFileName)) {
       return {
-        format: 'mjs',
-        url: httpCodeFileUrl,
+        format: 'ts',
+        url: httpCodeUrl,
         shortCircuit: true,
       }
     }
