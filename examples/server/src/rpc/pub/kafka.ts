@@ -1,14 +1,18 @@
 /* eslint-disable no-console */
-import { createClient } from 'phecda-server/rabbitmq'
-import amqp from 'amqplib'
+import { createClient } from 'phecda-server/kafka'
+import { Kafka } from 'kafkajs'
 // import { TestRpc } from '../test.rpc'
 import { TestRpc as Faker } from '../mq'
-
 export async function start() {
-  const conn = await amqp.connect('amqp://localhost:5672')
+  const kafka = new Kafka({
+    clientId: 'consumer',
+    brokers: ['kafka1:9092', 'kafka2:9092'],
+  })
 
-  const ch = await conn.createChannel()
-  const client = await createClient(ch, {
+  const producer = kafka.producer()
+  const consumer = kafka.consumer({ groupId: 'test-group' })
+
+  const client = await createClient(producer, consumer, {
     test: Faker,
   })
   const ret = await client.test.run('xx')

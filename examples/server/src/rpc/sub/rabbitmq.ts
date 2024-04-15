@@ -12,7 +12,7 @@ async function start() {
 
   const ch = await conn.createChannel()
 
-  bind(ch, 'test', data)
+  bind(ch, data)
 
   console.log('mq listen...')
 }

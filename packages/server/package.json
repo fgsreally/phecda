@@ -85,6 +85,9 @@
       ],
       "rabbitmq": [
         "dist/rpc/rabbitmq/index.d.ts"
+      ],
+      "kafka": [
+        "dist/rpc/kafka/index.d.ts"
       ]
     }
   },

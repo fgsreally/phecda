@@ -197,6 +197,9 @@ importers:
       ioredis:
         specifier: ^5.3.2
         version: 5.3.2
+      kafkajs:
+        specifier: ^2.2.4
+        version: 2.2.4
       koa:
         specifier: ^2.14.2
         version: 2.14.2
@@ -7975,7 +7978,7 @@ packages:
       range-parser: 1.2.1
       type-is: 1.6.18
       typed-emitter: 2.1.0
-      uWebSockets.js: git@github.com+uNetworking/uWebSockets.js/1977b5039938ad863d42fc4958d48c17e5a1fa06
+      uWebSockets.js: github.com/uNetworking/uWebSockets.js/1977b5039938ad863d42fc4958d48c17e5a1fa06
     dev: false
 
   /hyperid@3.1.1:
@@ -8581,7 +8584,6 @@ packages:
   /kafkajs@2.2.4:
     resolution: {integrity: sha512-j/YeapB1vfPT2iOIUn/vxdyKEuhuY2PxMBvf5JWux6iSaukAccrMtXEY/Lb7OvavDhOWME589bpLrEdnVHjfjA==}
     engines: {node: '>=14.0.0'}
-    dev: true
 
   /keygrip@1.1.0:
     resolution: {integrity: sha512-iYSchDJ+liQ8iwbSI2QqsQOvqv58eJCEanyJPJi+Khyu8smkcKSFUCbPwzFcL7YVtZ6eONjqRX/38caJ7QjRAQ==}
@@ -13596,8 +13598,8 @@ packages:
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
 
-  git@github.com+uNetworking/uWebSockets.js/1977b5039938ad863d42fc4958d48c17e5a1fa06:
-    resolution: {commit: 1977b5039938ad863d42fc4958d48c17e5a1fa06, repo: git@github.com:uNetworking/uWebSockets.js.git, type: git}
+  github.com/uNetworking/uWebSockets.js/1977b5039938ad863d42fc4958d48c17e5a1fa06:
+    resolution: {tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06}
     name: uWebSockets.js
     version: 20.43.0
     dev: false
