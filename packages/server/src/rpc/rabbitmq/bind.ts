@@ -49,6 +49,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
       } = item
       if (rpc) {
         const queue = rpc.queue || tag
+        if (existQueue.has(queue))
+          continue
         existQueue.add(queue)
         await ch.assertQueue(queue)
 

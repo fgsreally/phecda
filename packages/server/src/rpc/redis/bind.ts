@@ -49,6 +49,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       } = item
       if (rpc) {
         const queue = rpc.queue || tag
+        if (existQueue.has(queue))
+          continue
         existQueue.add(queue)
         await sub.subscribe(queue)
       }

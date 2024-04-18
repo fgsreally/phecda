@@ -53,6 +53,8 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       } = item
       if (rpc) {
         const queue = rpc.queue || tag
+        if (existQueue.has(queue))
+          continue
         existQueue.add(queue)
         await consumer.subscribe({ topic: queue, fromBeginning: true })
       }
