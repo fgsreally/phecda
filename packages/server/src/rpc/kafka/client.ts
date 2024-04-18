@@ -1,17 +1,18 @@
 import { EventEmitter } from 'events'
-import { randomUUID } from 'crypto'
 import type { Consumer, Producer } from 'kafkajs'
 import type { ToClientMap } from '../../types'
-import { generateReturnQueue } from '../helper'
-export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: { timeout?: number }): Promise<ToClientMap<S>> {
+import { genClientQueue } from '../helper'
+let eventId = 1
+export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: { timeout?: number }) {
   await producer.connect()
   await consumer.connect()
 
-  const ret = {} as any
+  const ret = {} as ToClientMap<S>
   const emitter = new EventEmitter()
 
-  const existQueue = new Set<string>()
+  const clientQueue = genClientQueue()
 
+  await consumer.subscribe({ topic: clientQueue, fromBeginning: true })
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
       get(target, p: string) {
@@ -23,13 +24,8 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
         return async (...args: any) => {
           if (!queue)
             queue = tag
-          const returnQueue = generateReturnQueue(queue)
-          if (!isEvent && !existQueue.has(returnQueue)) {
-            existQueue.add(returnQueue)
 
-            await consumer.subscribe({ topic: queue, fromBeginning: true })
-          }
-          const id = isEvent ? '' : randomUUID()
+          const id = `${eventId++}`
           producer.send({
             topic: queue,
             messages: [
@@ -37,6 +33,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
                 value: JSON.stringify({
                   id,
                   tag,
+                  queue: clientQueue,
                   method: p,
                   args,
                 }),
@@ -71,12 +68,11 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
   await consumer.run(
     {
       eachMessage: async ({ message, topic }) => {
-        if (!message.value || !existQueue.has(topic))
-          return
+        if (clientQueue === topic && message.value) {
+          const { data, id, error } = JSON.parse(message.value.toString())
 
-        const { data, id, error } = JSON.parse(message.value.toString())
-
-        emitter.emit(id, data, error)
+          emitter.emit(id, data, error)
+        }
       },
     },
   )

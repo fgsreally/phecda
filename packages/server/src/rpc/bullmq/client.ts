@@ -21,17 +21,17 @@ export async function createClient<S extends Record<string, any>>(Queue: Queue, 
           throw new Error(`"${p}" in "${i}" doesn't support bullmq`)
         return async (...args: any) => {
           const queue = genQueue(tag)
-          const returnQueue = genReturnQueue(queue)
+          const clientQueue = genReturnQueue(queue)
 
           if (!existQueue.has(queue)) {
             existQueue.add(queue)
 
             if (!isEvent) {
-              if (!existQueue.has(returnQueue)
+              if (!existQueue.has(clientQueue)
               ) {
-                existQueue.add(returnQueue)
+                existQueue.add(clientQueue)
                 // eslint-disable-next-line no-new
-                new Worker(returnQueue, async (job) => {
+                new Worker(clientQueue, async (job) => {
                   const { data, id, error } = job.data
                   emitter.emit(id!, data, error)
                 })

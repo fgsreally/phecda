@@ -135,6 +135,7 @@
   "dependencies": {
     "debug": "^4.3.4",
     "hyper-express": "^6.15.2",
+    "nats": "^2.22.0",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13"

@@ -4,8 +4,7 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import type { RpcOptions } from '../helper'
-import { generateReturnQueue } from '../helper'
+import type { RpcServerOptions } from '../helper'
 
 export interface KafkaCtx extends P.BaseContext {
   type: 'kafka'
@@ -16,7 +15,7 @@ export interface KafkaCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
+export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   await producer.connect()
@@ -67,9 +66,8 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         return
 
       const data = JSON.parse(message.value!.toString())
-      const { tag, method, args, id } = data
+      const { tag, method, args, id, queue: clientQueue } = data
       const meta = metaMap.get(tag)![method]
-      const returnQueue = generateReturnQueue(topic)
       const {
         data: {
           guards, interceptors, params, name, filter, ctx, rpc,
@@ -97,7 +95,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         if (cache !== undefined) {
           if (!isEvent) {
             producer.send({
-              topic: returnQueue,
+              topic: clientQueue,
               messages: [
                 { value: JSON.stringify({ data: cache, id }) },
               ],
@@ -119,7 +117,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
         if (!isEvent) {
           producer.send({
-            topic: returnQueue,
+            topic: clientQueue,
             messages: [
               { value: JSON.stringify({ data: ret, id }) },
             ],
@@ -130,7 +128,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         const ret = await context.useFilter(e, filter)
         if (!isEvent) {
           producer.send({
-            topic: returnQueue,
+            topic: clientQueue,
             messages: [
               {
                 value: JSON.stringify({

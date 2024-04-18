@@ -1,14 +1,17 @@
-import { randomUUID } from 'crypto'
 import EventEmitter from 'events'
 import type Redis from 'ioredis'
 import type { ToClientMap } from '../../types'
-import { generateReturnQueue } from '../helper'
+import { genClientQueue } from '../helper'
 
-export function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: { timeout?: number }): ToClientMap<S> {
-  const ret = {} as any
+let eventId = 1
 
-  const existQueue = new Set<string>()
+export async function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: { timeout?: number }) {
+  const ret = {} as ToClientMap<S>
+
   const emitter = new EventEmitter()
+  const clientQueue = genClientQueue()
+
+  await sub.subscribe(clientQueue)
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -21,21 +24,13 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
         return async (...args: any) => {
           if (!queue)
             queue = tag
-          const returnQueue = generateReturnQueue(queue)
 
-          if (!isEvent) {
-            if (!existQueue.has(returnQueue)
-            ) {
-              existQueue.add(returnQueue)
-              await sub.subscribe(returnQueue)
-            }
-          }
-
-          const id = isEvent ? '' : randomUUID()
+          const id = `${eventId++}`
 
           pub.publish(queue, JSON.stringify({
             args,
             id,
+            queue: clientQueue,
             tag,
             method: p,
           }))
@@ -65,9 +60,7 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
   }
 
   sub.on('message', async (channel, msg) => {
-    if (existQueue.has(channel)) {
-      if (!msg)
-        return
+    if (channel === clientQueue && msg) {
       const { data, id, error } = JSON.parse(msg)
 
       emitter.emit(id, data, error)

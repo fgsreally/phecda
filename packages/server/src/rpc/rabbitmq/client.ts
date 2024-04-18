@@ -1,13 +1,22 @@
 import { EventEmitter } from 'events'
-import { randomUUID } from 'crypto'
 import type amqplib from 'amqplib'
 import type { ToClientMap } from '../../types'
-import { generateReturnQueue } from '../helper'
-export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S, opts?: { timeout?: number }): Promise<ToClientMap<S>> {
-  const ret = {} as any
+import { genClientQueue } from '../helper'
+
+let eventId = 1
+export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S, opts?: { timeout?: number }) {
+  const ret = {} as ToClientMap<S>
   const emitter = new EventEmitter()
 
-  const existQueue = new Set<string>()
+  const clientQueue = genClientQueue()
+
+  await ch.assertQueue(clientQueue)
+  ch.consume(clientQueue, (msg) => {
+    if (!msg)
+      return
+    const { data, id, error } = JSON.parse(msg.content.toString())
+    emitter.emit(id, data, error)
+  })
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -20,19 +29,8 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
         return async (...args: any) => {
           if (!queue)
             queue = tag
-          const returnQueue = generateReturnQueue(queue)
 
-          if (!isEvent && !existQueue.has(returnQueue)) {
-            existQueue.add(returnQueue)
-            await ch.assertQueue(returnQueue)
-            ch.consume(returnQueue, (msg) => {
-              if (!msg)
-                return
-              const { data, id, error } = JSON.parse(msg.content.toString())
-              emitter.emit(id, data, error)
-            })
-          }
-          const id = isEvent ? '' : randomUUID()
+          const id = `${eventId++}`
 
           ch.sendToQueue(queue, Buffer.from(
             JSON.stringify(
@@ -40,6 +38,7 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
                 id,
                 args,
                 tag,
+                queue: clientQueue,
                 method: p,
               },
             ),

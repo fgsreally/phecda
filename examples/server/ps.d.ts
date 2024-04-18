@@ -105,7 +105,7 @@ declare global {
   const emitter: typeof import('phecda-server')['emitter']
   const generateHTTPCode: typeof import('phecda-server')['generateHTTPCode']
   const generateRPCCode: typeof import('phecda-server')['generateRPCCode']
-  const generateReturnQueue: typeof import('phecda-server')['generateReturnQueue']
+  const genClientQueue: typeof import('phecda-server')['genClientQueue']
   const get: typeof import('phecda-server')['get']
   const getBind: typeof import('phecda-server')['getBind']
   const getConfig: typeof import('phecda-server')['getConfig']

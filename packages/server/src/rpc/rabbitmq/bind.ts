@@ -4,8 +4,7 @@ import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import type { RpcOptions } from '../helper'
-import { generateReturnQueue } from '../helper'
+import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 export interface RabbitmqCtx extends P.BaseContext {
@@ -15,7 +14,7 @@ export interface RabbitmqCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
+export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   const metaMap = new Map<string, Record<string, Meta>>()
@@ -54,71 +53,69 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         existQueue.add(queue)
         await ch.assertQueue(queue)
 
-        ch.consume(queue, handleRequest(queue), { noAck: true })
+        ch.consume(queue, handleRequest, { noAck: true })
       }
     }
   }
 
-  function handleRequest(queue: string) {
-    const returnQueue = generateReturnQueue(queue)
-    return async (msg: ConsumeMessage | null) => {
-      if (msg) {
-        const data = JSON.parse(msg.content.toString())
-        const { tag, method, args, id } = data
+  async function handleRequest(msg: ConsumeMessage | null) {
+    if (msg) {
+      const data = JSON.parse(msg.content.toString())
+      const { tag, method, args, id, queue: clientQueue } = data
 
-        const meta = metaMap.get(tag)![method]
+      const meta = metaMap.get(tag)![method]
 
-        const {
-          data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
-          paramsType,
-        } = meta
+      const {
+        data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
+        paramsType,
+      } = meta
 
-        const context = new Context<RabbitmqCtx>({
-          type: 'rabbitmq',
-          moduleMap,
-          meta,
-          tag,
-          method,
-          data,
-          ch,
-          msg,
-        })
+      const context = new Context<RabbitmqCtx>({
+        type: 'rabbitmq',
+        moduleMap,
+        meta,
+        tag,
+        method,
+        data,
+        ch,
+        msg,
+      })
 
-        try {
-          await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined) {
-            if (!isEvent)
-              ch.sendToQueue(returnQueue, Buffer.from(JSON.stringify({ data: cache, id })))
-
-            return
-          }
-          const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
-            return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
-          }))
-
-          const instance = moduleMap.get(name)
-          if (ctx)
-            instance[ctx] = context.data
-          const funcData = await instance[method](...handleArgs)
-
-          const ret = await context.usePostInterceptor(funcData)
+      try {
+        await context.useGuard([...globalGuards, ...guards])
+        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (cache !== undefined) {
           if (!isEvent)
-            ch.sendToQueue(returnQueue, Buffer.from(JSON.stringify({ data: ret, id })))
+            ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: cache, id })))
+
+          return
         }
-        catch (e) {
-          const ret = await context.useFilter(e, filter)
-          if (!isEvent) {
-            ch.sendToQueue(returnQueue, Buffer.from(JSON.stringify({
-              data: ret,
-              error: true,
-              id,
-            })))
-          }
+        const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
+          return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+        }))
+
+        const instance = moduleMap.get(name)
+        if (ctx)
+          instance[ctx] = context.data
+        const funcData = await instance[method](...handleArgs)
+
+        const ret = await context.usePostInterceptor(funcData)
+        if (!isEvent)
+          ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: ret, id })))
+      }
+      catch (e) {
+        const ret = await context.useFilter(e, filter)
+        if (!isEvent) {
+          ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({
+            data: ret,
+            error: true,
+            id,
+          })))
         }
       }
     }
   }
+
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,

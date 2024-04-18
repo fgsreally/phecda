@@ -352,6 +352,9 @@ importers:
       hyper-express:
         specifier: ^6.15.2
         version: 6.15.2
+      nats:
+        specifier: ^2.22.0
+        version: 2.22.0
       phecda-core:
         specifier: workspace:*
         version: link:../core
@@ -9307,6 +9310,13 @@ packages:
     hasBin: true
     dev: false
 
+  /nats@2.22.0:
+    resolution: {integrity: sha512-UQsmoQBuCoyVmChP2ZsmZzkQUbTPYT2aMcEVlaZ/MUcxOBvZlGUcrtsV6x2TCkxbCNTiBF9kgXD1Sp32yeCsmw==}
+    engines: {node: '>= 14.0.0'}
+    dependencies:
+      nkeys.js: 1.1.0
+    dev: false
+
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
     dev: true
@@ -9412,6 +9422,13 @@ packages:
       - idb-keyval
       - supports-color
       - uWebSockets.js
+    dev: false
+
+  /nkeys.js@1.1.0:
+    resolution: {integrity: sha512-tB/a0shZL5UZWSwsoeyqfTszONTt4k2YS0tuQioMOD180+MbombYVgzDUYHlx+gejYK6rgf08n/2Df99WY0Sxg==}
+    engines: {node: '>=10.0.0'}
+    dependencies:
+      tweetnacl: 1.0.3
     dev: false
 
   /node-abort-controller@3.1.1:
@@ -12081,6 +12098,10 @@ packages:
       turbo-windows-64: 1.8.2
       turbo-windows-arm64: 1.8.2
     dev: true
+
+  /tweetnacl@1.0.3:
+    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
+    dev: false
 
   /type-check@0.3.2:
     resolution: {integrity: sha512-ZCmOJdvOWDBYJlzAoFkC+Q0+bUyEOS1ltgp1MGU03fqHG+dbi9tBFU2Rd9QKiDZFAYrhPh2JUf7rZRIuHRKtOg==}

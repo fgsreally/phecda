@@ -1,12 +1,11 @@
-import type { ConsumeMessage } from 'amqplib'
 import type { Job } from 'bullmq'
-import { Worker } from 'bullmq'
+import { Queue, Worker } from 'bullmq'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import type { RpcOptions } from '../helper'
-import { generateReturnQueue } from '../helper'
+import type { RpcServerOptions } from '../helper'
+import { genClientQueue } from '../helper'
 import type { Meta } from '../../meta'
 export interface BullmqCtx extends P.BaseContext {
   type: 'bullmq'
@@ -15,7 +14,7 @@ export interface BullmqCtx extends P.BaseContext {
 
 }
 
-export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
+export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   const metaMap = new Map<string, Record<string, Meta>>()
@@ -54,15 +53,13 @@ export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factor
         existQueue.add(queue)
 
         // eslint-disable-next-line no-new
-        new Worker(queue, async (job) => {
-
-        })
+        new Worker(queue, handleRequest(queue))
       }
     }
   }
 
   function handleRequest(queue: string) {
-    const returnQueue = generateReturnQueue(queue)
+    const clientQueue = genClientQueue(queue)
     return async (job: Job) => {
       if (job.data) {
         const data = job.data
@@ -89,10 +86,9 @@ export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factor
           await context.useGuard([...globalGuards, ...guards])
           const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (cache !== undefined) {
-            if (!isEvent) {
-              await
-              ch.sendToQueue(returnQueue, Buffer.from(JSON.stringify({ data: cache, id })))
-            }
+            if (!isEvent)
+              await new Queue(clientQueue).add(clientQueue, Buffer.from(JSON.stringify({ data: cache, id })))
+
             return
           }
           const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
@@ -106,12 +102,12 @@ export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factor
 
           const ret = await context.usePostInterceptor(funcData)
           if (!isEvent)
-            ch.sendToQueue(returnQueue, Buffer.from(JSON.stringify({ data: ret, id })))
+            ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: ret, id })))
         }
         catch (e) {
           const ret = await context.useFilter(e, filter)
           if (!isEvent) {
-            ch.sendToQueue(returnQueue, Buffer.from(JSON.stringify({
+            ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({
               data: ret,
               error: true,
               id,
