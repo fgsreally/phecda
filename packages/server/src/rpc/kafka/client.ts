@@ -1,14 +1,11 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { EventEmitter } from 'events'
-import { randomUUID } from 'crypto'
 import type { Consumer, Producer } from 'kafkajs'
 import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
 
 export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: RpcClientOptions) {
-  const prefix = opts?.prefix || (`${randomUUID()}:`)
-
   let eventId = 1
   let eventCount = 1
 
@@ -18,7 +15,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
   const ret = {} as ToClientMap<S>
   const emitter = new EventEmitter()
 
-  const clientQueue = genClientQueue()
+  const clientQueue = genClientQueue(opts?.key)
 
   await consumer.subscribe({ topic: clientQueue, fromBeginning: true })
   for (const i in controllers) {
@@ -33,7 +30,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
           if (!queue)
             queue = tag
 
-          const id = `${prefix}${eventId++}`
+          const id = `${eventId++}`
           producer.send({
             topic: queue,
             messages: [

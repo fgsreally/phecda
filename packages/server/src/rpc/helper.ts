@@ -1,7 +1,7 @@
 import { hostname } from 'os'
 
-export function genClientQueue() {
-  return `PS:${hostname()}-${process.pid}`
+export function genClientQueue(key?: string) {
+  return `PS:${key || ''}-${hostname()}-${process.pid}`
 }
 
 export interface RpcServerOptions {
@@ -10,8 +10,8 @@ export interface RpcServerOptions {
 }
 
 export interface RpcClientOptions {
-  // eventName/id prefix
-  prefix?: string
+  // add to clientQueue
+  key?: string
   timeout?: number
   max?: number
 }

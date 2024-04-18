@@ -1,6 +1,5 @@
 /* eslint-disable prefer-promise-reject-errors */
 import EventEmitter from 'events'
-import { randomUUID } from 'crypto'
 import type Redis from 'ioredis'
 import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
@@ -8,11 +7,10 @@ import { genClientQueue } from '../helper'
 
 export async function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: RpcClientOptions) {
   const ret = {} as ToClientMap<S>
-  const prefix = opts?.prefix || (`${randomUUID()}:`)
   let eventId = 1
   let eventCount = 0
   const emitter = new EventEmitter()
-  const clientQueue = genClientQueue()
+  const clientQueue = genClientQueue(opts?.key)
 
   await sub.subscribe(clientQueue)
 
@@ -28,7 +26,7 @@ export async function createClient<S extends Record<string, any>>(pub: Redis, su
           if (!queue)
             queue = tag
 
-          const id = `${prefix}${eventId++}`
+          const id = `${eventId++}`
 
           pub.publish(queue, JSON.stringify({
             args,
