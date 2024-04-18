@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import Redis from 'ioredis'
+import { Redis } from 'ioredis'
 
 import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/redis'
@@ -15,7 +15,7 @@ describe('redis rpc', () => {
   beforeEach(() => {
     sub = new Redis('redis://localhost')
 
-    pub = new Redis('redis://localhost')
+    pub = sub.duplicate()
   })
 
   afterEach(() => {

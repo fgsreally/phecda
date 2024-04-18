@@ -183,6 +183,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
 
           fastify.register(p)
         })
+
         fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
           (req as any)[MODULE_SYMBOL] = moduleMap;
           (req as any)[META_SYMBOL] = meta
