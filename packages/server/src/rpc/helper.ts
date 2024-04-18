@@ -10,6 +10,8 @@ export interface RpcServerOptions {
 }
 
 export interface RpcClientOptions {
+  // eventName/id prefix
+  prefix?: string
   timeout?: number
   max?: number
 }

@@ -1,9 +1,17 @@
+/* eslint-disable prefer-promise-reject-errors */
 import { EventEmitter } from 'events'
+import { randomUUID } from 'crypto'
 import type { Consumer, Producer } from 'kafkajs'
 import type { ToClientMap } from '../../types'
+import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
-let eventId = 1
-export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: { timeout?: number }) {
+
+export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: RpcClientOptions) {
+  const prefix = opts?.prefix || (`${randomUUID()}:`)
+
+  let eventId = 1
+  let eventCount = 1
+
   await producer.connect()
   await consumer.connect()
 
@@ -25,7 +33,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
           if (!queue)
             queue = tag
 
-          const id = `${eventId++}`
+          const id = `${prefix}${eventId++}`
           producer.send({
             topic: queue,
             messages: [
@@ -45,13 +53,21 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
             return null
 
           return new Promise((resolve, reject) => {
+            if (opts?.max && eventCount >= opts.max)
+              reject({ type: 'exceeded' })
+
+            let isEnd = false
             const timer = setTimeout(() => {
-              emitter.off(id, listener)
-              // eslint-disable-next-line prefer-promise-reject-errors
-              reject({ message: 'timeout' })
+              if (!isEnd) {
+                eventCount--
+                emitter.off(id, listener)
+                reject({ type: 'timeout' })
+              }
             }, opts?.timeout || 5000)
 
             function listener(data: any, error: boolean) {
+              eventCount--
+              isEnd = true
               clearTimeout(timer)
               if (error)
                 reject(data)
@@ -59,6 +75,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
               else
                 resolve(data)
             }
+            eventCount++
             emitter.once(id, listener)
           })
         }

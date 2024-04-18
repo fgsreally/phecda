@@ -1,13 +1,16 @@
+/* eslint-disable prefer-promise-reject-errors */
 import EventEmitter from 'events'
+import { randomUUID } from 'crypto'
 import type Redis from 'ioredis'
 import type { ToClientMap } from '../../types'
+import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
 
-let eventId = 1
-
-export async function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: { timeout?: number }) {
+export async function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: RpcClientOptions) {
   const ret = {} as ToClientMap<S>
-
+  const prefix = opts?.prefix || (`${randomUUID()}:`)
+  let eventId = 1
+  let eventCount = 0
   const emitter = new EventEmitter()
   const clientQueue = genClientQueue()
 
@@ -25,7 +28,7 @@ export async function createClient<S extends Record<string, any>>(pub: Redis, su
           if (!queue)
             queue = tag
 
-          const id = `${eventId++}`
+          const id = `${prefix}${eventId++}`
 
           pub.publish(queue, JSON.stringify({
             args,
@@ -38,13 +41,21 @@ export async function createClient<S extends Record<string, any>>(pub: Redis, su
             return null
 
           return new Promise((resolve, reject) => {
+            if (opts?.max && eventCount >= opts.max)
+              reject({ type: 'exceeded' })
+
+            let isEnd = false
             const timer = setTimeout(() => {
-              emitter.off(id, listener)
-              // eslint-disable-next-line prefer-promise-reject-errors
-              reject({ message: 'timeout' })
+              if (!isEnd) {
+                eventCount--
+                emitter.off(id, listener)
+                reject({ type: 'timeout' })
+              }
             }, opts?.timeout || 5000)
 
             function listener(data: any, error: boolean) {
+              eventCount--
+              isEnd = true
               clearTimeout(timer)
               if (error)
                 reject(data)
@@ -52,6 +63,7 @@ export async function createClient<S extends Record<string, any>>(pub: Redis, su
               else
                 resolve(data)
             }
+            eventCount++
             emitter.once(id, listener)
           })
         }
