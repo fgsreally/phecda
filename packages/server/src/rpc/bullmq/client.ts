@@ -1,14 +1,26 @@
+/* eslint-disable no-new */
+/* eslint-disable prefer-promise-reject-errors */
 import { EventEmitter } from 'events'
-import { randomUUID } from 'crypto'
-import { type Queue, Worker } from 'bullmq'
+import { Queue, Worker } from 'bullmq'
 import type { ToClientMap } from '../../types'
-export async function createClient<S extends Record<string, any>>(Queue: Queue, controllers: S): Promise<ToClientMap<S>> {
-  const ret = {} as any
-  const emitter = new EventEmitter()
-  const existQueue = new Set<string>()
+import type { RpcClientOptions } from '../helper'
+import { genClientQueue } from '../helper'
 
-  const genQueue = (name: string) => `PS:${name}`
-  const genReturnQueue = (name: string) => `PS:${name}/return`
+export async function createClient<S extends Record<string, any>>(controllers: S, opts?: RpcClientOptions) {
+  let eventId = 1
+  let eventCount = 0
+
+  const ret = {} as ToClientMap<S>
+  const emitter = new EventEmitter()
+
+  const clientQueue = genClientQueue(opts?.key)
+
+  const queueMap: Record<string, Queue> = {}
+
+  new Worker(clientQueue, async (job) => {
+    const { data, id, error } = job.data
+    emitter.emit(id, data, error)
+  })
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -16,46 +28,52 @@ export async function createClient<S extends Record<string, any>>(Queue: Queue, 
         if (typeof target[p] !== 'function')
           throw new Error(`"${p}" in "${i}" is not an exposed rpc `)
 
-        const { tag, rpc, isEvent } = target[p]()
-        if (!rpc.includes('*') && !rpc.includes('bullmq'))
-          throw new Error(`"${p}" in "${i}" doesn't support bullmq`)
+        let { tag, queue, isEvent } = target[p]()
+
         return async (...args: any) => {
-          const queue = genQueue(tag)
-          const clientQueue = genReturnQueue(queue)
+          if (!queue)
+            queue = tag
+          if (!(queue in queueMap))
+            queueMap[queue] = new Queue(queue)
 
-          if (!existQueue.has(queue)) {
-            existQueue.add(queue)
+          const id = `${eventId++}`
 
-            if (!isEvent) {
-              if (!existQueue.has(clientQueue)
-              ) {
-                existQueue.add(clientQueue)
-                // eslint-disable-next-line no-new
-                new Worker(clientQueue, async (job) => {
-                  const { data, id, error } = job.data
-                  emitter.emit(id!, data, error)
-                })
-              }
-            }
-          }
-
-          const id = randomUUID()
-          Queue.add(queue, {
+          queueMap[queue].add(`${tag}-${p}`, {
             id,
-            tag,
             args,
+            tag,
+            queue: clientQueue,
+            method: p,
           })
 
           if (isEvent)
             return null
 
           return new Promise((resolve, reject) => {
-            emitter.once(id, (data: any, error: boolean) => {
+            if (opts?.max && eventCount >= opts.max)
+              reject({ type: 'exceeded' })
+
+            let isEnd = false
+            const timer = setTimeout(() => {
+              if (!isEnd) {
+                eventCount--
+                emitter.off(id, listener)
+                reject({ type: 'timeout' })
+              }
+            }, opts?.timeout || 5000)
+
+            function listener(data: any, error: boolean) {
+              eventCount--
+              isEnd = true
+              clearTimeout(timer)
               if (error)
                 reject(data)
 
-              else resolve(data)
-            })
+              else
+                resolve(data)
+            }
+            eventCount++
+            emitter.once(id, listener)
           })
         }
       },
