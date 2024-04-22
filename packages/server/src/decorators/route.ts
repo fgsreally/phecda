@@ -38,28 +38,27 @@ export function Delete(route = '') {
 export function Controller(route = '') {
   return Route(route)
 }
-export function Rpc(isEvent = false) {
+export function Event(isEvent = true) {
   return (target: any, key?: PropertyKey) => {
     if (!key)
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
     setStateKey(target, key)
     const state = getOwnState(target, key)
-    if (!state.rpc)
-      state.rpc = {}
 
     state.rpc.isEvent = isEvent
     setState(target, key, state)
   }
 }
-export function Queue(queue: string) {
+export function Queue(queue?: string) {
   return (target: any, key?: PropertyKey) => {
     if (!key)
       key = SHARE_KEY
     target = key === SHARE_KEY ? target.prototype : target
     setStateKey(target, key)
-    const state = getOwnState(target, key)
-
+    const state = getOwnState(target, key) || {}
+    if (!state.rpc)
+      state.rpc = {}
     state.rpc.queue = queue
   }
 }

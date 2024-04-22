@@ -1,4 +1,4 @@
-import NATS from 'nats'
+import NATS, { NatsConnection } from 'nats'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
@@ -13,7 +13,7 @@ export interface NatsCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind(nc: any, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
+export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   const metaMap = new Map<string, Record<string, Meta>>()

@@ -49,32 +49,34 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
           if (isEvent)
             return null
 
-          return new Promise((resolve, reject) => {
-            if (opts?.max && eventCount >= opts.max)
-              reject({ type: 'exceeded' })
+          return {
+            promise: new Promise((resolve, reject) => {
+              if (opts?.max && eventCount >= opts.max)
+                reject({ type: 'exceeded' })
 
-            let isEnd = false
-            const timer = setTimeout(() => {
-              if (!isEnd) {
+              let isEnd = false
+              const timer = setTimeout(() => {
+                if (!isEnd) {
+                  eventCount--
+                  emitter.off(id, listener)
+                  reject({ type: 'timeout' })
+                }
+              }, opts?.timeout || 5000)
+
+              function listener(data: any, error: boolean) {
                 eventCount--
-                emitter.off(id, listener)
-                reject({ type: 'timeout' })
+                isEnd = true
+                clearTimeout(timer)
+                if (error)
+                  reject(data)
+
+                else
+                  resolve(data)
               }
-            }, opts?.timeout || 5000)
-
-            function listener(data: any, error: boolean) {
-              eventCount--
-              isEnd = true
-              clearTimeout(timer)
-              if (error)
-                reject(data)
-
-              else
-                resolve(data)
-            }
-            eventCount++
-            emitter.once(id, listener)
-          })
+              eventCount++
+              emitter.once(id, listener)
+            }),
+          }
         }
       },
     })
