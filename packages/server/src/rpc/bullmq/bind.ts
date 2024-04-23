@@ -1,3 +1,4 @@
+import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
@@ -10,7 +11,7 @@ export interface BullmqCtx extends P.BaseContext {
   data: any
 }
 
-export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
+export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   const metaMap = new Map<string, Record<string, Meta>>()
@@ -61,7 +62,7 @@ export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factor
           } = meta
 
           if (!isEvent && !(clientQueue in queueMap))
-            queueMap[clientQueue] = new Queue(clientQueue)
+            queueMap[clientQueue] = new Queue(clientQueue, { connection: connectOpts })
 
           const context = new Context<BullmqCtx>({
             type: 'bullmq',
@@ -105,7 +106,7 @@ export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factor
               })
             }
           }
-        })
+        }, { connection: connectOpts })
       }
     }
   }
@@ -124,6 +125,10 @@ export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factor
       interceptors: globalInterceptors,
     })
     handleMeta()
+    for (const i in workerMap)
+      await workerMap[i].close(true)
+    for (const i in queueMap)
+      await queueMap[i].close()
 
     existQueue.clear()
     await subscribeQueues()

@@ -1,4 +1,4 @@
-import type { NatsConnection } from 'nats'
+import type { NatsConnection, Subscription } from 'nats'
 import { StringCodec } from 'nats'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
@@ -16,6 +16,7 @@ export interface NatsCtx extends P.BaseContext {
 export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
   const sc = StringCodec()
+  const subscriptionMap: Record<string, Subscription> = {}
 
   const metaMap = new Map<string, Record<string, Meta>>()
   const existQueue = new Set<string>()
@@ -51,7 +52,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
         if (existQueue.has(queue))
           continue
         existQueue.add(queue)
-        nc.subscribe(queue, {
+        subscriptionMap[queue] = nc.subscribe(queue, {
           queue,
           async callback(_, msg) {
             const data = JSON.parse(sc.decode(msg.data))
@@ -124,6 +125,9 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       interceptors: globalInterceptors,
     })
     handleMeta()
+
+    for (const i in subscriptionMap)
+      subscriptionMap[i].unsubscribe()
 
     existQueue.clear()
     await subscribeQueues()

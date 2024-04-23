@@ -1,12 +1,13 @@
 /* eslint-disable no-new */
 /* eslint-disable prefer-promise-reject-errors */
 import { EventEmitter } from 'events'
+import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
 
-export async function createClient<S extends Record<string, any>>(controllers: S, opts?: RpcClientOptions) {
+export async function createClient<S extends Record<string, any>>(connectOpts: ConnectionOptions, controllers: S, opts?: RpcClientOptions) {
   let eventId = 1
   let eventCount = 0
 
@@ -20,7 +21,7 @@ export async function createClient<S extends Record<string, any>>(controllers: S
   new Worker(clientQueue, async (job) => {
     const { data, id, error } = job.data
     emitter.emit(id, data, error)
-  })
+  }, { connection: connectOpts })
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -34,7 +35,7 @@ export async function createClient<S extends Record<string, any>>(controllers: S
           if (!queue)
             queue = tag
           if (!(queue in queueMap))
-            queueMap[queue] = new Queue(queue)
+            queueMap[queue] = new Queue(queue, { connection: connectOpts })
 
           const id = `${eventId++}`
 
