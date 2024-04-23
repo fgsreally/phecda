@@ -33,7 +33,6 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
             method: p,
           }))).then((msg) => {
             const { data, id, error } = msg.json() as any
-            console.log(msg.json())
             if (id)
               emitter.emit(id, data, error)
           })

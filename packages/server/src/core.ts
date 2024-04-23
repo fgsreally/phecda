@@ -18,7 +18,7 @@ const debug = Debug('phecda-server')
 export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(models: (new (...args: any) => any)[], opts: {
-
+  parseModule?: (module: any) => any
   // HTTP generate code path
   http?: string
   // rpc generate code path
@@ -31,7 +31,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
   // work for Isolate
   const isolateSet = new Set<PropertyKey>()
-  const { http, rpc } = opts
+  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module } = opts
 
   if (!getInject('watcher')) {
     setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
@@ -128,10 +128,10 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
         dependenceGraph.get(subTag)!.add(tag)
       }
 
-      instance = new Model(...paramtypesInstances)
+      instance = parseModule(new Model(...paramtypesInstances))
     }
     else {
-      instance = new Model()
+      instance = parseModule(new Model())
     }
     meta.push(...getMetaFromInstance(instance, tag, Model.name))
 
