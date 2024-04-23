@@ -1,20 +1,21 @@
-import NATS, { NatsConnection } from 'nats'
+import type { NatsConnection } from 'nats'
+import { StringCodec } from 'nats'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
-import { genClientQueue } from '../helper'
 import type { Meta } from '../../meta'
 
 export interface NatsCtx extends P.BaseContext {
   type: 'nats'
-
+  msg: any
   data: any
 }
 
 export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
+  const sc = StringCodec()
 
   const metaMap = new Map<string, Record<string, Meta>>()
   const existQueue = new Set<string>()
@@ -50,64 +51,61 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
         if (existQueue.has(queue))
           continue
         existQueue.add(queue)
+        nc.subscribe(queue, {
+          queue,
+          async callback(_, msg) {
+            const data = JSON.parse(sc.decode(msg.data))
+            const { tag, method, args, id } = data
 
-        nc.subscribe(queue, handleRequest)
-      }
-    }
-  }
+            const meta = metaMap.get(tag)![method]
 
-  async function handleRequest(msg: string) {
-    const data = JSON.parse(msg)
-    const { tag, method, args, id, queue: clientQueue } = data
+            const {
+              data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
+              paramsType,
+            } = meta
 
-    const meta = metaMap.get(tag)![method]
+            if (isEvent)
+              msg.respond('{}')
 
-    const {
-      data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
-      paramsType,
-    } = meta
+            const context = new Context<NatsCtx>({
+              type: 'nats',
+              moduleMap,
+              meta,
+              tag,
+              method,
+              data,
+              msg,
+            })
 
-    const context = new Context<NatsCtx>({
-      type: 'nats',
-      moduleMap,
-      meta,
-      tag,
-      method,
-      data,
+            try {
+              await context.useGuard([...globalGuards, ...guards])
+              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (cache !== undefined) {
+                if (!isEvent)
+                  msg.respond(sc.encode(JSON.stringify({ data: cache, id })))
 
-      msg,
-    })
+                return
+              }
+              const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
+                return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+              }))
 
-    try {
-      await context.useGuard([...globalGuards, ...guards])
-      const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-      if (cache !== undefined) {
-        if (!isEvent)
-          ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: cache, id })))
+              const instance = moduleMap.get(name)
+              if (ctx)
+                instance[ctx] = context.data
+              const funcData = await instance[method](...handleArgs)
 
-        return
-      }
-      const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
-        return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
-      }))
-
-      const instance = moduleMap.get(name)
-      if (ctx)
-        instance[ctx] = context.data
-      const funcData = await instance[method](...handleArgs)
-
-      const ret = await context.usePostInterceptor(funcData)
-      if (!isEvent)
-        ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: ret, id })))
-    }
-    catch (e) {
-      const ret = await context.useFilter(e, filter)
-      if (!isEvent) {
-        ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({
-          data: ret,
-          error: true,
-          id,
-        })))
+              const ret = await context.usePostInterceptor(funcData)
+              if (!isEvent)
+                msg.respond(sc.encode(JSON.stringify({ data: ret, id })))
+            }
+            catch (e) {
+              const ret = await context.useFilter(e, filter)
+              if (!isEvent)
+                msg.respond(sc.encode(JSON.stringify({ data: ret, error: true, id })))
+            }
+          },
+        })
       }
     }
   }
@@ -126,8 +124,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       interceptors: globalInterceptors,
     })
     handleMeta()
-    for (const queue of existQueue)
-      await ch.deleteQueue(queue)
+
     existQueue.clear()
     await subscribeQueues()
   })

@@ -45,7 +45,8 @@ export function Event(isEvent = true) {
     target = key === SHARE_KEY ? target.prototype : target
     setStateKey(target, key)
     const state = getOwnState(target, key)
-
+    if (!state.rpc)
+      state.rpc = {}
     state.rpc.isEvent = isEvent
     setState(target, key, state)
   }

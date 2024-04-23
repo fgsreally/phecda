@@ -58,6 +58,10 @@
       "import": "./dist/rpc/bullmq/index.mjs",
       "require": "./dist/rpc/bullmq/index.js"
     },
+    "./nats": {
+      "import": "./dist/rpc/nats/index.mjs",
+      "require": "./dist/rpc/nats/index.js"
+    },
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
@@ -89,6 +93,9 @@
       ],
       "bullmq": [
         "dist/rpc/bullmq/index.d.ts"
+      ],
+      "nats": [
+        "dist/rpc/nats/index.d.ts"
       ],
       "rabbitmq": [
         "dist/rpc/rabbitmq/index.d.ts"
@@ -143,7 +150,6 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13"

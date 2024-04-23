@@ -1,20 +1,18 @@
 /* eslint-disable no-console */
-import amqp from 'amqplib'
-import { bind } from 'phecda-server/rabbitmq'
+import { bind } from 'phecda-server/nats'
 import { Factory } from 'phecda-server'
+import { connect } from 'nats'
 import { TestRpc } from '../test.rpc'
 async function start() {
   const data = await Factory([TestRpc], {
     rpc: 'src/rpc/rpc.ts',
   })
 
-  const conn = await amqp.connect('amqp://localhost:5672')
+  const nc = await connect({ port: 4222 })
 
-  const ch = await conn.createChannel()
+  bind(nc, data)
 
-  bind(ch, data)
-
-  console.log('mq listen...')
+  console.log('nats listen...')
 }
 
 start()

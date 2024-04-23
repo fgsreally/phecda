@@ -11,6 +11,7 @@ export const tsup: Options = {
     'src/rpc/rabbitmq/index.ts',
     'src/rpc/kafka/index.ts',
     'src/rpc/bullmq/index.ts',
+    'src/rpc/nats/index.ts',
 
     'src/rpc/redis/index.ts'],
   format: ['cjs', 'esm'],
