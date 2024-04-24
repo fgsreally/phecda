@@ -156,7 +156,11 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       guards: globalGuards,
       interceptors: globalInterceptors,
     })
+
     handleMeta()
+    // not unsubscribe in kafkajs
+    // await consumer.stop()
+    // existQueue.clear()
     subscribeQueues()
   })
 }

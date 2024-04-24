@@ -121,8 +121,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       pathToFileURL(resolvedModule.resolvedFileName).href,
       context.parentURL.split('?')[0],
     )
-
-    if (rpcCodeUrl && /\.client\.ts$/.test(context.parentURL) && /\.rpc\.ts$/.test(resolvedModule.resolvedFileName)) {
+    if (rpcCodeUrl && /[^.](?:\.client)\.ts$/.test(context.parentURL) && /[^.](?:\.rpc).ts$/.test(resolvedModule.resolvedFileName)) {
       return {
         format: 'ts',
         url: rpcCodeUrl,
@@ -130,7 +129,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       }
     }
 
-    if (httpCodeUrl && /\.http\.ts$/.test(context.parentURL) && /\.controller\.ts$/.test(resolvedModule.resolvedFileName)) {
+    if (httpCodeUrl && /[^.](?:\.http)\.ts$/.test(context.parentURL) && /[^.](?:\.controller)\.ts$/.test(resolvedModule.resolvedFileName)) {
       return {
         format: 'ts',
         url: httpCodeUrl,
