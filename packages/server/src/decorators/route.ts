@@ -61,5 +61,6 @@ export function Queue(queue?: string) {
     if (!state.rpc)
       state.rpc = {}
     state.rpc.queue = queue
+    setState(target, key, state)
   }
 }

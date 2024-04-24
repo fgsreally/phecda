@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Redis } from 'ioredis'
+import Redis from 'ioredis'
 
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/redis'
 
 function stop(time = 500) {
@@ -13,9 +13,8 @@ describe('redis rpc', () => {
   let sub: Redis, pub: Redis
 
   beforeEach(() => {
-    sub = new Redis('redis://localhost')
-
-    pub = sub.duplicate()
+    pub = new Redis('redis://localhost')
+    sub = pub.duplicate()
   })
 
   afterEach(() => {
@@ -26,7 +25,6 @@ describe('redis rpc', () => {
     run() {
       return {
         tag: 'TestRpc',
-        rpc: ['redis'],
       }
     }
   }
@@ -38,7 +36,6 @@ describe('redis rpc', () => {
       ctx: any
 
       @Queue('create server')
-      @Rpc()
       run(arg: string) {
         expect(this.ctx).toBeDefined()
         fn()
@@ -64,7 +61,7 @@ describe('redis rpc', () => {
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc()
+      @Queue()
       run(@Arg() arg: number) {
         fn()
         return arg
@@ -91,7 +88,7 @@ describe('redis rpc', () => {
       return true
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -119,7 +116,7 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -144,7 +141,7 @@ describe('redis rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -171,7 +168,7 @@ describe('redis rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)

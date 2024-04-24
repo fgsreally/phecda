@@ -46,8 +46,11 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
           rpc, tag,
         },
       } = item
+      console.log(rpc,tag)
+
       if (rpc) {
         const queue = rpc.queue || tag
+
         if (existQueue.has(queue))
           continue
         existQueue.add(queue)
@@ -61,6 +64,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       return
 
     if (msg) {
+
       const data = JSON.parse(msg)
       const { method, args, id, tag, queue: clientQueue } = data
       const meta = metaMap.get(tag)![method]
