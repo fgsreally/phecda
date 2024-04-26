@@ -42,7 +42,6 @@ declare global {
   const PPipe: typeof import('phecda-server')['PPipe']
   const PPlugin: typeof import('phecda-server')['PPlugin']
   const PS_FILE_RE: typeof import('phecda-server')['PS_FILE_RE']
-  const PS_IMPORT_RE: typeof import('phecda-server')['PS_IMPORT_RE']
   const PS_SYMBOL: typeof import('phecda-server')['PS_SYMBOL']
   const Param: typeof import('phecda-server')['Param']
   const Patch: typeof import('phecda-server')['Patch']

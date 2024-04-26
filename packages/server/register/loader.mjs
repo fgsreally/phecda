@@ -197,7 +197,7 @@ export const load = async (url, context, nextLoad) => {
     //   }),
     // )
 
-    if (process.env.PS_HMR_BAN) {
+    if (!process.env.PS_HMR_BAN) {
       chokidar.watch(fileURLToPath(url), { persistent: true }).on(
         'change',
         debounce(() => {

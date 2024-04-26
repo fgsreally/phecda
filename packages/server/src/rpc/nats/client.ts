@@ -1,5 +1,4 @@
 /* eslint-disable prefer-promise-reject-errors */
-import { EventEmitter } from 'events'
 import { StringCodec } from 'nats'
 import type { NatsConnection } from 'nats'
 import type { ToClientMap } from '../../types'
@@ -11,7 +10,6 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
   const sc = StringCodec()
 
   const ret = {} as ToClientMap<S>
-  const emitter = new EventEmitter()
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -26,16 +24,12 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
             queue = tag
 
           const id = `${eventId++}`
-          nc.request(queue, sc.encode(JSON.stringify({
+          const request = nc.request(queue, sc.encode(JSON.stringify({
             id,
             args,
             tag,
             method: p,
-          }))).then((msg) => {
-            const { data, id, error } = msg.json() as any
-            if (id)
-              emitter.emit(id, data, error)
-          })
+          })))
 
           if (isEvent)
             return null
@@ -44,16 +38,23 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
             if (opts?.max && eventCount >= opts.max)
               reject({ type: 'exceeded' })
 
+            request.catch(reject)
+            request
+              .then((msg) => {
+                const { data, id, error } = msg.json() as any
+                if (id)
+                  handler(data, error)
+              })
+
             let isEnd = false
             const timer = setTimeout(() => {
               if (!isEnd) {
                 eventCount--
-                emitter.off(id, listener)
                 reject({ type: 'timeout' })
               }
             }, opts?.timeout || 5000)
 
-            function listener(data: any, error: boolean) {
+            function handler(data: any, error: boolean) {
               eventCount--
               isEnd = true
               clearTimeout(timer)
@@ -64,7 +65,6 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
                 resolve(data)
             }
             eventCount++
-            emitter.once(id, listener)
           })
         }
       },

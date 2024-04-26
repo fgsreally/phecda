@@ -1,14 +1,9 @@
+export class TestRpc {
+  run() {
+    return { tag: 'TestRpc', method: 'run', isEvent: false, queue: 'test2' }
+  }
 
-        export class TestRpc{
-            
-    run(){
-      return {tag:'TestRpc',method:"run",isEvent:false,queue:""}
-
-    }
-    
-    event(){
-      return {tag:'TestRpc',method:"event",isEvent:true,queue:"test"}
-
-    }
-    
-            }
+  event() {
+    return { tag: 'TestRpc', method: 'event', isEvent: true, queue: 'test' }
+  }
+}
