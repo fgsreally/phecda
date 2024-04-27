@@ -4,13 +4,10 @@ import type { Consumer, Producer } from 'kafkajs'
 import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
-
+// @experiment
 export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: RpcClientOptions) {
   let eventId = 1
   let eventCount = 1
-
-  await producer.connect()
-  await consumer.connect()
 
   const ret = {} as ToClientMap<S>
   const emitter = new EventEmitter()
@@ -31,6 +28,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
             queue = tag
 
           const id = `${eventId++}`
+
           producer.send({
             topic: queue,
             messages: [
@@ -49,34 +47,32 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
           if (isEvent)
             return null
 
-          return {
-            promise: new Promise((resolve, reject) => {
-              if (opts?.max && eventCount >= opts.max)
-                reject({ type: 'exceeded' })
+          return new Promise((resolve, reject) => {
+            if (opts?.max && eventCount >= opts.max)
+              reject({ type: 'exceeded' })
 
-              let isEnd = false
-              const timer = setTimeout(() => {
-                if (!isEnd) {
-                  eventCount--
-                  emitter.off(id, listener)
-                  reject({ type: 'timeout' })
-                }
-              }, opts?.timeout || 5000)
-
-              function listener(data: any, error: boolean) {
+            let isEnd = false
+            const timer = setTimeout(() => {
+              if (!isEnd) {
                 eventCount--
-                isEnd = true
-                clearTimeout(timer)
-                if (error)
-                  reject(data)
-
-                else
-                  resolve(data)
+                emitter.off(id, listener)
+                reject({ type: 'timeout' })
               }
-              eventCount++
-              emitter.once(id, listener)
-            }),
-          }
+            }, opts?.timeout || 50000)
+
+            function listener(data: any, error: boolean) {
+              eventCount--
+              isEnd = true
+              clearTimeout(timer)
+              if (error)
+                reject(data)
+
+              else
+                resolve(data)
+            }
+            eventCount++
+            emitter.once(id, listener)
+          })
         }
       },
     })

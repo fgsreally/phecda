@@ -13,6 +13,8 @@
     "rabbitmq": "phecda src/rpc/sub/rabbitmq.ts",
     "bullmq": "phecda src/rpc/sub/bullmq.ts",
     "nats": "phecda src/rpc/sub/nats.ts",
+    "kafka": "phecda src/rpc/sub/kafka.ts",
+    "client:kafka": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/kafka.client.ts",
     "client:redis": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/redis.client.ts",
     "client:rabbitmq": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/rabbitmq.ts",
     "client:bullmq": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/bullmq.client.ts",

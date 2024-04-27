@@ -37,7 +37,7 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
           return new Promise((resolve, reject) => {
             if (opts?.max && eventCount >= opts.max)
               reject({ type: 'exceeded' })
-
+            // @todo still throw global promise reject
             request.catch(reject)
             request
               .then((msg) => {

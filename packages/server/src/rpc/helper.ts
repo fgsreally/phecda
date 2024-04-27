@@ -1,7 +1,7 @@
 import { hostname } from 'os'
 
 export function genClientQueue(key?: string) {
-  return `PS:${key || ''}-${hostname()}-${process.pid}`
+  return `PS-${key ? `${key}-` : ''}${hostname()}-${process.pid}`
 }
 
 export interface RpcServerOptions {

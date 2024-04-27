@@ -5,18 +5,21 @@ import { Factory } from 'phecda-server'
 import { TestRpc } from '../test.rpc'
 async function start() {
   const data = await Factory([TestRpc], {
-    rpc: 'src/rpc/mq.ts',
+    rpc: 'src/rpc/rpc.ts',
   })
 
   const kafka = new Kafka({
     clientId: 'consumer',
-    brokers: ['kafka1:9092', 'kafka2:9092'],
+    brokers: ['localhost:9092'],
   })
 
   const producer = kafka.producer()
-  const consumer = kafka.consumer({ groupId: 'test-group' })
+  const consumer = kafka.consumer({ groupId: 'phecda-server' })
 
-  bind(consumer, producer, data)
+  await producer.connect()
+  await consumer.connect()
+
+  await bind(consumer, producer, data)
 
   console.log('kafka listen...')
 }

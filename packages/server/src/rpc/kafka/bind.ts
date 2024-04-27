@@ -14,12 +14,10 @@ export interface KafkaCtx extends P.BaseContext {
   pause(): () => void
   data: any
 }
+// @experiment
 
 export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
-
-  await producer.connect()
-  await consumer.connect()
 
   const metaMap = new Map<string, Record<string, Meta>>()
   const existQueue = new Set<string>()
@@ -42,7 +40,9 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   }
 
   async function subscribeQueues() {
-    existQueue.clear()
+    // miss unsubscribe in kafkajs
+
+    // existQueue.clear()
 
     for (const item of meta) {
       const {
@@ -60,12 +60,19 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     }
   }
 
+  detectAopDep(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
+  handleMeta()
+  await subscribeQueues()
   await consumer.run({
     eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
       if (!existQueue.has(topic))
         return
 
       const data = JSON.parse(message.value!.toString())
+
       const { tag, method, args, id, queue: clientQueue } = data
       const meta = metaMap.get(tag)![method]
       const {
@@ -144,13 +151,6 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     },
   })
 
-  detectAopDep(meta, {
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-  handleMeta()
-  subscribeQueues()
-
   HMR(async () => {
     detectAopDep(meta, {
       guards: globalGuards,
@@ -161,6 +161,6 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     // not unsubscribe in kafkajs
     // await consumer.stop()
     // existQueue.clear()
-    subscribeQueues()
+    // subscribeQueues()
   })
 }
