@@ -41,17 +41,26 @@ export async function initialize(data) {
   if (process.env.PS_UNIMPORT_BAN)
     return
 
-  if (process.env.PS_HTTP_CODE)
-    httpCodeUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_HTTP_CODE)).href
+  if (process.env.PS_HTTP_CODE) {
+    httpCodeUrl = pathToFileURL(
+      resolvePath(process.cwd(), process.env.PS_HTTP_CODE),
+    ).href
+  }
 
-  if (process.env.PS_RPC_CODE)
-    rpcCodeUrl = pathToFileURL(resolvePath(process.cwd(), process.env.PS_RPC_CODE)).href
+  if (process.env.PS_RPC_CODE) {
+    rpcCodeUrl = pathToFileURL(
+      resolvePath(process.cwd(), process.env.PS_RPC_CODE),
+    ).href
+  }
 
   unimportRet = await genUnImportRet()
 
   if (unimportRet) {
     log('auto import...')
-    writeFile(dtsPath, handleClassTypes(await unimportRet.generateTypeDeclarations()))
+    writeFile(
+      dtsPath,
+      handleClassTypes(await unimportRet.generateTypeDeclarations()),
+    )
   }
 }
 
@@ -121,8 +130,11 @@ export const resolve = async (specifier, context, nextResolve) => {
       pathToFileURL(resolvedModule.resolvedFileName).href,
       context.parentURL.split('?')[0],
     )
-
-    if (rpcCodeUrl && /\.client\.ts$/.test(context.parentURL) && /\.rpc\.ts$/.test(resolvedModule.resolvedFileName)) {
+    if (
+      rpcCodeUrl
+      && /[^.](?:\.client)\.ts$/.test(context.parentURL)
+      && /[^.](?:\.rpc).ts$/.test(resolvedModule.resolvedFileName)
+    ) {
       return {
         format: 'ts',
         url: rpcCodeUrl,
@@ -130,7 +142,11 @@ export const resolve = async (specifier, context, nextResolve) => {
       }
     }
 
-    if (httpCodeUrl && /\.http\.ts$/.test(context.parentURL) && /\.controller\.ts$/.test(resolvedModule.resolvedFileName)) {
+    if (
+      httpCodeUrl
+      && /[^.](?:\.http)\.ts$/.test(context.parentURL)
+      && /[^.](?:\.controller)\.ts$/.test(resolvedModule.resolvedFileName)
+    ) {
       return {
         format: 'ts',
         url: httpCodeUrl,
@@ -180,28 +196,31 @@ export const load = async (url, context, nextLoad) => {
     //     }
     //   }),
     // )
-    chokidar.watch(fileURLToPath(url), { persistent: true }).on(
-      'change',
-      debounce(() => {
-        try {
-          const files = [...findTopScope(url, Date.now())].reverse()
 
-          port.postMessage(
-            JSON.stringify({
-              type: 'change',
-              files,
-            }),
-          )
-        }
-        catch (e) {
-          port.postMessage(
-            JSON.stringify({
-              type: 'relaunch',
-            }),
-          )
-        }
-      }),
-    )
+    if (!process.env.PS_HMR_BAN) {
+      chokidar.watch(fileURLToPath(url), { persistent: true }).on(
+        'change',
+        debounce(() => {
+          try {
+            const files = [...findTopScope(url, Date.now())].reverse()
+
+            port.postMessage(
+              JSON.stringify({
+                type: 'change',
+                files,
+              }),
+            )
+          }
+          catch (e) {
+            port.postMessage(
+              JSON.stringify({
+                type: 'relaunch',
+              }),
+            )
+          }
+        }),
+      )
+    }
   }
   // resolveModuleName failed
   // I don't know why it failed

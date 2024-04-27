@@ -1,8 +1,17 @@
-export function generateReturnQueue(queue: string) {
-  return `${queue}/return`
+import { hostname } from 'os'
+
+export function genClientQueue(key?: string) {
+  return `PS-${key ? `${key}-` : ''}${hostname()}-${process.pid}`
 }
 
-export interface RpcOptions {
+export interface RpcServerOptions {
   globalGuards?: string[]
   globalInterceptors?: string[]
+}
+
+export interface RpcClientOptions {
+  // add to clientQueue
+  key?: string
+  timeout?: number
+  max?: number
 }

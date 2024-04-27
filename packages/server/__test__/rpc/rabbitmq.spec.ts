@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
@@ -13,7 +13,6 @@ describe('rabbitmq rpc', () => {
     run() {
       return {
         tag: 'TestRpc',
-        rpc: ['rabbitmq'],
       }
     }
   }
@@ -25,7 +24,7 @@ describe('rabbitmq rpc', () => {
       ctx: any
 
       @Queue('create server')
-      @Rpc()
+
       run(arg: string) {
         expect(this.ctx).toBeDefined()
         fn()
@@ -55,7 +54,7 @@ describe('rabbitmq rpc', () => {
   it('create client and server', async () => {
     const fn = vi.fn()
     class TestRpc {
-      @Rpc()
+      @Queue()
       run(@Arg() arg: number) {
         fn()
         return arg
@@ -86,7 +85,7 @@ describe('rabbitmq rpc', () => {
       return true
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       @Guard('g1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -118,7 +117,7 @@ describe('rabbitmq rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       @Interceptor('i1')
       run(@Arg() arg: number) {
         expect(arg).toBe(1)
@@ -147,7 +146,7 @@ describe('rabbitmq rpc', () => {
       return String(arg)
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       run(@Pipe('test') @Arg() arg: number) {
         expect(arg).toBe('1')
         return arg
@@ -178,7 +177,7 @@ describe('rabbitmq rpc', () => {
       }
     })
     class TestRpc {
-      @Rpc()
+      @Queue()
       @Filter('test')
       run() {
         throw new Exception('just for test', 0)

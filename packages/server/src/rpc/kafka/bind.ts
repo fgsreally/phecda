@@ -4,8 +4,7 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import type { RpcOptions } from '../helper'
-import { generateReturnQueue } from '../helper'
+import type { RpcServerOptions } from '../helper'
 
 export interface KafkaCtx extends P.BaseContext {
   type: 'kafka'
@@ -15,12 +14,10 @@ export interface KafkaCtx extends P.BaseContext {
   pause(): () => void
   data: any
 }
+// @experiment
 
-export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
+export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
-
-  await producer.connect()
-  await consumer.connect()
 
   const metaMap = new Map<string, Record<string, Meta>>()
   const existQueue = new Set<string>()
@@ -53,21 +50,29 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       } = item
       if (rpc) {
         const queue = rpc.queue || tag
+        if (existQueue.has(queue))
+          continue
         existQueue.add(queue)
         await consumer.subscribe({ topic: queue, fromBeginning: true })
       }
     }
   }
 
+  detectAopDep(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
+  handleMeta()
+  await subscribeQueues()
   await consumer.run({
     eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
       if (!existQueue.has(topic))
         return
 
       const data = JSON.parse(message.value!.toString())
-      const { tag, method, args, id } = data
+
+      const { tag, method, args, id, queue: clientQueue } = data
       const meta = metaMap.get(tag)![method]
-      const returnQueue = generateReturnQueue(topic)
       const {
         data: {
           guards, interceptors, params, name, filter, ctx, rpc,
@@ -95,7 +100,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         if (cache !== undefined) {
           if (!isEvent) {
             producer.send({
-              topic: returnQueue,
+              topic: clientQueue,
               messages: [
                 { value: JSON.stringify({ data: cache, id }) },
               ],
@@ -117,7 +122,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
         if (!isEvent) {
           producer.send({
-            topic: returnQueue,
+            topic: clientQueue,
             messages: [
               { value: JSON.stringify({ data: ret, id }) },
             ],
@@ -128,7 +133,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         const ret = await context.useFilter(e, filter)
         if (!isEvent) {
           producer.send({
-            topic: returnQueue,
+            topic: clientQueue,
             messages: [
               {
                 value: JSON.stringify({
@@ -144,19 +149,16 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     },
   })
 
-  detectAopDep(meta, {
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-  handleMeta()
-  subscribeQueues()
-
   HMR(async () => {
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
     })
+
     handleMeta()
-    subscribeQueues()
+    // not unsubscribe in kafkajs
+    // await consumer.stop()
+    // existQueue.clear()
+    // subscribeQueues()
   })
 }

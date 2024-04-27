@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import amqp from 'amqplib'
-import { bind } from 'phecda-server/rabbitmq'
+import { bind } from 'phecda-server/bullmq'
+
 import { Factory } from 'phecda-server'
 import { TestRpc } from '../test.rpc'
 async function start() {
@@ -8,13 +8,9 @@ async function start() {
     rpc: 'src/rpc/rpc.ts',
   })
 
-  const conn = await amqp.connect('amqp://localhost:5672')
+  bind({ port: 6379 }, data)
 
-  const ch = await conn.createChannel()
-
-  bind(ch, data)
-
-  console.log('mq listen...')
+  console.log('bullmq listen...')
 }
 
 start()

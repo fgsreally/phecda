@@ -54,6 +54,14 @@
       "import": "./dist/rpc/rabbitmq/index.mjs",
       "require": "./dist/rpc/rabbitmq/index.js"
     },
+    "./bullmq": {
+      "import": "./dist/rpc/bullmq/index.mjs",
+      "require": "./dist/rpc/bullmq/index.js"
+    },
+    "./nats": {
+      "import": "./dist/rpc/nats/index.mjs",
+      "require": "./dist/rpc/nats/index.js"
+    },
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
@@ -82,6 +90,12 @@
       ],
       "redis": [
         "dist/rpc/redis/index.d.ts"
+      ],
+      "bullmq": [
+        "dist/rpc/bullmq/index.d.ts"
+      ],
+      "nats": [
+        "dist/rpc/nats/index.d.ts"
       ],
       "rabbitmq": [
         "dist/rpc/rabbitmq/index.d.ts"
@@ -129,12 +143,13 @@
     "mock-amqplib": "^1.8.2",
     "supertest": "^6.3.3",
     "tsup": "^6.5.0",
+    "hyper-express": "^6.15.2",
+    "nats": "^2.22.0",
     "typescript": "^5.2.2",
     "unimport": "^3.7.1"
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "hyper-express": "^6.15.2",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13"

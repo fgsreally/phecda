@@ -1,14 +1,18 @@
-import { randomUUID } from 'crypto'
+/* eslint-disable prefer-promise-reject-errors */
 import EventEmitter from 'events'
 import type Redis from 'ioredis'
 import type { ToClientMap } from '../../types'
-import { generateReturnQueue } from '../helper'
+import type { RpcClientOptions } from '../helper'
+import { genClientQueue } from '../helper'
 
-export function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: { timeout?: number }): ToClientMap<S> {
-  const ret = {} as any
-
-  const existQueue = new Set<string>()
+export async function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: RpcClientOptions) {
+  const ret = {} as ToClientMap<S>
+  let eventId = 1
+  let eventCount = 0
   const emitter = new EventEmitter()
+  const clientQueue = genClientQueue(opts?.key)
+
+  await sub.subscribe(clientQueue)
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -21,21 +25,13 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
         return async (...args: any) => {
           if (!queue)
             queue = tag
-          const returnQueue = generateReturnQueue(queue)
 
-          if (!isEvent) {
-            if (!existQueue.has(returnQueue)
-            ) {
-              existQueue.add(returnQueue)
-              await sub.subscribe(returnQueue)
-            }
-          }
-
-          const id = isEvent ? '' : randomUUID()
+          const id = `${eventId++}`
 
           pub.publish(queue, JSON.stringify({
             args,
             id,
+            queue: clientQueue,
             tag,
             method: p,
           }))
@@ -43,13 +39,21 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
             return null
 
           return new Promise((resolve, reject) => {
+            if (opts?.max && eventCount >= opts.max)
+              reject({ type: 'exceeded' })
+
+            let isEnd = false
             const timer = setTimeout(() => {
-              emitter.off(id, listener)
-              // eslint-disable-next-line prefer-promise-reject-errors
-              reject({ message: 'timeout' })
+              if (!isEnd) {
+                eventCount--
+                emitter.off(id, listener)
+                reject({ type: 'timeout' })
+              }
             }, opts?.timeout || 5000)
 
             function listener(data: any, error: boolean) {
+              eventCount--
+              isEnd = true
               clearTimeout(timer)
               if (error)
                 reject(data)
@@ -57,6 +61,7 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
               else
                 resolve(data)
             }
+            eventCount++
             emitter.once(id, listener)
           })
         }
@@ -65,9 +70,7 @@ export function createClient<S extends Record<string, any>>(pub: Redis, sub: Red
   }
 
   sub.on('message', async (channel, msg) => {
-    if (existQueue.has(channel)) {
-      if (!msg)
-        return
+    if (channel === clientQueue && msg) {
       const { data, id, error } = JSON.parse(msg)
 
       emitter.emit(id, data, error)

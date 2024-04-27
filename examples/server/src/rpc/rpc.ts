@@ -2,7 +2,7 @@
         export class TestRpc{
             
     run(){
-      return {tag:'TestRpc',method:"run",isEvent:false,queue:""}
+      return {tag:'TestRpc',method:"run",isEvent:false,queue:"xx"}
 
     }
     

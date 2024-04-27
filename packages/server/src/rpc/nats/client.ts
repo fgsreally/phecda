@@ -1,27 +1,15 @@
-/* eslint-disable no-new */
 /* eslint-disable prefer-promise-reject-errors */
-import { EventEmitter } from 'events'
-import type { ConnectionOptions } from 'bullmq'
-import { Queue, Worker } from 'bullmq'
+import { StringCodec } from 'nats'
+import type { NatsConnection } from 'nats'
 import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
-import { genClientQueue } from '../helper'
 
-export async function createClient<S extends Record<string, any>>(connectOpts: ConnectionOptions, controllers: S, opts?: RpcClientOptions) {
+export async function createClient<S extends Record<string, any>>(nc: NatsConnection, controllers: S, opts?: Omit<RpcClientOptions, 'key'>) {
   let eventId = 1
   let eventCount = 0
+  const sc = StringCodec()
 
   const ret = {} as ToClientMap<S>
-  const emitter = new EventEmitter()
-
-  const clientQueue = genClientQueue(opts?.key)
-
-  const queueMap: Record<string, Queue> = {}
-
-  new Worker(clientQueue, async (job) => {
-    const { data, id, error } = job.data
-    emitter.emit(id, data, error)
-  }, { connection: connectOpts })
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -34,18 +22,14 @@ export async function createClient<S extends Record<string, any>>(connectOpts: C
         return async (...args: any) => {
           if (!queue)
             queue = tag
-          if (!(queue in queueMap))
-            queueMap[queue] = new Queue(queue, { connection: connectOpts })
 
           const id = `${eventId++}`
-
-          queueMap[queue].add(`${tag}-${p}`, {
+          const request = nc.request(queue, sc.encode(JSON.stringify({
             id,
             args,
             tag,
-            queue: clientQueue,
             method: p,
-          })
+          })))
 
           if (isEvent)
             return null
@@ -53,17 +37,24 @@ export async function createClient<S extends Record<string, any>>(connectOpts: C
           return new Promise((resolve, reject) => {
             if (opts?.max && eventCount >= opts.max)
               reject({ type: 'exceeded' })
+            // @todo still throw global promise reject
+            request.catch(reject)
+            request
+              .then((msg) => {
+                const { data, id, error } = msg.json() as any
+                if (id)
+                  handler(data, error)
+              })
 
             let isEnd = false
             const timer = setTimeout(() => {
               if (!isEnd) {
                 eventCount--
-                emitter.off(id, listener)
                 reject({ type: 'timeout' })
               }
             }, opts?.timeout || 5000)
 
-            function listener(data: any, error: boolean) {
+            function handler(data: any, error: boolean) {
               eventCount--
               isEnd = true
               clearTimeout(timer)
@@ -74,7 +65,6 @@ export async function createClient<S extends Record<string, any>>(connectOpts: C
                 resolve(data)
             }
             eventCount++
-            emitter.once(id, listener)
           })
         }
       },

@@ -4,8 +4,7 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import type { RpcOptions } from '../helper'
-import { generateReturnQueue } from '../helper'
+import type { RpcServerOptions } from '../helper'
 
 export interface RedisCtx extends P.BaseContext {
   type: 'redis'
@@ -16,7 +15,7 @@ export interface RedisCtx extends P.BaseContext {
 
 }
 
-export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcOptions) {
+export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
   const metaMap = new Map<string, Record<string, Meta>>()
@@ -47,8 +46,12 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
           rpc, tag,
         },
       } = item
+
       if (rpc) {
         const queue = rpc.queue || tag
+
+        if (existQueue.has(queue))
+          continue
         existQueue.add(queue)
         await sub.subscribe(queue)
       }
@@ -60,9 +63,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       return
 
     if (msg) {
-      const returnQueue = generateReturnQueue(channel)
       const data = JSON.parse(msg)
-      const { method, args, id, tag } = data
+      const { method, args, id, tag, queue: clientQueue } = data
       const meta = metaMap.get(tag)![method]
 
       const {
@@ -87,7 +89,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
         if (cache !== undefined) {
           if (!isEvent)
-            pub.publish(returnQueue, JSON.stringify({ data: cache, id }))
+            pub.publish(clientQueue, JSON.stringify({ data: cache, id }))
 
           return
         }
@@ -103,12 +105,12 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         const res = await context.usePostInterceptor(funcData)
 
         if (!isEvent)
-          pub.publish(returnQueue, JSON.stringify({ data: res, id }))
+          pub.publish(clientQueue, JSON.stringify({ data: res, id }))
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)
         if (!isEvent) {
-          pub.publish(returnQueue, JSON.stringify({
+          pub.publish(clientQueue, JSON.stringify({
             data: ret,
             error: true,
             id,
