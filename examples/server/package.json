@@ -16,7 +16,7 @@
     "kafka": "phecda src/rpc/sub/kafka.ts",
     "client:kafka": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/kafka.client.ts",
     "client:redis": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/redis.client.ts",
-    "client:rabbitmq": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/rabbitmq.ts",
+    "client:rabbitmq": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/rabbitmq.client.ts",
     "client:bullmq": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/bullmq.client.ts",
     "client:nats": "cross-env PS_RPC_CODE=./src/rpc/rpc.ts phecda src/rpc/pub/nats.client.ts",
     "build": "tsc && vite build",

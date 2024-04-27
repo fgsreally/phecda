@@ -58,7 +58,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
                 emitter.off(id, listener)
                 reject({ type: 'timeout' })
               }
-            }, opts?.timeout || 50000)
+            }, opts?.timeout || 5000)
 
             function listener(data: any, error: boolean) {
               eventCount--

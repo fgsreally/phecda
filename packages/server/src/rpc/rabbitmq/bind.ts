@@ -132,7 +132,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
     handleMeta()
     for (const queue of existQueue)
       await ch.deleteQueue(queue)
-    existQueue.clear()
+
     await subscribeQueues()
   })
 }

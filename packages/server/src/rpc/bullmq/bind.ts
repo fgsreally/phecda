@@ -130,7 +130,6 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
     for (const i in queueMap)
       await queueMap[i].close()
 
-    existQueue.clear()
     await subscribeQueues()
   })
 

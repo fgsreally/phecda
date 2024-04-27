@@ -8,7 +8,7 @@ async function start() {
     rpc: 'src/rpc/rpc.ts',
   })
 
-  bind(data)
+  bind({ port: 6379 }, data)
 
   console.log('bullmq listen...')
 }

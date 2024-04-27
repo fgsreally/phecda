@@ -129,7 +129,6 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
     for (const i in subscriptionMap)
       subscriptionMap[i].unsubscribe()
 
-    existQueue.clear()
     await subscribeQueues()
   })
 }

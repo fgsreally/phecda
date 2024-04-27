@@ -3,7 +3,7 @@ import { createClient } from 'phecda-server/bullmq'
 import { TestRpc } from '../test.rpc'
 
 export async function start() {
-  const client = await createClient({
+  const client = await createClient({ port: 6379 }, {
     test: TestRpc,
   })
   const ret = await client.test.run('xx')

@@ -40,9 +40,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   }
 
   async function subscribeQueues() {
-    // miss unsubscribe in kafkajs
-
-    // existQueue.clear()
+    existQueue.clear()
 
     for (const item of meta) {
       const {
