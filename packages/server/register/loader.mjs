@@ -99,7 +99,6 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
-
   if (
     context.parentURL.includes('/node_modules/phecda-server')
     && isAbsolute(specifier)
@@ -112,7 +111,6 @@ export const resolve = async (specifier, context, nextResolve) => {
   // import/require from external library
   if (context.parentURL.includes('/node_modules/'))
     return nextResolve(specifier)
-
   const { resolvedModule } = ts.resolveModuleName(
     specifier,
     fileURLToPath(context.parentURL),

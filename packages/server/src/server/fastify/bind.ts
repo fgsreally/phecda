@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
@@ -9,7 +9,7 @@ import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 import { log } from '../../utils'
-
+import { Define } from '../../decorators'
 export interface FastifyCtx extends P.HttpContext {
   type: 'fastify'
   request: FastifyRequest
@@ -241,4 +241,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
 
     done()
   }
+}
+
+export function Fastify(opts: RouteShorthandOptions) {
+  return Define('fastify', opts)
 }
