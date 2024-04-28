@@ -37,7 +37,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
                   id,
                   tag,
                   queue: clientQueue,
-                  method: p,
+                  func: p,
                   args,
                 }),
               },

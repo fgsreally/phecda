@@ -231,7 +231,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
 
     meta.name = name
     meta.tag = tag as string
-    meta.method = i as string
+    meta.func = i as string
     const params = [] as any[]
     for (const i of state.params || []) {
       params.unshift(i)

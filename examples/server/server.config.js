@@ -3,8 +3,7 @@ import { URL, fileURLToPath, pathToFileURL } from 'node:url'
 import fs from 'fs'
 import { isAbsolute } from 'node:path'
 import { defineConfig } from 'vite'
-import plugin from 'phecda-client/vite'
-import swc from 'unplugin-swc'
+
 export default defineConfig({
   plugins: [
     {
@@ -20,9 +19,13 @@ export default defineConfig({
         if (id.includes('node_modules'))
           return
         const { resolve } = await import('phecda-server/register/loader.mjs')
-        const { url } = await resolve(id, { parentURL: i && pathToFileURL(i).href }, () => {
-          return {}
-        })
+        const { url } = await resolve(
+          id,
+          { parentURL: i && pathToFileURL(i).href },
+          () => {
+            return {}
+          },
+        )
 
         if (url) {
           if (new URL(url).protocol === 'file:')
@@ -38,7 +41,7 @@ export default defineConfig({
 
         const { load } = await import('phecda-server/register/loader.mjs')
 
-        const { source } = await load(id, { }, async () => {
+        const { source } = await load(id, {}, async () => {
           console.log('load', id)
 
           const source = await fs.promises.readFile(id)

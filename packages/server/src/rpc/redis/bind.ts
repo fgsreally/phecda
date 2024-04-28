@@ -23,7 +23,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, rpc, interceptors, guards } = item.data
+      const { tag, func, rpc, interceptors, guards } = item.data
       if (!rpc)
         continue
       detectAopDep(meta, {
@@ -31,10 +31,10 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         interceptors,
       })
       if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+        metaMap.get(tag)![func] = item
 
       else
-        metaMap.set(tag, { [method]: item })
+        metaMap.set(tag, { [func]: item })
     }
   }
 
@@ -64,8 +64,9 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
 
     if (msg) {
       const data = JSON.parse(msg)
-      const { method, args, id, tag, queue: clientQueue } = data
-      const meta = metaMap.get(tag)![method]
+      const { func, args, id, tag, queue: clientQueue } = data
+
+      const meta = metaMap.get(tag)![func]
 
       const {
         data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
@@ -80,7 +81,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         msg,
         channel,
         tag,
-        method,
+        func,
         data,
       })
 
@@ -101,7 +102,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         const instance = moduleMap.get(name)
         if (ctx)
           instance[ctx] = context.data
-        const funcData = await instance[method](...handleArgs)
+        const funcData = await instance[func](...handleArgs)
         const res = await context.usePostInterceptor(funcData)
 
         if (!isEvent)

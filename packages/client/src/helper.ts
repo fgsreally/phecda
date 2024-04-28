@@ -14,5 +14,6 @@ export interface RequestArgs {
   method: P.RequestType
   url: string
   tag: string
+  func: string
   args: any[]
 }

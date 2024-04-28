@@ -18,15 +18,15 @@ class Compiler {
 
   addMethod(args: MetaData) {
     const {
-      rpc, name, method, tag,
+      rpc, name, func, tag,
     } = args
     if (!rpc)
       return
     if (!this.classMap[name])
       this.classMap[name] = {}
-    this.classMap[name][method] = `
-    ${method}(){
-      return {tag:'${tag as string}',method:"${method}",isEvent:${!!rpc.isEvent},queue:"${rpc.queue || ''}"}
+    this.classMap[name][func] = `
+    ${func}(){
+      return {tag:'${tag as string}',func:"${func}",isEvent:${!!rpc.isEvent},queue:"${rpc.queue || ''}"}
 
     }
     `

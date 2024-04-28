@@ -24,7 +24,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, rpc, interceptors, guards } = item.data
+      const { tag, func, rpc, interceptors, guards } = item.data
       if (!rpc)
         continue
       detectAopDep(meta, {
@@ -32,10 +32,10 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         interceptors,
       })
       if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+        metaMap.get(tag)![func] = item
 
       else
-        metaMap.set(tag, { [method]: item })
+        metaMap.set(tag, { [func]: item })
     }
   }
 
@@ -71,8 +71,9 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
       const data = JSON.parse(message.value!.toString())
 
-      const { tag, method, args, id, queue: clientQueue } = data
-      const meta = metaMap.get(tag)![method]
+      const { tag, func, args, id, queue: clientQueue } = data
+
+      const meta = metaMap.get(tag)![func]
       const {
         data: {
           guards, interceptors, params, name, filter, ctx, rpc,
@@ -86,7 +87,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         moduleMap,
         meta,
         tag,
-        method,
+        func,
         partition,
         topic,
         heartbeat,
@@ -116,7 +117,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         const instance = moduleMap.get(name)
         if (ctx)
           instance[ctx] = context.data
-        const funcData = await instance[method](...handleArgs)
+        const funcData = await instance[func](...handleArgs)
 
         const ret = await context.usePostInterceptor(funcData)
 

@@ -7,7 +7,7 @@ exports[`compiler generate code > generate http request 1`] = `
         export class A{
             
     test(...args){
-const ret={tag:"A",method:"test",body:{},headers:{},query:{},params:{},method:"get",url:"/base/test",args}
+const ret={tag:"A",func:"test",body:{},headers:{},query:{},params:{},method:"get",url:"/base/test",args}
 
 ret.query['id']=args[0]
 

@@ -43,7 +43,7 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
                 args,
                 tag,
                 queue: clientQueue,
-                method: p,
+                func: p,
               },
             ),
           ))

@@ -50,21 +50,21 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, http, guards, interceptors } = item.data
+      const { tag, func, http, guards, interceptors } = item.data
       if (!http?.type)
         continue
 
-      log(`"${method}" in "${tag}":`)
+      log(`"${func}" in "${tag}":`)
       detectAopDep(meta, {
         plugins,
         guards,
         interceptors,
       })
       if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+        metaMap.get(tag)![func] = item
 
       else
-        metaMap.set(tag, { [method]: item })
+        metaMap.set(tag, { [func]: item })
     }
   }
 
@@ -86,10 +86,13 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
-              const { tag, method } = item
-              const meta = metaMap.get(tag)![method]
+              const { tag, func } = item
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+
+              const meta = metaMap.get(tag)![func]
               if (!meta)
-                return resolve(await Context.filterRecord.default(new BadRequestException(`"${tag}" doesn't exist`)))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
               const {
                 paramsType,
@@ -110,7 +113,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 meta,
                 moduleMap,
                 tag,
-                method,
+                func,
                 data: (event as any).data,
                 ...argToReq(params, item.args, getRequestHeaders(event)),
               }
@@ -126,7 +129,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
                 })) as any
                 if (ctx)
                   instance[ctx] = contextData
-                const funcData = await instance[method](...args)
+                const funcData = await instance[func](...args)
                 resolve(await context.usePostInterceptor(funcData))
               }
               catch (e: any) {
@@ -143,7 +146,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }))
 
     for (const i of meta) {
-      const { method, http, header, tag } = i.data
+      const { func, http, header, tag } = i.data
 
       if (!http?.type)
         continue
@@ -158,7 +161,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           filter,
           ctx,
         },
-      } = metaMap.get(tag)![method]
+      } = metaMap.get(tag)![func]
 
       const needBody = params.some(item => item.type === 'body')
       router[http.type](http.route, eventHandler({
@@ -172,7 +175,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             event,
             moduleMap,
             tag,
-            method,
+            func,
             headers: getRequestHeaders(event) as IncomingHttpHeaders,
             params: getRouterParams(event),
             query: getQuery(event),
@@ -195,7 +198,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             if (ctx)
               instance[ctx] = contextData
-            const funcData = await instance[method](...args)
+            const funcData = await instance[func](...args)
             const ret = await context.usePostInterceptor(funcData)
 
             return ret

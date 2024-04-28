@@ -44,7 +44,7 @@ export async function createClient<S extends Record<string, any>>(connectOpts: C
             args,
             tag,
             queue: clientQueue,
-            method: p,
+            func: p,
           })
 
           if (isEvent)

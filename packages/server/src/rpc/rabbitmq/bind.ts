@@ -22,7 +22,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, rpc, guards, interceptors } = item.data
+      const { tag, func, rpc, guards, interceptors } = item.data
       if (!rpc)
         continue
       detectAopDep(meta, {
@@ -30,10 +30,10 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         interceptors,
       })
       if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+        metaMap.get(tag)![func] = item
 
       else
-        metaMap.set(tag, { [method]: item })
+        metaMap.set(tag, { [func]: item })
     }
   }
 
@@ -59,11 +59,16 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
   }
 
   async function handleRequest(msg: ConsumeMessage | null) {
+    function send(queue: string, data: any, isEvent?: boolean) {
+      if (isEvent)
+        return
+      ch.sendToQueue(queue, Buffer.from(JSON.stringify(data)))
+    }
+
     if (msg) {
       const data = JSON.parse(msg.content.toString())
-      const { tag, method, args, id, queue: clientQueue } = data
-
-      const meta = metaMap.get(tag)![method]
+      const { tag, func, args, id, queue: clientQueue } = data
+      const meta = metaMap.get(tag)![func]
 
       const {
         data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
@@ -75,7 +80,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         moduleMap,
         meta,
         tag,
-        method,
+        func,
         data,
         ch,
         msg,
@@ -97,21 +102,14 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         const instance = moduleMap.get(name)
         if (ctx)
           instance[ctx] = context.data
-        const funcData = await instance[method](...handleArgs)
+        const funcData = await instance[func](...handleArgs)
 
         const ret = await context.usePostInterceptor(funcData)
-        if (!isEvent)
-          ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: ret, id })))
+        send(clientQueue, { data: ret, id }, isEvent)
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)
-        if (!isEvent) {
-          ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({
-            data: ret,
-            error: true,
-            id,
-          })))
-        }
+        send(clientQueue, { data: ret, id, error: true }, isEvent)
       }
     }
   }

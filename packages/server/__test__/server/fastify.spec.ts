@@ -27,11 +27,11 @@ describe('fastify ', () => {
     const res3 = await request(app).post('/__PHECDA_SERVER__').send([
       {
         tag: 'Test',
-        method: 'post',
+        func: 'post',
         args: ['phecda', 'server', '1'],
       }, {
         tag: 'Test',
-        method: 'get',
+        func: 'get',
 
         args: [],
       },
@@ -125,12 +125,12 @@ describe('fastify ', () => {
       [
         {
           tag: 'Test',
-          method: 'aop',
+          func: 'aop',
           args: ['test1'],
         },
         {
           tag: 'Test',
-          method: 'aop',
+          func: 'aop',
 
           args: ['test2'],
         },
@@ -158,13 +158,13 @@ describe('fastify ', () => {
       [
         {
           tag: 'Test',
-          method: 'all',
+          func: 'all',
 
           args: ['test', { name: 'test' }, '1'],
         },
         {
           tag: 'Test',
-          method: 'all',
+          func: 'all',
 
           args: ['test', { name: 'test' }, '2'],
         },

@@ -40,9 +40,9 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
 
     return new Proxy({}, {
       get(_target, p) {
-        const { data } = meta.find(({ data }) => data.name === Module.name && data.method === p && data.tag === tag)!
+        const { data } = meta.find(({ data }) => data.name === Module.name && data.func === p && data.tag === tag)!
         return (...args: any) => {
-          const ret = { body: {}, headers: {}, query: {}, method: data.http!.type, url: data.http!.route } as any
+          const ret = { body: {}, headers: {}, query: {}, func: data.http!.type, url: data.http!.route } as any
 
           data.params.forEach((item) => {
             if (item.type === 'params') {
@@ -62,7 +62,7 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
           })
 
           // @ts-expect-error miss type
-          return (isAgent ? Agent : request(app))[ret.method](ret.url).query(ret.query).set(ret.headers).send(ret.body)
+          return (isAgent ? Agent : request(app))[ret.func](ret.url).query(ret.query).set(ret.headers).send(ret.body)
         }
       },
     }) as any

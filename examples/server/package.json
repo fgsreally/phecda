@@ -2,6 +2,7 @@
   "name": "example-server",
   "private": true,
   "version": "0.0.4",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "express": "phecda src/server/express.ts",

@@ -21,7 +21,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, rpc, guards, interceptors } = item.data
+      const { tag, func, rpc, guards, interceptors } = item.data
       if (!rpc)
         continue
       detectAopDep(meta, {
@@ -29,10 +29,10 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
         interceptors,
       })
       if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+        metaMap.get(tag)![func] = item
 
       else
-        metaMap.set(tag, { [method]: item })
+        metaMap.set(tag, { [func]: item })
     }
   }
 
@@ -52,9 +52,9 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
         existQueue.add(queue)
         workerMap[queue] = new Worker(queue, async (job) => {
           const { data } = job
-          const { tag, method, args, id, queue: clientQueue } = data
+          const { tag, func, args, id, queue: clientQueue } = data
 
-          const meta = metaMap.get(tag)![method]
+          const meta = metaMap.get(tag)![func]
 
           const {
             data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
@@ -69,7 +69,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
             moduleMap,
             meta,
             tag,
-            method,
+            func,
             data,
 
           })
@@ -79,7 +79,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
             const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
             if (cache !== undefined) {
               if (!isEvent)
-                queueMap[clientQueue].add(`${tag}-${method}`, { data: cache, id })
+                queueMap[clientQueue].add(`${tag}-${func}`, { data: cache, id })
 
               return
             }
@@ -90,16 +90,16 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
             const instance = moduleMap.get(name)
             if (ctx)
               instance[ctx] = context.data
-            const funcData = await instance[method](...handleArgs)
+            const funcData = await instance[func](...handleArgs)
 
             const ret = await context.usePostInterceptor(funcData)
             if (!isEvent)
-              queueMap[clientQueue].add(`${tag}-${method}`, { data: ret, id })
+              queueMap[clientQueue].add(`${tag}-${func}`, { data: ret, id })
           }
           catch (e) {
             const ret = await context.useFilter(e, filter)
             if (!isEvent) {
-              queueMap[clientQueue].add(`${tag}-${method}`, {
+              queueMap[clientQueue].add(`${tag}-${func}`, {
                 data: ret,
                 error: true,
                 id,
