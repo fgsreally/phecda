@@ -33,7 +33,7 @@ export async function createClient<S extends Record<string, any>>(pub: Redis, su
             id,
             queue: clientQueue,
             tag,
-            method: p,
+            func: p,
           }))
           if (isEvent)
             return null

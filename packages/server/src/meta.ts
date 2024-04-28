@@ -17,7 +17,7 @@ export interface MetaData {
   filter?: string
   interceptors: string[]
   plugins: string[]
-  method: string
+  func: string
   name: string
   tag: string
 }

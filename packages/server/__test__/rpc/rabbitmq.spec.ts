@@ -13,6 +13,7 @@ describe('rabbitmq rpc', () => {
     run() {
       return {
         tag: 'TestRpc',
+        func: 'run',
       }
     }
   }
@@ -43,7 +44,7 @@ describe('rabbitmq rpc', () => {
     pub.sendToQueue('create server', Buffer.from(JSON.stringify({
       args: [1],
       tag: 'TestRpc',
-      method: 'run',
+      func: 'run',
 
     })))
 

@@ -2,7 +2,7 @@
 import { Arg, Event, Queue } from 'phecda-server'
 
 export class TestRpc {
-  @Queue('xx')
+  @Queue()
   run(@Arg() arg: string) {
     console.log(`arg is ${arg}`)
     return arg

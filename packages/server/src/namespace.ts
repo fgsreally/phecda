@@ -9,7 +9,7 @@ export namespace P {
     parallel?: boolean
     type: string
     tag: string
-    method: string
+    func: string
     [key: string]: any
 
   }

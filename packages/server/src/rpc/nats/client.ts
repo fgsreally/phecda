@@ -28,7 +28,7 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
             id,
             args,
             tag,
-            method: p,
+            func: p,
           })))
 
           if (isEvent)

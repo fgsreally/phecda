@@ -48,6 +48,7 @@ export class HomeModel<T> extends Base {
   @Watcher('update', { once: true })
 
   on_Watch() {
+    // eslint-disable-next-line no-alert
     alert('update')
   }
 

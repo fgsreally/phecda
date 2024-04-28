@@ -1,7 +1,6 @@
 const { fork } = require('child_process')
 
 const fs = require('fs')
-const { posix } = require('path')
 const pc = require('picocolors')
 const cmd = process.argv.slice(2)
 
@@ -31,6 +30,10 @@ function startChild() {
 
   closePromise = new Promise((resolve) => {
     child.once('exit', (code) => {
+      if (code === 4) {
+        log('only generate code')
+        process.exit(0)
+      }
       if (code >= 2) {
         // for relaunch
         log('relaunch...')
@@ -67,6 +70,7 @@ function log(msg, color = 'green') {
     )} ${pc[color](msg)}`,
   )
 }
+
 if (cmd[0] === 'init') {
   fs.writeFileSync('tsconfig.json', `{
     "compilerOptions": {
@@ -94,24 +98,16 @@ if (cmd[0] === 'init') {
 
   log('init tsconfig.json!')
 }
+else if (cmd[0] === 'code') {
+  process.env.PS_CODE = 'true'
+  cmd.splice(0, 1)
+  startChild()
+}
 else {
   startChild()
   log('process start!')
   console.log(`${pc.green('->')} press ${pc.green('e')} to exit`)
   console.log(`${pc.green('->')} press ${pc.green('r')} to relaunch`)
-  console.log(
-  `${pc.green('->')} press ${pc.green(
-    'c {moduleName} {dir}',
-  )} to create controller`,
-  )
-  console.log(
-  `${pc.green('->')} press ${pc.green(
-    's {moduleName} {dir}',
-  )} to create service`,
-  )
-  console.log(
-  `${pc.green('->')} press ${pc.green('m {moduleName} {dir}')} to create module`,
-  )
 
   process.stdin.on('data', async (data) => {
     const input = data.toString().trim().toLocaleLowerCase()
@@ -131,69 +127,5 @@ else {
     }
     if (input === 'e')
       exit()
-
-    if (input.startsWith('c ')) {
-      let [, module, dir] = input.split(' ')
-      module = toCamelCase(module)
-      const path = posix.join(dir, `${module}.controller.ts`)
-      fs.writeFile(
-        path,
-      `
-    export class ${module[0].toUpperCase()}${module.slice(1)}Controller{
-      
-    }
-    `,
-      (err) => {
-        if (err)
-          log('writeFile filled', 'red')
-        else log(`create controller at ${path}`)
-      },
-      )
-    }
-    if (input.startsWith('s ')) {
-      let [, module, dir] = input.split(' ')
-      module = toCamelCase(module)
-      const path = posix.join(dir, `${module}.service.ts`)
-      fs.writeFile(
-        path,
-      `
-    import {Tag} from 'phecda-server'
-    @Tag('${module}')
-    export class ${module[0].toUpperCase()}${module.slice(1)}Service{
-      
-    }
-    `,
-      (err) => {
-        if (err)
-          log('writeFile filled', 'red')
-        else log(`create service at ${path}`)
-      },
-      )
-    }
-
-    if (input.startsWith('m ')) {
-      let [, module, dir] = input.split(' ')
-      module = toCamelCase(module)
-      const path = posix.join(dir, `${module}.module.ts`)
-      fs.writeFile(
-        path,
-      `
-    import {Tag} from 'phecda-server'
-    @Tag('${module}')
-    export class ${module[0].toUpperCase()}${module.slice(1)}Module{
-      
-    }
-    `,
-      (err) => {
-        if (err)
-          log('writeFile filled', 'red')
-        else log(`create module at ${path}`)
-      },
-      )
-    }
   })
-}
-
-function toCamelCase(str) {
-  return str.replace(/[-_]\w/g, match => match.charAt(1).toUpperCase())
 }

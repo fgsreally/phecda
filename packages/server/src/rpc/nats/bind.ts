@@ -23,7 +23,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, method, rpc, guards, interceptors } = item.data
+      const { tag, func, rpc, guards, interceptors } = item.data
       if (!rpc)
         continue
       detectAopDep(meta, {
@@ -31,10 +31,10 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
         interceptors,
       })
       if (metaMap.has(tag))
-        metaMap.get(tag)![method] = item
+        metaMap.get(tag)![func] = item
 
       else
-        metaMap.set(tag, { [method]: item })
+        metaMap.set(tag, { [func]: item })
     }
   }
 
@@ -56,9 +56,9 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
           queue,
           async callback(_, msg) {
             const data = JSON.parse(sc.decode(msg.data))
-            const { tag, method, args, id } = data
+            const { tag, func, args, id } = data
 
-            const meta = metaMap.get(tag)![method]
+            const meta = metaMap.get(tag)![func]
 
             const {
               data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
@@ -73,7 +73,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
               moduleMap,
               meta,
               tag,
-              method,
+              func,
               data,
               msg,
             })
@@ -94,7 +94,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
               const instance = moduleMap.get(name)
               if (ctx)
                 instance[ctx] = context.data
-              const funcData = await instance[method](...handleArgs)
+              const funcData = await instance[func](...handleArgs)
 
               const ret = await context.usePostInterceptor(funcData)
               if (!isEvent)

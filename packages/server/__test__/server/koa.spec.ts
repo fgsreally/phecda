@@ -32,11 +32,11 @@ describe('koa ', () => {
     const res3 = await request(app).post('/__PHECDA_SERVER__').send([
       {
         tag: 'Test',
-        method: 'post',
+        func: 'post',
         args: ['phecda', 'server', '1'],
       }, {
         tag: 'Test',
-        method: 'get',
+        func: 'get',
         args: [],
       },
 
@@ -80,7 +80,7 @@ describe('koa ', () => {
     expect(fn).toHaveBeenCalledTimes(1)
     await request(app).post('/__PHECDA_SERVER__').send([{
       tag: 'Test',
-      method: 'plugin',
+      func: 'plugin',
       args: [],
     }])
 
@@ -128,12 +128,12 @@ describe('koa ', () => {
       [
         {
           tag: 'Test',
-          method: 'aop',
+          func: 'aop',
           args: ['test1'],
         },
         {
           tag: 'Test',
-          method: 'aop',
+          func: 'aop',
 
           args: ['test2'],
         },
@@ -160,12 +160,12 @@ describe('koa ', () => {
       [
         {
           tag: 'Test',
-          method: 'all',
+          func: 'all',
           args: ['test', { name: 'test' }, '1'],
         },
         {
           tag: 'Test',
-          method: 'all',
+          func: 'all',
 
           args: ['test', { name: 'test' }, '2'],
         },

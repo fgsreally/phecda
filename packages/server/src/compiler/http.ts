@@ -25,16 +25,16 @@ class Compiler {
 
   addMethod(args: MetaData) {
     const {
-      http, name, method, params, tag,
+      http, name, func, params, tag,
     } = args
     if (!http)
       return
     const url = http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
-    this.classMap[name][method] = `
-    ${method}(...args){
-const ret={tag:"${tag as string}",method:"${method}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
+    this.classMap[name][func] = `
+    ${func}(...args){
+const ret={tag:"${tag as string}",func:"${func}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
 
 ${params.reduce((p, c, i) => `${p}ret.${c.type}${c.key ? `['${c.key}']` : ''}=args[${i}]\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',args[${i}])` : ''}\n`, '')}
 return ret

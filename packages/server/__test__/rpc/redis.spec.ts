@@ -49,7 +49,7 @@ describe('redis rpc', () => {
 
     pub.publish('create server', JSON.stringify({
       args: [1],
-      method: 'run',
+      func: 'run',
       tag: 'TestRpc',
     }))
 
