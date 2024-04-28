@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { bind } from 'phecda-server/express'
 import { Factory } from 'phecda-server'
 import express from 'express'
@@ -41,6 +40,7 @@ async function start() {
   app.use('/base', router)
 
   app.listen(3008, () => {
+    // eslint-disable-next-line no-console
     console.log('start express server...')
   })
 }

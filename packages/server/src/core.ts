@@ -8,7 +8,7 @@ import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_DEV } from './common'
+import { IS_DEV, IS_ONLY_CODE } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
 export function Injectable() {
   return (target: any) => Empty(target)
@@ -29,10 +29,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   const constructorMap = new Map()
   const constructorSet = new WeakSet()
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
-  // work for Isolate
-  const isolateSet = new Set<PropertyKey>()
   const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module } = opts
-
   if (!getInject('watcher')) {
     setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
@@ -101,8 +98,6 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     const paramtypes = getParamTypes(Model) as Construct[]
     let instance: InstanceType<Construct>
     const tag = getTag(Model)
-    if (get(Model as any, 'isolate'))
-      isolateSet.add(tag)
 
     if (moduleMap.has(tag)) {
       instance = moduleMap.get(tag)
@@ -137,7 +132,8 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 
     debug(`init module "${String(tag)}"`)
 
-    await invokeHandler('init', instance)
+    if (!IS_ONLY_CODE)
+      await invokeHandler('init', instance)
 
     debug(`add module "${String(tag)}"`)
 
@@ -149,19 +145,23 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   for (const model of models)
     await buildDepModule(model)
 
-  function writeCode() {
+  async function writeCode() {
     if (http) {
       debug(`write http code to ${http}`)
-      fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
+      await fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
     }
     if (rpc) {
       debug(`write rpc code to ${rpc}`)
 
-      fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
+      await fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
     }
   }
 
-  writeCode()
+  writeCode().then(() => {
+    if (IS_ONLY_CODE)
+      process.exit(4)// only output code/work for ci
+  })
+
   if (IS_DEV) {
     if (!globalThis.__PS_HMR__)
       globalThis.__PS_HMR__ = []
@@ -179,14 +179,6 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
       writeCode()
     })
   }
-
-  // experiment
-  // globalThis.__PS_ISOLATE__ = () => {
-  //   const tags = [...isolateSet]
-  //   isolateSet.clear()
-
-  //   return tags.map(tag => add(constructorMap.get(tag)))
-  // }
 
   return {
     moduleMap,

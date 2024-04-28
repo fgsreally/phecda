@@ -34,6 +34,7 @@ declare global {
   const Header: typeof import('phecda-server')['Header']
   const IS_DEV: typeof import('phecda-server')['IS_DEV']
   const IS_LOG_BAN: typeof import('phecda-server')['IS_LOG_BAN']
+  const IS_ONLY_CODE: typeof import('phecda-server')['IS_ONLY_CODE']
   const IS_STRICT: typeof import('phecda-server')['IS_STRICT']
   const Ignore: typeof import('phecda-server')['Ignore']
   const Init: typeof import('phecda-server')['Init']

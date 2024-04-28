@@ -30,6 +30,10 @@ function startChild() {
 
   closePromise = new Promise((resolve) => {
     child.once('exit', (code) => {
+      if (code === 4) {
+        log('only generate code')
+        process.exit(0)
+      }
       if (code >= 2) {
         // for relaunch
         log('relaunch...')
@@ -66,6 +70,7 @@ function log(msg, color = 'green') {
     )} ${pc[color](msg)}`,
   )
 }
+
 if (cmd[0] === 'init') {
   fs.writeFileSync('tsconfig.json', `{
     "compilerOptions": {
@@ -92,6 +97,11 @@ if (cmd[0] === 'init') {
   `)
 
   log('init tsconfig.json!')
+}
+else if (cmd[0] === 'code') {
+  process.env.PS_CODE = 'true'
+  cmd.splice(0, 1)
+  startChild()
 }
 else {
   startChild()
