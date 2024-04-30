@@ -1,5 +1,21 @@
 # phecda-server
 
+## 5.0.0-beta.26
+
+### Patch Changes
+
+- 6bbadaf: support bullmq/nats
+
+  nats will respond empty object when using `@Event`
+
+  (in Factory) add parseModule opts and use process.env.PS_HTTP_CODE/PS_RPC_CODE to generate code in default
+
+- 370938e: fix kafka in rpc(but it seems slow and unstable,can't support hmr)
+  change default clientQueue to support kafka
+- 42172dc: renmae Rpc to Event;support bullmq
+- d4186ff: only subscribe the same queue once in rpc
+  client generate a queue named `PS:hostname-pId`(only one queue) to collect data from server
+
 ## 5.0.0-beta.25
 
 ### Patch Changes

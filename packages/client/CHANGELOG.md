@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.4-beta.2
+
+### Patch Changes
+
+- 920450a: refact phecda-client unplugin to support rpc
+
 ## 2.0.4-beta.1
 
 ### Patch Changes
