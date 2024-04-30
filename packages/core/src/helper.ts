@@ -42,7 +42,6 @@ export function transformInstance<M extends Construct>(instance: InstanceType<M>
 
   for (const item of keys) {
     const handlers = getHandler(instance, item)
-
     if (handlers) {
       for (const handler of handlers) {
         const pipe = handler.pipe
