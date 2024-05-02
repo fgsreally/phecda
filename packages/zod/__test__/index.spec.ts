@@ -9,6 +9,7 @@ describe('zod in phecda', () => {
       username: z.string().min(3).max(20), // username 必须为长度在 3 到 20 之间的字符串
       email: z.string().email(),
       isAdmin: z.boolean(), // isAdmin 必须为布尔值
+
     })
 
     const UserModel = zodToClass(UserSchema)
@@ -23,8 +24,7 @@ describe('zod in phecda', () => {
 
     expect(transformInstance(instance).length).toBe(0)
 
-    expect((instance as any)._value).toBeDefined()
-    delete (instance as any)._value
+    expect(UserModel.schema).toBeDefined()
     expect(instance).toMatchSnapshot()
   })
 })

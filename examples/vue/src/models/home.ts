@@ -1,4 +1,4 @@
-import { Clear, Global, Init, Storage, Tag, Watcher, markRaw, useEvent } from 'phecda-vue'
+import { Clear, Global, Init, Storage, Tag, WatchEffect, Watcher, markRaw, useEvent } from 'phecda-vue'
 @Tag('base')
 
 export class Base {
@@ -54,4 +54,10 @@ export class HomeModel<T> extends Base {
 
   @Clear
   run: any
+
+  @WatchEffect()
+  effect() {
+    // eslint-disable-next-line no-console
+    console.log(this.name)
+  }
 }
