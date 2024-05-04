@@ -3,7 +3,7 @@ import { Exception, UndefinedException } from './exception'
 import { log } from './utils'
 import type { FilterType } from './context'
 
-export const defaultFilter: FilterType = (e) => {
+export const defaultFilter: FilterType = (e,ctx) => {
   if (!(e instanceof Exception)) {
     log(e.message, 'error')
     if (!IS_LOG_BAN)
