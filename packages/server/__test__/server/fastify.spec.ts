@@ -45,7 +45,7 @@ describe('fastify ', () => {
     const app = await createServer()
 
     const res1 = await request(app).get('/error')
-    expect(res1.body).toEqual({ description: 'Http exception', message: 'test error', status: 500, [ERROR_SYMBOL]: true })
+    expect(res1.body).toEqual({ description: 'Exception', message: 'test error', status: 500, [ERROR_SYMBOL]: true })
   })
   it('Pipe', async () => {
     const app = await createServer()
