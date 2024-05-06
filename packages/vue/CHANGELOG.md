@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 3.0.0-beta.21
+
+### Patch Changes
+
+- 743709f: add WatchEffect
+
 ## 3.0.0-beta.20
 
 ### Patch Changes
