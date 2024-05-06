@@ -1,5 +1,18 @@
 # phecda-server
 
+## 5.0.0-beta.27
+
+### Patch Changes
+
+- 5c782ce: fix fastify export to make sure tsup work
+  Rename `method` to `func` to ensure that it is distinct from the http request method and that the semantics are clear(break change actually)
+  add error handler when parallel requests invoke a func/module that does not exist(no such error handling in rpc)
+  Remove the ability to create files from the command line
+  Remove isolateSet in `Factory`,`Isolate` seems useless in phecda-server
+  add `code` command to generate code during ci
+- e812a14: exception status default to 0 (work for timer or internal error that filter can't catch); filter in both http/rpc should get status
+  add TimerException/WorkerException
+
 ## 5.0.0-beta.26
 
 ### Patch Changes
