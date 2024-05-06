@@ -42,8 +42,6 @@ export default defineConfig({
         const { load } = await import('phecda-server/register/loader.mjs')
 
         const { source } = await load(id, {}, async () => {
-          console.log('load', id)
-
           const source = await fs.promises.readFile(id)
           return {
             source,

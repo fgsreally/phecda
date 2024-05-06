@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`zod in phecda > basic validate 1`] = `
+[
+  "Required",
+]
+`;
+
+exports[`zod in phecda > basic validate 2`] = `
+Z {
+  "email": "phecda@a.com",
+  "isAdmin": true,
+  "username": "phecda",
+}
+`;

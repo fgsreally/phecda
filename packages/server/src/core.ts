@@ -54,7 +54,6 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     const instance = moduleMap.get(tag)
 
     debug(`unmount module "${String(tag)}"`)
-
     await invokeHandler('unmount', instance)
     debug(`del module "${String(tag)}"`)
 
@@ -162,7 +161,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
       process.exit(4)// only output code/work for ci
   })
 
-  if (IS_DEV) {
+  if (IS_DEV) { // for hmr
     if (!globalThis.__PS_HMR__)
       globalThis.__PS_HMR__ = []
 

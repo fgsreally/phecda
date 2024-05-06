@@ -1,7 +1,7 @@
 import { ERROR_SYMBOL } from '../common'
 
 export class Exception extends Error {
-  constructor(public message: string, public status: number, public description = 'Http exception') {
+  constructor(public message: string, public status = 0, public description = 'Exception') {
     super(message)
   }
 
