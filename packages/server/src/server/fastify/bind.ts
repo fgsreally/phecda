@@ -28,7 +28,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
       if (!http?.type)
         continue
 
-      log(`"${func}" in "${tag}": `)
+      log(`register [${func}] in [${tag}]: `)
+
       detectAopDep(meta, {
         plugins,
         guards,
