@@ -1,4 +1,5 @@
 import type { Express, Request, Response, Router } from 'express'
+import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
@@ -8,7 +9,8 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import { log } from '../../utils'
+
+const debug = Debug('phecda-server/express')
 export interface ExpressCtx extends P.HttpContext {
   type: 'express'
   request: Request
@@ -30,7 +32,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]`)
+      debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
@@ -63,6 +65,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag, func } = item
+
+            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+
             if (!metaMap.has(tag))
               return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
@@ -146,6 +151,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         (req as any)[META_SYMBOL] = meta
         next()
       }, ...Context.usePlugin(plugins), async (req, res, next) => {
+        debug(`invoke method "${func}" in module "${tag}"`)
+
         const instance = moduleMap.get(tag)!
         const contextData = {
           type: 'express' as const,

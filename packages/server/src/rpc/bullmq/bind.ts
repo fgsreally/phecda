@@ -1,11 +1,15 @@
 import type { ConnectionOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
+import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
+
+const debug = Debug('phecda-server/bullmq')
+
 export interface BullmqCtx extends P.BaseContext {
   type: 'bullmq'
   data: any
@@ -21,13 +25,10 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc, guards, interceptors } = item.data
+      const { tag, func, rpc } = item.data
       if (!rpc)
         continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -53,7 +54,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
         workerMap[queue] = new Worker(queue, async (job) => {
           const { data } = job
           const { tag, func, args, id, queue: clientQueue } = data
-
+          debug(`invoke method "${func}" in module "${tag}"`)
           const meta = metaMap.get(tag)![func]
 
           const {

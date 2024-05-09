@@ -1,6 +1,7 @@
 import type Router from '@koa/router'
 import type { RouterParamContext } from '@koa/router'
 import type { DefaultContext, DefaultState } from 'koa'
+import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
@@ -10,8 +11,8 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import { log } from '../../utils'
 
+const debug = Debug('phecda-server/koa')
 export interface KoaCtx extends P.HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
@@ -33,7 +34,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]`)
+      debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
@@ -66,6 +67,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag, func } = item
+            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
             if (!metaMap.has(tag))
               return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
@@ -149,6 +151,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         ctx[META_SYMBOL] = meta
         await next()
       }, ...Context.usePlugin(plugins), async (ctx, next) => {
+        debug(`invoke method "${func}" in module "${tag}"`)
+
         const instance = moduleMap.get(tag)!
         const contextData = {
           type: 'koa' as const,

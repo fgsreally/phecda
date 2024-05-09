@@ -1,6 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
 import type { H3Event, Router } from 'h3'
+import Debug from 'debug'
 import { argToReq, resolveDep } from '../helper'
 import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
@@ -9,7 +10,8 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import { log } from '../../utils'
+
+const debug = Debug('phecda-server/h3')
 
 export interface H3Ctx extends P.HttpContext {
   type: 'h3'
@@ -54,7 +56,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]`)
+      debug(`register method "${func}" in module "${tag}"`)
 
       detectAopDep(meta, {
         plugins,
@@ -88,6 +90,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
+
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+
               if (!metaMap.has(tag))
                 return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
@@ -168,6 +173,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       router[http.type](http.route, eventHandler({
         onRequest: [prePlugin, ...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
         handler: async (event) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
           const instance = moduleMap.get(tag)!
 
           const contextData = {

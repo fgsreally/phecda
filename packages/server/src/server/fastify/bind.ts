@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
+import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
@@ -8,8 +9,8 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
-import { log } from '../../utils'
 import { Define } from '../../decorators'
+const debug = Debug('phecda-server/fastify')
 export interface FastifyCtx extends P.HttpContext {
   type: 'fastify'
   request: FastifyRequest
@@ -28,7 +29,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]`)
+      debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
@@ -88,6 +89,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+
               if (!metaMap.has(tag))
                 return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
@@ -186,6 +189,9 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
         fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
           (req as any)[MODULE_SYMBOL] = moduleMap;
           (req as any)[META_SYMBOL] = meta
+
+          debug(`invoke method "${func}" in module "${tag}"`)
+
           const instance = moduleMap.get(tag)!
           const contextData = {
             type: 'fastify' as const,

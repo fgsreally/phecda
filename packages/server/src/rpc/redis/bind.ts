@@ -1,10 +1,13 @@
 import type Redis from 'ioredis'
+import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
+
+const debug = Debug('phecda-server/redis')
 
 export interface RedisCtx extends P.BaseContext {
   type: 'redis'
@@ -23,13 +26,10 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc, interceptors, guards } = item.data
+      const { tag, func, rpc } = item.data
       if (!rpc)
         continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -65,6 +65,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
     if (msg) {
       const data = JSON.parse(msg)
       const { func, args, id, tag, queue: clientQueue } = data
+      debug(`invoke method "${func}" in module "${tag}"`)
 
       const meta = metaMap.get(tag)![func]
 

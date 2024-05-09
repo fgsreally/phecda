@@ -1,10 +1,13 @@
 import type { Consumer, Producer } from 'kafkajs'
+import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
+
+const debug = Debug('phecda-server/kafka')
 
 export interface KafkaCtx extends P.BaseContext {
   type: 'kafka'
@@ -24,13 +27,10 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc, interceptors, guards } = item.data
+      const { tag, func, rpc } = item.data
       if (!rpc)
         continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -72,7 +72,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       const data = JSON.parse(message.value!.toString())
 
       const { tag, func, args, id, queue: clientQueue } = data
-
+      debug(`invoke method "${func}" in module "${tag}"`)
       const meta = metaMap.get(tag)![func]
       const {
         data: {

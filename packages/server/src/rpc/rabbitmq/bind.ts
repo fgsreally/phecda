@@ -1,11 +1,14 @@
 import type amqplib from 'amqplib'
 import type { ConsumeMessage } from 'amqplib'
+import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
 import type { P } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
+
+const debug = Debug('phecda-server/rabbitmq')
 
 export interface RabbitmqCtx extends P.BaseContext {
   type: 'rabbitmq'
@@ -22,13 +25,10 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc, guards, interceptors } = item.data
+      const { tag, func, rpc } = item.data
       if (!rpc)
         continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -68,6 +68,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
     if (msg) {
       const data = JSON.parse(msg.content.toString())
       const { tag, func, args, id, queue: clientQueue } = data
+
+      debug(`invoke method "${func}" in module "${tag}"`)
       const meta = metaMap.get(tag)![func]
 
       const {
