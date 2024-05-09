@@ -115,7 +115,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
 
   handleMeta()
   subscribeQueues()
@@ -124,7 +124,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
     handleMeta()
     for (const i in workerMap)
       await workerMap[i].close(true)

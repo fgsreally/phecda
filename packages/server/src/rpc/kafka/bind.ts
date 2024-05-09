@@ -61,7 +61,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
   handleMeta()
   await subscribeQueues()
   await consumer.run({
@@ -154,7 +154,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
 
     handleMeta()
     // not unsubscribe in kafkajs

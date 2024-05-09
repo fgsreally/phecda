@@ -159,7 +159,7 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]
-} = {}) {
+} = {}, type: 'http' | 'rpc' = 'http') {
   const pluginSet = new Set<string>(plugins)
 
   const guardSet = new Set<string>(guards)
@@ -167,7 +167,11 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   const pipeSet = new Set<string>()
 
   const filterSet = new Set<string>()
+
   meta.forEach(({ data }) => {
+    if (!data[type])
+      return
+
     if (data.filter)
       filterSet.add(data.filter)
 

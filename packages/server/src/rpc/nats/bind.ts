@@ -114,7 +114,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
 
   handleMeta()
   subscribeQueues()
@@ -123,7 +123,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
     handleMeta()
 
     for (const i in subscriptionMap)

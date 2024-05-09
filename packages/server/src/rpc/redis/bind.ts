@@ -125,14 +125,14 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
   handleMeta()
   subscribeQueues()
   HMR(async () => {
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
     handleMeta()
     for (const queue of existQueue)
       await sub.unsubscribe(queue)

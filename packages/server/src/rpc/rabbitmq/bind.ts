@@ -119,7 +119,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
 
   handleMeta()
   subscribeQueues()
@@ -128,7 +128,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
     handleMeta()
     for (const queue of existQueue)
       await ch.deleteQueue(queue)
