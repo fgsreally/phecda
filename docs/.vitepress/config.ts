@@ -116,13 +116,14 @@ export default defineConfig({
               text: '管道',
               link: '/server/aop/pipe',
             },
-            {
-              text: '插件',
-              link: '/server/aop/plugin',
-            },
+
             {
               text: '过滤器',
               link: '/server/aop/filter',
+            },
+            {
+              text: '插件',
+              link: '/server/aop/plugin',
             },
             {
               text: 'extension',

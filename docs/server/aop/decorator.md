@@ -10,7 +10,9 @@
 ```ts
 @Controller('/')
 class A {
+  @Ctx
   context: any
+
   @Get('')
   get() {
     const { request } = this.context// 但必须在方法的顶部！

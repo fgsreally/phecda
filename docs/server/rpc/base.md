@@ -17,14 +17,17 @@
 :::
 
 ```ts
-import { Arg, Event, Rpc } from 'phecda-server'
+import { Arg, Event, Queue } from 'phecda-server'
 
-@Rpc('redis', 'mq') // 允许redis、rabbitmq访问，当然也可以标在方法上
 export class TestRpc {
+  @Queue()
+
   run(@Arg() /** 只是一个标识 */ arg: string) {
     console.log(`arg is ${arg}`)
     return arg
   }
+
+  @Queue('test')// 走test这个channel
 
   @Event() // 标记这个是事件模式，不会返回任何值
   event(@Arg() arg: string) {
@@ -46,11 +49,11 @@ const data = await Factory([UserController], {
 由于和`http`一致，一样要将引入指向`rpc.js`，具体方法也是[构建工具](../client/bundler.md)和[npm](../client/npm.md)
 
 
-:::danger
+:::info
 
 我假定微服务中的调用方和服务方是在两个项目里（最起码是在 monorepo 中），
 
-不考虑同个服务的双端都在同个项目里。
+如果在同个项目中,调用的代码所属文件须符合`*.client.ts`
 
 
 :::

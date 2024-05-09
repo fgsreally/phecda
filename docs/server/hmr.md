@@ -38,6 +38,7 @@ npx phecda server.ts
 npx phecda server.ts --inspect
 ```
 
+> 本质就是`node --import=phecda-server/register server.js`
 
 
 ## 清除副作用

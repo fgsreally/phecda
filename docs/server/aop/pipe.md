@@ -29,7 +29,7 @@ Factory([Validate, TestController])
 ```
 
 ## 默认
-没有设置管道时，默认使用`default`管道,效果如下
+没有设置管道时，默认使用`default`管道,即`phecda-core`提供的验证能力
 
 > 和`class-validator`很像
 
@@ -46,7 +46,7 @@ class BodyData {
   age: number
 }
 
-@Controller('/Validate')
+@Controller('/test')
 class TestController {
   @Post()
   test4(@Body() body: BodyDatas) {}

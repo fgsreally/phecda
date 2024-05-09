@@ -8,8 +8,8 @@
 @Controller('/user')
 class User {
   @Post('/login')
+  // 仔细看下面这一行！
   login(@Query('name') name: string, @Query('password') password: string) {
-    // 仔细看这一行！
     // ..
     if (password === 'password')
       return true

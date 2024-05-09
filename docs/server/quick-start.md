@@ -8,12 +8,15 @@
 npm i phecda-server @swc-node/core
 ```
 > 不需要热更新可以不安装后者
+> 
+> 但请务必安装，`<0.1s`的热更新绝对能颠覆一切考量，[详见](./hmr.md)
 
 
 ### 代码
 
 以`express`为例,创建一个`user.controller.ts`和`user.service.ts`。
 > 其他框架[详见](./base.md)
+> 
 > 和`nestjs`几乎一致
 
 
@@ -75,17 +78,17 @@ npx phecda index.ts
 ```shell
 npm i phecda-client 
 ```
- 如果使用的不是`axios`,那就要自己写一个类似`phecda-client`的东西
+>  如果使用的不是`axios`,那就要自己写一个类似`phecda-client`的东西
 
 ### 编译时
-> 使用了 `unplugin`，`webpack`中也能用
+> 使用了 `unplugin`，`webpack`等也能用
 
 以`vite`为例
 ```ts
 import PC from 'phecda-client/vite'
 
 export default defineConfig({
-  plugins: [PC({ localPath: './pmeta.js'/** 生成的http代码的路径 */, })],
+  plugins: [PC({ http: './pmeta.js'/** 生成的http代码的路径 */, })],
 })
 ```
 
@@ -98,8 +101,8 @@ import { UserController } from '../server/user.controller'
 const instance = axios.create({
   baseURL: 'http://localhost:3699',
 })
-const chain = createChainReq(instance, { user: UserController },)
-const ret = await chain.user.login('username', 'password')
+const request = createChainReq(instance, { user: UserController },)
+const ret = await request.user.login('username', 'password')
 ```
 
 

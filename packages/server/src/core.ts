@@ -8,7 +8,7 @@ import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_DEV, IS_ONLY_CODE } from './common'
+import { IS_HMR, IS_ONLY_CODE } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
 export function Injectable() {
   return (target: any) => Empty(target)
@@ -161,7 +161,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
       process.exit(4)// only output code/work for ci
   })
 
-  if (IS_DEV) { // for hmr
+  if (IS_HMR) { // for hmr
     if (!globalThis.__PS_HMR__)
       globalThis.__PS_HMR__ = []
 
