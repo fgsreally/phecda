@@ -113,7 +113,7 @@ describe('h3 ', () => {
     })
     const res1 = await request(app).post('/aop/no')
     expect(res1.body).toMatchObject({
-      message: 'Guard exception--g1',
+      message: 'Guard exception--[g1]',
       status: 403,
       [ERROR_SYMBOL]: true,
     })

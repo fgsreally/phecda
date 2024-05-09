@@ -29,17 +29,12 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http, guards, interceptors } = item.data
+      const { tag, func, http } = item.data
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]: `)
+      log(`register [${func}] in [${tag}]`)
 
-      detectAopDep(meta, {
-        plugins,
-        guards,
-        interceptors,
-      })
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 

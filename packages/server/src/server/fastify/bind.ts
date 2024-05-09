@@ -24,17 +24,12 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http, guards, interceptors } = item.data
+      const { tag, func, http } = item.data
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]: `)
+      log(`register [${func}] in [${tag}]`)
 
-      detectAopDep(meta, {
-        plugins,
-        guards,
-        interceptors,
-      })
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 

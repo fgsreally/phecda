@@ -4,7 +4,7 @@ import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { P } from './types'
-import { IS_DEV, IS_STRICT } from './common'
+import { IS_HMR, IS_STRICT } from './common'
 import type { Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
@@ -34,7 +34,7 @@ export class Context<Data extends P.BaseContext> {
   postInterceptors: Function[]
 
   constructor(public data: Data) {
-    if (IS_DEV)
+    if (IS_HMR)
       // @ts-expect-error work for debug
       data._context = this
   }
@@ -69,11 +69,11 @@ export class Context<Data extends P.BaseContext> {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardRecord)) {
           if (IS_STRICT)
-            throw new FrameworkException(`can't find guard named '${guard}'`)
+            throw new FrameworkException(`can't find guard named "${guard}"`)
           continue
         }
         if (!await Context.guardRecord[guard](this.data))
-          throw new ForbiddenException(`Guard exception--${guard}`)
+          throw new ForbiddenException(`Guard exception--[${guard}]`)
       }
     }
   }
@@ -91,7 +91,7 @@ export class Context<Data extends P.BaseContext> {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Context.interceptorRecord)) {
           if (IS_STRICT)
-            throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
+            throw new FrameworkException(`can't find interceptor named "${interceptor}"`)
 
           continue
         }

@@ -54,7 +54,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       if (!http?.type)
         continue
 
-      log(`register [${func}] in [${tag}]: `)
+      log(`register [${func}] in [${tag}]`)
 
       detectAopDep(meta, {
         plugins,
