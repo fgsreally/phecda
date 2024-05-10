@@ -7,3 +7,4 @@ fix `PS_FILE_RE`;
 fix spell in `TestFactory`
 add debug to all bind
 improve `detectAopDep`
+add `parseMeta` to `Factory`

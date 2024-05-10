@@ -19,6 +19,8 @@ export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(models: (new (...args: any) => any)[], opts: {
   parseModule?: (module: any) => any
+  parseMeta?: (meta: Meta) => Meta | void
+
   // HTTP generate code path
   http?: string
   // rpc generate code path
@@ -29,7 +31,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   const constructorMap = new Map()
   const constructorSet = new WeakSet()
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
-  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module } = opts
+  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module, parseMeta = (meta: any) => meta } = opts
   if (!getInject('watcher')) {
     setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
@@ -127,7 +129,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     else {
       instance = parseModule(new Model())
     }
-    meta.push(...getMetaFromInstance(instance, tag, Model.name))
+    meta.push(...getMetaFromInstance(instance, tag, Model.name).map(parseMeta).filter(item => !!item))
 
     debug(`init module "${String(tag)}"`)
 
