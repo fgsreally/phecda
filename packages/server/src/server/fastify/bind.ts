@@ -7,11 +7,11 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
 import { Define } from '../../decorators'
 const debug = Debug('phecda-server/fastify')
-export interface FastifyCtx extends P.HttpContext {
+export interface FastifyCtx extends HttpContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply

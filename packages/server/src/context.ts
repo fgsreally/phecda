@@ -3,18 +3,18 @@ import { defaultPipe } from './pipe'
 import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
-import type { P } from './types'
+import type { BaseContext } from './types'
 import { IS_HMR, IS_STRICT } from './common'
 import type { Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
 
-export type GuardType<C extends P.BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
-export type InterceptorType<C extends P.BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
-export type PipeType<C extends P.BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
-export type FilterType<C extends P.BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
+export type GuardType<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
+export type InterceptorType<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
+export type PipeType<C extends BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
+export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
-export class Context<Data extends P.BaseContext> {
+export class Context<Data extends BaseContext> {
   method: string
   params: string[]
   history = new Histroy()
@@ -130,25 +130,25 @@ export function addPlugin<T>(key: PropertyKey, handler: T) {
   Context.pluginRecord[key] = handler
 }
 
-export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: PipeType<C>) {
+export function addPipe<C extends BaseContext>(key: PropertyKey, handler: PipeType<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
     log(`overwrite Pipe "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = handler
 }
 
-export function addFilter<C extends P.BaseContext>(key: PropertyKey, handler: FilterType<C>) {
+export function addFilter<C extends BaseContext>(key: PropertyKey, handler: FilterType<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
     log(`overwrite Filter "${String(key)}"`, 'warn')
   Context.filterRecord[key] = handler
 }
 
-export function addGuard<C extends P.BaseContext>(key: PropertyKey, handler: GuardType<C>) {
+export function addGuard<C extends BaseContext>(key: PropertyKey, handler: GuardType<C>) {
   if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
     log(`overwrite Guard "${String(key)}"`, 'warn')
   Context.guardRecord[key] = handler
 }
 
-export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
+export function addInterceptor<C extends BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
   if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
     log(`overwrite Interceptor "${String(key)}"`, 'warn')
   Context.interceptorRecord[key] = handler

@@ -3,14 +3,14 @@ import { StringCodec } from 'nats'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { BaseContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 const debug = Debug('phecda-server/nats')
 
-export interface NatsCtx extends P.BaseContext {
+export interface NatsCtx extends BaseContext {
   type: 'nats'
   msg: any
   data: any

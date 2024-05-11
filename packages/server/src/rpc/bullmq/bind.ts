@@ -3,14 +3,14 @@ import { Queue, Worker } from 'bullmq'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { BaseContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 const debug = Debug('phecda-server/bullmq')
 
-export interface BullmqCtx extends P.BaseContext {
+export interface BullmqCtx extends BaseContext {
   type: 'bullmq'
   data: any
 }

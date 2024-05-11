@@ -8,12 +8,12 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/h3')
 
-export interface H3Ctx extends P.HttpContext {
+export interface H3Ctx extends HttpContext {
   type: 'h3'
   event: H3Event
 }

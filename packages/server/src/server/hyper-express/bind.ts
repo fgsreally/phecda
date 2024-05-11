@@ -7,11 +7,11 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/hyper-express')
-export interface HyperExpressCtx extends P.HttpContext {
+export interface HyperExpressCtx extends HttpContext {
   type: 'hyper-express'
   request: Request
   response: Response

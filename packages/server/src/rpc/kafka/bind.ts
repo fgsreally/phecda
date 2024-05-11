@@ -3,13 +3,13 @@ import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { BaseContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 
 const debug = Debug('phecda-server/kafka')
 
-export interface KafkaCtx extends P.BaseContext {
+export interface KafkaCtx extends BaseContext {
   type: 'kafka'
   topic: string
   partition: number

@@ -12,7 +12,7 @@ class Info {
 @Controller('')
 export class Test {
   @Ctx
-  ctx: P.HttpContext
+  ctx: HttpContext
 
   @Get('/get')
   get() {

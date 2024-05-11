@@ -1,8 +1,8 @@
 import { getTag } from 'phecda-core'
 import { Context, addPipe } from '../context'
-import type { P } from '../types'
+import type { BaseContext } from '../types'
 import { Dev } from './dev'
-export abstract class PPipe<C extends P.BaseContext = any> extends Dev {
+export abstract class PPipe<C extends BaseContext = any> extends Dev {
   readonly key: PropertyKey
 
   constructor(tag?: string) {

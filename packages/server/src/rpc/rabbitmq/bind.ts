@@ -3,14 +3,14 @@ import type { ConsumeMessage } from 'amqplib'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { BaseContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 const debug = Debug('phecda-server/rabbitmq')
 
-export interface RabbitmqCtx extends P.BaseContext {
+export interface RabbitmqCtx extends BaseContext {
   type: 'rabbitmq'
   ch: amqplib.Channel
   msg: amqplib.ConsumeMessage

@@ -7,10 +7,10 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
 const debug = Debug('phecda-server/hono')
-export interface HonoCtx extends P.HttpContext {
+export interface HonoCtx extends HttpContext {
   type: 'hono'
 
 }

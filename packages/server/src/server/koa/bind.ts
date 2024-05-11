@@ -9,11 +9,11 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/koa')
-export interface KoaCtx extends P.HttpContext {
+export interface KoaCtx extends HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
   next: Function

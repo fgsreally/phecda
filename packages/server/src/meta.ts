@@ -1,8 +1,8 @@
-import type { P } from './types'
+import type { BaseRequestType } from './types'
 
 export interface MetaData {
   http?: {
-    type: P.RequestType
+    type: BaseRequestType
     route: string
   }
   rpc?: {
