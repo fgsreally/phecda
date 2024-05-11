@@ -12,7 +12,7 @@ export function WatchEffect(option?: WatchOptions) {
     setHandler(proto, key, {
       init(instance: any) {
         if (typeof instance[key] !== 'function')
-          throw new TypeError(' WatchEffect must decorate function')
+          throw new Error('WatchEffect must decorate function')
 
         stopHandler = watchEffect(instance[key].bind(instance), option)
       },

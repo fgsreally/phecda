@@ -1,39 +1,37 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
+import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
-import { log } from '../../utils'
 import { Define } from '../../decorators'
-export interface FastifyCtx extends P.HttpContext {
+const debug = Debug('phecda-server/fastify')
+export interface FastifyCtx extends HttpContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
 }
 
-export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}): FastifyPluginCallback {
+export function bind(app: FastifyInstance, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}): FastifyPluginCallback {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-  (app as any).server[PS_SYMBOL] = { moduleMap, meta }
+  const {
+    moduleMap, meta,
+  } = data
 
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http, guards, interceptors } = item.data
+      const { tag, func, http } = item.data
       if (!http?.type)
         continue
 
-      log(`"${func}" in "${tag}": `)
-      detectAopDep(meta, {
-        plugins,
-        guards,
-        interceptors,
-      })
+      debug(`register method "${func}" in module "${tag}"`)
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -59,14 +57,6 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
   })
 
   return (fastify, _, done) => {
-    (fastify as any)[PS_SYMBOL] = {
-      moduleMap, meta,
-    }
-
-    fastify.decorateRequest('data', {})
-    fastify.decorateRequest(MODULE_SYMBOL)
-    fastify.decorateRequest(META_SYMBOL)
-
     fastify.register((fastify, _opts, done) => {
       plugins.forEach((p) => {
         const plugin = Context.usePlugin([p])[0]
@@ -92,6 +82,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
             // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+
               if (!metaMap.has(tag))
                 return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
@@ -115,6 +107,7 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
               const instance = moduleMap.get(tag)
               const contextData = {
                 type: 'fastify' as const,
+                parallel: true,
                 request: req,
                 index: i,
                 meta,
@@ -132,10 +125,10 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 if (!params)
                   throw new BadRequestException(`"${func}" in "${tag}" doesn't exist`)
                 await context.useGuard([...globalGuards, ...guards])
-                const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-                if (cache !== undefined)
+                const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+                if (i1 !== undefined)
 
-                  return resolve(cache)
+                  return resolve(i1)
 
                 const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
                   return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
@@ -143,7 +136,11 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
                 if (ctx)
                   instance[ctx] = contextData
                 const funcData = await instance[func](...args)
-                resolve(await context.usePostInterceptor(funcData))
+
+                const i2 = await context.usePostInterceptor(funcData)
+                if (i2 !== undefined)
+                  return resolve(i2)
+                resolve(funcData)
               }
               catch (e: any) {
                 resolve(await context.useFilter(e, filter))
@@ -188,8 +185,8 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
         })
 
         fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
-          (req as any)[MODULE_SYMBOL] = moduleMap;
-          (req as any)[META_SYMBOL] = meta
+          debug(`invoke method "${func}" in module "${tag}"`)
+
           const instance = moduleMap.get(tag)!
           const contextData = {
             type: 'fastify' as const,
@@ -212,10 +209,10 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
             for (const name in header)
               res.header(name, header[name])
             await context.useGuard([...globalGuards, ...guards])
-            const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (cache !== undefined)
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
 
-              return cache
+              return i1
 
             const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
               return { arg: resolveDep(context.data[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
@@ -224,11 +221,15 @@ export function bind(app: FastifyInstance, { moduleMap, meta }: Awaited<ReturnTy
             if (ctx)
               instance[ctx] = contextData
             const funcData = await instance[func](...args)
-            const ret = await context.usePostInterceptor(funcData)
+            const i2 = await context.usePostInterceptor(funcData)
+
+            if (i2 !== undefined)
+              return i2
+
             if (res.sent)
               return
 
-            return ret
+            return funcData
           }
           catch (e: any) {
             const err = await context.useFilter(e, filter)

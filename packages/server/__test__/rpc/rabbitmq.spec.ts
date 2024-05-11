@@ -114,7 +114,8 @@ describe('rabbitmq rpc', () => {
       expect(ctx.tag).toBe('TestRpc')
       return (ret: number) => {
         expect(ret).toBe(2)
-        return ++ret
+        ctx.send(++ret)
+        return true
       }
     })
     class TestRpc {

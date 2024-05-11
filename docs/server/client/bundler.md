@@ -10,7 +10,7 @@
 import client from 'phecda-client/vite'
 
 export default defineConfig({
-  plugins: [client({ localPath: './pmeta.js' })],
+  plugins: [client({ http: './pmeta.js' })],
 })
 ```
 > 基于`unplugin`，`webpack、vite`均可行

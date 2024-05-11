@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from 'vitest'
-import type { P } from 'phecda-server'
+import type { BaseError } from 'phecda-server'
 import axios from 'axios'
 import { createChainReq, createParallelReq, createReq, isError, useC } from '../src'
 
@@ -30,10 +30,10 @@ describe('client types', () => {
 
         const { data: [ret1, ret2] } = await useParallelReq([test('a', 10), test2()])
         if (isError(ret1))
-            expectTypeOf(ret1).toEqualTypeOf<P.Error>
+            expectTypeOf(ret1).toEqualTypeOf<BaseError>
         else expectTypeOf(ret1).toEqualTypeOf<{ name: string }>
         if (isError(ret2))
-            expectTypeOf(ret2).toEqualTypeOf<P.Error>
+            expectTypeOf(ret2).toEqualTypeOf<BaseError>
         else expectTypeOf(ret2).toEqualTypeOf<boolean>
   })
 

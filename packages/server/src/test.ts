@@ -16,7 +16,7 @@ export async function TestFactory<T extends Construct[]>(...Modules: T) {
         throw new Error(`module "${String(tag)}" doesn't exist`)
 
       if (constructorMap.get(tag) !== Module)
-        throw new Error(`Module ${Module.name} and "${String(tag)}' in modulemap are different modules`)
+        throw new Error(`module "${Module.name}" and "${String(tag)}" in modulemap are different modules`)
 
       return instance
     },

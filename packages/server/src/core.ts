@@ -8,7 +8,7 @@ import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_DEV, IS_ONLY_CODE } from './common'
+import { IS_HMR, IS_ONLY_CODE } from './common'
 import { generateHTTPCode, generateRPCCode } from './compiler'
 export function Injectable() {
   return (target: any) => Empty(target)
@@ -19,6 +19,8 @@ export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(models: (new (...args: any) => any)[], opts: {
   parseModule?: (module: any) => any
+  parseMeta?: (meta: Meta) => Meta | null | undefined
+
   // HTTP generate code path
   http?: string
   // rpc generate code path
@@ -29,7 +31,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   const constructorMap = new Map()
   const constructorSet = new WeakSet()
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
-  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module } = opts
+  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module, parseMeta = (meta: any) => meta } = opts
   if (!getInject('watcher')) {
     setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
@@ -127,7 +129,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     else {
       instance = parseModule(new Model())
     }
-    meta.push(...getMetaFromInstance(instance, tag, Model.name))
+    meta.push(...getMetaFromInstance(instance, tag, Model.name).map(parseMeta).filter(item => !!item))
 
     debug(`init module "${String(tag)}"`)
 
@@ -161,7 +163,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
       process.exit(4)// only output code/work for ci
   })
 
-  if (IS_DEV) { // for hmr
+  if (IS_HMR) { // for hmr
     if (!globalThis.__PS_HMR__)
       globalThis.__PS_HMR__ = []
 

@@ -6,7 +6,7 @@
 
 :::warning
 
-`aop`是一些特殊的模块！！它和其他模块一样需要引入
+`aop`是一些特殊的模块，会在`http`以及微服务中起效
 
 建议使用[Extension](./extension.md)
 

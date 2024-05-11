@@ -3,18 +3,18 @@ import { defaultPipe } from './pipe'
 import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
-import type { P } from './types'
-import { IS_DEV, IS_STRICT } from './common'
+import type { BaseContext } from './types'
+import { IS_HMR, IS_STRICT } from './common'
 import type { Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
 
-export type GuardType<C extends P.BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
-export type InterceptorType<C extends P.BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
-export type PipeType<C extends P.BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
-export type FilterType<C extends P.BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
+export type GuardType<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
+export type InterceptorType<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
+export type PipeType<C extends BaseContext = any> = (arg: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C) => Promise<any>
+export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
-export class Context<Data extends P.BaseContext> {
+export class Context<Data extends BaseContext> {
   method: string
   params: string[]
   history = new Histroy()
@@ -34,7 +34,7 @@ export class Context<Data extends P.BaseContext> {
   postInterceptors: Function[]
 
   constructor(public data: Data) {
-    if (IS_DEV)
+    if (IS_HMR)
       // @ts-expect-error work for debug
       data._context = this
   }
@@ -69,43 +69,44 @@ export class Context<Data extends P.BaseContext> {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardRecord)) {
           if (IS_STRICT)
-            throw new FrameworkException(`can't find guard named '${guard}'`)
+            throw new FrameworkException(`can't find guard named "${guard}"`)
           continue
         }
         if (!await Context.guardRecord[guard](this.data))
-          throw new ForbiddenException(`Guard exception--${guard}`)
+          throw new ForbiddenException(`Guard exception--[${guard}]`)
       }
     }
   }
 
-  async usePostInterceptor(ret: any) {
-    for (const cb of this.postInterceptors)
-      ret = await cb(ret) || ret
-
-    return ret
+  async usePostInterceptor(data: any) {
+    for (const cb of this.postInterceptors) {
+      const ret = await cb(data)
+      if (ret !== undefined)
+        return ret
+    }
   }
 
   async useInterceptor(interceptors: string[]) {
-    const ret = []
+    const cb = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Context.interceptorRecord)) {
           if (IS_STRICT)
-            throw new FrameworkException(`can't find interceptor named '${interceptor}'`)
+            throw new FrameworkException(`can't find interceptor named "${interceptor}"`)
 
           continue
         }
-        const postInterceptor = await Context.interceptorRecord[interceptor](this.data)
-        if (postInterceptor !== undefined) {
-          if (typeof postInterceptor === 'function')
-            ret.push(postInterceptor)
+        const interceptRet = await Context.interceptorRecord[interceptor](this.data)
+        if (interceptRet !== undefined) {
+          if (typeof interceptRet === 'function')
+            cb.push(interceptRet)
 
           else
-            return postInterceptor
+            return interceptRet
         }
       }
     }
-    this.postInterceptors = ret
+    this.postInterceptors = cb
   }
 
   static usePlugin(plugins: string[]) {
@@ -130,25 +131,25 @@ export function addPlugin<T>(key: PropertyKey, handler: T) {
   Context.pluginRecord[key] = handler
 }
 
-export function addPipe<C extends P.BaseContext>(key: PropertyKey, handler: PipeType<C>) {
+export function addPipe<C extends BaseContext>(key: PropertyKey, handler: PipeType<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
     log(`overwrite Pipe "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = handler
 }
 
-export function addFilter<C extends P.BaseContext>(key: PropertyKey, handler: FilterType<C>) {
+export function addFilter<C extends BaseContext>(key: PropertyKey, handler: FilterType<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
     log(`overwrite Filter "${String(key)}"`, 'warn')
   Context.filterRecord[key] = handler
 }
 
-export function addGuard<C extends P.BaseContext>(key: PropertyKey, handler: GuardType<C>) {
+export function addGuard<C extends BaseContext>(key: PropertyKey, handler: GuardType<C>) {
   if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
     log(`overwrite Guard "${String(key)}"`, 'warn')
   Context.guardRecord[key] = handler
 }
 
-export function addInterceptor<C extends P.BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
+export function addInterceptor<C extends BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
   if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
     log(`overwrite Interceptor "${String(key)}"`, 'warn')
   Context.interceptorRecord[key] = handler
@@ -159,7 +160,7 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]
-} = {}) {
+} = {}, type: 'http' | 'rpc' = 'http') {
   const pluginSet = new Set<string>(plugins)
 
   const guardSet = new Set<string>(guards)
@@ -167,7 +168,11 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   const pipeSet = new Set<string>()
 
   const filterSet = new Set<string>()
+
   meta.forEach(({ data }) => {
+    if (!data[type])
+      return
+
     if (data.filter)
       filterSet.add(data.filter)
 

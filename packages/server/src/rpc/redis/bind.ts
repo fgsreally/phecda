@@ -1,17 +1,19 @@
 import type Redis from 'ioredis'
+import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 
-export interface RedisCtx extends P.BaseContext {
+const debug = Debug('phecda-server/redis')
+
+export interface RedisCtx extends RpcContext {
   type: 'redis'
   redis: Redis
   msg: string
   channel: string
-  data: any
 
 }
 
@@ -23,13 +25,10 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc, interceptors, guards } = item.data
+      const { tag, func, rpc } = item.data
       if (!rpc)
         continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -65,6 +64,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
     if (msg) {
       const data = JSON.parse(msg)
       const { func, args, id, tag, queue: clientQueue } = data
+      debug(`invoke method "${func}" in module "${tag}"`)
 
       const meta = metaMap.get(tag)![func]
 
@@ -73,7 +73,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         paramsType,
       } = meta
 
-      const context = new Context({
+      const context = new Context(<RedisCtx>{
         type: 'redis',
         moduleMap,
         redis: sub,
@@ -83,17 +83,19 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         tag,
         func,
         data,
+        send(data) {
+          if (!isEvent)
+            pub.publish(clientQueue, JSON.stringify({ data, id }))
+        },
+
       })
 
       try {
         await context.useGuard([...globalGuards, ...guards])
-        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-        if (cache !== undefined) {
-          if (!isEvent)
-            pub.publish(clientQueue, JSON.stringify({ data: cache, id }))
+        const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (i1 !== undefined)
 
-          return
-        }
+          return i1
 
         const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
@@ -103,10 +105,12 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         if (ctx)
           instance[ctx] = context.data
         const funcData = await instance[func](...handleArgs)
-        const res = await context.usePostInterceptor(funcData)
+        const i2 = await context.usePostInterceptor(funcData)
 
+        if (i2 !== undefined)
+          return i2
         if (!isEvent)
-          pub.publish(clientQueue, JSON.stringify({ data: res, id }))
+          pub.publish(clientQueue, JSON.stringify({ data: funcData, id }))
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)
@@ -124,14 +128,14 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
   handleMeta()
   subscribeQueues()
   HMR(async () => {
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
     handleMeta()
     for (const queue of existQueue)
       await sub.unsubscribe(queue)

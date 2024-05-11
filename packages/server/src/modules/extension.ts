@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { getTag } from 'phecda-core'
-import type { P } from '../types'
+import type { BaseContext, BaseError } from '../types'
 import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
 import type { Exception } from '../exception'
 import { Dev } from './dev'
 
-export interface PExtension<C extends P.BaseContext = any, E extends Exception = Exception> {
+export interface PExtension<C extends BaseContext = any, E extends Exception = Exception> {
 
   intercept(ctx: C): Function | Promise<Function> | any
 
@@ -13,7 +13,7 @@ export interface PExtension<C extends P.BaseContext = any, E extends Exception =
 
   pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C): any
 
-  filter(error: Error | E, ctx?: C): P.Error
+  filter(error: Error | E, ctx?: C): BaseError
 
   plugin(...args: any): void
 }

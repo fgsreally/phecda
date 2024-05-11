@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { P, ToClientInstance } from 'phecda-server'
+import type { BaseError, ToClientInstance } from 'phecda-server'
 import type { RequestArgs } from './helper'
 import { toReq } from './helper'
 
@@ -28,16 +28,16 @@ export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRe
   }
 }
 
-export function createParallelReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<{
-  [K in keyof R]: Awaited<R[K]> | P.Error
+export function createParallelReq(instance: AxiosInstance, route = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<{
+  [K in keyof R]: Awaited<R[K]> | BaseError
 }>> {
   // @ts-expect-error misdirction
   return (args: RequestArgs[], config?: AxiosRequestConfig) => {
-    return instance.post(key, args, config)
+    return instance.post(route, args, config)
   }
 }
 
-export function isError<T = any>(data: T | P.Error): data is P.Error {
+export function isError<T = any>(data: T | BaseError): data is BaseError {
   return typeof data === 'object' && (data as any).__PS_ERROR__
 }
 

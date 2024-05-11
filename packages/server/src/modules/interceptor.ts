@@ -1,9 +1,9 @@
 import { getTag } from 'phecda-core'
 import { Context, addInterceptor } from '../context'
-import type { P } from '../types'
+import type { BaseContext } from '../types'
 import { Dev } from './dev'
 
-export abstract class PInterceptor<C extends P.BaseContext = any> extends Dev {
+export abstract class PInterceptor<C extends BaseContext = any> extends Dev {
   abstract use(ctx: C): Function | Promise<Function> | any
   readonly key: PropertyKey
 

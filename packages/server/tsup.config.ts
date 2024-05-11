@@ -9,6 +9,8 @@ export const tsup: Options = {
     'src/server/fastify/index.ts',
     'src/server/h3/index.ts',
     'src/server/hyper-express/index.ts',
+    'src/server/hono/index.ts',
+    'src/server/elysia/index.ts',
 
     'src/rpc/rabbitmq/index.ts',
     'src/rpc/kafka/index.ts',

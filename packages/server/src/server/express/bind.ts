@@ -1,42 +1,37 @@
 import type { Express, Request, Response, Router } from 'express'
+import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
-import { log } from '../../utils'
-export interface ExpressCtx extends P.HttpContext {
+
+const debug = Debug('phecda-server/express')
+export interface ExpressCtx extends HttpContext {
   type: 'express'
   request: Request
   response: Response
   next: Function
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
-  (router as any)[PS_SYMBOL] = { moduleMap, meta }
+  const { moduleMap, meta } = data
 
   const originStack = router.stack.slice(0, router.stack.length)
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http, guards, interceptors } = item.data
+      const { tag, func, http } = item.data
       if (!http?.type)
         continue
 
-      log(`"${func}" in "${tag}": `)
+      debug(`register method "${func}" in module "${tag}"`)
 
-      detectAopDep(meta, {
-        plugins,
-        guards,
-        interceptors,
-      })
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -46,13 +41,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    (router as Express).post(route, (req, _res, next) => {
-      (req as any)[MERGE_SYMBOL] = true;
-      (req as any)[MODULE_SYMBOL] = moduleMap;
-      (req as any)[META_SYMBOL] = meta
-
-      next()
-    }, ...Context.usePlugin(plugins), async (req, res, next) => {
+    (router as Express).post(route, ...Context.usePlugin(plugins), async (req, res, next) => {
       const { body } = req
 
       async function errorHandler(e: any) {
@@ -68,6 +57,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag, func } = item
+
+            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+
             if (!metaMap.has(tag))
               return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
@@ -90,6 +82,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             const contextData = {
               type: 'express' as const,
+              parallel: true,
               request: req,
               index: i,
               meta,
@@ -105,16 +98,19 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined)
-                return resolve(cache)
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+                return resolve(i1)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
                 return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               if (ctx)
                 instance[ctx] = contextData
               const funcData = await instance[func](...args)
-              resolve(await context.usePostInterceptor(funcData))
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2 !== undefined)
+                return resolve(i2)
+              resolve(funcData)
             }
             catch (e: any) {
               resolve(await context.useFilter(e, filter))
@@ -146,11 +142,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         },
       } = metaMap.get(tag)![func];
 
-      (router as Express)[http.type](http.route, (req, _res, next) => {
-        (req as any)[MODULE_SYMBOL] = moduleMap;
-        (req as any)[META_SYMBOL] = meta
-        next()
-      }, ...Context.usePlugin(plugins), async (req, res, next) => {
+      (router as Express)[http.type](http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+        debug(`invoke method "${func}" in module "${tag}"`)
+
         const instance = moduleMap.get(tag)!
         const contextData = {
           type: 'express' as const,
@@ -158,7 +152,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           meta: i,
           response: res,
           moduleMap,
-          parallel: false,
           tag,
           func,
           query: req.query,
@@ -175,32 +168,27 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           for (const name in header)
             res.set(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined) {
-            if (typeof cache === 'string')
-              res.send(cache)
+          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (i1 !== undefined)
+            return i1
 
-            else
-              res.json(cache)
-
-            return
-          }
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
           if (ctx)
             instance[ctx] = contextData
           const funcData = await instance[func](...args)
-          const ret = await context.usePostInterceptor(funcData)
-
+          const i2 = await context.usePostInterceptor(funcData)
+          if (i2 !== undefined)
+            return
           if (res.writableEnded)
             return
 
-          if (typeof ret === 'string')
-            res.send(ret)
+          if (typeof funcData === 'string')
+            res.send(funcData)
 
           else
-            res.json(ret)
+            res.json(funcData)
         }
         catch (e: any) {
           const err = await context.useFilter(e, filter)

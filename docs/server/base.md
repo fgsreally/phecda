@@ -2,23 +2,29 @@
 
 ## 初始化
 
-本质上是将所有的模块，或者说是类，先控制反转+依赖注入将其实例化
+本质上是将所有的模块，或者说是类，
+
+控制反转+依赖注入将其实例化
 
 然后根据`Tag`或者类名注册到`map`里
 
+> `Tag`或者类名作为模块的标识，在`Phecda`架构中很重要，[详见](./module.md#模块覆盖)
+
+
 ```ts
 import { Factory, Tag } from 'phecda-server'
-import { TestController } from './test.controller'
+
+class TestModule {}
 
 @Tag('test2')
 class Test2Module {}
 
-const data = await Factory([TestController, Test2Module])
-data.modulemap.get('TestController') //  TestController 实例,此时使用了类名
+const data = await Factory([TestModule, Test2Module])
+data.modulemap.get('TestModule') //  TestController 实例,此时使用了类名
 data.modulemap.get('test2') //  Test2Module 实例,此时使用了tag
 ```
 
-然后在将实例和服务端框架结合
+然后在将其和服务端框架结合
 
 <details>
 <summary>Express</summary>
@@ -57,10 +63,7 @@ import { koaBody } from 'koa-body'
 import Router from '@koa/router'
 import { bind } from 'phecda-server/koa'
 import { Factory } from 'phecda-server'
-import { TestController } from './test.controller'
-const data = await Factory([TestController], {
-  http: 'pmeta.js',
-})
+
 const app = new Koa()
 const router = new Router()
 
@@ -124,6 +127,8 @@ test3(@User() user:any){
 
 那么 这里的用户信息是来自服务端解析，而非用户端上传，这种写法会导致类型复用出问题。
 
+`PS`中禁止这么做
+
 :::
 
 ## 上下文
@@ -140,7 +145,7 @@ class TestController {
 
   @Get()
   test3() {
-    const { user } = this.context // 必须在顶部
+    const { user } = this.context // 必须在函数顶部
 
     // ...
   }
@@ -179,20 +184,6 @@ class TestController {
 
 > `nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入，原因[详见](./other/compare.md)
 
-服务必须要被装饰器装饰，原因[详见](./module.md)
-建议使用`Tag`,[详见](./module.md#模块修改)
-
-```ts
-@Injectable()
-// or @Tag('test')
-class TestService {
-  constructor(protected otherService: OtherService) {}
-
-  test() {
-    return 1
-  }
-}
-```
 
 前文中的
 
@@ -200,4 +191,4 @@ class TestService {
 const data = await Factory([TestController])
 ```
 
-不需要添加 TestService,它会作为 TestController 的依赖被处理
+此时不需要添加 `TestService`,它会作为 `TestController`s 的依赖被处理

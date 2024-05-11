@@ -1,18 +1,21 @@
 import type { Consumer, Producer } from 'kafkajs'
+import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { P } from '../../types'
+import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 
-export interface KafkaCtx extends P.BaseContext {
+const debug = Debug('phecda-server/kafka')
+
+export interface KafkaCtx extends RpcContext {
   type: 'kafka'
   topic: string
   partition: number
   heartbeat(): Promise<void>
   pause(): () => void
-  data: any
+
 }
 // @experiment
 
@@ -24,13 +27,10 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc, interceptors, guards } = item.data
+      const { tag, func, rpc } = item.data
       if (!rpc)
         continue
-      detectAopDep(meta, {
-        guards,
-        interceptors,
-      })
+
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item
 
@@ -61,7 +61,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   detectAopDep(meta, {
     guards: globalGuards,
     interceptors: globalInterceptors,
-  })
+  }, 'rpc')
   handleMeta()
   await subscribeQueues()
   await consumer.run({
@@ -72,7 +72,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       const data = JSON.parse(message.value!.toString())
 
       const { tag, func, args, id, queue: clientQueue } = data
-
+      debug(`invoke method "${func}" in module "${tag}"`)
       const meta = metaMap.get(tag)![func]
       const {
         data: {
@@ -93,23 +93,24 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         heartbeat,
         pause,
         data,
-      })
-
-      try {
-        await context.useGuard([...globalGuards, ...guards])
-        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-        if (cache !== undefined) {
+        send(data) {
           if (!isEvent) {
             producer.send({
               topic: clientQueue,
               messages: [
-                { value: JSON.stringify({ data: cache, id }) },
+                { value: JSON.stringify({ data, id }) },
               ],
             })
           }
+        },
+      })
 
-          return
-        }
+      try {
+        await context.useGuard([...globalGuards, ...guards])
+        const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (i1 !== undefined)
+          return i1
+
         const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
         }))
@@ -119,13 +120,14 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
           instance[ctx] = context.data
         const funcData = await instance[func](...handleArgs)
 
-        const ret = await context.usePostInterceptor(funcData)
-
+        const i2 = await context.usePostInterceptor(funcData)
+        if (i2 !== undefined)
+          return i2
         if (!isEvent) {
           producer.send({
             topic: clientQueue,
             messages: [
-              { value: JSON.stringify({ data: ret, id }) },
+              { value: JSON.stringify({ data: funcData, id }) },
             ],
           })
         }
@@ -154,7 +156,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     detectAopDep(meta, {
       guards: globalGuards,
       interceptors: globalInterceptors,
-    })
+    }, 'rpc')
 
     handleMeta()
     // not unsubscribe in kafkajs

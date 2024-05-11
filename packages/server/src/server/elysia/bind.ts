@@ -1,7 +1,5 @@
-import type Router from '@koa/router'
-import type { RouterParamContext } from '@koa/router'
-import type { DefaultContext, DefaultState } from 'koa'
 import Debug from 'debug'
+import { Elysia } from 'elysia'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
@@ -10,18 +8,14 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
+const debug = Debug('phecda-server/elysia')
+export interface ElysiaCtx extends HttpContext {
+  type: 'elysia'
 
-const debug = Debug('phecda-server/koa')
-export interface KoaCtx extends HttpContext {
-  type: 'koa'
-  ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
-  next: Function
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
-  const originStack = router.stack.slice(0, router.stack.length)
 
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
@@ -40,14 +34,17 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         metaMap.set(tag, { [func]: item })
     }
   }
+
   async function createRoute() {
-    router.post(route, ...Context.usePlugin(plugins), async (ctx, next) => {
-      const { body } = ctx.request as any
+    const parallelRouter = new Elysia()
+    Context.usePlugin(plugins).forEach(p => p(parallelRouter))
+    parallelRouter.post(route, async (c) => {
+      const { body } = c
 
       async function errorHandler(e: any) {
         const error = await Context.filterRecord.default(e)
-        ctx.status = error.status
-        ctx.body = error
+        c.set.status = error.status
+        return error
       }
 
       if (!Array.isArray(body))
@@ -58,6 +55,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           // eslint-disable-next-line no-async-promise-executor
           return new Promise(async (resolve) => {
             const { tag, func } = item
+
             debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
             if (!metaMap.has(tag))
@@ -69,45 +67,46 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
             const {
               paramsType,
+
               data: {
+                ctx,
                 params,
                 guards, interceptors,
                 filter,
-                ctx: CTX,
               },
             } = meta
 
             const instance = moduleMap.get(tag)
+
             const contextData = {
-              type: 'koa' as const,
+              type: 'hono' as const,
+              parallel: true,
+              context: c,
               index: i,
-              ctx,
               meta,
               moduleMap,
-              parallel: true,
-              next,
-              data: (ctx as any).data,
-
-              ...argToReq(params, item.args, ctx.headers),
               tag,
               func,
+              data: (c as any).data,
+              ...argToReq(params, item.args, c.headers),
             }
-            const context = new Context<KoaCtx>(contextData)
+            const context = new Context<ElysiaCtx>(contextData)
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined)
-                return resolve(cache)
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+                return resolve(i1)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
                 return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
-              if (CTX)
-                instance[CTX] = contextData
+              if (ctx)
+                instance[ctx] = contextData
               const funcData = await instance[func](...args)
               const i2 = await context.usePostInterceptor(funcData)
               if (i2 !== undefined)
                 return resolve(i2)
+
               resolve(funcData)
             }
             catch (e: any) {
@@ -115,13 +114,15 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             }
           })
         })).then((ret) => {
-          ctx.body = ret
+          return ret
         })
       }
       catch (e) {
         return errorHandler(e)
       }
     })
+
+    app.use(parallelRouter)
     for (const i of meta) {
       const { func, http, header, tag } = i.data
 
@@ -131,67 +132,66 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       const {
         paramsType,
         data: {
+          ctx,
           interceptors,
           guards,
           params,
           plugins,
           filter,
-          ctx: CTX,
         },
       } = metaMap.get(tag)![func]
+      const funcRouter = new Elysia()
 
-      router[http.type](http.route, ...Context.usePlugin(plugins), async (ctx, next) => {
+      Context.usePlugin(plugins).forEach(p => p(funcRouter))
+      // @ts-expect-error todo
+      funcRouter[http.type](http.route, async (c) => {
         debug(`invoke method "${func}" in module "${tag}"`)
-
         const instance = moduleMap.get(tag)!
         const contextData = {
-          type: 'koa' as const,
-          ctx,
+          type: 'elysia' as const,
+          context: c,
           meta: i,
           moduleMap,
+
           tag,
           func,
-          query: ctx.query,
-          params: ctx.params,
-          body: (ctx.request as any).body,
-          headers: ctx.headers,
-          data: (ctx as any).data,
-          next,
+          query: c.query,
+          body: c.body as any,
+          params: c.params,
+          headers: c.headers,
+          data: c.data,
         }
-        const context = new Context<KoaCtx>(contextData)
+
+        const context = new Context<ElysiaCtx>(contextData)
 
         try {
-          for (const name in header)
-            ctx.set(name, header[name])
+          c.set.headers = header
           await context.useGuard([...globalGuards, ...guards])
           const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (i1 !== undefined)
+
             return i1
 
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
-
-          if (CTX)
-            instance[CTX] = contextData
+          if (ctx)
+            instance[ctx] = contextData
           const funcData = await instance[func](...args)
           const i2 = await context.usePostInterceptor(funcData)
           if (i2 !== undefined)
             return i2
-
-          if (ctx.res.writableEnded)
-            return
-          ctx.body = funcData
+          return funcData
         }
         catch (e: any) {
           const err = await context.useFilter(e, filter)
 
-          if (ctx.res.writableEnded)
-            return
-          ctx.status = err.status
-          ctx.body = err
+          c.set.status = err.status
+          return err
         }
       })
+
+      app.use(funcRouter)
     }
   }
 
@@ -204,14 +204,12 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   createRoute()
 
   HMR(async () => {
-    router.stack = originStack
-
     detectAopDep(meta, {
       plugins,
       guards: globalGuards,
       interceptors: globalInterceptors,
     })
     handleMeta()
-    createRoute()
+    // createRoute()
   })
 }
