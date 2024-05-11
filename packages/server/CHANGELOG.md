@@ -1,5 +1,19 @@
 # phecda-server
 
+## 5.0.0-beta.28
+
+### Patch Changes
+
+- c792bef: rename `IS_DEV` to `IS_HMR`;
+  fix `PS_FILE_RE`;
+  fix spell in `TestFactory`
+  add debug to all bind
+  improve `detectAopDep`
+  add `parseMeta` to `Factory`
+  support `hono`/`elysia`(can't support full hmr)
+  remove internal symbol and middleware which seems useless
+  improve `interceptor`(it can intercept `PS` logic at now)
+
 ## 5.0.0-beta.27
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.4-beta.3
+
+### Patch Changes
+
+- 082f2af: createChainReq can change the parallel route
+
 ## 2.0.4-beta.2
 
 ### Patch Changes
