@@ -19,7 +19,7 @@ export const emitter: Emitter = new EventEmitter() as any
 
 export async function Factory(models: (new (...args: any) => any)[], opts: {
   parseModule?: (module: any) => any
-  parseMeta?: (meta: Meta) => Meta | void
+  parseMeta?: (meta: Meta) => Meta | null | undefined
 
   // HTTP generate code path
   http?: string

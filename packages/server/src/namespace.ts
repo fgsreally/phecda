@@ -31,6 +31,6 @@ export namespace P {
   export type Ret<T> = Awaited<T> extends { toJSON(): infer R } ? R : Awaited<T>
   //   export type RetOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
 
-  export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
+  export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
 
 }

@@ -28,12 +28,12 @@ export function createReq(instance: AxiosInstance): <R>(arg: R, config?: AxiosRe
   }
 }
 
-export function createParallelReq(instance: AxiosInstance, key = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<{
+export function createParallelReq(instance: AxiosInstance, route = '/__PHECDA_SERVER__'): < R extends unknown[]>(args: R, config?: AxiosRequestConfig) => Promise<AxiosResponse<{
   [K in keyof R]: Awaited<R[K]> | P.Error
 }>> {
   // @ts-expect-error misdirction
   return (args: RequestArgs[], config?: AxiosRequestConfig) => {
-    return instance.post(key, args, config)
+    return instance.post(route, args, config)
   }
 }
 

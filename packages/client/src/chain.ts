@@ -9,7 +9,7 @@ import { createParallelReq, createReq, isError, useC } from './base'
 let batchStack: any[] | null
 let batchPromise: any
 
-export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean }): ChainRequester<C> {
+export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean;route?: string }): ChainRequester<C> {
   const rc: any = {
     options(config: AxiosRequestConfig) {
       this._options = config
@@ -19,7 +19,7 @@ export function createChainReq<C extends Record<string, any>>(instance: AxiosIns
   let $r: ReturnType<typeof createReq>
   let $pr: ReturnType<typeof createParallelReq>
   if (options?.batch)
-    $pr = createParallelReq(instance)
+    $pr = createParallelReq(instance, options.route)
   else
     $r = createReq(instance)
 

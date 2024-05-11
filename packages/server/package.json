@@ -42,6 +42,14 @@
       "import": "./dist/server/hyper-express/index.mjs",
       "require": "./dist/server/hyper-express/index.js"
     },
+    "./hono": {
+      "import": "./dist/server/hono/index.mjs",
+      "require": "./dist/server/hono/index.js"
+    },
+    "./elysia": {
+      "import": "./dist/server/elysia/index.mjs",
+      "require": "./dist/server/elysia/index.js"
+    },
     "./redis": {
       "import": "./dist/rpc/redis/index.mjs",
       "require": "./dist/rpc/redis/index.js"
@@ -88,6 +96,12 @@
       "hyper-express": [
         "dist/server/hyper-express/index.d.ts"
       ],
+      "hono": [
+        "dist/server/hono/index.d.ts"
+      ],
+      "elysia": [
+        "dist/server/elysia/index.d.ts"
+      ],
       "redis": [
         "dist/rpc/redis/index.d.ts"
       ],
@@ -131,20 +145,22 @@
     "amqplib": "^0.10.3",
     "bullmq": "^5.7.1",
     "chokidar": "^3.5.3",
+    "elysia": "^1.0.17",
     "express": "^4.18.2",
     "fast-glob": "^3.3.2",
     "fastify": "^4.25.1",
     "h3": "^1.9.0",
+    "hono": "^4.3.4",
+    "hyper-express": "^6.15.2",
     "ioredis": "^5.3.2",
     "ioredis-mock": "^8.9.0",
     "kafkajs": "^2.2.4",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "mock-amqplib": "^1.8.2",
+    "nats": "^2.22.0",
     "supertest": "^6.3.3",
     "tsup": "^6.5.0",
-    "hyper-express": "^6.15.2",
-    "nats": "^2.22.0",
     "typescript": "^5.2.2",
     "unimport": "^3.7.1"
   },

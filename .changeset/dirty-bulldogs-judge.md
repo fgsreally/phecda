@@ -8,3 +8,4 @@ fix spell in `TestFactory`
 add debug to all bind
 improve `detectAopDep`
 add `parseMeta` to `Factory`
+support `hono`/`elysia`
