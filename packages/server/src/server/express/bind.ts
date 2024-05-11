@@ -82,6 +82,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
             const contextData = {
               type: 'express' as const,
+              parallel: true,
               request: req,
               index: i,
               meta,
@@ -97,16 +98,19 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined)
-                return resolve(cache)
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+                return resolve(i1)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
                 return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               if (ctx)
                 instance[ctx] = contextData
               const funcData = await instance[func](...args)
-              resolve(await context.usePostInterceptor(funcData))
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2 !== undefined)
+                return resolve(i2)
+              resolve(funcData)
             }
             catch (e: any) {
               resolve(await context.useFilter(e, filter))
@@ -148,7 +152,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           meta: i,
           response: res,
           moduleMap,
-          parallel: false,
           tag,
           func,
           query: req.query,
@@ -165,32 +168,27 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           for (const name in header)
             res.set(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined) {
-            if (typeof cache === 'string')
-              res.send(cache)
+          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (i1 !== undefined)
+            return i1
 
-            else
-              res.json(cache)
-
-            return
-          }
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
           if (ctx)
             instance[ctx] = contextData
           const funcData = await instance[func](...args)
-          const ret = await context.usePostInterceptor(funcData)
-
+          const i2 = await context.usePostInterceptor(funcData)
+          if (i2 !== undefined)
+            return
           if (res.writableEnded)
             return
 
-          if (typeof ret === 'string')
-            res.send(ret)
+          if (typeof funcData === 'string')
+            res.send(funcData)
 
           else
-            res.json(ret)
+            res.json(funcData)
         }
         catch (e: any) {
           const err = await context.useFilter(e, filter)

@@ -80,6 +80,7 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
 
             const contextData = {
               type: 'hono' as const,
+              parallel: true,
               context: c,
               index: i,
               meta,
@@ -93,16 +94,20 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined)
-                return resolve(cache)
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+                return resolve(i1)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
                 return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               if (ctx)
                 instance[ctx] = contextData
               const funcData = await instance[func](...args)
-              resolve(await context.usePostInterceptor(funcData))
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2 !== undefined)
+                return resolve(i2)
+
+              resolve(funcData)
             }
             catch (e: any) {
               resolve(await context.useFilter(e, filter))
@@ -147,7 +152,7 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
           context: c,
           meta: i,
           moduleMap,
-          parallel: false,
+
           tag,
           func,
           query: c.query,
@@ -162,10 +167,10 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
         try {
           c.set.headers = header
           await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined)
+          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (i1 !== undefined)
 
-            return cache
+            return i1
 
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
@@ -173,9 +178,10 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
           if (ctx)
             instance[ctx] = contextData
           const funcData = await instance[func](...args)
-          const ret = await context.usePostInterceptor(funcData)
-
-          return ret
+          const i2 = await context.usePostInterceptor(funcData)
+          if (i2 !== undefined)
+            return i2
+          return funcData
         }
         catch (e: any) {
           const err = await context.useFilter(e, filter)

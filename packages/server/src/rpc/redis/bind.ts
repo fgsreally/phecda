@@ -3,18 +3,17 @@ import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { BaseContext } from '../../types'
+import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 
 const debug = Debug('phecda-server/redis')
 
-export interface RedisCtx extends BaseContext {
+export interface RedisCtx extends RpcContext {
   type: 'redis'
   redis: Redis
   msg: string
   channel: string
-  data: any
 
 }
 
@@ -74,7 +73,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         paramsType,
       } = meta
 
-      const context = new Context({
+      const context = new Context(<RedisCtx>{
         type: 'redis',
         moduleMap,
         redis: sub,
@@ -84,17 +83,19 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         tag,
         func,
         data,
+        send(data) {
+          if (!isEvent)
+            pub.publish(clientQueue, JSON.stringify({ data, id }))
+        },
+
       })
 
       try {
         await context.useGuard([...globalGuards, ...guards])
-        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-        if (cache !== undefined) {
-          if (!isEvent)
-            pub.publish(clientQueue, JSON.stringify({ data: cache, id }))
+        const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (i1 !== undefined)
 
-          return
-        }
+          return i1
 
         const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
@@ -104,10 +105,12 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         if (ctx)
           instance[ctx] = context.data
         const funcData = await instance[func](...handleArgs)
-        const res = await context.usePostInterceptor(funcData)
+        const i2 = await context.usePostInterceptor(funcData)
 
+        if (i2 !== undefined)
+          return i2
         if (!isEvent)
-          pub.publish(clientQueue, JSON.stringify({ data: res, id }))
+          pub.publish(clientQueue, JSON.stringify({ data: funcData, id }))
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)

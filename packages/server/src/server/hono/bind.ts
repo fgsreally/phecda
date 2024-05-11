@@ -1,5 +1,5 @@
 import Debug from 'debug'
-import type { Hono } from 'hono'
+import type { Hono, Context as HonoContext } from 'hono'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
@@ -11,12 +11,12 @@ import { HMR } from '../../hmr'
 const debug = Debug('phecda-server/hono')
 export interface HonoCtx extends HttpContext {
   type: 'hono'
-
+  context: HonoContext
 }
 
-export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
+  const { moduleMap, meta } = data
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
@@ -78,6 +78,7 @@ export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeo
 
             const contextData = {
               type: 'hono' as const,
+              parallel: true,
               context: c,
               index: i,
               meta,
@@ -91,16 +92,19 @@ export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeo
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined)
-                return resolve(cache)
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+                return resolve(i1)
               const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
                 return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
               })) as any
               if (ctx)
                 instance[ctx] = contextData
               const funcData = await instance[func](...args)
-              resolve(await context.usePostInterceptor(funcData))
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2)
+                return resolve(i2)
+              resolve(funcData)
             }
             catch (e: any) {
               resolve(await context.useFilter(e, filter))
@@ -131,6 +135,9 @@ export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeo
           filter,
         },
       } = metaMap.get(tag)![func]
+
+      const needBody = params.some(item => item.type === 'body')
+
       router[http.type](http.route, ...Context.usePlugin(plugins), async (c) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
@@ -140,11 +147,10 @@ export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeo
           context: c,
           meta: i,
           moduleMap,
-          parallel: false,
           tag,
           func,
           query: c.req.query(),
-          body: await c.req.json(),
+          body: needBody ? await c.req.json() : undefined,
           params: c.req.param() as any,
           headers: c.req.header(),
           data: (c.req as any).data,
@@ -156,26 +162,25 @@ export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeo
           for (const name in header)
             c.header(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined) {
-            if (typeof cache === 'string')
-              return c.text(cache)
+          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (i1 !== undefined)
 
-            else
-              return c.json(cache)
-          }
+            return i1
+
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
           if (ctx)
             instance[ctx] = contextData
           const funcData = await instance[func](...args)
-          const ret = await context.usePostInterceptor(funcData)
-          if (typeof ret === 'string')
-            return c.text(ret)
+          const i2 = await context.usePostInterceptor(funcData)
+          if (i2 !== undefined)
+            return i2
+          if (typeof funcData === 'string')
+            return c.text(funcData)
 
           else
-            return c.json(ret)
+            return c.json(funcData)
         }
         catch (e: any) {
           const err = await context.useFilter(e, filter)
@@ -202,6 +207,5 @@ export function bind(router: Hono, { moduleMap, meta }: Awaited<ReturnType<typeo
       interceptors: globalInterceptors,
     })
     handleMeta()
-    // createRoute()
   })
 }

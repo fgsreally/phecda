@@ -110,8 +110,8 @@ describe('express ', () => {
     addInterceptor('i2', mockInterceptor)
 
     const app = await createServer({
-      globalGuards: ['g2'],
-      globalInterceptors: ['i2'],
+      globalGuards: ['g1'],
+      globalInterceptors: ['i1'],
     })
     const res1 = await request(app).post('/aop/no')
     expect(res1.body).toMatchObject({
@@ -119,8 +119,12 @@ describe('express ', () => {
       status: 403,
       [ERROR_SYMBOL]: true,
     })
-    await request(app).post('/aop')
-    expect(Guardfn).toHaveBeenCalledTimes(2)
+    expect(Guardfn).toHaveBeenCalledTimes(1)
+    expect(InterceptFn).toHaveBeenCalledTimes(0)
+
+    await request(app).post('/aop/test')
+    expect(Guardfn).toHaveBeenCalledTimes(3)
+    expect(InterceptFn).toHaveBeenCalledTimes(4)
 
     await request(app).post('/__PHECDA_SERVER__').send(
       [
@@ -139,9 +143,9 @@ describe('express ', () => {
 
     )
 
-    expect(InterceptFn).toHaveBeenCalledTimes(8)
+    expect(InterceptFn).toHaveBeenCalledTimes(12)
 
-    expect(Guardfn).toHaveBeenCalledTimes(6)
+    expect(Guardfn).toHaveBeenCalledTimes(7)
   })
   it('ctx', async () => {
     addGuard('g', (ctx: ExpressCtx) => {

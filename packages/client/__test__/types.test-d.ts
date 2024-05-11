@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from 'vitest'
-import type { P } from 'phecda-server'
+import type { BaseError } from 'phecda-server'
 import axios from 'axios'
 import { createChainReq, createParallelReq, createReq, isError, useC } from '../src'
 

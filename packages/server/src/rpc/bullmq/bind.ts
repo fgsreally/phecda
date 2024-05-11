@@ -3,16 +3,15 @@ import { Queue, Worker } from 'bullmq'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { BaseContext } from '../../types'
+import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 const debug = Debug('phecda-server/bullmq')
 
-export interface BullmqCtx extends BaseContext {
+export interface BullmqCtx extends RpcContext {
   type: 'bullmq'
-  data: any
 }
 
 export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
@@ -72,18 +71,19 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
             tag,
             func,
             data,
-
+            send(data) {
+              if (!isEvent)
+                queueMap[clientQueue].add(`${tag}-${func}`, { data, id })
+            },
           })
 
           try {
             await context.useGuard([...globalGuards, ...guards])
-            const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (cache !== undefined) {
-              if (!isEvent)
-                queueMap[clientQueue].add(`${tag}-${func}`, { data: cache, id })
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
 
-              return
-            }
+              return i1
+
             const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
               return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
             }))
@@ -93,9 +93,12 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
               instance[ctx] = context.data
             const funcData = await instance[func](...handleArgs)
 
-            const ret = await context.usePostInterceptor(funcData)
+            const i2 = await context.usePostInterceptor(funcData)
+
+            if (i2 !== undefined)
+              return i2
             if (!isEvent)
-              queueMap[clientQueue].add(`${tag}-${func}`, { data: ret, id })
+              queueMap[clientQueue].add(`${tag}-${func}`, { data: funcData, id })
           }
           catch (e) {
             const ret = await context.useFilter(e, filter)

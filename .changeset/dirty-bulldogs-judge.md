@@ -10,3 +10,4 @@ improve `detectAopDep`
 add `parseMeta` to `Factory`
 support `hono`/`elysia`(can't support full hmr)
 remove internal symbol and middleware which seems useless
+improve `interceptor`(it can intercept `PS` logic at now)

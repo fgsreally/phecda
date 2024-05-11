@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { Body, Controller, Ctx, Exception, Get, Guard, Interceptor, P, Param, Pipe, Plugin, Post, Query, To } from '../../src'
+import { Body, Controller, Ctx, Exception, Get, Guard, HttpContext, Interceptor, Param, Pipe, Plugin, Post, Query, To } from '../../src'
 class Info {
   @To((p) => {
     if (p !== 'phecda')
@@ -40,8 +40,7 @@ export class Test {
     return { msg: 'test' }
   }
 
-  @Guard('g1')
-  @Interceptor('i1')
+  @Guard('g2')
   @Interceptor('i2')
   @Post('/aop/:test')
   aop(@Param('test') test: string) {

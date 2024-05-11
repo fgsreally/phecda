@@ -28,7 +28,6 @@ export type OmitFunction<T> = Omit<T, PickKeysByValue<T, (...args: any) => any>>
 export interface BaseContext {
   meta: Meta
   moduleMap: Record<string, any>
-  parallel?: boolean
   type: string
   tag: string
   func: string
@@ -36,12 +35,18 @@ export interface BaseContext {
 
 }
 export interface HttpContext extends BaseContext {
+  parallel?: true
   query: Record<string, any>
   params: Record<string, string>
   body: Record<string, any>
   headers: IncomingHttpHeaders
   index?: number
   data: any
+}
+
+export interface RpcContext extends BaseContext {
+  send(data: any): void
+  data: { tag: string; func: string; args: any[]; id: string; queue: string }
 }
 export interface BaseError {
   // as a symbol

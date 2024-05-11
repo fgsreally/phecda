@@ -105,7 +105,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               if (CTX)
                 instance[CTX] = contextData
               const funcData = await instance[func](...args)
-              resolve(await context.usePostInterceptor(funcData))
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2 !== undefined)
+                return resolve(i2)
+              resolve(funcData)
             }
             catch (e: any) {
               resolve(await context.useFilter(e, filter))
@@ -146,7 +149,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           ctx,
           meta: i,
           moduleMap,
-          parallel: false,
           tag,
           func,
           query: ctx.query,
@@ -162,11 +164,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           for (const name in header)
             ctx.set(name, header[name])
           await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined) {
-            ctx.body = cache
-            return
-          }
+          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+          if (i1 !== undefined)
+            return i1
+
           const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
             return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
           }))
@@ -174,10 +175,13 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           if (CTX)
             instance[CTX] = contextData
           const funcData = await instance[func](...args)
-          const ret = await context.usePostInterceptor(funcData)
+          const i2 = await context.usePostInterceptor(funcData)
+          if (i2 !== undefined)
+            return i2
+
           if (ctx.res.writableEnded)
             return
-          ctx.body = ret
+          ctx.body = funcData
         }
         catch (e: any) {
           const err = await context.useFilter(e, filter)

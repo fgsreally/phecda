@@ -3,18 +3,17 @@ import type { ConsumeMessage } from 'amqplib'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { BaseContext } from '../../types'
+import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 const debug = Debug('phecda-server/rabbitmq')
 
-export interface RabbitmqCtx extends BaseContext {
+export interface RabbitmqCtx extends RpcContext {
   type: 'rabbitmq'
   ch: amqplib.Channel
   msg: amqplib.ConsumeMessage
-  data: any
 }
 
 export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
@@ -86,17 +85,19 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         data,
         ch,
         msg,
+        send(data) {
+          if (!isEvent)
+            ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data, id })))
+        },
       })
 
       try {
         await context.useGuard([...globalGuards, ...guards])
-        const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-        if (cache !== undefined) {
-          if (!isEvent)
-            ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data: cache, id })))
+        const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+        if (i1 !== undefined)
 
-          return
-        }
+          return i1
+
         const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
           return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
         }))
@@ -106,8 +107,12 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
           instance[ctx] = context.data
         const funcData = await instance[func](...handleArgs)
 
-        const ret = await context.usePostInterceptor(funcData)
-        send(clientQueue, { data: ret, id }, isEvent)
+        const i2 = await context.usePostInterceptor(funcData)
+        if (i2 !== undefined)
+
+          return i2
+
+        send(clientQueue, { data: funcData, id }, isEvent)
       }
       catch (e) {
         const ret = await context.useFilter(e, filter)

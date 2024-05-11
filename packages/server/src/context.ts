@@ -78,15 +78,16 @@ export class Context<Data extends BaseContext> {
     }
   }
 
-  async usePostInterceptor(ret: any) {
-    for (const cb of this.postInterceptors)
-      ret = await cb(ret) || ret
-
-    return ret
+  async usePostInterceptor(data: any) {
+    for (const cb of this.postInterceptors) {
+      const ret = await cb(data)
+      if (ret !== undefined)
+        return ret
+    }
   }
 
   async useInterceptor(interceptors: string[]) {
-    const ret = []
+    const cb = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {
         if (!(interceptor in Context.interceptorRecord)) {
@@ -95,17 +96,17 @@ export class Context<Data extends BaseContext> {
 
           continue
         }
-        const postInterceptor = await Context.interceptorRecord[interceptor](this.data)
-        if (postInterceptor !== undefined) {
-          if (typeof postInterceptor === 'function')
-            ret.push(postInterceptor)
+        const interceptRet = await Context.interceptorRecord[interceptor](this.data)
+        if (interceptRet !== undefined) {
+          if (typeof interceptRet === 'function')
+            cb.push(interceptRet)
 
           else
-            return postInterceptor
+            return interceptRet
         }
       }
     }
-    this.postInterceptors = ret
+    this.postInterceptors = cb
   }
 
   static usePlugin(plugins: string[]) {

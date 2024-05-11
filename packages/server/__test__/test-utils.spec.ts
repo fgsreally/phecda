@@ -78,8 +78,8 @@ describe('test utils', () => {
     app.use(router)
 
     const { module } = await TestHttp(createServer(toNodeListener(app)), data)
-    await module(Http).get().expect(200, 'get')
 
+    await module(Http).get().expect(200, 'get')
     await module(Http).string('test', 'name', 'id').expect(200, 'test-name-id')
     await module(Http).json('test', 'name', 'id').expect(200, { key: 'test-name-id' })
   })

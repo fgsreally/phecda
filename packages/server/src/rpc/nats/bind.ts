@@ -3,17 +3,17 @@ import { StringCodec } from 'nats'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { BaseContext } from '../../types'
+import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
 import type { Meta } from '../../meta'
 
 const debug = Debug('phecda-server/nats')
 
-export interface NatsCtx extends BaseContext {
+export interface NatsCtx extends RpcContext {
   type: 'nats'
   msg: any
-  data: any
+
 }
 
 export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
@@ -65,7 +65,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
               paramsType,
             } = meta
 
-            if (isEvent)
+            if (isEvent)// nats has to have response
               msg.respond('{}')
 
             const context = new Context<NatsCtx>({
@@ -76,17 +76,19 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
               func,
               data,
               msg,
+              send(data) {
+                if (!isEvent)
+                  msg.respond(sc.encode(JSON.stringify({ data, id })))
+              },
             })
 
             try {
               await context.useGuard([...globalGuards, ...guards])
-              const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (cache !== undefined) {
-                if (!isEvent)
-                  msg.respond(sc.encode(JSON.stringify({ data: cache, id })))
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
 
-                return
-              }
+                return i1
+
               const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
                 return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
               }))
@@ -96,9 +98,13 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
                 instance[ctx] = context.data
               const funcData = await instance[func](...handleArgs)
 
-              const ret = await context.usePostInterceptor(funcData)
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2 !== undefined)
+
+                return i2
+
               if (!isEvent)
-                msg.respond(sc.encode(JSON.stringify({ data: ret, id })))
+                msg.respond(sc.encode(JSON.stringify({ data: funcData, id })))
             }
             catch (e) {
               const ret = await context.useFilter(e, filter)
