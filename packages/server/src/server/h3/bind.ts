@@ -3,7 +3,6 @@ import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, get
 import type { H3Event, Router } from 'h3'
 import Debug from 'debug'
 import { argToReq, resolveDep } from '../helper'
-import { META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -38,15 +37,10 @@ export interface ServerOptions {
 
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
 
-  (router as any)[PS_SYMBOL] = { moduleMap, meta }
-
-  const prePlugin = defineRequestMiddleware((event) => {
-    (event as any)[MODULE_SYMBOL] = moduleMap;
-    (event as any)[META_SYMBOL] = meta
-  })
+  const { moduleMap, meta } = data
 
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
@@ -68,7 +62,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
   async function createRoute() {
     router.post(route, eventHandler({
-      onRequest: [prePlugin, ...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+      onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
       handler: async (event) => {
         const body = await readBody(event, { strict: true })
         async function errorHandler(e: any) {
@@ -166,7 +160,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
       const needBody = params.some(item => item.type === 'body')
       router[http.type](http.route, eventHandler({
-        onRequest: [prePlugin, ...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+        onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
         handler: async (event) => {
           debug(`invoke method "${func}" in module "${tag}"`)
           const instance = moduleMap.get(tag)!

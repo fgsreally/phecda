@@ -2,7 +2,6 @@ import type { Express, Request, Response, Router } from 'express'
 import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -18,10 +17,9 @@ export interface ExpressCtx extends HttpContext {
   next: Function
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
-  (router as any)[PS_SYMBOL] = { moduleMap, meta }
+  const { moduleMap, meta } = data
 
   const originStack = router.stack.slice(0, router.stack.length)
   const metaMap = new Map<string, Record<string, Meta>>()
@@ -43,13 +41,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   }
 
   async function createRoute() {
-    (router as Express).post(route, (req, _res, next) => {
-      (req as any)[MERGE_SYMBOL] = true;
-      (req as any)[MODULE_SYMBOL] = moduleMap;
-      (req as any)[META_SYMBOL] = meta
-
-      next()
-    }, ...Context.usePlugin(plugins), async (req, res, next) => {
+    (router as Express).post(route, ...Context.usePlugin(plugins), async (req, res, next) => {
       const { body } = req
 
       async function errorHandler(e: any) {
@@ -146,11 +138,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         },
       } = metaMap.get(tag)![func];
 
-      (router as Express)[http.type](http.route, (req, _res, next) => {
-        (req as any)[MODULE_SYMBOL] = moduleMap;
-        (req as any)[META_SYMBOL] = meta
-        next()
-      }, ...Context.usePlugin(plugins), async (req, res, next) => {
+      (router as Express)[http.type](http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!

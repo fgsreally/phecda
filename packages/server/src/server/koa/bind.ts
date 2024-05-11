@@ -4,7 +4,6 @@ import type { DefaultContext, DefaultState } from 'koa'
 import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -22,9 +21,7 @@ export interface KoaCtx extends HttpContext {
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
 
-  const originStack = router.stack.slice(0, router.stack.length);
-
-  (router as any)[PS_SYMBOL] = { moduleMap, meta }
+  const originStack = router.stack.slice(0, router.stack.length)
 
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
@@ -44,13 +41,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
     }
   }
   async function createRoute() {
-    router.post(route, async (ctx, next) => {
-      ctx[MERGE_SYMBOL] = true
-      ctx[MODULE_SYMBOL] = moduleMap
-      ctx[META_SYMBOL] = meta
-
-      await next()
-    }, ...Context.usePlugin(plugins), async (ctx, next) => {
+    router.post(route, ...Context.usePlugin(plugins), async (ctx, next) => {
       const { body } = ctx.request as any
 
       async function errorHandler(e: any) {
@@ -146,11 +137,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         },
       } = metaMap.get(tag)![func]
 
-      router[http.type](http.route, async (ctx, next) => {
-        ctx[MODULE_SYMBOL] = moduleMap
-        ctx[META_SYMBOL] = meta
-        await next()
-      }, ...Context.usePlugin(plugins), async (ctx, next) => {
+      router[http.type](http.route, ...Context.usePlugin(plugins), async (ctx, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!

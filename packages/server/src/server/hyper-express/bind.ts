@@ -2,7 +2,6 @@ import type { Request, Response, Router } from 'hyper-express'
 import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { MERGE_SYMBOL, META_SYMBOL, MODULE_SYMBOL, PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -20,8 +19,6 @@ export interface HyperExpressCtx extends HttpContext {
 
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
-  (router as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
@@ -43,13 +40,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   async function createRoute() {
     router.post(route, {
       middlewares: [
-        (req, _res, next) => {
-          (req as any)[MERGE_SYMBOL] = true;
-          (req as any)[MODULE_SYMBOL] = moduleMap;
-          (req as any)[META_SYMBOL] = meta
-
-          next()
-        }, ...Context.usePlugin(plugins),
+        ...Context.usePlugin(plugins),
       ],
     }, async (req, res, next) => {
       const body = await req.json()
@@ -149,11 +140,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
       const needBody = params.some(item => item.type === 'body')
 
-      router[http.type](http.route, (req, _res, next) => {
-        (req as any)[MODULE_SYMBOL] = moduleMap;
-        (req as any)[META_SYMBOL] = meta
-        next()
-      }, ...Context.usePlugin(plugins), async (req, res, next) => {
+      router[http.type](http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!

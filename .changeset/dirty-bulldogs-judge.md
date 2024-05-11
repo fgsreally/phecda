@@ -8,4 +8,5 @@ fix spell in `TestFactory`
 add debug to all bind
 improve `detectAopDep`
 add `parseMeta` to `Factory`
-support `hono`/`elysia`
+support `hono`/`elysia`(can't support full hmr)
+remove internal symbol and middleware which seems useless

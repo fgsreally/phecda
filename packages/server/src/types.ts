@@ -1,6 +1,7 @@
 import type { IncomingHttpHeaders } from 'http'
 import type { Events } from 'phecda-core'
 import type { Meta } from './meta'
+import type { ERROR_SYMBOL } from './common'
 export interface Emitter {
   on<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
   once<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void

@@ -2,7 +2,6 @@ import Debug from 'debug'
 import { Elysia } from 'elysia'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
-import { PS_SYMBOL } from '../../common'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { Meta } from '../../meta'
@@ -17,8 +16,6 @@ export interface ElysiaCtx extends HttpContext {
 
 export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
-  (app as any)[PS_SYMBOL] = { moduleMap, meta }
 
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
