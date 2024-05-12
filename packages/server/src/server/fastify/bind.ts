@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
+import type { FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
@@ -16,7 +16,7 @@ export interface FastifyCtx extends HttpContext {
   response: FastifyReply
 }
 
-export function bind(app: FastifyInstance, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}): FastifyPluginCallback {
+export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}): FastifyPluginCallback {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
   const {
     moduleMap, meta,

@@ -30,7 +30,7 @@ const fastify = Fastify({
 //   done()
 // })
 
-fastify.register(bind(fastify, data), {
+fastify.register(bind(data), {
   prefix: '/base',
 })
 
