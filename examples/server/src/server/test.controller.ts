@@ -1,5 +1,4 @@
 import type { ExpressCtx } from 'phecda-server/express'
-
 export class Tester {
   id: string
   name: string
@@ -31,6 +30,7 @@ export class TestController extends Dev {
 
   @Post('/gua1/:test')
   @Filter('test')
+
   async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
     return `${test}-${name}-${id.id}-4542`
   }

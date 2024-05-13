@@ -1,5 +1,7 @@
 import Debug from 'debug'
-import { Elysia } from 'elysia'
+import type { Context as ElysiaContext, InputSchema, LocalHook, RouteSchema, SingletonBase } from 'elysia'
+import { Elysia as App } from 'elysia'
+import type { BaseMacro } from 'elysia/dist/types'
 import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
@@ -8,15 +10,16 @@ import type { Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
+import { Define } from '../../decorators'
 const debug = Debug('phecda-server/elysia')
 export interface ElysiaCtx extends HttpContext {
   type: 'elysia'
-
+  context: ElysiaContext
 }
 
-export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
+export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
-
+  const { moduleMap, meta } = data
   const metaMap = new Map<string, Record<string, Meta>>()
   function handleMeta() {
     metaMap.clear()
@@ -36,7 +39,7 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
   }
 
   async function createRoute() {
-    const parallelRouter = new Elysia()
+    const parallelRouter = new App()
     Context.usePlugin(plugins).forEach(p => p(parallelRouter))
     parallelRouter.post(route, async (c) => {
       const { body } = c
@@ -79,7 +82,7 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
             const instance = moduleMap.get(tag)
 
             const contextData = {
-              type: 'hono' as const,
+              type: 'elysia' as const,
               parallel: true,
               context: c,
               index: i,
@@ -138,9 +141,10 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
           params,
           plugins,
           filter,
+          define,
         },
       } = metaMap.get(tag)![func]
-      const funcRouter = new Elysia()
+      const funcRouter = new App()
 
       Context.usePlugin(plugins).forEach(p => p(funcRouter))
       // @ts-expect-error todo
@@ -152,7 +156,6 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
           context: c,
           meta: i,
           moduleMap,
-
           tag,
           func,
           query: c.query,
@@ -189,7 +192,7 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
           c.set.status = err.status
           return err
         }
-      })
+      }, define.elysia)
 
       app.use(funcRouter)
     }
@@ -210,6 +213,9 @@ export function bind(app: Elysia, { moduleMap, meta }: Awaited<ReturnType<typeof
       interceptors: globalInterceptors,
     })
     handleMeta()
-    // createRoute()
   })
+}
+
+export function Elysia(opts: LocalHook< InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro>) {
+  return Define('elysia', opts)
 }

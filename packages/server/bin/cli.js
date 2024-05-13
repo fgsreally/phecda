@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 const { fork } = require('child_process')
 
 const fs = require('fs')
@@ -9,9 +10,9 @@ let child
 let closePromise
 const nodeVersion = parseFloat(process.version.slice(1))
 
-if (nodeVersion < 18.18) {
+if (nodeVersion < 18.19) {
   log(
-    `Nodejs version less than 18.18(current is ${nodeVersion}) can't support hmr`,
+    `Nodejs version less than 18.19(current is ${nodeVersion}) can't support hmr`,
     'yellow',
   )
 }
@@ -21,7 +22,7 @@ function startChild() {
     env: { NODE_ENV: 'development', ...process.env },
     stdio: 'inherit',
     execArgv: [
-      nodeVersion < 18.18
+      nodeVersion < 18.19
         ? '--loader=phecda-server/register/loader.mjs'
         : '--import=phecda-server/register',
       ...cmd.slice(1),
