@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.0.0-beta.29
+
+### Patch Changes
+
+- 6920888: fix elysia types and add elysia specific decorator
+  fix fastify params
+  add Shebang to bin
+
 ## 5.0.0-beta.28
 
 ### Patch Changes
