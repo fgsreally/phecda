@@ -7,7 +7,7 @@ import { PS_FILE_RE, log } from '../dist/index.mjs'
 import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
 let port
 
-const isLowVersion = parseFloat(process.version.slice(1)) < 18.18
+const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
 // this part is important or not?
 const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
 const tsconfig = {
