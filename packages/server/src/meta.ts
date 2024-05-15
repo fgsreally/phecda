@@ -12,7 +12,7 @@ export interface MetaData {
   ctx?: string
   define?: any
   header: Record<string, string>
-  params: { type: string; index: number; key: string; pipe?: string; pipeOpts?: any }[]
+  params: { type: string; index: number; key: string; pipe?: string;defaultValue?: any }[]
   guards: string[]
   filter?: string
   interceptors: string[]

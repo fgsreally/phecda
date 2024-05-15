@@ -64,7 +64,7 @@ export type BaseReturn<T> = Awaited<T> extends { toJSON(): infer R } ? R : Await
 
 export type BaseRequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
 
-declare const ResponseSymbol: unique symbol
+const ResponseSymbol: unique symbol = Symbol('response')
 
 export class CustomResponse<Value> {
   [ResponseSymbol]: Value
