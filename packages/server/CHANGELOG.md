@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.0.0-beta.30
+
+### Patch Changes
+
+- 8dafb4d: add defaultValue to Param decorator and default pipe;
+  remove pipeOpts on `Pipe`, all options should get from `ctx`(use `Define`)
+- 3c8cb67: add CustomResponse and improve types
+
 ## 5.0.0-beta.29
 
 ### Patch Changes
