@@ -100,8 +100,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
               const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
               if (i1 !== undefined)
                 return resolve(i1)
-              const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
-                return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
+              const args = await context.usePipe(params.map(({ type, key, defaultValue, pipe, index }) => {
+                return { arg: item.args[index], type, key, defaultValue, pipe, index, reflect: paramsType[index] }
               })) as any
               if (ctx)
                 instance[ctx] = contextData
@@ -175,8 +175,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
 
             return i1
 
-          const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
-            return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
+          const args = await context.usePipe(params.map(({ type, key, defaultValue, index, pipe }) => {
+            return { arg: resolveDep(context.data[type], key), defaultValue, pipe, key, type, index, reflect: paramsType[index] }
           }))
           if (ctx)
             instance[ctx] = contextData

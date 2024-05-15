@@ -3,7 +3,7 @@ import { ValidateException } from './exception/validate'
 
 import type { PipeType } from './context'
 
-export const defaultPipe: PipeType = ({ arg, reflect, index, defaultValue }: any) => {
+export const defaultPipe: PipeType = ({ arg, reflect, index, defaultValue }) => {
   if (isPhecda(reflect)) {
     const instance = plainToClass(reflect, arg)
     const err = transformInstance(instance)
