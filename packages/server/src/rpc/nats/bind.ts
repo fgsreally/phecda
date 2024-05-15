@@ -89,8 +89,8 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
 
                 return i1
 
-              const handleArgs = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }, i) => {
-                return { arg: args[i], pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+              const handleArgs = await context.usePipe(params.map(({ type, key, pipe, defaultValue, index }, i) => {
+                return { arg: args[i], pipe, defaultValue, key, type, index, reflect: paramsType[index] }
               }))
 
               const instance = moduleMap.get(name)

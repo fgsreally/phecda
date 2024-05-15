@@ -99,8 +99,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
               if (cache !== undefined)
                 return resolve(cache)
-              const args = await context.usePipe(params.map(({ type, key, pipeOpts, pipe, index }) => {
-                return { arg: item.args[index], type, key, pipeOpts, pipe, index, reflect: paramsType[index] }
+              const args = await context.usePipe(params.map(({ type, key, defaultValue, pipe, index }) => {
+                return { arg: item.args[index], type, key, defaultValue, pipe, index, reflect: paramsType[index] }
               })) as any
               if (CTX)
                 instance[CTX] = contextData
@@ -168,8 +168,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           if (i1 !== undefined)
             return i1
 
-          const args = await context.usePipe(params.map(({ type, key, pipeOpts, index, pipe }) => {
-            return { arg: resolveDep(context.data[type], key), pipeOpts, pipe, key, type, index, reflect: paramsType[index] }
+          const args = await context.usePipe(params.map(({ type, key, defaultValue, index, pipe }) => {
+            return { arg: resolveDep(context.data[type], key), defaultValue, pipe, key, type, index, reflect: paramsType[index] }
           }))
 
           if (CTX)

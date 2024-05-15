@@ -130,8 +130,8 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
 
                   return resolve(i1)
 
-                const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-                  return { arg: item.args[index], type, key, pipe, pipeOpts, index, reflect: paramsType[index] }
+                const args = await context.usePipe(params.map(({ type, key, pipe, defaultValue, index }) => {
+                  return { arg: item.args[index], type, key, pipe, defaultValue, index, reflect: paramsType[index] }
                 })) as any
                 if (ctx)
                   instance[ctx] = contextData
@@ -214,8 +214,8 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
 
               return i1
 
-            const args = await context.usePipe(params.map(({ type, key, pipe, pipeOpts, index }) => {
-              return { arg: resolveDep(context.data[type], key), pipe, pipeOpts, key, type, index, reflect: paramsType[index] }
+            const args = await context.usePipe(params.map(({ type, key, pipe, defaultValue, index }) => {
+              return { arg: resolveDep(context.data[type], key), pipe, defaultValue, key, type, index, reflect: paramsType[index] }
             }))
 
             if (ctx)

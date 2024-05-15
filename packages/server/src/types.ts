@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'http'
-import type { Events } from 'phecda-core'
+import type { Construct, Events } from 'phecda-core'
 import type { Meta } from './meta'
 import type { ERROR_SYMBOL } from './common'
 export interface Emitter {
@@ -10,20 +10,23 @@ export interface Emitter {
   emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }
 
-export type ToClientMap<T = any> = {
-  [K in keyof T]: T[K] extends (new (...args: any) => any) ? ToClientInstance<PickFunc<InstanceType<T[K]>>> : void
+type AnyFunction = (...args: any) => any
+type ParseInstance<Instance extends Record<string, AnyFunction>> = {
+  [Key in keyof Instance]: ToClientFn<Instance[Key]>
+}
+type PickFuncKeys<Type> = { [Key in keyof Type]: Type[Key] extends (...args: any) => any ? (ReturnType<Type[Key]> extends CustomResponse<any> ? never : Key) : never }[keyof Type]
+
+export type ToClientMap<ControllerMap extends Record<string, Construct>> = {
+  [Key in keyof ControllerMap]: ToClientInstance<InstanceType<ControllerMap[Key]>>
 }
 
-export type ToClientInstance<R extends Record<string, (...args: any) => any>> = {
-  [K in keyof R]: ToClientFn<R[K]>
-}
+export type ToClientInstance<Instance extends Record<string, any>> = ParseInstance<PickFunc<Instance>>
 
-export type ToClientFn<T extends (...args: any) => any> = (...p: Parameters<T>) => Promise<BaseReturn<ReturnType<T>>>
+export type ToClientFn<Func extends AnyFunction> = (...p: Parameters<Func>) => Promise<BaseReturn<ReturnType<Func>>>
 
-type PickKeysByValue<Type, Value> = { [Key in keyof Type]: Type[Key] extends Value ? Key : never }[keyof Type]
+export type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
 
-export type PickFunc<T> = Pick<T, PickKeysByValue<T, (...args: any) => any>>
-export type OmitFunction<T> = Omit<T, PickKeysByValue<T, (...args: any) => any>>
+export type OmitFunction<Instance> = Omit<Instance, PickFuncKeys<Instance>>
 
 export interface BaseContext {
   meta: Meta
@@ -36,11 +39,12 @@ export interface BaseContext {
 }
 export interface HttpContext extends BaseContext {
   parallel?: true
+  index?: number
   query: Record<string, any>
   params: Record<string, string>
   body: Record<string, any>
   headers: IncomingHttpHeaders
-  index?: number
+  // redirect:(url:string)=>void
   data: any
 }
 
@@ -59,3 +63,11 @@ export type BaseReturn<T> = Awaited<T> extends { toJSON(): infer R } ? R : Await
 //   export type RetOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
 
 export type BaseRequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
+
+const ResponseSymbol: unique symbol = Symbol('response')
+
+export class CustomResponse<Value> {
+  [ResponseSymbol]: Value
+}
+
+export type ExtractResponse<Class extends CustomResponse<any>> = Class extends CustomResponse<infer Value> ? Value : never
