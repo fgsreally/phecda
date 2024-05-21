@@ -14,6 +14,7 @@ export interface MetaData {
   header: Record<string, string>
   params: { type: string; index: number; key: string; pipe?: string;defaultValue?: any }[]
   guards: string[]
+  pipe?: string
   filter?: string
   interceptors: string[]
   plugins: string[]

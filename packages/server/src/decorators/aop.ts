@@ -60,3 +60,41 @@ export function Filter(filter: string): any {
     setState(target, key, state)
   }
 }
+export function Pipe(key?: string) {
+  return (target: any, k?: PropertyKey, index?: any) => {
+    if (!k) {
+      k = SHARE_KEY
+      target = target.prototype
+
+      setStateKey(target, k)
+      const state = getOwnState(target, k)
+      state.pipe = key
+      setState(target, k, state)
+      return
+    }
+    if (typeof index !== 'number') {
+      setStateKey(target, k)
+      const state = getOwnState(target, k)
+      state.pipe = key
+      setState(target, k, state)
+
+      return
+    }
+
+    setStateKey(target, k)
+
+    const state = getOwnState(target, k)
+
+    if (!state.params)
+      state.params = []
+
+    const existItem = state.params.find((item: any) => item.index === index)
+    if (existItem)
+      Object.assign(existItem, { pipe: key })
+
+    else
+      state.params.push({ pipe: key, index })
+
+    setState(target, k, state)
+  }
+}

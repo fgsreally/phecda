@@ -1,4 +1,5 @@
 import pc from 'picocolors'
+import Debug from 'debug'
 import { defaultPipe } from './pipe'
 import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
@@ -9,9 +10,11 @@ import type { Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
 
+const debug = Debug('phecda-server(Context)')
+
 export type GuardType<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
 export type InterceptorType<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
-export type PipeType<C extends BaseContext = any> = (arg: { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any;defaultValue?: any }, ctx: C) => Promise<any>
+export type PipeType<C extends BaseContext = any> = (arg: { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; defaultValue?: any }, ctx: C) => Promise<any>
 export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
 export class Context<Data extends BaseContext> {
@@ -42,11 +45,15 @@ export class Context<Data extends BaseContext> {
   usePipe(args: { arg: any; pipe?: string; defaultValue?: any; type: string; key: string; index: number; reflect: any }[]) {
     return Promise.all(args.map((item) => {
       if (item.pipe && !Context.pipeRecord[item.pipe]) {
-        if (IS_STRICT)
+        if (IS_STRICT) {
           throw new FrameworkException(`can't find pipe named '${item.pipe}'`)
+        }
 
-        else
+        else {
+          debug(`Can't find pipe named "${item.pipe}" when handling the ${item.index + 1}th argument of the func "${this.data.func}" on module "${this.data.tag}",use default pipe instead`)
+
           return Context.pipeRecord.default(item, this.data)
+        }
       }
 
       return Context.pipeRecord[item.pipe || 'default'](item, this.data)
@@ -55,10 +62,14 @@ export class Context<Data extends BaseContext> {
 
   useFilter(arg: any, filter = 'default') {
     if (!Context.filterRecord[filter]) {
-      if (IS_STRICT)
-        throw new FrameworkException(`can't find filter named '${filter}'`)
-      else
+      if (IS_STRICT) {
+        throw new FrameworkException(`can't find filter named "${filter}"`)
+      }
+      else {
+        debug(`Can't find filter named "${filter}" when handling func "${this.data.func}" on module "${this.data.tag}",use default filter instead`)
+
         return Context.filterRecord.default(arg, this.data)
+      }
     }
 
     return Context.filterRecord[filter](arg, this.data)
@@ -69,7 +80,8 @@ export class Context<Data extends BaseContext> {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardRecord)) {
           if (IS_STRICT)
-            throw new FrameworkException(`can't find guard named "${guard}"`)
+            throw new FrameworkException(`Can't find guard named "${guard}"`)
+          else debug(`Can't find guard named "${guard}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
           continue
         }
         if (!await Context.guardRecord[guard](this.data))
@@ -93,6 +105,7 @@ export class Context<Data extends BaseContext> {
         if (!(interceptor in Context.interceptorRecord)) {
           if (IS_STRICT)
             throw new FrameworkException(`can't find interceptor named "${interceptor}"`)
+          else debug(`Can't find interceptor named "${interceptor}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
 
           continue
         }

@@ -13,27 +13,7 @@ export function BaseParam(type: string, key: string, defaultValue?: any): any {
       Object.assign(existItem, { type, key, defaultValue })
 
     else
-      state.params.push({ type, key, index, defaultValue })
-
-    setState(target, k, state)
-  }
-}
-
-export function Pipe(key?: string) {
-  return (target: any, k: PropertyKey, index: number) => {
-    setStateKey(target, k)
-
-    const state = getOwnState(target, k)
-
-    if (!state.params)
-      state.params = []
-
-    const existItem = state.params.find((item: any) => item.index === index)
-    if (existItem)
-      Object.assign(existItem, { pipe: key })
-
-    else
-      state.params.push({ pipe: key, index })
+      state.params.push({ type, key, index, defaultValue, pipe: state.pipe })
 
     setState(target, k, state)
   }

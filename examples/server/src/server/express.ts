@@ -1,8 +1,8 @@
 import { bind } from 'phecda-server/express'
-import { Factory } from 'phecda-server'
+import { Factory, log } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
-
+log('11')
 // addFilter('test', (e, tag, ctx) => {
 //   const readableStream = fs.createReadStream('./index.html')
 //   readableStream.pipe(ctx.response)
@@ -34,8 +34,8 @@ async function start() {
   })
   app.use(express.json())
   bind(router, data, {
-    globalGuards: ['a'],
-    globalInterceptors: ['b'],
+    // globalGuards: ['a'],
+    // globalInterceptors: ['b'],
   })
   app.use('/base', router)
 
