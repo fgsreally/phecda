@@ -1,5 +1,12 @@
 # phecda-server
 
+## 5.0.0-beta.31
+
+### Patch Changes
+
+- 2b70fdf: Pipe can decorate method and class;add PS_LOG_LEVEL;add more debug info for aop
+  Define can decorate method/class/params(work for `Pipe`)
+
 ## 5.0.0-beta.30
 
 ### Patch Changes
