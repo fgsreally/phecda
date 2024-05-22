@@ -111,8 +111,8 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         if (i1 !== undefined)
           return i1
 
-        const handleArgs = await context.usePipe(params.map(({ type, key, pipe, defaultValue, index }, i) => {
-          return { arg: args[i], pipe, defaultValue, key, type, index, reflect: paramsType[index] }
+        const handleArgs = await context.usePipe(params.map((param, i) => {
+          return { arg: args[i], reflect: paramsType[i], ...param }
         }))
 
         const instance = moduleMap.get(name)
