@@ -120,8 +120,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
                 if (i1 !== undefined)
                   return resolve(i1)
-                const args = await context.usePipe(params.map(({ type, key, pipe, defaultValue, index }) => {
-                  return { arg: item.args[index], type, key, pipe, defaultValue, index, reflect: paramsType[index] }
+                const args = await context.usePipe(params.map((param) => {
+                  return { arg: item.args[param.index], reflect: paramsType[param.index], ...param }
                 })) as any
                 if (ctx)
                   instance[ctx] = contextData
@@ -192,10 +192,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             if (i1 !== undefined)
               return i1
 
-            const args = await context.usePipe(params.map(({ type, key, pipe, defaultValue, index }) => {
-              return { arg: resolveDep(context.data[type], key), pipe, defaultValue, key, type, index, reflect: paramsType[index] }
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
             }))
-
             if (ctx)
               instance[ctx] = contextData
             const funcData = await instance[func](...args)

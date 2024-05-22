@@ -9,11 +9,11 @@ class C {
   }
 }
 abstract class BaseService<T extends new (...args: any) => any> extends Dev {
-  abstract fgs: InstanceType<T>
+  abstract abInstance: InstanceType<T>
 
   @Init
   init() {
-    this.fgs.run()
+    this.abInstance.run()
     // this.onUnmount(() => {
     //   console.log('unmount')
     // })
@@ -26,5 +26,5 @@ abstract class BaseService<T extends new (...args: any) => any> extends Dev {
 
 @Empty
 export class TestService extends BaseService<typeof C> {
-  fgs = new C()
+  abInstance = new C()
 }

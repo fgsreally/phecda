@@ -1,66 +1,52 @@
-import { SHARE_KEY, getOwnState, setState, setStateKey } from 'phecda-core'
+import { setPropertyState } from './utils'
 
-export function Route(route: string, type?: string): any {
-  return (target: any, key?: PropertyKey) => {
-    if (!key)
-      key = SHARE_KEY
-    target = key === SHARE_KEY ? target.prototype : target
-
-    setStateKey(target, key)
-
-    const state = getOwnState(target, key)
-    state.http = {
-      route,
-      type,
-    }
-    setState(target, key, state)
+export function Route(route: string, type?: string): ClassDecorator | MethodDecorator {
+  return (target: any, k?: PropertyKey) => {
+    setPropertyState(target, k, (state) => {
+      state.http = {
+        route,
+        type,
+      }
+    })
   }
 }
 
 export function Get(route = '') {
-  return Route(route, 'get')
+  return Route(route, 'get') as MethodDecorator
 }
 
 export function Post(route = '') {
-  return Route(route, 'post')
+  return Route(route, 'post') as MethodDecorator
 }
 export function Put(route = '') {
-  return Route(route, 'put')
+  return Route(route, 'put') as MethodDecorator
 }
 
 export function Patch(route = '') {
-  return Route(route, 'patch')
+  return Route(route, 'patch') as MethodDecorator
 }
 export function Delete(route = '') {
-  return Route(route, 'delete')
+  return Route(route, 'delete') as MethodDecorator
 }
 
 export function Controller(route = '') {
-  return Route(route)
+  return Route(route) as ClassDecorator
 }
-export function Event(isEvent = true) {
-  return (target: any, key?: PropertyKey) => {
-    if (!key)
-      key = SHARE_KEY
-    target = key === SHARE_KEY ? target.prototype : target
-    setStateKey(target, key)
-    const state = getOwnState(target, key)
-    if (!state.rpc)
-      state.rpc = {}
-    state.rpc.isEvent = isEvent
-    setState(target, key, state)
+export function Event(isEvent = true): ClassDecorator | MethodDecorator {
+  return (target: any, k?: PropertyKey) => {
+    setPropertyState(target, k, (state) => {
+      if (!state.rpc)
+        state.rpc = {}
+      state.rpc.isEvent = isEvent
+    })
   }
 }
 export function Queue(queue?: string) {
-  return (target: any, key?: PropertyKey) => {
-    if (!key)
-      key = SHARE_KEY
-    target = key === SHARE_KEY ? target.prototype : target
-    setStateKey(target, key)
-    const state = getOwnState(target, key) || {}
-    if (!state.rpc)
-      state.rpc = {}
-    state.rpc.queue = queue
-    setState(target, key, state)
+  return (target: any, k?: PropertyKey) => {
+    setPropertyState(target, k, (state) => {
+      if (!state.rpc)
+        state.rpc = {}
+      state.rpc.queue = queue
+    })
   }
 }

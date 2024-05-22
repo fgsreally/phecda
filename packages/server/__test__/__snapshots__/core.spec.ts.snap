@@ -17,15 +17,17 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
     "name": "A",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],
@@ -52,15 +54,17 @@ exports[`Factory  > In extended case 1`] = `
     "name": "B",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],
@@ -82,15 +86,17 @@ exports[`Factory  > In extended case 1`] = `
     "name": "B",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],
@@ -117,15 +123,17 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "name": "B",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],
@@ -147,15 +155,17 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "name": "B",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],
@@ -177,15 +187,17 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "name": "C",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],
@@ -207,15 +219,17 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "name": "C",
     "params": [
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 0,
         "key": "id",
+        "pipe": undefined,
         "type": "query",
       },
       {
-        "defaultValue": undefined,
+        "define": {},
         "index": 1,
         "key": "name",
+        "pipe": undefined,
         "type": "body",
       },
     ],

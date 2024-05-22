@@ -9,11 +9,13 @@ export class Tester {
 }
 @Controller('/base')
 @Tag('test')
+@Pipe('test1')
+
 export class TestController extends Dev {
   static age = 12
   age = 1
   context: ExpressCtx
-  constructor(public fgs: TestService) {
+  constructor(readonly service: TestService) {
     super()
     addGuard('a', () => true)
     addPlugin('aa', () => { })
@@ -30,6 +32,7 @@ export class TestController extends Dev {
 
   @Post('/gua1/:test')
   @Filter('test')
+  @Pipe('test2')
 
   async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
     return `${test}-${name}-${id.id}-4542`

@@ -8,7 +8,7 @@ export const ERROR_SYMBOL = '__PS_ERROR__'// only use in paralle request
 export const IS_HMR = process.env.NODE_ENV === 'development'
 export const IS_ONLY_CODE = !!process.env.PS_CODE// work for ci; only generate http/rpc code
 export const IS_STRICT = !!process.env.PS_STRICT// throw error if depends on an aop module which is not imported
-export const IS_LOG_BAN = !!process.env.PS_LOG_BAN || IS_ONLY_CODE // internal logger
+export const LOG_LEVEL = Number(process.env.PS_LOG_LEVEL || 0)// internal logger
 
 export const PS_FILE_RE = /[^.](?:\.controller|rpc|service|module|extension|ext|guard|interceptor|plugin|filter|pipe|edge)\.ts$/i
 

@@ -1,60 +1,48 @@
-import { getOwnState, setState, setStateKey } from 'phecda-core'
+import { setPropertyState } from './utils'
 
-export function BaseParam(type: string, key: string, defaultValue?: any): any {
-  return (target: any, k: PropertyKey, index: number) => {
-    setStateKey(target, k)
+export function BaseParam(data: Record<string, any>): ParameterDecorator {
+  return (target: any, k: PropertyKey | undefined, index: number) => {
+    if (!k)
+      return
+    setPropertyState(target, k, (state) => {
+      if (!state.params)
+        state.params = []
 
-    const state = getOwnState(target, k)
-    if (!state.params)
-      state.params = []
+      const existItem = state.params.find((item: any) => item.index === index)
+      if (existItem)
+        Object.assign(existItem, data)
 
-    const existItem = state.params.find((item: any) => item.index === index)
-    if (existItem)
-      Object.assign(existItem, { type, key, defaultValue })
-
-    else
-      state.params.push({ type, key, index, defaultValue })
-
-    setState(target, k, state)
+      else
+        state.params.push({ ...data, index })
+    })
   }
 }
 
-export function Pipe(key?: string) {
-  return (target: any, k: PropertyKey, index: number) => {
-    setStateKey(target, k)
-
-    const state = getOwnState(target, k)
-
-    if (!state.params)
-      state.params = []
-
-    const existItem = state.params.find((item: any) => item.index === index)
-    if (existItem)
-      Object.assign(existItem, { pipe: key })
-
-    else
-      state.params.push({ pipe: key, index })
-
-    setState(target, k, state)
-  }
-}
-
-export function Body(key = '', defaultValue?: any) {
-  return BaseParam('body', key, defaultValue)
+export function Body(key = '') {
+  return BaseParam({
+    type: 'body',
+    key,
+  })
 }
 // req.headers
-export function Head(key: string, defaultValue?: any) {
-  return BaseParam('headers', key.toLowerCase(), defaultValue)
+export function Head(key: string) {
+  return BaseParam({
+    type: 'headers', key: key.toLowerCase(),
+  })
 }
 
-export function Query(key = '', defaultValue?: any) {
-  return BaseParam('query', key, defaultValue)
+export function Query(key = '') {
+  return BaseParam({ type: 'query', key })
 }
-export function Param(key: string, defaultValue?: any) {
-  return BaseParam('params', key, defaultValue)
+export function Param(key: string) {
+  return BaseParam({
+    type: 'params', key,
+  })
 }
 
 // work for micro service
-export function Arg(defaultValue?: any) {
-  return BaseParam('params', '', defaultValue)
+export function Arg() {
+  return BaseParam({
+    type: 'params', key: '',
+  })
 }

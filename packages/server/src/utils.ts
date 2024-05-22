@@ -1,15 +1,22 @@
 import pc from 'picocolors'
 import type { AbConstruct, Construct } from 'phecda-core'
 import { DataMap } from 'phecda-core'
-import { IS_LOG_BAN } from './common'
+import { LOG_LEVEL } from './common'
 
 let time: number
 
-export function log(msg: string, level: 'error' | 'info' | 'warn' = 'info') {
-  if (IS_LOG_BAN)
+export function log(msg: string, level: 'error' | 'info' | 'warn' | 'log' = 'log') {
+  const logLevel = {
+    info: 0,
+    log: 1,
+    warn: 2,
+    error: 3,
+  }[level]
+
+  if (logLevel < LOG_LEVEL)
     return
 
-  const color = ({ error: 'red', info: 'green', warn: 'yellow' } as const)[level]
+  const color = ({ error: 'red', info: 'gray', warn: 'yellow', log: 'green' } as const)[level]
   const date = new Date()
   const current = Date.now()
   const interval = (time && current - time) ? `+${current - time}` : ''

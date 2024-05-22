@@ -13,7 +13,7 @@ import { generateHTTPCode, generateRPCCode } from './compiler'
 export function Injectable() {
   return (target: any) => Empty(target)
 }
-const debug = Debug('phecda-server')
+const debug = Debug('phecda-server(Factory)')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 
@@ -227,6 +227,11 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
     meta.func = i as string
     const params = [] as any[]
     for (const i of state.params || []) {
+      if (!i.pipe)
+        i.pipe = state.pipe || baseState.pipe
+      if (!i.define)
+        i.define = {}
+
       params.unshift(i)
       if (i.index === 0)
         break

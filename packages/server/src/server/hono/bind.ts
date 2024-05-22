@@ -95,8 +95,8 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
               const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
               if (i1 !== undefined)
                 return resolve(i1)
-              const args = await context.usePipe(params.map(({ type, key, defaultValue, pipe, index }) => {
-                return { arg: item.args[index], type, key, defaultValue, pipe, index, reflect: paramsType[index] }
+              const args = await context.usePipe(params.map((param) => {
+                return { arg: item.args[param.index], reflect: paramsType[param.index], ...param }
               })) as any
               if (ctx)
                 instance[ctx] = contextData
@@ -167,8 +167,8 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
 
             return i1
 
-          const args = await context.usePipe(params.map(({ type, key, defaultValue, index, pipe }) => {
-            return { arg: resolveDep(context.data[type], key), defaultValue, pipe, key, type, index, reflect: paramsType[index] }
+          const args = await context.usePipe(params.map((param) => {
+            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
           }))
           if (ctx)
             instance[ctx] = contextData
