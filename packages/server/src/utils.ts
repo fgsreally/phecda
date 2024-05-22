@@ -5,17 +5,18 @@ import { LOG_LEVEL } from './common'
 
 let time: number
 
-export function log(msg: string, level: 'error' | 'info' | 'warn' = 'info') {
+export function log(msg: string, level: 'error' | 'info' | 'warn' | 'log' = 'log') {
   const logLevel = {
     info: 0,
-    warn: 1,
-    error: 2,
-  }[level] || 0
+    log: 1,
+    warn: 2,
+    error: 3,
+  }[level]
 
   if (logLevel < LOG_LEVEL)
     return
 
-  const color = ({ error: 'red', info: 'gray', warn: 'yellow' } as const)[level]
+  const color = ({ error: 'red', info: 'gray', warn: 'yellow', log: 'green' } as const)[level]
   const date = new Date()
   const current = Date.now()
   const interval = (time && current - time) ? `+${current - time}` : ''

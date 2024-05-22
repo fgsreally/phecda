@@ -14,7 +14,7 @@ const debug = Debug('phecda-server(Context)')
 
 export type GuardType<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
 export type InterceptorType<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
-export type PipeType<C extends BaseContext = any> = (arg: { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; defaultValue?: any }, ctx: C) => Promise<any>
+export type PipeType<C extends BaseContext = any> = (arg: { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any> }, ctx: C) => Promise<any>
 export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
 export class Context<Data extends BaseContext> {
@@ -42,7 +42,7 @@ export class Context<Data extends BaseContext> {
       data._context = this
   }
 
-  usePipe(args: { arg: any; pipe?: string; defaultValue?: any; type: string; key: string; index: number; reflect: any }[]) {
+  usePipe(args: { arg: any; pipe?: string; define: Record<string, any>; type: string; key: string; index: number; reflect: any }[]) {
     return Promise.all(args.map((item) => {
       if (item.pipe && !Context.pipeRecord[item.pipe]) {
         if (IS_STRICT) {

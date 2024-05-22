@@ -1,12 +1,10 @@
-import { getOwnState } from 'phecda-core'
 import { setPropertyState } from './utils'
 
 export function BaseParam(data: Record<string, any>): ParameterDecorator {
   return (target: any, k: PropertyKey | undefined, index: number) => {
     if (!k)
       return
-    setPropertyState(target, k, () => {
-      const state = getOwnState(target, k)
+    setPropertyState(target, k, (state) => {
       if (!state.params)
         state.params = []
 

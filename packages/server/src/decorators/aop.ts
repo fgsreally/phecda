@@ -36,12 +36,11 @@ export function Filter(filter: string): ClassDecorator | MethodDecorator {
 }
 export function Pipe(pipe?: string): ClassDecorator | MethodDecorator | ParameterDecorator {
   return (target: any, k?: any, index?: any) => {
-    if (!k || typeof index !== 'number') {
-      setPropertyState(target, k, state => state.pipe = pipe)
+    if (typeof index === 'number') {
+      BaseParam({ pipe })(target, k, index)
 
       return
     }
-
-    BaseParam({ pipe })(target, k, index)
+    setPropertyState(target, k, state => state.pipe = pipe)
   }
 }

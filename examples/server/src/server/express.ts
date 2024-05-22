@@ -1,8 +1,7 @@
 import { bind } from 'phecda-server/express'
-import { Factory, log } from 'phecda-server'
+import { Factory } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
-log('11')
 // addFilter('test', (e, tag, ctx) => {
 //   const readableStream = fs.createReadStream('./index.html')
 //   readableStream.pipe(ctx.response)
@@ -20,12 +19,12 @@ async function start() {
   })
   const router = express.Router()
 
-  router.get('/', (req, res) => {
+  router.get('/', (_req, res) => {
     res.send('1')
   })
 
   const app = express()
-  app.all('*', (req, res, next) => {
+  app.all('*', (_req, res, next) => {
     // console.log(req.headers)
     res.header('Access-Control-Allow-Origin', '*')
     res.header('Access-Control-Allow-Headers', '*')

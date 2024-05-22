@@ -229,6 +229,8 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
     for (const i of state.params || []) {
       if (!i.pipe)
         i.pipe = state.pipe || baseState.pipe
+      if (!i.define)
+        i.define = {}
 
       params.unshift(i)
       if (i.index === 0)
