@@ -6,14 +6,14 @@ import type { FilterType } from './context'
 export const defaultFilter: FilterType = (e) => {
   if (!(e instanceof Exception)) {
     log(e.message, 'error')
-    if (LOG_LEVEL <= 2)
+    if (LOG_LEVEL <= 0)
       console.error(e.stack)
 
     e = new UndefinedException(e.message || e)
   }
   else {
     log(`[${e.constructor.name}] ${e.message}`, 'error')
-    if (LOG_LEVEL <= 2)
+    if (LOG_LEVEL <= 0)
       console.error(e.stack)
   }
 
