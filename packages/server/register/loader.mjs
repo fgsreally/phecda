@@ -1,6 +1,7 @@
 import { fileURLToPath, pathToFileURL } from 'url'
 import { writeFile } from 'fs/promises'
 import { extname, isAbsolute, relative, resolve as resolvePath } from 'path'
+import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { PS_FILE_RE, log } from '../dist/index.mjs'
@@ -25,40 +26,40 @@ const host = {
 }
 
 let unimportRet
-
+const MID_RE = /[^.]\.(^.*)\.ts$/
 const dtsPath = 'ps.d.ts'
 
 if (isLowVersion)
   await initialize()
 
-let httpCodeUrl
-let rpcCodeUrl
-
+let config
+const require = createRequire(import.meta.url)
 export async function initialize(data) {
   if (data)
     port = data.port
+  log('read config...')
 
-  if (process.env.PS_UNIMPORT_BAN)
+  config = require(resolvePath(process.cwd(), process.env.PS_CONFIG_FILE || 'ps.json'))
+
+  // if (process.env.PS_HTTP_CODE) {
+  //   httpCodeUrl = pathToFileURL(
+  //     resolvePath(process.cwd(), process.env.PS_HTTP_CODE),
+  //   ).href
+  // }
+
+  // if (process.env.PS_RPC_CODE) {
+  //   rpcCodeUrl = pathToFileURL(
+  //     resolvePath(process.cwd(), process.env.PS_RPC_CODE),
+  //   ).href
+  // }
+  if (!config.unimport)
     return
-
-  if (process.env.PS_HTTP_CODE) {
-    httpCodeUrl = pathToFileURL(
-      resolvePath(process.cwd(), process.env.PS_HTTP_CODE),
-    ).href
-  }
-
-  if (process.env.PS_RPC_CODE) {
-    rpcCodeUrl = pathToFileURL(
-      resolvePath(process.cwd(), process.env.PS_RPC_CODE),
-    ).href
-  }
-
-  unimportRet = await genUnImportRet()
+  unimportRet = await genUnImportRet(config.unimport.imports)
 
   if (unimportRet) {
     log('auto import...')
     writeFile(
-      dtsPath,
+      config.unimport.dts || dtsPath,
       handleClassTypes(await unimportRet.generateTypeDeclarations()),
     )
   }
@@ -128,27 +129,22 @@ export const resolve = async (specifier, context, nextResolve) => {
       pathToFileURL(resolvedModule.resolvedFileName).href,
       context.parentURL.split('?')[0],
     )
-    if (
-      rpcCodeUrl
-      && /[^.](?:\.client)\.ts$/.test(context.parentURL)
-      && /[^.](?:\.rpc).ts$/.test(resolvedModule.resolvedFileName)
-    ) {
-      return {
-        format: 'ts',
-        url: rpcCodeUrl,
-        shortCircuit: true,
-      }
-    }
+
+    const importerMatch = context.parentURL.match(MID_RE)
+    const sourceMatch = resolvedModule.resolvedFileName.match(MID_RE)
 
     if (
-      httpCodeUrl
-      && /[^.](?:\.http)\.ts$/.test(context.parentURL)
-      && /[^.](?:\.controller)\.ts$/.test(resolvedModule.resolvedFileName)
+      config.resolve && importerMatch && sourceMatch
     ) {
-      return {
-        format: 'ts',
-        url: httpCodeUrl,
-        shortCircuit: true,
+      const resolver = config.resolve.find(item => item.source === sourceMatch[1] && item.importer === importerMatch[1])
+      if (resolver) {
+        return {
+          format: 'ts',
+          url: pathToFileURL(
+            resolvePath(process.cwd(), resolver.path),
+          ).href,
+          shortCircuit: true,
+        }
       }
     }
 

@@ -1,11 +1,11 @@
 import { bind } from 'phecda-server/fastify'
 
-import { Factory } from 'phecda-server'
+import { Factory, HTTPGenerator } from 'phecda-server'
 import Fastify from 'fastify'
 import { TestController } from './test.controller'
 
 const data = await Factory([TestController], {
-  http: 'pmeta.js',
+  generators: [new HTTPGenerator('./http.ts')],
 })
 const fastify = Fastify({
   logger: false,

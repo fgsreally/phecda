@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import HyperExpress from 'hyper-express'
 import { bind } from 'phecda-server/hyper-express'
-import { Factory } from 'phecda-server'
+import { Factory, HTTPGenerator } from 'phecda-server'
 import { TestController } from './test.controller'
 
 const data = await Factory([TestController], {
-  http: 'pmeta.js',
+  generators: [new HTTPGenerator('./http.ts')],
 })
 const webserver = new HyperExpress.Server()
 

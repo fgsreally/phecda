@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`compiler generate code > generate RPC request 1`] = `""`;
+exports[` generater > generate RPC request 1`] = `""`;
 
-exports[`compiler generate code > generate http request 1`] = `
+exports[` generater > generate http request code 1`] = `
 "
         export class A{
             

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { Body, Controller, Factory, Get, Query, generateHTTPCode, generateRPCCode } from '../src'
+import { Body, Controller, Factory, Get, HTTPGenerator, Query, RPCGenerator } from '../src'
 
-describe('compiler generate code', () => {
-  it('generate http request', async () => {
+describe(' generater', () => {
+  it('generate http request code', async () => {
     @Controller('/base')
     class A {
       @Get('/test')
@@ -11,7 +11,7 @@ describe('compiler generate code', () => {
       }
     }
     const { meta } = await Factory([A])
-    const code = generateHTTPCode(meta.map(item => item.data))
+    const code = new HTTPGenerator('').generateCode(meta.map(item => item.data))
     expect(code).toMatchSnapshot()
   })
 
@@ -24,7 +24,7 @@ describe('compiler generate code', () => {
       }
     }
     const { meta } = await Factory([A])
-    const code = generateRPCCode(meta.map(item => item.data))
+    const code = new RPCGenerator('').generateCode(meta.map(item => item.data))
     expect(code).toMatchSnapshot()
   })
 })

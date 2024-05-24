@@ -165,6 +165,7 @@
     "unimport": "^3.7.1"
   },
   "dependencies": {
+    "cac": "^6.7.14",
     "debug": "^4.3.4",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
