@@ -100,7 +100,7 @@ if (cmd[0] === 'init') {
   log('init tsconfig.json!')
 }
 else if (cmd[0] === 'code') {
-  process.env.PS_CODE = 'true'
+  process.env.PS_GENERATE = 'true'
   cmd.splice(0, 1)
   startChild()
 }

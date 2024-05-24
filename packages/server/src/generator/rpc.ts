@@ -1,8 +1,9 @@
 import type { MetaData } from '../meta'
+import { Generator } from './utils'
 
-class Compiler {
+export class RPCGenerator extends Generator {
+  name = 'RPC'
   classMap: Record<string, { [key: string]: string }> = {}
-  constructor() { }
 
   getContent() {
     let content = ''
@@ -31,12 +32,10 @@ class Compiler {
     }
     `
   }
-}
 
-export function generateRPCCode(meta: MetaData[]) {
-  const compiler = new Compiler()
-
-  for (const i of meta)
-    compiler.addMethod(i)
-  return compiler.getContent()
+  generateCode(meta: MetaData[]): string {
+    for (const i of meta)
+      this.addMethod(i)
+    return this.getContent()
+  }
 }
