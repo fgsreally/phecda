@@ -24,18 +24,19 @@ export async function compile(sourcecode, filename) {
   return injectInlineSourceMap({ code, map })
 }
 
-export async function genUnImportRet(imports = []) {
+export async function genUnImportRet(opts) {
   try {
     const psExports = Object.keys(await import('../dist/index.mjs'))
     const { createUnimport } = await import('unimport')
 
     const workspaceExports = await findWorkspaceExports()
     return createUnimport({
+      ...opts.imports,
       imports: psExports
         .map((k) => {
           return { name: k, from: 'phecda-server' }
         })
-        .concat(workspaceExports, imports),
+        .concat(workspaceExports, opts.imports || []),
     })
   }
   catch (e) {

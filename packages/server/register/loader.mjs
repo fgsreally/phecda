@@ -43,7 +43,7 @@ export async function initialize(data) {
 
   if (!config.unimport)
     return
-  unimportRet = await genUnImportRet(config.unimport.imports)
+  unimportRet = await genUnImportRet(config.unimport)
 
   if (unimportRet) {
     log('auto import...')
