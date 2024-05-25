@@ -1,12 +1,12 @@
 #! /usr/bin/env node
 import { fork } from 'child_process'
 import fs from 'fs'
+import { createRequire } from 'module'
 import pc from 'picocolors'
 import cac from 'cac'
 import { log } from '../dist/index.mjs'
-import pkg from '../package.json' assert { type: 'json' }
 const cli = cac('phecda')
-
+const require = createRequire(import.meta.url)
 let child
 
 let closePromise
@@ -154,6 +154,6 @@ cli
 // }
 
 cli.help()
-cli.version(pkg.version)
+cli.version(require('../package.json').version)
 
 cli.parse()

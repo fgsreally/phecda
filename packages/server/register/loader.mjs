@@ -27,7 +27,6 @@ const host = {
 }
 
 let unimportRet
-const MID_RE = /[^.]\.(^.*)\.ts$/
 const dtsPath = 'ps.d.ts'
 
 if (isLowVersion)
