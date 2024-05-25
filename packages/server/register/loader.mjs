@@ -1,11 +1,12 @@
 import { fileURLToPath, pathToFileURL } from 'url'
 import { writeFile } from 'fs/promises'
-import { extname, isAbsolute, relative, resolve as resolvePath } from 'path'
+import { basename, extname, isAbsolute, relative, resolve as resolvePath } from 'path'
 import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { PS_FILE_RE, log } from '../dist/index.mjs'
 import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
+
 let port
 
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
@@ -41,17 +42,6 @@ export async function initialize(data) {
 
   config = require(resolvePath(process.cwd(), process.env.PS_CONFIG_FILE || 'ps.json'))
 
-  // if (process.env.PS_HTTP_CODE) {
-  //   httpCodeUrl = pathToFileURL(
-  //     resolvePath(process.cwd(), process.env.PS_HTTP_CODE),
-  //   ).href
-  // }
-
-  // if (process.env.PS_RPC_CODE) {
-  //   rpcCodeUrl = pathToFileURL(
-  //     resolvePath(process.cwd(), process.env.PS_RPC_CODE),
-  //   ).href
-  // }
   if (!config.unimport)
     return
   unimportRet = await genUnImportRet(config.unimport.imports)
@@ -77,6 +67,16 @@ function addUrlToGraph(url, parent) {
 
   moduleGraph[url].add(parent)
   return url + (filesRecord.has(url) ? `?t=${filesRecord.get(url)}` : '')
+}
+
+function getFileMid(file) {
+  const filename = basename(file)
+  const ret = filename.split('.')
+  if (ret.length === 3)
+    return ret[1]
+
+  else
+    return ''
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
@@ -130,13 +130,12 @@ export const resolve = async (specifier, context, nextResolve) => {
       context.parentURL.split('?')[0],
     )
 
-    const importerMatch = context.parentURL.match(MID_RE)
-    const sourceMatch = resolvedModule.resolvedFileName.match(MID_RE)
-
+    const importerMid = getFileMid(context.parentURL)
+    const sourceMid = getFileMid(resolvedModule.resolvedFileName)
     if (
-      config.resolve && importerMatch && sourceMatch
+      config.resolve && importerMid && sourceMid
     ) {
-      const resolver = config.resolve.find(item => item.source === sourceMatch[1] && item.importer === importerMatch[1])
+      const resolver = config.resolve.find(item => item.source === importerMid && item.importer === sourceMid)
       if (resolver) {
         return {
           format: 'ts',

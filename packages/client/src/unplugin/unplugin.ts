@@ -1,18 +1,17 @@
 import { resolve } from 'path'
+import { createRequire } from 'module'
 import { createUnplugin } from 'unplugin'
 import axios from 'axios'
+const require = createRequire(import.meta.url)
 export const unplugin = createUnplugin((options: {
-  rpc?: string
-  http?: string
-  resolveFile?: (id: string, importer?: string) => 'http' | 'rpc' | void
+  configFile?: string
   port?: string
   interval?: number
   split?: boolean
 } = {}) => {
-  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, resolveFile = id => /[^.](?:\.controller)/.test(id) && 'http', port, interval = 3000, split = false } = options
+  const { configFile = 'ps.json', port, interval = 3000, split = false } = options
 
-  const httpCodeFile = http && resolve(process.cwd(), http)
-  const rpcCodeFile = rpc && resolve(process.cwd(), rpc)
+  const config = require(configFile)
 
   let command: string
 
@@ -26,19 +25,16 @@ export const unplugin = createUnplugin((options: {
 
       buildStart() {
         if (command !== 'serve') {
-          if (split) {
-            httpCodeFile && this.emitFile({
-              type: 'chunk',
-              id: httpCodeFile,
-              fileName: 'http.js',
-              preserveSignature: 'allow-extension',
-            })
-
-            rpcCodeFile && this.emitFile({
-              type: 'chunk',
-              id: rpcCodeFile,
-              fileName: 'rpc.js',
-              preserveSignature: 'allow-extension',
+          if (split && config.resolve) {
+            config.resolve.forEach((item: any) => {
+              if (item.filename) {
+                this.emitFile({
+                  type: 'chunk',
+                  id: resolve(process.cwd(), item.path),
+                  fileName: item.filename,
+                  preserveSignature: 'allow-extension',
+                })
+              }
             })
           }
         }
@@ -50,17 +46,26 @@ export const unplugin = createUnplugin((options: {
 
     },
     resolveId(id, importer) {
-      const ret = resolveFile(id, importer)
-      if (ret)
-        return ret === 'http' ? httpCodeFile : rpcCodeFile
-
-      if (importer && /[^.](?:\.client)/.test(importer) && /[^.](?:\.rpc)/.test(id))
-
-        return rpcCodeFile
-
-      if (importer && /[^.](?:\.http)/.test(importer) && /[^.](?:\.controller)/.test(id))
-
-        return httpCodeFile
+      if (!config.resovle)
+        return
+      const sourceMatch = id.match(/[^.]\.(^.*)$/)
+      if (sourceMatch) {
+        if (config.mode === 'server') {
+          if (importer) {
+            const importerMatch = importer.match(/[^.]\.(^.*)\.ts$/)
+            if (importerMatch) {
+              const resolver = config.resovle.find((item: any) => item.source === sourceMatch[1] && item.importer === importerMatch[1])
+              if (resolver)
+                return resolve(process.cwd(), resolver.path)
+            }
+          }
+        }
+        else {
+          const resolver = config.resovle.find((item: any) => item.source === sourceMatch[1])
+          if (resolver)
+            return resolve(process.cwd(), resolver.path)
+        }
+      }
     },
     // transform(code) {
     //   const meta = JSON.parse(code) as P.MetaData[]
