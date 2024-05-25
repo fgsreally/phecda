@@ -5,7 +5,7 @@ import { connect } from 'nats'
 import { TestRpc } from '../test.rpc'
 async function start() {
   const data = await Factory([TestRpc], {
-    generators: [new RPCGenerator('./rpc.ts')],
+    generators: [new RPCGenerator('.ps/rpc.ts')],
   })
 
   const nc = await connect({ port: 4222 })

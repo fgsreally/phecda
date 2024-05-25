@@ -15,7 +15,7 @@ import { TestController } from './test.controller'
 
 async function start() {
   const data = await Factory([TestController], {
-    generators: [new HTTPGenerator('./http.ts')],
+    generators: [new HTTPGenerator('.ps/http.ts')],
   })
   const router = express.Router()
 

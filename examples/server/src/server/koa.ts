@@ -6,7 +6,7 @@ import { bind } from 'phecda-server/koa'
 import { Factory, HTTPGenerator } from 'phecda-server'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
-  generators: [new HTTPGenerator('./http.ts')],
+  generators: [new HTTPGenerator('.ps/http.ts')],
 })
 const app = new Koa()
 const router = new Router({

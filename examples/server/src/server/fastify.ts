@@ -5,7 +5,7 @@ import Fastify from 'fastify'
 import { TestController } from './test.controller'
 
 const data = await Factory([TestController], {
-  generators: [new HTTPGenerator('./http.ts')],
+  generators: [new HTTPGenerator('.ps/http.ts')],
 })
 const fastify = Fastify({
   logger: false,

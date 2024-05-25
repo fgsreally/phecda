@@ -4,12 +4,12 @@
     {
       "source": "controller",
       "importer": "http",
-      "path": "http.ts"
+      "path": ".ps/http.ts"
     },
     {
       "source": "rpc",
       "importer": "client",
-      "path": "rpc.ts"
+      "path": ".ps/rpc.ts"
     }
   ],
   "unimport": {
