@@ -57,7 +57,6 @@ declare global {
   const PPipe: typeof import('phecda-server')['PPipe']
   const PPlugin: typeof import('phecda-server')['PPlugin']
   const PS_EXIT_CODE: typeof import('phecda-server')['PS_EXIT_CODE']
-  const PS_FILE_RE: typeof import('phecda-server')['PS_FILE_RE']
   const Param: typeof import('phecda-server')['Param']
   const Patch: typeof import('phecda-server')['Patch']
   const PayloadLargeException: typeof import('phecda-server')['PayloadLargeException']

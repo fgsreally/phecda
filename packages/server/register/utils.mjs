@@ -28,15 +28,13 @@ export async function genUnImportRet(opts) {
   try {
     const psExports = Object.keys(await import('../dist/index.mjs'))
     const { createUnimport } = await import('unimport')
-
-    const workspaceExports = await findWorkspaceExports()
     return createUnimport({
-      ...opts.imports,
+      ...opts,
       imports: psExports
         .map((k) => {
           return { name: k, from: 'phecda-server' }
         })
-        .concat(workspaceExports, opts.imports || []),
+        .concat(opts.imports || []),
     })
   }
   catch (e) {
@@ -44,34 +42,34 @@ export async function genUnImportRet(opts) {
   }
 }
 
-function slash(str) {
-  return str.replace(/\\/g, '/')
-}
+// function slash(str) {
+//   return str.replace(/\\/g, '/')
+// }
 
-async function findWorkspaceExports() {
-  try {
-    const { default: fg } = await import('fast-glob')
-    const { scanExports } = await import('unimport')
-    const result = await fg(
-      '**/*.@(controller|service|module|extension|ext|guard|interceptor|plugin|filter|pipe|edge).ts',
-      {
-        ignore: ['node_modules'],
-        absolute: true,
-        cwd: process.cwd(),
-        onlyFiles: true,
-        followSymbolicLinks: true,
-      },
-    )
+// async function findWorkspaceExports() {
+//   try {
+//     const { default: fg } = await import('fast-glob')
+//     const { scanExports } = await import('unimport')
+//     const result = await fg(
+//       '**/*.@(controller|service|module|extension|ext|guard|interceptor|plugin|filter|pipe|edge).ts',
+//       {
+//         ignore: ['node_modules'],
+//         absolute: true,
+//         cwd: process.cwd(),
+//         onlyFiles: true,
+//         followSymbolicLinks: true,
+//       },
+//     )
 
-    const files = Array.from(new Set(result.flat())).map(slash)
+//     const files = Array.from(new Set(result.flat())).map(slash)
 
-    return (await Promise.all(files.map(i => scanExports(i, false))))
-      .flat()
-  }
-  catch (e) {
-    return []
-  }
-}
+//     return (await Promise.all(files.map(i => scanExports(i, false))))
+//       .flat()
+//   }
+//   catch (e) {
+//     return []
+//   }
+// }
 
 export function handleClassTypes(input) {
   return input.replace(/const\s+(\w+)\s*:\s*typeof\s+import\(['"](.+)['"]\)\['(\w+)'\]/g, (_, n, p, e) => {

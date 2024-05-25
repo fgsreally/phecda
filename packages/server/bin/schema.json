@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "resolve": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "The middle name of the imported file."
+          },
+          "importer": {
+            "type": "string",
+            "description": "The middle name of the importer file."
+          },
+          "path": {
+            "type": "string",
+
+            "description": "Redirect path"
+          },
+          "filename": {
+            "type": "string",
+            "optional": true,
+
+            "description": "generate split chunk,only work in vite"
+          }
+        },
+        "required": ["source", "path", "importer"]
+      },
+      "description": "Resolve and redirect modules path"
+    },
+    "moduleFile": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Including the module's file middle name, such as controller mapping to xx.controller.ts"
+    },
+    "unimport": {
+      "type": "object",
+      "description": "Includes the arguments passed to unimport and 'dtsPath' that specifies the location for generating type files."
+    }
+  },
+
+  "required": ["resolve"]
+}

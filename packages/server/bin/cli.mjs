@@ -93,17 +93,34 @@ cli.command('init', 'init config file').action(() => {
   }
   `,
   )
+
+  log('init ps.json')
+
   fs.writeFileSync(
     'ps.json',
    `{
-      "resolve": [
-        { "source": "controller", "importer": "http", "path": "http.ts" },
-        { "source": "rpc", "importer": "client", "path": "./rpc/rpc.ts" }
-      ],
-      "unimport":{
-        
+    "$schema": "node_modules/phecda-server/bin/schema.json",
+    "resolve": [
+      {
+        "source": "controller",
+        "importer": "http",
+        "path": "http.ts"
+      },
+      {
+        "source": "rpc",
+        "importer": "client",
+        "path": "rpc.ts"
       }
-    }
+    ],
+    "unimport": {
+      "dirs": ["./src/*"],
+      "dirsScanOptions":{
+          "filePatterns":["*.{service,controller,module}.ts"]
+      },
+      "dtsPath": "./ps.d.ts"
+    },
+    "moduleFile": []
+  }
   `,
   )
 })

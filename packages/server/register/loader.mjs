@@ -53,11 +53,11 @@ export async function initialize(data) {
   if (!config.unimport)
     return
   unimportRet = await genUnImportRet(config.unimport)
-
+  await unimportRet.init()
   if (unimportRet) {
     log('auto import...')
     writeFile(
-      config.unimport.dts || dtsPath,
+      config.unimport.dtsPath || dtsPath,
       handleClassTypes(await unimportRet.generateTypeDeclarations()),
     )
   }
@@ -140,7 +140,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     const sourceMid = getFileMid(resolvedModule.resolvedFileName)
     if (config.resolve && importerMid && sourceMid) {
       const resolver = config.resolve.find(
-        item => item.source === importerMid && item.importer === sourceMid,
+        item => item.source === sourceMid && item.importer === importerMid,
       )
       if (resolver) {
         return {
