@@ -1,10 +1,16 @@
 import { fileURLToPath, pathToFileURL } from 'url'
 import { writeFile } from 'fs/promises'
-import { basename, extname, isAbsolute, relative, resolve as resolvePath } from 'path'
+import {
+  basename,
+  extname,
+  isAbsolute,
+  relative,
+  resolve as resolvePath,
+} from 'path'
 import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
-import { PS_FILE_RE, log } from '../dist/index.mjs'
+import { log } from '../dist/index.mjs'
 import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
 
 let port
@@ -39,7 +45,10 @@ export async function initialize(data) {
     port = data.port
   log('read config...')
 
-  config = require(resolvePath(process.cwd(), process.env.PS_CONFIG_FILE || 'ps.json'))
+  config = require(resolvePath(
+    process.cwd(),
+    process.env.PS_CONFIG_FILE || 'ps.json',
+  ))
 
   if (!config.unimport)
     return
@@ -73,9 +82,7 @@ function getFileMid(file) {
   const ret = filename.split('.')
   if (ret.length === 3)
     return ret[1]
-
-  else
-    return ''
+  else return ''
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
@@ -131,16 +138,14 @@ export const resolve = async (specifier, context, nextResolve) => {
 
     const importerMid = getFileMid(context.parentURL)
     const sourceMid = getFileMid(resolvedModule.resolvedFileName)
-    if (
-      config.resolve && importerMid && sourceMid
-    ) {
-      const resolver = config.resolve.find(item => item.source === importerMid && item.importer === sourceMid)
+    if (config.resolve && importerMid && sourceMid) {
+      const resolver = config.resolve.find(
+        item => item.source === importerMid && item.importer === sourceMid,
+      )
       if (resolver) {
         return {
           format: 'ts',
-          url: pathToFileURL(
-            resolvePath(process.cwd(), resolver.path),
-          ).href,
+          url: pathToFileURL(resolvePath(process.cwd(), resolver.path)).href,
           shortCircuit: true,
         }
       }
@@ -272,5 +277,26 @@ function debounce(cb, timeout = 500) {
 }
 
 export function isModuleFileUrl(url) {
-  return PS_FILE_RE.test(url)
+  const midName = getFileMid(url)
+  if (!midName)
+    return false
+  if (
+    [
+      'controller',
+      'rpc',
+      'service',
+      'module',
+      'extension',
+      'ext',
+      'guard',
+      'interceptor',
+      'plugin',
+      'filter',
+      'pipe',
+      'edge',
+    ].includes(midName)
+  )
+    return true
+
+  return config.moduleFile && config.moduleFile.includes(midName)
 }

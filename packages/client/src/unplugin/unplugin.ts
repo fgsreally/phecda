@@ -56,7 +56,7 @@ export const unplugin = createUnplugin((options: {
 
     },
     resolveId(id, importer) {
-      if (!config.resolve || !importer)
+      if (!config.resolve || !importer || importer.includes('node_modules'))
         return
       if (id.startsWith('.') || id.startsWith('/') || isAbsolute(id)) {
         const sourceMid = getFileMid(id)

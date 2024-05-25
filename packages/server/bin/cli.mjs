@@ -93,6 +93,19 @@ cli.command('init', 'init config file').action(() => {
   }
   `,
   )
+  fs.writeFileSync(
+    'ps.json',
+   `{
+      "resolve": [
+        { "source": "controller", "importer": "http", "path": "http.ts" },
+        { "source": "rpc", "importer": "client", "path": "./rpc/rpc.ts" }
+      ],
+      "unimport":{
+        
+      }
+    }
+  `,
+  )
 })
 
 cli

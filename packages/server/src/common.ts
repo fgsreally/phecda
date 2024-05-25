@@ -10,8 +10,6 @@ export const IS_ONLY_GENERATE = !!process.env.PS_GENERATE// work for ci; only ge
 export const IS_STRICT = !!process.env.PS_STRICT// throw error if depends on an aop module which is not imported
 export const LOG_LEVEL = Number(process.env.PS_LOG_LEVEL || 0)// internal logger
 
-export const PS_FILE_RE = /[^.](?:\.controller|rpc|service|module|extension|ext|guard|interceptor|plugin|filter|pipe|edge)\.ts$/i
-
 export enum PS_EXIT_CODE {
   RELAUNCH = 2,
   CODE = 4,
