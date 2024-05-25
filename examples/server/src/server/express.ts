@@ -1,5 +1,5 @@
 import { bind } from 'phecda-server/express'
-import { Factory } from 'phecda-server'
+import { Factory, HTTPGenerator } from 'phecda-server'
 import express from 'express'
 import { TestController } from './test.controller'
 // addFilter('test', (e, tag, ctx) => {
@@ -15,7 +15,7 @@ import { TestController } from './test.controller'
 
 async function start() {
   const data = await Factory([TestController], {
-    http: 'pmeta.js',
+    generators: [new HTTPGenerator('.ps/http.ts')],
   })
   const router = express.Router()
 

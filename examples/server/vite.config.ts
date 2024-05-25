@@ -11,7 +11,7 @@ export default defineConfig({
       '/base': 'http://localhost:3008',
     },
   },
-  plugins: [plugin({ split: true, http: './pmeta.js' })],
+  plugins: [plugin({ split: true, http: './http.ts' })],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

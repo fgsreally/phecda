@@ -16,7 +16,7 @@ export const Ctx: PropertyDecorator = (target: any, key: PropertyKey) => {
   set(target, 'context', key)
 }
 
-export function Define(key: string, value: any): MethodDecorator | ParameterDecorator | ClassDecorator {
+export function Define(key: string, value: any): any {
   return (target: any, k?: any, index?: number) => {
     if (typeof index === 'number') {
       setPropertyState(target, k, (state) => {

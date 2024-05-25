@@ -3,10 +3,10 @@ import Koa from 'koa'
 import { koaBody } from 'koa-body'
 import Router from '@koa/router'
 import { bind } from 'phecda-server/koa'
-import { Factory } from 'phecda-server'
+import { Factory, HTTPGenerator } from 'phecda-server'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
-  http: 'pmeta.js',
+  generators: [new HTTPGenerator('.ps/http.ts')],
 })
 const app = new Koa()
 const router = new Router({

@@ -29,12 +29,12 @@ export function Interceptor(...interceptors: string[]): ClassDecorator | MethodD
     })
   }
 }
-export function Filter(filter: string): ClassDecorator | MethodDecorator {
+export function Filter(filter: string) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, state => state.filter = filter)
   }
 }
-export function Pipe(pipe?: string): ClassDecorator | MethodDecorator | ParameterDecorator {
+export function Pipe(pipe?: string) {
   return (target: any, k?: any, index?: any) => {
     if (typeof index === 'number') {
       BaseParam({ pipe })(target, k, index)

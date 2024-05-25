@@ -1,19 +1,28 @@
-import { resolve } from 'path'
+import { basename, isAbsolute, resolve } from 'path'
+import { createRequire } from 'module'
 import { createUnplugin } from 'unplugin'
 import axios from 'axios'
+const require = createRequire(import.meta.url)
+
+function getFileMid(file: string) {
+  const filename = basename(file)
+  const ret = filename.split('.')
+  if (ret.length === 2)
+    return ret[1]
+
+  else
+    return ''
+}
 export const unplugin = createUnplugin((options: {
-  rpc?: string
-  http?: string
-  resolveFile?: (id: string, importer?: string) => 'http' | 'rpc' | void
+  configFile?: string
   port?: string
   interval?: number
   split?: boolean
+  server?: boolean
 } = {}) => {
-  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, resolveFile = id => /[^.](?:\.controller)/.test(id) && 'http', port, interval = 3000, split = false } = options
+  const { configFile = './ps.json', port, interval = 3000, split = false, server = false } = options
 
-  const httpCodeFile = http && resolve(process.cwd(), http)
-  const rpcCodeFile = rpc && resolve(process.cwd(), rpc)
-
+  const config = require(resolve(process.cwd(), configFile))
   let command: string
 
   return {
@@ -26,19 +35,16 @@ export const unplugin = createUnplugin((options: {
 
       buildStart() {
         if (command !== 'serve') {
-          if (split) {
-            httpCodeFile && this.emitFile({
-              type: 'chunk',
-              id: httpCodeFile,
-              fileName: 'http.js',
-              preserveSignature: 'allow-extension',
-            })
-
-            rpcCodeFile && this.emitFile({
-              type: 'chunk',
-              id: rpcCodeFile,
-              fileName: 'rpc.js',
-              preserveSignature: 'allow-extension',
+          if (split && config.resolve) {
+            config.resolve.forEach((item: any) => {
+              if (item.filename) {
+                this.emitFile({
+                  type: 'chunk',
+                  id: resolve(process.cwd(), item.path),
+                  fileName: item.filename,
+                  preserveSignature: 'allow-extension',
+                })
+              }
             })
           }
         }
@@ -50,31 +56,28 @@ export const unplugin = createUnplugin((options: {
 
     },
     resolveId(id, importer) {
-      const ret = resolveFile(id, importer)
-      if (ret)
-        return ret === 'http' ? httpCodeFile : rpcCodeFile
+      if (!config.resolve || !importer || importer.includes('node_modules'))
+        return
+      if (id.startsWith('.') || id.startsWith('/') || isAbsolute(id)) {
+        const sourceMid = getFileMid(id)
+        if (sourceMid) {
+          if (server) {
+            const importerMid = getFileMid(importer)
 
-      if (importer && /[^.](?:\.client)/.test(importer) && /[^.](?:\.rpc)/.test(id))
-
-        return rpcCodeFile
-
-      if (importer && /[^.](?:\.http)/.test(importer) && /[^.](?:\.controller)/.test(id))
-
-        return httpCodeFile
+            if (importerMid) {
+              const resolver = config.resolve.find((item: any) => item.source === sourceMid && item.importer === importerMid)
+              if (resolver)
+                return resolve(process.cwd(), resolver.path)
+            }
+          }
+          else {
+            const resolver = config.resolve.find((item: any) => item.source === sourceMid)
+            if (resolver)
+              return resolve(process.cwd(), resolver.path)
+          }
+        }
+      }
     },
-    // transform(code) {
-    //   const meta = JSON.parse(code) as P.MetaData[]
-    //   const compiler = new Compiler()
-
-    //   for (const i of meta)
-    //     compiler.addMethod(i)
-
-    //   return { code: compiler.getContent() }
-    // },
-
-    // transformInclude(id) {
-    //   return id === metaPath
-    // },
 
   }
 })

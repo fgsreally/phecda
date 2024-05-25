@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/phecda-server/bin/schema.json",
+  "resolve": [
+    {
+      "source": "controller",
+      "importer": "http",
+      "path": ".ps/http.ts"
+    },
+    {
+      "source": "rpc",
+      "importer": "client",
+      "path": ".ps/rpc.ts"
+    }
+  ],
+  "unimport": {
+    "dirs": ["./src/server/*"],
+    "dirsScanOptions":{
+        "filePatterns":["*.{service,controller,module}.ts"]
+    },
+    "dtsPath": "./ps.d.ts"
+  },
+  "moduleFile": []
+}

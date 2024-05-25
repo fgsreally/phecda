@@ -1,11 +1,12 @@
 import { serve } from '@hono/node-server'
 
 import { bind } from 'phecda-server/hono'
-import { Factory } from 'phecda-server'
+import { Factory, HTTPGenerator } from 'phecda-server'
 import { Hono } from 'hono'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
-  http: 'pmeta.js',
+  generators: [new HTTPGenerator('.ps/http.ts')],
+
 })
 const app = new Hono()
 const router = new Hono()

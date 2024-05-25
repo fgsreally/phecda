@@ -7,7 +7,7 @@ export * from './pipe'
 export * from './meta'
 export * from './common'
 export * from './modules'
-export * from './compiler'
+export * from './generator'
 export * from './utils'
 
 export * from 'phecda-core'

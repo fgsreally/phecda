@@ -9,7 +9,7 @@ export class Dev {
   protected context: BaseContext
   // work for hmr
   // exec callback  when module unmount
-  onUnmount(cb: () => void) {
+  protected onUnmount(cb: () => void) {
     this[UNMOUNT_SYMBOL].push(cb)
   }
 

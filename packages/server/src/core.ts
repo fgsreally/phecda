@@ -1,5 +1,4 @@
 import 'reflect-metadata'
-import fs from 'fs'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
 import { Empty, SHARE_KEY, get, getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
@@ -8,8 +7,8 @@ import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_HMR, IS_ONLY_CODE } from './common'
-import { generateHTTPCode, generateRPCCode } from './compiler'
+import { IS_HMR, IS_ONLY_GENERATE } from './common'
+import type { Generator } from './generator'
 export function Injectable() {
   return (target: any) => Empty(target)
 }
@@ -20,18 +19,14 @@ export const emitter: Emitter = new EventEmitter() as any
 export async function Factory(models: (new (...args: any) => any)[], opts: {
   parseModule?: (module: any) => any
   parseMeta?: (meta: Meta) => Meta | null | undefined
-
-  // HTTP generate code path
-  http?: string
-  // rpc generate code path
-  rpc?: string
+  generators?: Generator[]
 } = {}) {
   const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
   const meta: Meta[] = []
   const constructorMap = new Map()
   const constructorSet = new WeakSet()
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
-  const { http = process.env.PS_HTTP_CODE, rpc = process.env.PS_RPC_CODE, parseModule = (module: any) => module, parseMeta = (meta: any) => meta } = opts
+  const { parseModule = (module: any) => module, parseMeta = (meta: any) => meta, generators } = opts
   if (!getInject('watcher')) {
     setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
@@ -133,7 +128,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 
     debug(`init module "${String(tag)}"`)
 
-    if (!IS_ONLY_CODE)
+    if (!IS_ONLY_GENERATE)
       await invokeHandler('init', instance)
 
     debug(`add module "${String(tag)}"`)
@@ -146,20 +141,18 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
   for (const model of models)
     await buildDepModule(model)
 
-  async function writeCode() {
-    if (http) {
-      debug(`write http code to ${http}`)
-      await fs.promises.writeFile(http, generateHTTPCode(meta.map(item => item.data)))
-    }
-    if (rpc) {
-      debug(`write rpc code to ${rpc}`)
+  async function generateCode() {
+    if (generators) {
+      return Promise.all(generators.map((generator) => {
+        debug(`generate "${generator.name}" code to ${generator.path}`)
 
-      await fs.promises.writeFile(rpc, generateRPCCode(meta.map(item => item.data)))
+        return generator.output(meta)
+      }))
     }
   }
 
-  writeCode().then(() => {
-    if (IS_ONLY_CODE)
+  generateCode().then(() => {
+    if (IS_ONLY_GENERATE)
       process.exit(4)// only output code/work for ci
   })
 
@@ -177,7 +170,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
             await add(models[i])
         }
       }
-      writeCode()
+      generateCode()
     })
   }
 
