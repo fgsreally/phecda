@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Clear, Ignore, addDecoToClass, getExposeKey, getOwnExposeKey, getOwnIgnoreKey, getPhecdaFromTarget, getState, setState, setStateKey } from '../src'
+import { Clear, Ignore, SHARE_KEY, addDecoToClass, getExposeKey, getOwnExposeKey, getOwnIgnoreKey, getPhecdaFromTarget, getState, setState, setStateKey } from '../src'
 
 describe('extends won\'t populate namespace', () => {
   it('getPhecdaFromTarget', () => {
@@ -82,10 +82,17 @@ describe('extends won\'t populate namespace', () => {
 
   it('clear', () => {
     function Test(value: any) {
-      return (target: any, key: any) => {
+      return (target: any, key?: any) => {
+        if (!key) {
+          key = SHARE_KEY
+          target = target.prototype
+        }
         setState(target, key, value)
       }
     }
+
+    @Test({ tag: 'A' })
+
     class A {
       @Test({ a: 1, b: 0 })
       x: string
@@ -97,14 +104,17 @@ describe('extends won\'t populate namespace', () => {
       x: string
     }
 
+    @Clear
     class C extends B {
       @Test({ c: 1 })
       x: string
     }
+    expect(getState(A)).toEqual({ tag: 'A' })
 
     expect(getState(B, 'x')).toEqual({ b: 1 })
     expect(getState(C, 'x')).toEqual({ b: 1, c: 1 })
     addDecoToClass(C, 'x', Clear)
     expect(getState(C, 'x')).toEqual({ c: 1 })
+    expect(getState(C)).toEqual({})
   })
 })
