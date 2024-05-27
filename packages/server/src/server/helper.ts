@@ -1,4 +1,4 @@
-import type { Meta } from '../meta'
+import type { ControllerMetaData } from '../meta'
 
 export function resolveDep(ret: any, key: string) {
   if (key)
@@ -27,7 +27,7 @@ export interface ServerOptions {
 
 }
 
-export function argToReq(params: Meta['data']['params'], args: any[], headers: Record<string, any>) {
+export function argToReq(params: ControllerMetaData['params'], args: any[], headers: Record<string, any>) {
   const req = {
     body: {},
     query: {},

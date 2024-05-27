@@ -6,7 +6,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -23,7 +23,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
   const originStack = router.stack.slice(0, router.stack.length)
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -34,10 +34,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
   async function createRoute() {
@@ -123,10 +123,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       }
     })
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
@@ -137,10 +134,11 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           plugins,
           filter,
           ctx: CTX,
+          http,
         },
       } = metaMap.get(tag)![func]
 
-      router[http.type](http.route, ...Context.usePlugin(plugins), async (ctx, next) => {
+      router[http!.type](http!.prefix + http!.route, ...Context.usePlugin(plugins), async (ctx, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!
@@ -161,8 +159,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         const context = new Context<KoaCtx>(contextData)
 
         try {
-          for (const name in header)
-            ctx.set(name, header[name])
+          if (http!.headers) {
+            for (const name in http!.headers)
+              ctx.set(name, http!.headers[name])
+          }
           await context.useGuard([...globalGuards, ...guards])
           const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (i1 !== undefined)

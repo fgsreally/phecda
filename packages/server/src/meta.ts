@@ -14,13 +14,14 @@ export interface ControllerMetaData extends ServiceMetaData {
     type: BaseRequestType
     prefix: string
     route: string
+    headers?: Record<string, string>
+
   }
   rpc?: {
     queue?: string
     isEvent?: boolean
   }
   ctx?: string
-  header: Record<string, string>
   params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any> }[]
   guards: string[]
   pipe?: string

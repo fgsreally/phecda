@@ -6,7 +6,7 @@ import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 
 const debug = Debug('phecda-server/rabbitmq')
 
@@ -19,7 +19,7 @@ export interface RabbitmqCtx extends RpcContext {
 export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
@@ -29,10 +29,10 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 

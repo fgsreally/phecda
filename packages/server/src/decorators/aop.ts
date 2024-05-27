@@ -1,30 +1,26 @@
 import { SHARE_KEY, getState, setPropertyState } from 'phecda-core'
 import { BaseParam } from './param'
-export function Guard(...guards: string[]): ClassDecorator | MethodDecorator {
+import { mergeArray } from './utils'
+export function Guard(...guards: string[]) {
   return (target: any, k?: PropertyKey) => {
-    const parentState = getState(target, k || SHARE_KEY)?.guards
     setPropertyState(target, k, (state) => {
-      state.guards = [...new Set([...parentState, ...state.guards, ...guards])]
+      state.guards = [...new Set(mergeArray(state.gurads || getState(target, k || SHARE_KEY)?.guards, guards))]
     })
   }
 }
 
-export function Plugin(...plugins: string[]): ClassDecorator | MethodDecorator {
+export function Plugin(...plugins: string[]) {
   return (target: any, k?: PropertyKey) => {
-    const parentState = getState(target, k || SHARE_KEY)?.plugins
-
     setPropertyState(target, k, (state) => {
-      state.plugins = [...new Set([...parentState, ...state.plugins, ...plugins])]
+      state.plugins = [...new Set(mergeArray(state.plugins || getState(target, k || SHARE_KEY)?.plugins, plugins))]
     })
   }
 }
 
-export function Interceptor(...interceptors: string[]): ClassDecorator | MethodDecorator {
+export function Interceptor(...interceptors: string[]) {
   return (target: any, k?: PropertyKey) => {
-    const parentState = getState(target, k || SHARE_KEY)?.interceptors
-
     setPropertyState(target, k, (state) => {
-      state.interceptors = [...new Set([...parentState, ...state.interceptors, ...interceptors])]
+      state.interceptors = [...new Set(mergeArray(state.interceptors || getState(target, k || SHARE_KEY)?.interceptors, interceptors))]
     })
   }
 }

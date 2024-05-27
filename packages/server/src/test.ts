@@ -4,6 +4,7 @@ import { type Construct, getTag } from 'phecda-core'
 import { Factory } from './core'
 
 import type { PickFunc } from './types'
+import type { ControllerMeta } from './meta'
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
   const { moduleMap, constructorMap } = await Factory(Modules)
 
@@ -40,9 +41,9 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
 
     return new Proxy({}, {
       get(_target, p) {
-        const { data } = meta.find(({ data }) => data.name === Module.name && data.func === p && data.tag === tag)!
+        const { data } = (meta as ControllerMeta[]).find(({ data }) => data.name === Module.name && data.func === p && data.tag === tag)!
         return (...args: any) => {
-          const ret = { body: {}, headers: {}, query: {}, func: data.http!.type, url: data.http!.route } as any
+          const ret = { body: {}, headers: {}, query: {}, func: data.http!.type, url: data.http!.prefix + data.http!.route } as any
 
           data.params.forEach((item) => {
             if (item.type === 'params') {

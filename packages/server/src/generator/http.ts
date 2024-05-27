@@ -1,4 +1,4 @@
-import type { MetaData } from '../meta'
+import type { ControllerMetaData, MetaData } from '../meta'
 import { Generator } from './utils'
 
 export class HTTPGenerator extends Generator {
@@ -17,18 +17,17 @@ export class HTTPGenerator extends Generator {
     return content
   }
 
-  addMethod(args: MetaData) {
+  addMethod(args: ControllerMetaData) {
     const {
       http, name, func, params, tag,
     } = args
-    if (!http)
-      return
-    const url = http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
+
+    const url = http!.prefix + http!.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][func] = `
     ${func}(...args){
-const ret={tag:"${tag as string}",func:"${func}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
+const ret={tag:"${tag as string}",func:"${func}",body:{},headers:{},query:{},params:{},method:"${http!.type}",url:"${url}",args}
 
 ${params.reduce((p, c, i) => `${p}ret.${c.type}${c.key ? `['${c.key}']` : ''}=args[${i}]\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',args[${i}])` : ''}\n`, '')}
 return ret
@@ -37,8 +36,10 @@ return ret
   }
 
   generateCode(meta: MetaData[]): string {
-    for (const i of meta)
-      this.addMethod(i)
+    for (const i of meta) {
+      if (i.http)
+        this.addMethod(i as ControllerMetaData)
+    }
     return this.getContent()
   }
 }

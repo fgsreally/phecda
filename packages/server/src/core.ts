@@ -192,14 +192,18 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
     const state = (getState(instance, i) || {}) as any
 
     const meta = {
-      name, tag, func: i, ...state,
+      ...state,
+      name,
+      tag,
+      func:
+        i,
     } as MetaData
-
     if (baseState.controller) {
       if (typeof tag !== 'string')
         log(`can't use Tag with ${typeof tag} on controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
       initState(state)
       meta.ctx = ctx
+      meta.controller = baseState.controller
       meta[baseState.controller] = {
         ...baseState[baseState.controller],
         ...state[baseState.controller],
@@ -225,7 +229,6 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       meta.guards = [...new Set([...baseState.guards, ...state.guards])]
       meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
     }
-
     return new Meta(meta as unknown as MetaData, getParamTypes(instance, i as string) || [])
   })
 }
@@ -235,12 +238,9 @@ function getParamTypes(Module: any, key?: string | symbol) {
 }
 
 function initState(state: any) {
-  if (!state.isController)
-    return
   if (!state.define)
     state.define = {}
-  if (!state.header)
-    state.header = {}
+
   if (!state.plugins)
     state.plugins = []
   if (!state.guards)

@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -17,7 +17,7 @@ export interface HonoCtx extends HttpContext {
 export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
   const { moduleMap, meta } = data
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -28,10 +28,10 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -119,10 +119,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
       }
     })
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
@@ -133,12 +130,13 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
           params,
           plugins,
           filter,
+          http,
         },
       } = metaMap.get(tag)![func]
 
       const needBody = params.some(item => item.type === 'body')
 
-      router[http.type](http.route, ...Context.usePlugin(plugins), async (c) => {
+      router[http!.type](http!.prefix + http!.route, ...Context.usePlugin(plugins), async (c) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!
@@ -159,8 +157,10 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
         const context = new Context<HonoCtx>(contextData)
 
         try {
-          for (const name in header)
-            c.header(name, header[name])
+          if (http!.headers) {
+            for (const name in http!.headers)
+              c.header(name, http!.headers[name])
+          }
           await context.useGuard([...globalGuards, ...guards])
           const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (i1 !== undefined)

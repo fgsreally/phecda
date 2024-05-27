@@ -5,7 +5,7 @@ import Debug from 'debug'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -42,7 +42,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
   const { moduleMap, meta } = data
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -53,10 +53,10 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -145,15 +145,14 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
     }))
 
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
         data: {
           interceptors,
+          http,
+
           guards,
           params,
           plugins,
@@ -163,7 +162,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
       } = metaMap.get(tag)![func]
 
       const needBody = params.some(item => item.type === 'body')
-      router[http.type](http.route, eventHandler({
+      router[http!.type](http!.prefix + http!.route, eventHandler({
         onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
         handler: async (event) => {
           debug(`invoke method "${func}" in module "${tag}"`)
@@ -186,7 +185,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           const context = new Context<H3Ctx>(contextData)
 
           try {
-            setHeaders(event, header)
+            setHeaders(event, http!.headers || {})
             await context.useGuard([...globalGuards, ...guards])
             const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
             if (i1 !== undefined)

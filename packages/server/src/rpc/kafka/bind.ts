@@ -1,7 +1,7 @@
 import type { Consumer, Producer } from 'kafkajs'
 import Debug from 'debug'
 import type { Factory } from '../../core'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -22,7 +22,7 @@ export interface KafkaCtx extends RpcContext {
 export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
@@ -32,10 +32,10 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 

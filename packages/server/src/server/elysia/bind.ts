@@ -6,7 +6,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -20,7 +20,7 @@ export interface ElysiaCtx extends HttpContext {
 export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
   const { moduleMap, meta } = data
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -31,10 +31,10 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -127,10 +127,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
 
     app.use(parallelRouter)
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
@@ -142,13 +139,14 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
           plugins,
           filter,
           define,
+          http,
         },
       } = metaMap.get(tag)![func]
       const funcRouter = new App()
 
       Context.usePlugin(plugins).forEach(p => p(funcRouter))
       // @ts-expect-error todo
-      funcRouter[http.type](http.route, async (c) => {
+      funcRouter[http.type](http!.prefix + http!.route, async (c) => {
         debug(`invoke method "${func}" in module "${tag}"`)
         const instance = moduleMap.get(tag)!
         const contextData = {
@@ -168,7 +166,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         const context = new Context<ElysiaCtx>(contextData)
 
         try {
-          c.set.headers = header
+          c.set.headers = http!.headers
           await context.useGuard([...globalGuards, ...guards])
           const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (i1 !== undefined)

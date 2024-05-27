@@ -3,6 +3,7 @@
 exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
+    "controller": "http",
     "ctx": "context",
     "define": {},
     "filter": undefined,
@@ -10,7 +11,8 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/base/test",
+      "prefix": "/base",
+      "route": "/test",
       "type": "get",
     },
     "interceptors": [],
@@ -40,6 +42,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 exports[`Factory  > In extended case 1`] = `
 [
   {
+    "controller": "http",
     "ctx": undefined,
     "define": {},
     "filter": undefined,
@@ -47,7 +50,8 @@ exports[`Factory  > In extended case 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/B/testB",
+      "prefix": "/B",
+      "route": "/testB",
       "type": "get",
     },
     "interceptors": [],
@@ -72,6 +76,7 @@ exports[`Factory  > In extended case 1`] = `
     "tag": "B",
   },
   {
+    "controller": "http",
     "ctx": undefined,
     "define": {},
     "filter": undefined,
@@ -79,7 +84,8 @@ exports[`Factory  > In extended case 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/B/testA",
+      "prefix": "/B",
+      "route": "/testA",
       "type": "get",
     },
     "interceptors": [],
@@ -106,9 +112,137 @@ exports[`Factory  > In extended case 1`] = `
 ]
 `;
 
+exports[`Factory  > decorator in extends case 1`] = `
+[
+  {
+    "controller": "http",
+    "ctx": undefined,
+    "define": {},
+    "filter": undefined,
+    "func": "test",
+    "guards": [
+      "A",
+      "test",
+    ],
+    "header": {},
+    "http": {
+      "prefix": "",
+      "route": "",
+      "type": "post",
+    },
+    "interceptors": [],
+    "name": "A",
+    "params": [
+      {
+        "define": {},
+        "index": 0,
+        "key": "",
+        "pipe": undefined,
+        "type": "body",
+      },
+    ],
+    "plugins": [],
+    "tag": "A",
+  },
+  {
+    "controller": "http",
+    "ctx": undefined,
+    "define": {},
+    "filter": undefined,
+    "func": "test",
+    "guards": [
+      "A",
+      "test",
+      "test3",
+      "test2",
+    ],
+    "header": {},
+    "http": {
+      "headers": {
+        "b": "b",
+        "key": "b",
+      },
+      "prefix": "",
+      "route": "",
+      "type": "post",
+    },
+    "interceptors": [],
+    "name": "B",
+    "params": [
+      {
+        "define": {},
+        "index": 0,
+        "key": "",
+        "pipe": undefined,
+        "type": "body",
+      },
+    ],
+    "plugins": [],
+    "tag": "B",
+  },
+  {
+    "controller": "http",
+    "ctx": undefined,
+    "define": {},
+    "filter": undefined,
+    "func": "test",
+    "guards": [
+      "A",
+      "test",
+      "test3",
+      "test2",
+    ],
+    "header": {},
+    "http": {
+      "headers": {
+        "b": "b",
+        "c": "c",
+        "key": "c",
+      },
+      "prefix": "",
+      "route": "",
+      "type": "post",
+    },
+    "interceptors": [],
+    "name": "C",
+    "params": [
+      {
+        "define": {},
+        "index": 0,
+        "key": "",
+        "pipe": "C",
+        "type": "body",
+      },
+    ],
+    "plugins": [],
+    "tag": "C",
+  },
+  {
+    "controller": "http",
+    "ctx": undefined,
+    "define": {},
+    "filter": undefined,
+    "func": "test",
+    "guards": [
+      "A",
+    ],
+    "header": {},
+    "http": {
+      "prefix": "",
+    },
+    "interceptors": [],
+    "name": "D",
+    "params": [],
+    "plugins": [],
+    "tag": "D",
+  },
+]
+`;
+
 exports[`Factory  > multple class extends the same class 1`] = `
 [
   {
+    "controller": "http",
     "ctx": undefined,
     "define": {},
     "filter": undefined,
@@ -116,7 +250,8 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/B/testB",
+      "prefix": "/B",
+      "route": "/testB",
       "type": "get",
     },
     "interceptors": [],
@@ -141,6 +276,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "tag": "B",
   },
   {
+    "controller": "http",
     "ctx": undefined,
     "define": {},
     "filter": undefined,
@@ -148,7 +284,8 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/B/testA",
+      "prefix": "/B",
+      "route": "/testA",
       "type": "get",
     },
     "interceptors": [],
@@ -173,6 +310,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "tag": "B",
   },
   {
+    "controller": "http",
     "ctx": undefined,
     "define": {},
     "filter": undefined,
@@ -180,7 +318,8 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/C/testC",
+      "prefix": "/C",
+      "route": "/testC",
       "type": "get",
     },
     "interceptors": [],
@@ -205,6 +344,7 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "tag": "C",
   },
   {
+    "controller": "http",
     "ctx": undefined,
     "define": {},
     "filter": undefined,
@@ -212,7 +352,8 @@ exports[`Factory  > multple class extends the same class 1`] = `
     "guards": [],
     "header": {},
     "http": {
-      "route": "/C/testA",
+      "prefix": "/C",
+      "route": "/testA",
       "type": "get",
     },
     "interceptors": [],

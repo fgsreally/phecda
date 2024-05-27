@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -22,7 +22,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
     moduleMap, meta,
   } = data
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -33,10 +33,10 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -159,10 +159,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
     })
 
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
@@ -174,6 +171,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
           filter,
           ctx,
           define,
+          http,
         },
       } = metaMap.get(tag)![func]
 
@@ -184,7 +182,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
           fastify.register(p)
         })
 
-        fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
+        fastify[http!.type](http!.prefix + http!.route, define?.fastify || {}, async (req, res) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const instance = moduleMap.get(tag)!
@@ -206,8 +204,10 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
           const context = new Context<FastifyCtx>(contextData)
 
           try {
-            for (const name in header)
-              res.header(name, header[name])
+            if (http!.headers) {
+              for (const name in http!.headers)
+                res.header(name, http!.headers[name])
+            }
             await context.useGuard([...globalGuards, ...guards])
             const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
             if (i1 !== undefined)

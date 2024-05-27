@@ -1,7 +1,7 @@
 import type Redis from 'ioredis'
 import Debug from 'debug'
 import type { Factory } from '../../core'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -20,7 +20,7 @@ export interface RedisCtx extends RpcContext {
 export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
@@ -30,10 +30,10 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 

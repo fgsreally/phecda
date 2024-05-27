@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -20,7 +20,7 @@ export interface HyperExpressCtx extends HttpContext {
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
@@ -31,10 +31,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
   async function createRoute() {
@@ -125,10 +125,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
       }
     })
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
@@ -138,13 +135,14 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
           guards,
           params,
           plugins,
+          http,
           filter,
         },
       } = metaMap.get(tag)![func]
 
       const needBody = params.some(item => item.type === 'body')
 
-      router[http.type](http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+      router[http!.type](http!.prefix + http!.route, ...Context.usePlugin(plugins), async (req, res, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!
@@ -168,8 +166,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         const context = new Context<HyperExpressCtx>(contextData)
 
         try {
-          for (const name in header)
-            res.set(name, header[name])
+          if (http!.headers) {
+            for (const name in http!.headers)
+              res.set(name, http!.headers[name])
+          }
           await context.useGuard([...globalGuards, ...guards])
           const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (cache !== undefined) {

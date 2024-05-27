@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/redis'
 
 function stop(time = 500) {
@@ -31,6 +31,8 @@ describe('redis rpc', () => {
 
   it('create server', async () => {
     const fn = vi.fn()
+
+    @Rpc()
     class TestRpc {
       @Ctx
       ctx: any
@@ -60,6 +62,8 @@ describe('redis rpc', () => {
 
   it('create client and server', async () => {
     const fn = vi.fn()
+
+    @Rpc()
     class TestRpc {
       @Queue()
       run(@Arg() arg: number) {
@@ -87,6 +91,8 @@ describe('redis rpc', () => {
 
       return true
     })
+
+    @Rpc()
     class TestRpc {
       @Queue()
       @Guard('g1')
@@ -116,6 +122,7 @@ describe('redis rpc', () => {
         return true
       }
     })
+    @Rpc()
     class TestRpc {
       @Queue()
       @Interceptor('i1')
@@ -141,6 +148,8 @@ describe('redis rpc', () => {
       expect(arg).toEqual(1)
       return String(arg)
     })
+
+    @Rpc()
     class TestRpc {
       @Queue()
       run(@Pipe('test') @Arg() arg: number) {
@@ -168,6 +177,8 @@ describe('redis rpc', () => {
         info: 'rpc error',
       }
     })
+
+    @Rpc()
     class TestRpc {
       @Queue()
       @Filter('test')

@@ -32,7 +32,6 @@ async function start() {
     next()
   })
 
-  console.log(data.meta)
   app.use(express.json())
   bind(router, data, {
     // globalGuards: ['a'],

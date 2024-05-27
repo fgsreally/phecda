@@ -6,7 +6,7 @@ import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 
 const debug = Debug('phecda-server/nats')
 
@@ -21,7 +21,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   const sc = StringCodec()
   const subscriptionMap: Record<string, Subscription> = {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
@@ -31,10 +31,10 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
