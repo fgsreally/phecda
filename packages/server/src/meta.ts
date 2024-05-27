@@ -1,8 +1,18 @@
 import type { BaseRequestType } from './types'
 
-export interface MetaData {
+export interface ServiceMetaData {
+  func: string
+  name: string
+  tag: string
+  define?: any
+  [key: string]: any
+}
+
+export interface ControllerMetaData extends ServiceMetaData {
+  controller: string
   http?: {
     type: BaseRequestType
+    prefix: string
     route: string
   }
   rpc?: {
@@ -10,7 +20,6 @@ export interface MetaData {
     isEvent?: boolean
   }
   ctx?: string
-  define?: any
   header: Record<string, string>
   params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any> }[]
   guards: string[]
@@ -18,13 +27,17 @@ export interface MetaData {
   filter?: string
   interceptors: string[]
   plugins: string[]
-  func: string
-  name: string
-  tag: string
+
 }
+
+export type MetaData = ControllerMetaData | ServiceMetaData
 
 export class Meta {
   constructor(public data: MetaData, public paramsType: any[]) {
 
   }
+}
+
+export interface ControllerMeta extends Meta {
+  data: ControllerMetaData
 }

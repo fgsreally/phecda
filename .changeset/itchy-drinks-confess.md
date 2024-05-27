@@ -3,3 +3,4 @@
 ---
 
 add setPropertyState/getShareState for convenience
+add default param to getState

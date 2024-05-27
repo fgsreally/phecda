@@ -174,7 +174,7 @@ export function setPropertyState(target: any, k: undefined | PropertyKey, setter
   setState(target, k, state)
 }
 
-export function getShareState(target: any, getter: (state: Record<string, any>) => void) {
+export function getShareState<State>(target: any, getter: (state: Record<string, any>) => State) {
   const state = getOwnState(target, SHARE_KEY) || {}
   return getter(state)
 }

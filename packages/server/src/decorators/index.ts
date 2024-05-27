@@ -1,15 +1,7 @@
-import { set } from 'phecda-core'
-import { setPropertyState } from './utils'
+import { Empty, set, setPropertyState } from 'phecda-core'
 
-export function Header(name: string, value: string): MethodDecorator {
-  return (target: any, k: PropertyKey) => {
-    setPropertyState(target, k, (state) => {
-      if (!state.header)
-        state.header = {}
-
-      state.header[name] = value
-    })
-  }
+export function Injectable() {
+  return (target: any) => Empty(target)
 }
 
 export const Ctx: PropertyDecorator = (target: any, key: PropertyKey) => {
@@ -42,5 +34,6 @@ export function Define(key: string, value: any): any {
 }
 
 export * from './param'
-export * from './route'
 export * from './aop'
+export * from './http'
+export * from './rpc'

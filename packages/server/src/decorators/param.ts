@@ -1,4 +1,4 @@
-import { setPropertyState } from './utils'
+import { setPropertyState } from 'phecda-core'
 
 export function BaseParam(data: Record<string, any>): ParameterDecorator {
   return (target: any, k: PropertyKey | undefined, index: number) => {

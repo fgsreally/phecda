@@ -164,7 +164,7 @@ export function getHandler(target: any, key: PropertyKey) {
   return [...set]
 }
 
-export function getState(target: any, key: PropertyKey) {
+export function getState(target: any, key: PropertyKey = SHARE_KEY) {
   let proto: Phecda = getPhecdaFromTarget(target)
   let ret: any = {}
   while (proto?.[PHECDA_KEY]) {

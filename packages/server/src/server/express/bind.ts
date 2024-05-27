@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta, Meta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -76,7 +76,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 guards, interceptors,
                 filter,
               },
-            } = meta
+            } = meta as ControllerMeta
 
             const instance = moduleMap.get(tag)
 
@@ -125,10 +125,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
       }
     })
     for (const i of meta) {
-      const { func, http, header, tag } = i.data
-
-      if (!http?.type)
-        continue
+      const { func, tag } = i.data
 
       const {
         paramsType,
@@ -139,9 +136,11 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           params,
           plugins,
           filter,
+          http, header,
         },
-      } = metaMap.get(tag)![func];
-
+      } = metaMap.get(tag)![func] as ControllerMeta
+      if (!http)
+        continue
       (router as Express)[http.type](http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
