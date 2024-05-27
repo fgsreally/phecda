@@ -162,6 +162,7 @@ describe('Factory ', () => {
         super.test(body)
       }
     }
+
     class D extends A {
       @Clear
       test(body: any) {

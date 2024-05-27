@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Err, Expose, Init, SHARE_KEY, Tag, addDecoToClass, getBind, getExposeKey, getTag, invokeHandler, isPhecda } from '../src'
+import { Assign, Bind, Effect, Empty, Err, Expose, Init, Tag, addDecoToClass, getBind, getExposeKey, getTag, invokeHandler, isPhecda } from '../src'
 
 describe('helper', () => {
   it('isPhecda', async () => {
@@ -31,7 +31,7 @@ describe('helper', () => {
 
     addDecoToClass(Test, 'name', Expose)
     expect(getExposeKey(Test)).toMatchSnapshot()
-    addDecoToClass(Test, SHARE_KEY, Tag('test'))
+    addDecoToClass(Test, undefined, Tag('test'))
     expect(getTag(Test)).toBe('test')
     expect(getTag(Test2)).toBe('test2')
   })

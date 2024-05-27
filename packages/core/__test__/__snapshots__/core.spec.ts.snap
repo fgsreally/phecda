@@ -1,65 +1,64 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`extends won't populate namespace > expose keys 1`] = `
+exports[`extends won't pollute namespace > expose keys 1`] = `
 [
   "b",
   "a",
+  Symbol(phecda),
 ]
 `;
 
-exports[`extends won't populate namespace > expose keys 2`] = `
+exports[`extends won't pollute namespace > expose keys 2`] = `
 [
   "b",
 ]
 `;
 
-exports[`extends won't populate namespace > expose keys 3`] = `
+exports[`extends won't pollute namespace > expose keys 3`] = `
 [
   "c",
+  "a",
+  Symbol(phecda),
+]
+`;
+
+exports[`extends won't pollute namespace > expose keys 4`] = `
+[
+  "c",
+]
+`;
+
+exports[`extends won't pollute namespace > expose keys 5`] = `
+[
   "a",
 ]
 `;
 
-exports[`extends won't populate namespace > expose keys 4`] = `
-[
-  "c",
-]
-`;
+exports[`extends won't pollute namespace > expose keys 6`] = `[]`;
 
-exports[`extends won't populate namespace > expose keys 5`] = `
-[
-  "a",
-]
-`;
-
-exports[`extends won't populate namespace > expose keys 6`] = `
-[
-  "c",
-]
-`;
-
-exports[`extends won't populate namespace > expose keys 7`] = `
+exports[`extends won't pollute namespace > expose keys 7`] = `
 [
   "e",
   "c",
   "a",
+  Symbol(phecda),
 ]
 `;
 
-exports[`extends won't populate namespace > expose keys 8`] = `
+exports[`extends won't pollute namespace > expose keys 8`] = `
 [
   "e",
 ]
 `;
 
-exports[`extends won't populate namespace > setState 1`] = `
+exports[`extends won't pollute namespace > setState 1`] = `
 {
   "a": 1,
   "b": 1,
 }
 `;
 
-exports[`extends won't populate namespace > setState 2`] = `
+exports[`extends won't pollute namespace > setState 2`] = `
 {
   "a": 1,
   "b": 0,

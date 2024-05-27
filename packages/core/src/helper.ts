@@ -147,8 +147,8 @@ export function snapShot<T extends Construct>(data: InstanceType<T>) {
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | PropertyKey, handler: PropertyDecorator | ClassDecorator) {
-  handler(key === SHARE_KEY ? c : c.prototype, key as any)
+export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | PropertyKey | undefined, handler: PropertyDecorator | ClassDecorator) {
+  handler(key ? c.prototype : c, key as any)
 }
 
 export function Pipeline(...decos: ((...args: any) => void)[]) {
@@ -163,10 +163,6 @@ export function isAsyncFunc(fn: Function) {
 }
 
 export function setPropertyState(target: any, k: undefined | PropertyKey, setter: (state: Record<string, any>) => void) {
-  if (!k) {
-    k = SHARE_KEY
-    target = target.prototype
-  }
   setStateKey(target, k)
   const state = getOwnState(target, k) || {}
   setter(state)

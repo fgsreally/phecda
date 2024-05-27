@@ -63,7 +63,11 @@ export function getPhecdaFromTarget(target: any) {
 }
 
 // it should be setmodelVar
-export function setStateKey(proto: Phecda, key: PropertyKey) {
+export function setStateKey(proto: Phecda, key?: PropertyKey) {
+  if (!key) {
+    key = SHARE_KEY
+    proto = proto.prototype
+  }
   init(proto)
 
   proto[PHECDA_KEY].__STATE_KEY.add(key)
@@ -71,18 +75,30 @@ export function setStateKey(proto: Phecda, key: PropertyKey) {
   setExposeKey(proto, key)
 }
 
-export function setExposeKey(proto: Phecda, key: PropertyKey) {
+export function setExposeKey(proto: Phecda, key?: PropertyKey) {
+  if (!key) {
+    key = SHARE_KEY
+    proto = proto.prototype
+  }
   init(proto)
 
   proto[PHECDA_KEY].__EXPOSE_KEY.add(key)
 }
 
-export function setIgnoreKey(proto: Phecda, key: PropertyKey) {
+export function setIgnoreKey(proto: Phecda, key?: PropertyKey) {
+  if (!key) {
+    key = SHARE_KEY
+    proto = proto.prototype
+  }
   init(proto)
   proto[PHECDA_KEY].__IGNORE_KEY.add(key)
 }
 
-export function setHandler(proto: Phecda, key: PropertyKey, handler: Handler) {
+export function setHandler(proto: Phecda, key: PropertyKey | undefined, handler: Handler) {
+  if (!key) {
+    key = SHARE_KEY
+    proto = proto.prototype
+  }
   init(proto)
   if (!proto[PHECDA_KEY].__STATE_HANDLER__.has(key))
     proto[PHECDA_KEY].__STATE_HANDLER__.set(key, [handler])
@@ -90,7 +106,11 @@ export function setHandler(proto: Phecda, key: PropertyKey, handler: Handler) {
     proto[PHECDA_KEY].__STATE_HANDLER__.get(key)!.push(handler)
 }
 
-export function setState(proto: Phecda, key: PropertyKey, state: Record<string, any>) {
+export function setState(proto: Phecda, key: PropertyKey | undefined, state: Record<string, any>) {
+  if (!key) {
+    key = SHARE_KEY
+    proto = proto.prototype
+  }
   init(proto)
   const namespace = proto[PHECDA_KEY].__STATE_NAMESPACE__
 
@@ -173,14 +193,16 @@ export function getState(target: any, key: PropertyKey = SHARE_KEY) {
 
       if (state)
         ret = { ...state, ...ret }
+
       if (proto[PHECDA_KEY].__CLEAR_KEY.has(key))
         break
     }
     proto = Object.getPrototypeOf(proto)
   }
+
   return ret
 }
-export function getOwnState(target: any, key: PropertyKey): Record<string, any> {
+export function getOwnState(target: any, key: PropertyKey = SHARE_KEY): Record<string, any> {
   const proto: Phecda = getPhecdaFromTarget(target)
 
   return proto[PHECDA_KEY].__STATE_NAMESPACE__.get(key) || {}

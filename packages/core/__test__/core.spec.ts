@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Clear, Ignore, SHARE_KEY, addDecoToClass, getExposeKey, getOwnExposeKey, getOwnIgnoreKey, getPhecdaFromTarget, getState, setState, setStateKey } from '../src'
+import { Clear, Ignore, SHARE_KEY, addDecoToClass, getExposeKey, getOwnExposeKey, getPhecdaFromTarget, getState, setState, setStateKey } from '../src'
 
-describe('extends won\'t populate namespace', () => {
+describe('extends won\'t pollute namespace', () => {
   it('getPhecdaFromTarget', () => {
     function Test(target: any, key: any) {
       setStateKey(target, key)
@@ -15,9 +15,11 @@ describe('extends won\'t populate namespace', () => {
     expect(getPhecdaFromTarget(A) === getPhecdaFromTarget(A.prototype)).toBeTruthy()
   })
   it('expose keys', () => {
-    function Test(target: any, key: any) {
+    function Test(target: any, key?: any) {
       setStateKey(target, key)
     }
+
+    @Test
     class A {
       @Test
       a: string
@@ -33,6 +35,7 @@ describe('extends won\'t populate namespace', () => {
       c: string
     }
 
+    @Ignore
     class D extends C {
       @Ignore
       c: string
@@ -43,14 +46,17 @@ describe('extends won\'t populate namespace', () => {
       @Test
       e: string
     }
-
     expect(getExposeKey(B)).toMatchSnapshot()
     expect(getOwnExposeKey(B)).toMatchSnapshot()
+
     expect(getExposeKey(C)).toMatchSnapshot()
     expect(getOwnExposeKey(C)).toMatchSnapshot()
-    expect(getExposeKey(D)).toMatchSnapshot()
-    expect(getOwnIgnoreKey(D)).toMatchSnapshot()
 
+    expect(getExposeKey(D)).not.toContain(SHARE_KEY)
+    expect(getExposeKey(D)).toMatchSnapshot()
+    expect(getOwnExposeKey(D)).toMatchSnapshot()
+
+    expect(getExposeKey(E)).toContain(SHARE_KEY)
     expect(getExposeKey(E)).toMatchSnapshot()
     expect(getOwnExposeKey(E)).toMatchSnapshot()
   })
@@ -83,10 +89,6 @@ describe('extends won\'t populate namespace', () => {
   it('clear', () => {
     function Test(value: any) {
       return (target: any, key?: any) => {
-        if (!key) {
-          key = SHARE_KEY
-          target = target.prototype
-        }
         setState(target, key, value)
       }
     }
@@ -115,6 +117,10 @@ describe('extends won\'t populate namespace', () => {
     expect(getState(C, 'x')).toEqual({ b: 1, c: 1 })
     addDecoToClass(C, 'x', Clear)
     expect(getState(C, 'x')).toEqual({ c: 1 })
+
+    expect(getState(B)).toEqual({ tag: 'A' })
+    expect(getState(new B())).toEqual({ tag: 'A' })
+
     expect(getState(C)).toEqual({})
   })
 })

@@ -41,11 +41,12 @@ export function Ignore(proto: any, key?: PropertyKey) {
 }
 
 export function Clear(proto: any, key?: PropertyKey) {
-  init(proto)
   if (!key) {
     proto = proto.prototype
     key = SHARE_KEY
   };
+  init(proto);
+
   (proto as Phecda)[PHECDA_KEY].__CLEAR_KEY.add(key)
 }
 
