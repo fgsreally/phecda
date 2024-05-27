@@ -196,8 +196,8 @@ export function Storage({ key: storeKey, json, stringify }: {
 
   return (proto: any, key?: PropertyKey) => {
     // @todo
-    if (typeof proto === 'function' || !key)
-      proto = proto.prototype
+    // if (typeof proto === 'function')
+    //   proto = proto.prototype
 
     const tag = storeKey || getTag(proto)
 
