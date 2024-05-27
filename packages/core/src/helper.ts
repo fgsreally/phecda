@@ -1,5 +1,5 @@
 /* eslint-disable new-cap */
-import { SHARE_KEY, get, getExposeKey, getHandler, getState, getStateKey } from './core'
+import { SHARE_KEY, get, getExposeKey, getHandler, getOwnState, getState, getStateKey, setState, setStateKey } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
@@ -160,4 +160,21 @@ export function Pipeline(...decos: ((...args: any) => void)[]) {
 
 export function isAsyncFunc(fn: Function) {
   return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
+}
+
+export function setPropertyState(target: any, k: undefined | PropertyKey, setter: (state: Record<string, any>) => void) {
+  if (!k) {
+    k = SHARE_KEY
+    target = target.prototype
+  }
+  setStateKey(target, k)
+  const state = getOwnState(target, k) || {}
+  setter(state)
+  //   state.pipe = key
+  setState(target, k, state)
+}
+
+export function getShareState(target: any, getter: (state: Record<string, any>) => void) {
+  const state = getOwnState(target, SHARE_KEY) || {}
+  return getter(state)
 }
