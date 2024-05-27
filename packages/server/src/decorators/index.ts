@@ -17,16 +17,12 @@ export function Define(key: string, value: any): any {
 
         if (!state.params)
           state.params = [...parentState].map(shallowClone)
-
         const existItem = state.params.find((item: any) => item.index === index)
-        if (existItem) {
-          if (!existItem.define)
-            existItem.define = {}
-          existItem.define[key] = value
-        }
-        else {
+        if (existItem)
+          existItem.define = mergeObject(existItem.define, { [key]: value })
+
+        else
           state.params.push({ define: { [key]: value }, index })
-        }
       })
       return
     }

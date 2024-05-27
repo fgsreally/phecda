@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { Clear, Ctx, Factory, Init, Injectable, Tag } from '../src'
-import { Body, Controller, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
+import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
 
 describe('Factory ', () => {
@@ -138,22 +138,27 @@ describe('Factory ', () => {
         return body
       }
     }
+    @Define('class', 'b')
 
     class B extends A {
       @Guard('test2')
       @Guard('test3')
       @Header({ key: 'b', b: 'b' })
+      @Define('method', 'b')
 
-      test(body: any) {
+      test(@Define('b', 'b') body: any) {
         super.test(body)
       }
     }
 
+    @Define('class', 'c')
     class C extends B {
       @Header({ key: 'c', c: 'c' })
       @Guard('test')
-      @Post()
-      test(@Pipe('C') body: any) {
+      @Post('/test')
+      @Define('method', 'c')
+
+      test(@Pipe('C') @Define('c', 'c') body: any) {
         super.test(body)
       }
     }
@@ -163,8 +168,13 @@ describe('Factory ', () => {
         super.test(body)
       }
     }
+    @Clear
 
-    const { meta } = await Factory([A, B, C, D])
+    class E extends D {
+
+    }
+
+    const { meta } = await Factory([A, B, C, D, E])
     const data = meta.map(item => item.data)
     expect(data).toMatchSnapshot()
   })

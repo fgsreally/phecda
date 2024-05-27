@@ -224,7 +224,6 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       meta.params = params
       meta.filter = state.filter || baseState.filter
       meta.define = { ...baseState.define, ...state.define }
-      meta.header = { ...baseState.header, ...state.header }
       meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]
       meta.guards = [...new Set([...baseState.guards, ...state.guards])]
       meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
@@ -242,9 +241,9 @@ function initState(state: any) {
     state.define = {}
 
   if (!state.plugins)
-    state.plugins = []
+    state.plugins = new Set()
   if (!state.guards)
-    state.guards = []
+    state.guards = new Set()
   if (!state.interceptors)
-    state.interceptors = []
+    state.interceptors = new Set()
 }

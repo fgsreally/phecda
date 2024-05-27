@@ -1,10 +1,17 @@
-import { SHARE_KEY, getState, setPropertyState } from 'phecda-core'
+import { getState, setPropertyState } from 'phecda-core'
 import { BaseParam } from './param'
-import { mergeArray } from './utils'
 export function Guard(...guards: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
-      state.guards = [...new Set(mergeArray(state.gurads || getState(target, k || SHARE_KEY)?.guards, guards))]
+      if (!state.guards)
+        state.guards = new Set([...(getState(target, k)?.guards || [])])
+
+      guards.forEach((guard) => {
+        if (state.guards.has(guard))
+          state.guards.delete(guard)
+
+        state.guards.add(guard)
+      })
     })
   }
 }
@@ -12,7 +19,15 @@ export function Guard(...guards: string[]) {
 export function Plugin(...plugins: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
-      state.plugins = [...new Set(mergeArray(state.plugins || getState(target, k || SHARE_KEY)?.plugins, plugins))]
+      if (!state.plugins)
+        state.plugins = new Set([...(getState(target, k)?.plugins || [])])
+
+      plugins.forEach((plugin) => {
+        if (state.plugins.has(plugin))
+          state.plugins.delete(plugin)
+
+        state.plugins.add(plugin)
+      })
     })
   }
 }
@@ -20,7 +35,15 @@ export function Plugin(...plugins: string[]) {
 export function Interceptor(...interceptors: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
-      state.interceptors = [...new Set(mergeArray(state.interceptors || getState(target, k || SHARE_KEY)?.interceptors, interceptors))]
+      if (!state.interceptors)
+        state.interceptors = new Set([...(getState(target, k)?.interceptors || [])])
+
+      interceptors.forEach((interceptor) => {
+        if (state.interceptors.has(interceptor))
+          state.interceptors.delete(interceptor)
+
+        state.interceptors.add(interceptor)
+      })
     })
   }
 }
