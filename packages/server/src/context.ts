@@ -173,18 +173,22 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]
-} = {}, type: string = 'http') {
+} = {}, controller: string = 'http') {
   const pluginSet = new Set<string>(plugins)
 
   const guardSet = new Set<string>(guards)
   const interceptorSet = new Set<string>(interceptors)
   const pipeSet = new Set<string>()
-
-  const filterSet = new Set<string>();
+  const filterSet = new Set<string>()
+  const warningSet = new Set<string>();
 
   (meta as ControllerMeta[]).forEach(({ data }) => {
-    if (data.controller !== type)
+    if (data.controller !== controller) {
+      if (data[controller])
+        warningSet.add(`Module "${data.name}" with tag "${data.tag}" should use controller decorator to decorate class or remove ${controller} decorator on "${data.func}"`)
+
       return
+    }
     if (data.filter)
       filterSet.add(data.filter)
 
@@ -216,6 +220,8 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
 
   if (missFilters.length)
     log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
+
+  warningSet.forEach(warn => log(warn), 'warn')
 
   return {
     missPlugins,
