@@ -1,5 +1,15 @@
 # phecda-server
 
+## 5.0.0-beta.33
+
+### Patch Changes
+
+- e48766e: break change!
+  refactor to support extends aop state and custom Controller
+  it seems danger
+- Updated dependencies [c2c6a5f]
+  - phecda-core@3.0.0-beta.17
+
 ## 5.0.0-beta.32
 
 ### Patch Changes
