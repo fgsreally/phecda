@@ -25,6 +25,8 @@ export async function createClient<S extends Record<string, any>>(nc: NatsConnec
 
           const id = `${eventId++}`
           const request = nc.request(queue, sc.encode(JSON.stringify({
+            _ps: 1,
+
             id,
             args,
             tag,

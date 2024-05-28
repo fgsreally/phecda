@@ -61,11 +61,12 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
 
   async function handleRequest(job: Job) {
     const { data } = job
-    const { tag, func, args, id, queue: clientQueue } = data
-    debug(`invoke method "${func}" in module "${tag}"`)
-    const meta = metaMap.get(tag)?.[func]
-    if (!meta)
+    const { tag, func, args, id, queue: clientQueue, _ps } = data
+    if (_ps !== 1)
       return
+    debug(`invoke method "${func}" in module "${tag}"`)
+    const meta = metaMap.get(tag)![func]
+
     const {
       paramsType,
       data: {

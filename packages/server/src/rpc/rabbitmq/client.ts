@@ -39,6 +39,8 @@ export async function createClient<S extends Record<string, any>>(ch: amqplib.Ch
           ch.sendToQueue(queue, Buffer.from(
             JSON.stringify(
               {
+                _ps: 1,
+
                 id,
                 args,
                 tag,

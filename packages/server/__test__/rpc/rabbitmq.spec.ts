@@ -47,7 +47,7 @@ describe('rabbitmq rpc', () => {
       args: [1],
       tag: 'TestRpc',
       func: 'run',
-
+      _ps: 1,
     })))
 
     await stop()

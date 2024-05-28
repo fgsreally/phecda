@@ -53,6 +53,7 @@ describe('redis rpc', () => {
       args: [1],
       func: 'run',
       tag: 'TestRpc',
+      _ps: 1,
     }))
 
     await stop()

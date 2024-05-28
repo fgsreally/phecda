@@ -29,6 +29,7 @@ export async function createClient<S extends Record<string, any>>(pub: Redis, su
           const id = `${eventId++}`
 
           pub.publish(queue, JSON.stringify({
+            _ps: 1,
             args,
             id,
             queue: clientQueue,

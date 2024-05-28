@@ -64,11 +64,12 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   }
   async function handleRequest(_: NatsError | null, msg: Msg) {
     const data = JSON.parse(sc.decode(msg.data))
-    const { tag, func, args, id } = data
-    debug(`invoke method "${func}" in module "${tag}"`)
-    const meta = metaMap.get(tag)?.[func]
-    if (!meta)
+    const { tag, func, args, id, _ps } = data
+
+    if (_ps !== 1)
       return
+    debug(`invoke method "${func}" in module "${tag}"`)
+    const meta = metaMap.get(tag)![func]
 
     const {
       data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },

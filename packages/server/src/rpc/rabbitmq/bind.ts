@@ -68,12 +68,13 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
 
     if (msg) {
       const data = JSON.parse(msg.content.toString())
-      const { tag, func, args, id, queue: clientQueue } = data
+      const { tag, func, args, id, queue: clientQueue, _ps } = data
 
-      debug(`invoke method "${func}" in module "${tag}"`)
-      const meta = metaMap.get(tag)?.[func]
-      if (!meta)
+      if (_ps !== 1)
         return
+      debug(`invoke method "${func}" in module "${tag}"`)
+      const meta = metaMap.get(tag)![func]
+
       const {
         data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
         paramsType,

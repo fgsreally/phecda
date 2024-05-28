@@ -34,6 +34,7 @@ export async function createClient<S extends Record<string, any>>(producer: Prod
             messages: [
               {
                 value: JSON.stringify({
+                  _ps: 1,
                   id,
                   tag,
                   queue: clientQueue,

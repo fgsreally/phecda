@@ -66,12 +66,13 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
 
     if (msg) {
       const data = JSON.parse(msg)
-      const { func, args, id, tag, queue: clientQueue } = data
+      const { func, args, id, tag, queue: clientQueue, _ps } = data
       debug(`invoke method "${func}" in module "${tag}"`)
 
-      const meta = metaMap.get(tag)?.[func]
-      if (!meta)
+      if (_ps !== 1)
         return
+      const meta = metaMap.get(tag)![func]
+
       const {
         data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
         paramsType,
