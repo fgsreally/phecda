@@ -1,31 +1,49 @@
+import { getState, setPropertyState } from 'phecda-core'
 import { BaseParam } from './param'
-import { setPropertyState } from './utils'
-export function Guard(...guards: string[]): ClassDecorator | MethodDecorator {
+export function Guard(...guards: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       if (!state.guards)
-        state.guards = []
-      state.guards.push(...guards)
+        state.guards = new Set([...(getState(target, k)?.guards || [])])
+
+      guards.forEach((guard) => {
+        if (state.guards.has(guard))
+          state.guards.delete(guard)
+
+        state.guards.add(guard)
+      })
     })
   }
 }
 
-export function Plugin(...plugins: string[]): ClassDecorator | MethodDecorator {
+export function Plugin(...plugins: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       if (!state.plugins)
-        state.plugins = []
-      state.plugins.push(...plugins)
+        state.plugins = new Set([...(getState(target, k)?.plugins || [])])
+
+      plugins.forEach((plugin) => {
+        if (state.plugins.has(plugin))
+          state.plugins.delete(plugin)
+
+        state.plugins.add(plugin)
+      })
     })
   }
 }
 
-export function Interceptor(...interceptors: string[]): ClassDecorator | MethodDecorator {
+export function Interceptor(...interceptors: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       if (!state.interceptors)
-        state.interceptors = []
-      state.interceptors.push(...interceptors)
+        state.interceptors = new Set([...(getState(target, k)?.interceptors || [])])
+
+      interceptors.forEach((interceptor) => {
+        if (state.interceptors.has(interceptor))
+          state.interceptors.delete(interceptor)
+
+        state.interceptors.add(interceptor)
+      })
     })
   }
 }

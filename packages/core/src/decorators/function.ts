@@ -1,4 +1,4 @@
-import { PHECDA_KEY, SHARE_KEY, init, set, setHandler, setStateKey } from '../core'
+import { PHECDA_KEY, init, set, setHandler, setStateKey } from '../core'
 import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
 import { getInject } from '../di'
@@ -23,9 +23,8 @@ export function Unique(desc?: string) {
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
   return (model: any) => {
-    init(model.prototype)
-    setStateKey(model.prototype, SHARE_KEY)
-    setHandler(model.prototype, SHARE_KEY, {
+    setStateKey(model)
+    setHandler(model, undefined, {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -38,9 +37,8 @@ export function Assign(cb: (instance?: any) => any) {
 }
 
 export function Global(model: any) {
-  init(model.prototype)
-  setStateKey(model.prototype, SHARE_KEY)
-  setHandler(model.prototype, SHARE_KEY, {
+  setStateKey(model)
+  setHandler(model, undefined, {
     init: async (instance: any) => {
       const tag = instance[PHECDA_KEY].__TAG__
       if (!tag)
@@ -196,9 +194,10 @@ export function Storage({ key: storeKey, json, stringify }: {
   if (!stringify)
     stringify = v => JSON.stringify(v)
 
-  return (proto: any, key: PropertyKey = SHARE_KEY) => {
-    if (typeof proto === 'function')
-      proto = proto.prototype
+  return (proto: any, key?: PropertyKey) => {
+    // @todo
+    // if (typeof proto === 'function')
+    //   proto = proto.prototype
 
     const tag = storeKey || getTag(proto)
 

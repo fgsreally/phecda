@@ -1,7 +1,7 @@
 import type { Consumer, Producer } from 'kafkajs'
 import Debug from 'debug'
 import type { Factory } from '../../core'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -22,38 +22,41 @@ export interface KafkaCtx extends RpcContext {
 export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc } = item.data
-      if (!rpc)
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
   async function subscribeQueues() {
     existQueue.clear()
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
-      if (rpc) {
-        const queue = rpc.queue || tag
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        await consumer.subscribe({ topic: queue, fromBeginning: true })
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          await consumer.subscribe({ topic: queue, fromBeginning: true })
+        }
       }
     }
   }
@@ -71,12 +74,16 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
       const data = JSON.parse(message.value!.toString())
 
-      const { tag, func, args, id, queue: clientQueue } = data
+      const { tag, func, args, id, queue: clientQueue, _ps } = data
+
+      if (_ps !== 1)
+        return
       debug(`invoke method "${func}" in module "${tag}"`)
       const meta = metaMap.get(tag)![func]
+
       const {
         data: {
-          guards, interceptors, params, name, filter, ctx, rpc,
+          guards, interceptors, params, filter, ctx, rpc,
         },
         paramsType,
       } = meta
@@ -115,7 +122,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
           return { arg: args[i], reflect: paramsType[i], ...param }
         }))
 
-        const instance = moduleMap.get(name)
+        const instance = moduleMap.get(tag)
         if (ctx)
           instance[ctx] = context.data
         const funcData = await instance[func](...handleArgs)

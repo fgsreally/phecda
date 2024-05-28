@@ -1,8 +1,7 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Factory, Injectable } from '../src/core'
-import { Body, Controller, Get, Query } from '../src/decorators'
+import { Clear, Ctx, Factory, Init, Injectable, Tag } from '../src'
+import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
-import { Ctx, Init, Tag } from '../src'
 
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', async () => {
@@ -126,5 +125,58 @@ describe('Factory ', () => {
 
     await Factory([B])
     expect(fn).toHaveBeenCalledTimes(2)
+  })
+
+  it('decorator in extends case', async () => {
+    @Controller()
+    @Guard('A')
+
+    class A {
+      @Guard('test')
+      @Post()
+      test(@Body() body: any) {
+        return body
+      }
+    }
+    @Define('class', 'b')
+
+    class B extends A {
+      @Guard('test2')
+      @Guard('test3')
+      @Header({ key: 'b', b: 'b' })
+      @Define('method', 'b')
+
+      test(@Define('b', 'b') body: any) {
+        super.test(body)
+      }
+    }
+
+    @Define('class', 'c')
+    class C extends B {
+      @Header({ key: 'c', c: 'c' })
+      @Guard('test')
+      @Post('/test')
+      @Define('method', 'c')
+
+      test(@Pipe('C') @Define('c', 'c') body: any) {
+        super.test(body)
+      }
+    }
+
+    class D extends A {
+      @Clear
+      test(body: any) {
+        super.test(body)
+      }
+    }
+    @Clear
+
+    class E extends D {
+
+    }
+
+    const { meta } = await Factory([A, B, C, D, E])
+    const data = meta.map(item => item.data)
+    expect(data).toMatchSnapshot()
   })
 })

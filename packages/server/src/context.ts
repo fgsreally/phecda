@@ -6,7 +6,7 @@ import { defaultFilter } from './filter'
 import { Histroy } from './history'
 import type { BaseContext } from './types'
 import { IS_HMR, IS_STRICT } from './common'
-import type { Meta } from './meta'
+import type { ControllerMeta, Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
 
@@ -173,19 +173,22 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   guards?: string[]
   interceptors?: string[]
   plugins?: string[]
-} = {}, type: 'http' | 'rpc' = 'http') {
+} = {}, controller: string = 'http') {
   const pluginSet = new Set<string>(plugins)
 
   const guardSet = new Set<string>(guards)
   const interceptorSet = new Set<string>(interceptors)
   const pipeSet = new Set<string>()
-
   const filterSet = new Set<string>()
+  const warningSet = new Set<string>();
 
-  meta.forEach(({ data }) => {
-    if (!data[type])
+  (meta as ControllerMeta[]).forEach(({ data }) => {
+    if (data.controller !== controller) {
+      if (data[controller])
+        warningSet.add(`Module "${data.tag === data.name ? data.name : `${data.name}(${data.tag})`}"  should use ${controller} controller to decorate class or remove ${controller} decorator on method "${data.func}"`)
+
       return
-
+    }
     if (data.filter)
       filterSet.add(data.filter)
 
@@ -217,6 +220,8 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
 
   if (missFilters.length)
     log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
+
+  warningSet.forEach(warn => log(warn, 'warn'))
 
   return {
     missPlugins,

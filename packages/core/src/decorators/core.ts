@@ -32,11 +32,19 @@ export function Bind(value: any) {
   }
 }
 
-export function Ignore(proto: any, key: PropertyKey = SHARE_KEY) {
+export function Ignore(proto: any, key?: PropertyKey) {
+  if (!key) {
+    proto = proto.prototype
+    key = SHARE_KEY
+  };
   setIgnoreKey(proto, key)
 }
 
-export function Clear(proto: any, key: PropertyKey = SHARE_KEY) {
+export function Clear(proto: any, key?: PropertyKey) {
+  if (!key) {
+    proto = proto.prototype
+    key = SHARE_KEY
+  };
   init(proto);
 
   (proto as Phecda)[PHECDA_KEY].__CLEAR_KEY.add(key)

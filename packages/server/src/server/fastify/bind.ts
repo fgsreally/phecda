@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -22,21 +22,21 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
     moduleMap, meta,
   } = data
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -157,89 +157,92 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
 
       done()
     })
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          paramsType,
+          data: {
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            ctx,
+            define,
+            http,
+          },
+        } = meta
 
-    for (const i of meta) {
-      const { func, http, header, tag } = i.data
+        if (!http?.type)
+          continue
 
-      if (!http?.type)
-        continue
+        fastify.register((fastify, _opts, done) => {
+          Context.usePlugin(plugins).forEach((p) => {
+            p[Symbol.for('skip-override')] = true
 
-      const {
-        paramsType,
-        data: {
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          ctx,
-          define,
-        },
-      } = metaMap.get(tag)![func]
+            fastify.register(p)
+          })
 
-      fastify.register((fastify, _opts, done) => {
-        Context.usePlugin(plugins).forEach((p) => {
-          p[Symbol.for('skip-override')] = true
+          fastify[http.type](http.prefix + http.route, define?.fastify || {}, async (req, res) => {
+            debug(`invoke method "${func}" in module "${tag}"`)
 
-          fastify.register(p)
+            const instance = moduleMap.get(tag)!
+            const contextData = {
+              type: 'fastify' as const,
+              request: req,
+              meta,
+              response: res,
+              moduleMap,
+              tag,
+              func,
+              query: req.query as any,
+              body: req.body as any,
+              params: req.params as any,
+              headers: req.headers,
+              data: (req as any).data,
+
+            }
+            const context = new Context<FastifyCtx>(contextData)
+
+            try {
+              if (http.headers) {
+                for (const name in http.headers)
+                  res.header(name, http.headers[name])
+              }
+              await context.useGuard([...globalGuards, ...guards])
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+
+                return i1
+
+              const args = await context.usePipe(params.map((param) => {
+                return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+              }))
+              if (ctx)
+                instance[ctx] = contextData
+              const funcData = await instance[func](...args)
+              const i2 = await context.usePostInterceptor(funcData)
+
+              if (i2 !== undefined)
+                return i2
+
+              if (res.sent)
+                return
+
+              return funcData
+            }
+            catch (e: any) {
+              const err = await context.useFilter(e, filter)
+
+              if (res.sent)
+                return
+              res.status(err.status).send(err)
+            }
+          })
+          done()
         })
-
-        fastify[http.type](http.route, define?.fastify || {}, async (req, res) => {
-          debug(`invoke method "${func}" in module "${tag}"`)
-
-          const instance = moduleMap.get(tag)!
-          const contextData = {
-            type: 'fastify' as const,
-            request: req,
-            meta: i,
-            response: res,
-            moduleMap,
-            tag,
-            func,
-            query: req.query as any,
-            body: req.body as any,
-            params: req.params as any,
-            headers: req.headers,
-            data: (req as any).data,
-
-          }
-          const context = new Context<FastifyCtx>(contextData)
-
-          try {
-            for (const name in header)
-              res.header(name, header[name])
-            await context.useGuard([...globalGuards, ...guards])
-            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (i1 !== undefined)
-
-              return i1
-
-            const args = await context.usePipe(params.map((param) => {
-              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-            }))
-            if (ctx)
-              instance[ctx] = contextData
-            const funcData = await instance[func](...args)
-            const i2 = await context.usePostInterceptor(funcData)
-
-            if (i2 !== undefined)
-              return i2
-
-            if (res.sent)
-              return
-
-            return funcData
-          }
-          catch (e: any) {
-            const err = await context.useFilter(e, filter)
-
-            if (res.sent)
-              return
-            res.status(err.status).send(err)
-          }
-        })
-        done()
-      })
+      }
     }
 
     done()

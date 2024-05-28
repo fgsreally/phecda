@@ -1,7 +1,7 @@
 import type Redis from 'ioredis'
 import Debug from 'debug'
 import type { Factory } from '../../core'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -20,39 +20,42 @@ export interface RedisCtx extends RpcContext {
 export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc } = item.data
-      if (!rpc)
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
   async function subscribeQueues() {
     existQueue.clear()
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
 
-      if (rpc) {
-        const queue = rpc.queue || tag
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
 
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        await sub.subscribe(queue)
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          await sub.subscribe(queue)
+        }
       }
     }
   }
@@ -63,9 +66,11 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
 
     if (msg) {
       const data = JSON.parse(msg)
-      const { func, args, id, tag, queue: clientQueue } = data
+      const { func, args, id, tag, queue: clientQueue, _ps } = data
       debug(`invoke method "${func}" in module "${tag}"`)
 
+      if (_ps !== 1)
+        return
       const meta = metaMap.get(tag)![func]
 
       const {

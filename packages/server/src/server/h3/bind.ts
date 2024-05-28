@@ -5,7 +5,7 @@ import Debug from 'debug'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -42,21 +42,21 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
   const { moduleMap, meta } = data
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -144,74 +144,75 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
       },
     }))
 
-    for (const i of meta) {
-      const { func, http, header, tag } = i.data
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          paramsType,
+          data: {
+            interceptors,
+            http,
+            guards,
+            params,
+            plugins,
+            filter,
+            ctx,
+          },
+        } = meta
 
-      if (!http?.type)
-        continue
+        if (!http?.type)
+          continue
+        const needBody = params.some(item => item.type === 'body')
+        router[http.type](http.prefix + http.route, eventHandler({
+          onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+          handler: async (event) => {
+            debug(`invoke method "${func}" in module "${tag}"`)
+            const instance = moduleMap.get(tag)!
 
-      const {
-        paramsType,
-        data: {
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          ctx,
-        },
-      } = metaMap.get(tag)![func]
+            const contextData = {
+              type: 'h3' as const,
+              meta,
+              event,
+              moduleMap,
+              tag,
+              func,
+              headers: getRequestHeaders(event) as IncomingHttpHeaders,
+              params: getRouterParams(event),
+              query: getQuery(event),
+              data: (event as any).data,
 
-      const needBody = params.some(item => item.type === 'body')
-      router[http.type](http.route, eventHandler({
-        onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
-        handler: async (event) => {
-          debug(`invoke method "${func}" in module "${tag}"`)
-          const instance = moduleMap.get(tag)!
+              body: needBody ? await readBody(event, { strict: true }) : undefined,
+            }
+            const context = new Context<H3Ctx>(contextData)
 
-          const contextData = {
-            type: 'h3' as const,
-            meta: i,
-            event,
-            moduleMap,
-            tag,
-            func,
-            headers: getRequestHeaders(event) as IncomingHttpHeaders,
-            params: getRouterParams(event),
-            query: getQuery(event),
-            data: (event as any).data,
+            try {
+              setHeaders(event, http.headers || {})
+              await context.useGuard([...globalGuards, ...guards])
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
+                return i1
 
-            body: needBody ? await readBody(event, { strict: true }) : undefined,
-          }
-          const context = new Context<H3Ctx>(contextData)
+              const args = await context.usePipe(params.map((param) => {
+                return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+              }))
+              if (ctx)
+                instance[ctx] = contextData
+              const funcData = await instance[func](...args)
+              const i2 = await context.usePostInterceptor(funcData)
+              if (i2 !== undefined)
 
-          try {
-            setHeaders(event, header)
-            await context.useGuard([...globalGuards, ...guards])
-            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (i1 !== undefined)
-              return i1
+                return i2
 
-            const args = await context.usePipe(params.map((param) => {
-              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-            }))
-            if (ctx)
-              instance[ctx] = contextData
-            const funcData = await instance[func](...args)
-            const i2 = await context.usePostInterceptor(funcData)
-            if (i2 !== undefined)
-
-              return i2
-
-            return funcData
-          }
-          catch (e: any) {
-            const err = await context.useFilter(e, filter)
-            setResponseStatus(event, err.status)
-            return err
-          }
-        },
-      }))
+              return funcData
+            }
+            catch (e: any) {
+              const err = await context.useFilter(e, filter)
+              setResponseStatus(event, err.status)
+              return err
+            }
+          },
+        }))
+      }
     }
   }
 

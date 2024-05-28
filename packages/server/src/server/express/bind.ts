@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -22,21 +22,21 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   const { moduleMap, meta } = data
 
   const originStack = router.stack.slice(0, router.stack.length)
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -124,79 +124,84 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         return errorHandler(e)
       }
     })
-    for (const i of meta) {
-      const { func, http, header, tag } = i.data
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      if (!http?.type)
-        continue
+        const {
+          paramsType,
+          data: {
+            ctx,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-      const {
-        paramsType,
-        data: {
-          ctx,
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-        },
-      } = metaMap.get(tag)![func];
+        if (!http?.type)
+          continue
 
-      (router as Express)[http.type](http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
+        (router as Express)[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
 
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'express' as const,
-          request: req,
-          meta: i,
-          response: res,
-          moduleMap,
-          tag,
-          func,
-          query: req.query,
-          body: req.body,
-          params: req.params,
-          headers: req.headers,
-          data: (req as any).data,
-          next,
-        }
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'express' as const,
+            request: req,
+            meta,
+            response: res,
+            moduleMap,
+            tag,
+            func,
+            query: req.query,
+            body: req.body,
+            params: req.params,
+            headers: req.headers,
+            data: (req as any).data,
+            next,
+          }
 
-        const context = new Context<ExpressCtx>(contextData)
+          const context = new Context<ExpressCtx>(contextData)
 
-        try {
-          for (const name in header)
-            res.set(name, header[name])
-          await context.useGuard([...globalGuards, ...guards])
-          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (i1 !== undefined)
-            return i1
+          try {
+            if (http.headers) {
+              for (const name in http.headers)
+                res.set(name, http.headers[name])
+            }
+            await context.useGuard([...globalGuards, ...guards])
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
+              return i1
 
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
-          if (ctx)
-            instance[ctx] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return
-          if (res.writableEnded)
-            return
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
+            if (ctx)
+              instance[ctx] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return
+            if (res.writableEnded)
+              return
 
-          if (typeof funcData === 'string')
-            res.send(funcData)
+            if (typeof funcData === 'string')
+              res.send(funcData)
 
-          else
-            res.json(funcData)
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
-          if (res.writableEnded)
-            return
-          res.status(err.status).json(err)
-        }
-      })
+            else
+              res.json(funcData)
+          }
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
+            if (res.writableEnded)
+              return
+            res.status(err.status).json(err)
+          }
+        })
+      }
     }
   }
 

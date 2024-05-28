@@ -6,7 +6,7 @@ import { Context, detectAopDep } from '../../context'
 import type { RpcContext } from '../../types'
 import { HMR } from '../../hmr'
 import type { RpcServerOptions } from '../helper'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 
 const debug = Debug('phecda-server/rabbitmq')
 
@@ -19,40 +19,42 @@ export interface RabbitmqCtx extends RpcContext {
 export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
   const { globalGuards = [], globalInterceptors = [] } = opts || {}
 
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc } = item.data
-      if (!rpc)
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
   async function subscribeQueues() {
     existQueue.clear()
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          await ch.assertQueue(queue)
 
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
-      if (rpc) {
-        const queue = rpc.queue || tag
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        await ch.assertQueue(queue)
-
-        ch.consume(queue, handleRequest, { noAck: true })
+          ch.consume(queue, handleRequest, { noAck: true })
+        }
       }
     }
   }
@@ -66,8 +68,10 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
 
     if (msg) {
       const data = JSON.parse(msg.content.toString())
-      const { tag, func, args, id, queue: clientQueue } = data
+      const { tag, func, args, id, queue: clientQueue, _ps } = data
 
+      if (_ps !== 1)
+        return
       debug(`invoke method "${func}" in module "${tag}"`)
       const meta = metaMap.get(tag)![func]
 

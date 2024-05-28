@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { Empty, SHARE_KEY, get, getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
+import { get, getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter } from './types'
 import type { MetaData } from './meta'
@@ -9,9 +9,7 @@ import { Meta } from './meta'
 import { log } from './utils'
 import { IS_HMR, IS_ONLY_GENERATE } from './common'
 import type { Generator } from './generator'
-export function Injectable() {
-  return (target: any) => Empty(target)
-}
+
 const debug = Debug('phecda-server(Factory)')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
@@ -185,59 +183,51 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 }
 
 function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
-  const vars = getExposeKey(instance).filter(item => item !== SHARE_KEY)
-  const baseState = (getState(instance, SHARE_KEY) || {}) as MetaData
+  const vars = getExposeKey(instance).filter(item => typeof item === 'string') as string[]
+  const baseState = getState(instance) as MetaData
   initState(baseState)
   const ctx = get(instance, 'context')
 
-  return vars.map((i) => {
+  return vars.filter(i => typeof (instance as any)[i] === 'function').map((i) => {
+    const state = getState(instance, i) as any
+
     const meta = {
-      ctx,
+      ...state,
+      name,
+      tag,
+      func:
+        i,
     } as MetaData
-    const state = (getState(instance, i) || {}) as MetaData
-    initState(state)
-    if (state.http) {
-      meta.http = {
-        route: (baseState.http?.route || '') + (state.http.route),
-        type: state.http.type,
+    if (baseState.controller) {
+      if (typeof tag !== 'string')
+        log(`can't use Tag with ${typeof tag} on controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
+      initState(state)
+      meta.ctx = ctx
+      meta.controller = baseState.controller
+      meta[baseState.controller] = {
+        ...baseState[baseState.controller],
+        ...state[baseState.controller],
       }
-    }
 
-    if (baseState.rpc)
-      meta.rpc = baseState.rpc
-    if (state.rpc) {
-      meta.rpc = {
-        ...meta.rpc,
-        ...state.rpc,
+      const params = [] as any[]
+      for (const i of state.params || []) {
+        if (!i.pipe)
+          i.pipe = state.pipe || baseState.pipe
+        if (!i.define)
+          i.define = {}
+
+        params.unshift(i)
+        if (i.index === 0)
+          break
       }
+
+      meta.params = params
+      meta.filter = state.filter || baseState.filter
+      meta.define = { ...baseState.define, ...state.define }
+      meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]
+      meta.guards = [...new Set([...baseState.guards, ...state.guards])]
+      meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
     }
-
-    if (typeof tag !== 'string' && (meta.rpc || meta.http))
-      log(`can't use Tag with ${typeof tag} on http/rpc controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
-
-    meta.name = name
-    meta.tag = tag as string
-    meta.func = i as string
-    const params = [] as any[]
-    for (const i of state.params || []) {
-      if (!i.pipe)
-        i.pipe = state.pipe || baseState.pipe
-      if (!i.define)
-        i.define = {}
-
-      params.unshift(i)
-      if (i.index === 0)
-        break
-    }
-
-    meta.params = params
-    meta.filter = state.filter || baseState.filter
-    meta.define = { ...baseState.define, ...state.define }
-    meta.header = { ...baseState.header, ...state.header }
-    meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]
-    meta.guards = [...new Set([...baseState.guards, ...state.guards])]
-    meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
-
     return new Meta(meta as unknown as MetaData, getParamTypes(instance, i as string) || [])
   })
 }
@@ -249,12 +239,11 @@ function getParamTypes(Module: any, key?: string | symbol) {
 function initState(state: any) {
   if (!state.define)
     state.define = {}
-  if (!state.header)
-    state.header = {}
+
   if (!state.plugins)
-    state.plugins = []
+    state.plugins = new Set()
   if (!state.guards)
-    state.guards = []
+    state.guards = new Set()
   if (!state.interceptors)
-    state.interceptors = []
+    state.interceptors = new Set()
 }

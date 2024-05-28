@@ -40,6 +40,7 @@ export async function createClient<S extends Record<string, any>>(connectOpts: C
           const id = `${eventId++}`
 
           queueMap[queue].add(`${tag}-${p}`, {
+            _ps: 1,
             id,
             args,
             tag,

@@ -31,6 +31,7 @@ async function start() {
     res.header('Access-Control-Allow-Methods', '*')
     next()
   })
+
   app.use(express.json())
   bind(router, data, {
     // globalGuards: ['a'],

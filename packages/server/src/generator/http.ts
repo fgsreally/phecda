@@ -1,4 +1,4 @@
-import type { MetaData } from '../meta'
+import type { ControllerMetaData, MetaData } from '../meta'
 import { Generator } from './utils'
 
 export class HTTPGenerator extends Generator {
@@ -17,13 +17,13 @@ export class HTTPGenerator extends Generator {
     return content
   }
 
-  addMethod(args: MetaData) {
+  addMethod(args: ControllerMetaData) {
     const {
       http, name, func, params, tag,
     } = args
-    if (!http)
+    if (!http?.type)
       return
-    const url = http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
+    const url = http.prefix + http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][func] = `
@@ -37,8 +37,10 @@ return ret
   }
 
   generateCode(meta: MetaData[]): string {
-    for (const i of meta)
-      this.addMethod(i)
+    for (const i of meta) {
+      if (i.controller === 'http')
+        this.addMethod(i as ControllerMetaData)
+    }
     return this.getContent()
   }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
@@ -20,6 +20,8 @@ describe('rabbitmq rpc', () => {
 
   it('create server', async () => {
     const fn = vi.fn()
+
+    @Rpc()
     class TestRpc {
       @Ctx
       ctx: any
@@ -45,7 +47,7 @@ describe('rabbitmq rpc', () => {
       args: [1],
       tag: 'TestRpc',
       func: 'run',
-
+      _ps: 1,
     })))
 
     await stop()
@@ -54,6 +56,8 @@ describe('rabbitmq rpc', () => {
   })
   it('create client and server', async () => {
     const fn = vi.fn()
+
+    @Rpc()
     class TestRpc {
       @Queue()
       run(@Arg() arg: number) {
@@ -85,6 +89,9 @@ describe('rabbitmq rpc', () => {
 
       return true
     })
+
+    @Rpc()
+
     class TestRpc {
       @Queue()
       @Guard('g1')
@@ -118,6 +125,8 @@ describe('rabbitmq rpc', () => {
         return true
       }
     })
+
+    @Rpc()
     class TestRpc {
       @Queue()
       @Interceptor('i1')
@@ -147,6 +156,8 @@ describe('rabbitmq rpc', () => {
       expect(arg).toEqual(1)
       return String(arg)
     })
+    @Rpc()
+
     class TestRpc {
       @Queue()
       run(@Pipe('test') @Arg() arg: number) {
@@ -178,6 +189,8 @@ describe('rabbitmq rpc', () => {
         info: 'rpc error',
       }
     })
+
+    @Rpc()
     class TestRpc {
       @Queue()
       @Filter('test')

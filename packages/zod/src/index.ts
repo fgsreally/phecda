@@ -1,10 +1,10 @@
 import type { ZodSchema, ZodTypeDef, z } from 'zod'
-import { SHARE_KEY, addDecoToClass, setHandler, setStateKey } from 'phecda-core'
+import { addDecoToClass, setHandler, setStateKey } from 'phecda-core'
 
 function ZodTo(cb: ((instance: any, addError:((msg: string) => void)) => any)) {
-  return (proto: any, key: PropertyKey) => {
-    setStateKey(proto.prototype, key)
-    setHandler(proto.prototype, key, {
+  return (proto: any, key?: PropertyKey) => {
+    setStateKey(proto, key)
+    setHandler(proto, key, {
       async pipe(instance: any, addError: (msg: string) => void) {
         const ret = cb(instance, addError)
 
@@ -39,7 +39,7 @@ export function zodToClass<
     static schema = zod
   }
 
-  addDecoToClass(Z, SHARE_KEY, ZodTo((ins, addError) => {
+  addDecoToClass(Z, undefined, ZodTo((ins, addError) => {
     const result = zod.safeParse(ins)
     if (!result.success)
       result.error.issues.forEach(({ message }) => addError(message))

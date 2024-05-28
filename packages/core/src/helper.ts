@@ -1,5 +1,5 @@
 /* eslint-disable new-cap */
-import { SHARE_KEY, get, getExposeKey, getHandler, getState, getStateKey } from './core'
+import { SHARE_KEY, get, getExposeKey, getHandler, getOwnState, getState, getStateKey, setState, setStateKey } from './core'
 import type { AbConstruct, ClassValue, Construct, Phecda } from './types'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
@@ -147,8 +147,8 @@ export function snapShot<T extends Construct>(data: InstanceType<T>) {
 /**
  * add decorator to a class by function
  */
-export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | PropertyKey, handler: PropertyDecorator | ClassDecorator) {
-  handler(key === SHARE_KEY ? c : c.prototype, key as any)
+export function addDecoToClass<M extends Construct | AbConstruct>(c: M, key: keyof InstanceType<M> | PropertyKey | undefined, handler: PropertyDecorator | ClassDecorator) {
+  handler(key ? c.prototype : c, key as any)
 }
 
 export function Pipeline(...decos: ((...args: any) => void)[]) {
@@ -160,4 +160,17 @@ export function Pipeline(...decos: ((...args: any) => void)[]) {
 
 export function isAsyncFunc(fn: Function) {
   return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
+}
+
+export function setPropertyState(target: any, k: undefined | PropertyKey, setter: (state: Record<string, any>) => void) {
+  setStateKey(target, k)
+  const state = getOwnState(target, k) || {}
+  setter(state)
+  //   state.pipe = key
+  setState(target, k, state)
+}
+
+export function getShareState<State>(target: any, getter: (state: Record<string, any>) => State) {
+  const state = getOwnState(target, SHARE_KEY) || {}
+  return getter(state)
 }

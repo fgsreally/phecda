@@ -4,7 +4,7 @@ import type { ServerOptions } from '../helper'
 import { argToReq, resolveDep } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { Meta } from '../../meta'
+import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
 import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
@@ -17,21 +17,21 @@ export interface HonoCtx extends HttpContext {
 export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
   const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
   const { moduleMap, meta } = data
-  const metaMap = new Map<string, Record<string, Meta>>()
+  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item
+        metaMap.get(tag)![func] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item })
+        metaMap.set(tag, { [func]: item as ControllerMeta })
     }
   }
 
@@ -118,77 +118,82 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
         return errorHandler(e)
       }
     })
-    for (const i of meta) {
-      const { func, http, header, tag } = i.data
 
-      if (!http?.type)
-        continue
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      const {
-        paramsType,
-        data: {
-          ctx,
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-        },
-      } = metaMap.get(tag)![func]
+        const {
+          paramsType,
+          data: {
+            ctx,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-      const needBody = params.some(item => item.type === 'body')
+        if (!http?.type)
+          continue
+        const needBody = params.some(item => item.type === 'body')
 
-      router[http.type](http.route, ...Context.usePlugin(plugins), async (c) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
+        router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (c) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
 
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'hono' as const,
-          context: c,
-          meta: i,
-          moduleMap,
-          tag,
-          func,
-          query: c.req.query(),
-          body: needBody ? await c.req.json() : undefined,
-          params: c.req.param() as any,
-          headers: c.req.header(),
-          data: (c.req as any).data,
-        }
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'hono' as const,
+            context: c,
+            meta,
+            moduleMap,
+            tag,
+            func,
+            query: c.req.query(),
+            body: needBody ? await c.req.json() : undefined,
+            params: c.req.param() as any,
+            headers: c.req.header(),
+            data: (c.req as any).data,
+          }
 
-        const context = new Context<HonoCtx>(contextData)
+          const context = new Context<HonoCtx>(contextData)
 
-        try {
-          for (const name in header)
-            c.header(name, header[name])
-          await context.useGuard([...globalGuards, ...guards])
-          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (i1 !== undefined)
+          try {
+            if (http.headers) {
+              for (const name in http.headers)
+                c.header(name, http.headers[name])
+            }
+            await context.useGuard([...globalGuards, ...guards])
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
 
-            return i1
+              return i1
 
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
-          if (ctx)
-            instance[ctx] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return i2
-          if (typeof funcData === 'string')
-            return c.text(funcData)
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
+            if (ctx)
+              instance[ctx] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return i2
+            if (typeof funcData === 'string')
+              return c.text(funcData)
 
-          else
-            return c.json(funcData)
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
+            else
+              return c.json(funcData)
+          }
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
 
-          c.status(err.status)
-          return c.json(err)
-        }
-      })
+            c.status(err.status)
+            return c.json(err)
+          }
+        })
+      }
     }
   }
 
