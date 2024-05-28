@@ -185,7 +185,7 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   (meta as ControllerMeta[]).forEach(({ data }) => {
     if (data.controller !== controller) {
       if (data[controller])
-        warningSet.add(`Module "${data.name}" with tag "${data.tag}" should use controller decorator to decorate class or remove ${controller} decorator on "${data.func}"`)
+        warningSet.add(`Module "${data.tag === data.name ? data.name : `${data.name}(${data.tag})`}"  should use ${controller} controller to decorate class or remove ${controller} decorator on method "${data.func}"`)
 
       return
     }
@@ -221,7 +221,7 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   if (missFilters.length)
     log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
 
-  warningSet.forEach(warn => log(warn), 'warn')
+  warningSet.forEach(warn => log(warn, 'warn'))
 
   return {
     missPlugins,

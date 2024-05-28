@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { Arg, Event, Queue } from 'phecda-server'
 
-@Rpc()
 export class TestRpc {
   @Queue()
   run(@Arg() arg: string) {

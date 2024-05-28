@@ -22,11 +22,13 @@ export class RPCGenerator extends Generator {
       rpc, name, func, tag,
     } = args
 
+    if (!rpc)
+      return
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][func] = `
     ${func}(){
-      return {tag:'${tag as string}',func:"${func}",isEvent:${!!rpc!.isEvent},queue:"${rpc!.queue || ''}"}
+      return {tag:'${tag as string}',func:"${func}",isEvent:${!!rpc.isEvent},queue:"${rpc.queue || ''}"}
 
     }
     `

@@ -183,12 +183,12 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 }
 
 function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
-  const vars = getExposeKey(instance).filter(item => typeof item === 'string')
+  const vars = getExposeKey(instance).filter(item => typeof item === 'string') as string[]
   const baseState = getState(instance) as MetaData
   initState(baseState)
   const ctx = get(instance, 'context')
 
-  return vars.map((i) => {
+  return vars.filter(i => typeof (instance as any)[i] === 'function').map((i) => {
     const state = getState(instance, i) as any
 
     const meta = {

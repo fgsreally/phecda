@@ -1,7 +1,7 @@
 import { getState, setPropertyState } from 'phecda-core'
 import { mergeObject } from './utils'
 
-export function Event(isEvent = true): ClassDecorator | MethodDecorator {
+export function Event(isEvent = true) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       state.rpc = mergeObject(state.rpc || getState(target, k)?.rpc, { isEvent })
