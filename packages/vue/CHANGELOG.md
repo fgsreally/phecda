@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 3.0.0-beta.22
+
+### Patch Changes
+
+- phecda-web@1.0.1-beta.14
+
 ## 3.0.0-beta.21
 
 ### Patch Changes

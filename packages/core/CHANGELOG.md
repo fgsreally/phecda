@@ -1,5 +1,13 @@
 # phecda-core
 
+## 3.0.0-beta.17
+
+### Patch Changes
+
+- c2c6a5f: add setPropertyState/getShareState for convenience
+  add default param to getState
+  fix Clear/Ignore
+
 ## 3.0.0-beta.16
 
 ### Patch Changes
