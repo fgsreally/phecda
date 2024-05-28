@@ -37,7 +37,7 @@ return ret
 
   generateCode(meta: MetaData[]): string {
     for (const i of meta) {
-      if (i.http)
+      if (i.controller === 'http')
         this.addMethod(i as ControllerMetaData)
     }
     return this.getContent()

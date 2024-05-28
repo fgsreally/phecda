@@ -34,7 +34,7 @@ export class RPCGenerator extends Generator {
 
   generateCode(meta: MetaData[]): string {
     for (const i of meta) {
-      if (i.rpc)
+      if (i.controller === 'rpc')
         this.addMethod(i as ControllerMetaData)
     }
     return this.getContent()
