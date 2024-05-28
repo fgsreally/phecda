@@ -24,8 +24,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'http')
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -126,77 +126,80 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
     })
 
     app.use(parallelRouter)
-    for (const i of meta) {
-      const { func, tag } = i.data
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      const {
-        paramsType,
-        data: {
-          ctx,
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          define,
-          http,
-        },
-      } = metaMap.get(tag)![func]
-      const funcRouter = new App()
+        const {
+          paramsType,
+          data: {
+            ctx,
+            define,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-      if (!http?.type)
-        continue
+        const funcRouter = new App()
 
-      Context.usePlugin(plugins).forEach(p => p(funcRouter))
-      // @ts-expect-error todo
-      funcRouter[http.type](http.prefix + http.route, async (c) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'elysia' as const,
-          context: c,
-          meta: i,
-          moduleMap,
-          tag,
-          func,
-          query: c.query,
-          body: c.body as any,
-          params: c.params,
-          headers: c.headers,
-          data: c.data,
-        }
+        if (!http?.type)
+          continue
 
-        const context = new Context<ElysiaCtx>(contextData)
+        Context.usePlugin(plugins).forEach(p => p(funcRouter))
+        // @ts-expect-error todo
+        funcRouter[http.type](http.prefix + http.route, async (c) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'elysia' as const,
+            context: c,
+            meta,
+            moduleMap,
+            tag,
+            func,
+            query: c.query,
+            body: c.body as any,
+            params: c.params,
+            headers: c.headers,
+            data: c.data,
+          }
 
-        try {
-          if (http.headers)
-            c.set.headers = http.headers
-          await context.useGuard([...globalGuards, ...guards])
-          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (i1 !== undefined)
+          const context = new Context<ElysiaCtx>(contextData)
 
-            return i1
+          try {
+            if (http.headers)
+              c.set.headers = http.headers
+            await context.useGuard([...globalGuards, ...guards])
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
 
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
-          if (ctx)
-            instance[ctx] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return i2
-          return funcData
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
+              return i1
 
-          c.set.status = err.status
-          return err
-        }
-      }, define.elysia)
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
+            if (ctx)
+              instance[ctx] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return i2
+            return funcData
+          }
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
 
-      app.use(funcRouter)
+            c.set.status = err.status
+            return err
+          }
+        }, define.elysia)
+
+        app.use(funcRouter)
+      }
     }
   }
 

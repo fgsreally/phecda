@@ -21,8 +21,8 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'http')
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -118,79 +118,82 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
         return errorHandler(e)
       }
     })
-    for (const i of meta) {
-      const { func, tag } = i.data
 
-      const {
-        paramsType,
-        data: {
-          ctx,
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          http,
-        },
-      } = metaMap.get(tag)![func]
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      if (!http?.type)
-        continue
-      const needBody = params.some(item => item.type === 'body')
+        const {
+          paramsType,
+          data: {
+            ctx,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-      router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (c) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
+        if (!http?.type)
+          continue
+        const needBody = params.some(item => item.type === 'body')
 
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'hono' as const,
-          context: c,
-          meta: i,
-          moduleMap,
-          tag,
-          func,
-          query: c.req.query(),
-          body: needBody ? await c.req.json() : undefined,
-          params: c.req.param() as any,
-          headers: c.req.header(),
-          data: (c.req as any).data,
-        }
+        router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (c) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
 
-        const context = new Context<HonoCtx>(contextData)
-
-        try {
-          if (http.headers) {
-            for (const name in http.headers)
-              c.header(name, http.headers[name])
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'hono' as const,
+            context: c,
+            meta,
+            moduleMap,
+            tag,
+            func,
+            query: c.req.query(),
+            body: needBody ? await c.req.json() : undefined,
+            params: c.req.param() as any,
+            headers: c.req.header(),
+            data: (c.req as any).data,
           }
-          await context.useGuard([...globalGuards, ...guards])
-          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (i1 !== undefined)
 
-            return i1
+          const context = new Context<HonoCtx>(contextData)
 
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
-          if (ctx)
-            instance[ctx] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return i2
-          if (typeof funcData === 'string')
-            return c.text(funcData)
+          try {
+            if (http.headers) {
+              for (const name in http.headers)
+                c.header(name, http.headers[name])
+            }
+            await context.useGuard([...globalGuards, ...guards])
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
 
-          else
-            return c.json(funcData)
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
+              return i1
 
-          c.status(err.status)
-          return c.json(err)
-        }
-      })
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
+            if (ctx)
+              instance[ctx] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return i2
+            if (typeof funcData === 'string')
+              return c.text(funcData)
+
+            else
+              return c.json(funcData)
+          }
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
+
+            c.status(err.status)
+            return c.json(err)
+          }
+        })
+      }
     }
   }
 

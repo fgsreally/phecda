@@ -26,8 +26,8 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'http')
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -157,92 +157,92 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
 
       done()
     })
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          paramsType,
+          data: {
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            ctx,
+            define,
+            http,
+          },
+        } = meta
 
-    for (const i of meta) {
-      const { func, tag } = i.data
+        if (!http?.type)
+          continue
 
-      const {
-        paramsType,
-        data: {
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          ctx,
-          define,
-          http,
-        },
-      } = metaMap.get(tag)![func]
+        fastify.register((fastify, _opts, done) => {
+          Context.usePlugin(plugins).forEach((p) => {
+            p[Symbol.for('skip-override')] = true
 
-      if (!http?.type)
-        continue
+            fastify.register(p)
+          })
 
-      fastify.register((fastify, _opts, done) => {
-        Context.usePlugin(plugins).forEach((p) => {
-          p[Symbol.for('skip-override')] = true
+          fastify[http.type](http.prefix + http.route, define?.fastify || {}, async (req, res) => {
+            debug(`invoke method "${func}" in module "${tag}"`)
 
-          fastify.register(p)
-        })
+            const instance = moduleMap.get(tag)!
+            const contextData = {
+              type: 'fastify' as const,
+              request: req,
+              meta,
+              response: res,
+              moduleMap,
+              tag,
+              func,
+              query: req.query as any,
+              body: req.body as any,
+              params: req.params as any,
+              headers: req.headers,
+              data: (req as any).data,
 
-        fastify[http.type](http.prefix + http.route, define?.fastify || {}, async (req, res) => {
-          debug(`invoke method "${func}" in module "${tag}"`)
-
-          const instance = moduleMap.get(tag)!
-          const contextData = {
-            type: 'fastify' as const,
-            request: req,
-            meta: i,
-            response: res,
-            moduleMap,
-            tag,
-            func,
-            query: req.query as any,
-            body: req.body as any,
-            params: req.params as any,
-            headers: req.headers,
-            data: (req as any).data,
-
-          }
-          const context = new Context<FastifyCtx>(contextData)
-
-          try {
-            if (http.headers) {
-              for (const name in http.headers)
-                res.header(name, http.headers[name])
             }
-            await context.useGuard([...globalGuards, ...guards])
-            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (i1 !== undefined)
+            const context = new Context<FastifyCtx>(contextData)
 
-              return i1
+            try {
+              if (http.headers) {
+                for (const name in http.headers)
+                  res.header(name, http.headers[name])
+              }
+              await context.useGuard([...globalGuards, ...guards])
+              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+              if (i1 !== undefined)
 
-            const args = await context.usePipe(params.map((param) => {
-              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-            }))
-            if (ctx)
-              instance[ctx] = contextData
-            const funcData = await instance[func](...args)
-            const i2 = await context.usePostInterceptor(funcData)
+                return i1
 
-            if (i2 !== undefined)
-              return i2
+              const args = await context.usePipe(params.map((param) => {
+                return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+              }))
+              if (ctx)
+                instance[ctx] = contextData
+              const funcData = await instance[func](...args)
+              const i2 = await context.usePostInterceptor(funcData)
 
-            if (res.sent)
-              return
+              if (i2 !== undefined)
+                return i2
 
-            return funcData
-          }
-          catch (e: any) {
-            const err = await context.useFilter(e, filter)
+              if (res.sent)
+                return
 
-            if (res.sent)
-              return
-            res.status(err.status).send(err)
-          }
+              return funcData
+            }
+            catch (e: any) {
+              const err = await context.useFilter(e, filter)
+
+              if (res.sent)
+                return
+              res.status(err.status).send(err)
+            }
+          })
+          done()
         })
-        done()
-      })
+      }
     }
 
     done()

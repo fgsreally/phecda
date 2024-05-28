@@ -24,8 +24,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'http')
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -124,90 +124,93 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return errorHandler(e)
       }
     })
-    for (const i of meta) {
-      const { func, tag } = i.data
 
-      const {
-        paramsType,
-        data: {
-          ctx,
-          interceptors,
-          guards,
-          params,
-          plugins,
-          http,
-          filter,
-        },
-      } = metaMap.get(tag)![func]
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      if (!http?.type)
-        continue
-      const needBody = params.some(item => item.type === 'body')
+        const {
+          paramsType,
+          data: {
+            ctx,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-      router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
+        if (!http?.type)
+          continue
+        const needBody = params.some(item => item.type === 'body')
 
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'hyper-express' as const,
-          request: req,
-          meta: i,
-          response: res,
-          moduleMap,
-          tag,
-          func,
-          query: req.query_parameters,
-          body: needBody ? await req.json({}) : undefined,
+        router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
 
-          params: req.path_parameters,
-          headers: req.headers,
-          data: (req as any).data,
-          next,
-        }
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'hyper-express' as const,
+            request: req,
+            meta,
+            response: res,
+            moduleMap,
+            tag,
+            func,
+            query: req.query_parameters,
+            body: needBody ? await req.json({}) : undefined,
 
-        const context = new Context<HyperExpressCtx>(contextData)
-
-        try {
-          if (http.headers) {
-            for (const name in http.headers)
-              res.set(name, http.headers[name])
+            params: req.path_parameters,
+            headers: req.headers,
+            data: (req as any).data,
+            next,
           }
-          await context.useGuard([...globalGuards, ...guards])
-          const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (cache !== undefined) {
-            if (typeof cache === 'string')
-              res.send(cache)
+
+          const context = new Context<HyperExpressCtx>(contextData)
+
+          try {
+            if (http.headers) {
+              for (const name in http.headers)
+                res.set(name, http.headers[name])
+            }
+            await context.useGuard([...globalGuards, ...guards])
+            const cache = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (cache !== undefined) {
+              if (typeof cache === 'string')
+                res.send(cache)
+
+              else
+                res.json(cache)
+
+              return
+            }
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
+            if (ctx)
+              instance[ctx] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return i2
+            if (res.writableEnded)
+              return
+
+            if (typeof funcData === 'string')
+              res.send(funcData)
 
             else
-              res.json(cache)
-
-            return
+              res.json(funcData)
           }
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
-          if (ctx)
-            instance[ctx] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return i2
-          if (res.writableEnded)
-            return
-
-          if (typeof funcData === 'string')
-            res.send(funcData)
-
-          else
-            res.json(funcData)
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
-          if (res.writableEnded)
-            return
-          res.status(err.status).json(err)
-        }
-      })
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
+            if (res.writableEnded)
+              return
+            res.status(err.status).json(err)
+          }
+        })
+      }
     }
   }
 

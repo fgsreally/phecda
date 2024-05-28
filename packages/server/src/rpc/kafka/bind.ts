@@ -27,8 +27,8 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'rpc')
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
@@ -41,19 +41,22 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
   async function subscribeQueues() {
     existQueue.clear()
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
-      if (rpc) {
-        const queue = rpc.queue || tag
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        await consumer.subscribe({ topic: queue, fromBeginning: true })
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          await consumer.subscribe({ topic: queue, fromBeginning: true })
+        }
       }
     }
   }
@@ -73,10 +76,13 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
       const { tag, func, args, id, queue: clientQueue } = data
       debug(`invoke method "${func}" in module "${tag}"`)
-      const meta = metaMap.get(tag)![func]
+      const meta = metaMap.get(tag)?.[func]
+      if (!meta)
+        return
+
       const {
         data: {
-          guards, interceptors, params, name, filter, ctx, rpc,
+          guards, interceptors, params, filter, ctx, rpc,
         },
         paramsType,
       } = meta
@@ -115,7 +121,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
           return { arg: args[i], reflect: paramsType[i], ...param }
         }))
 
-        const instance = moduleMap.get(name)
+        const instance = moduleMap.get(tag)
         if (ctx)
           instance[ctx] = context.data
         const funcData = await instance[func](...handleArgs)

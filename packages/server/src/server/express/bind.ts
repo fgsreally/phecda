@@ -26,8 +26,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'http')
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -124,82 +124,84 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         return errorHandler(e)
       }
     })
-    for (const i of meta) {
-      const { func, tag } = i.data
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      const {
-        paramsType,
-        data: {
-          ctx,
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          http,
-        },
-      } = metaMap.get(tag)![func] as ControllerMeta
+        const {
+          paramsType,
+          data: {
+            ctx,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-      if (!http?.type)
-        continue
+        if (!http?.type)
+          continue
 
-      (router as Express)[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
+        (router as Express)[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
 
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'express' as const,
-          request: req,
-          meta: i,
-          response: res,
-          moduleMap,
-          tag,
-          func,
-          query: req.query,
-          body: req.body,
-          params: req.params,
-          headers: req.headers,
-          data: (req as any).data,
-          next,
-        }
-
-        const context = new Context<ExpressCtx>(contextData)
-
-        try {
-          if (http.headers) {
-            for (const name in http.headers)
-              res.set(name, http.headers[name])
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'express' as const,
+            request: req,
+            meta,
+            response: res,
+            moduleMap,
+            tag,
+            func,
+            query: req.query,
+            body: req.body,
+            params: req.params,
+            headers: req.headers,
+            data: (req as any).data,
+            next,
           }
-          await context.useGuard([...globalGuards, ...guards])
-          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (i1 !== undefined)
-            return i1
 
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
-          if (ctx)
-            instance[ctx] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return
-          if (res.writableEnded)
-            return
+          const context = new Context<ExpressCtx>(contextData)
 
-          if (typeof funcData === 'string')
-            res.send(funcData)
+          try {
+            if (http.headers) {
+              for (const name in http.headers)
+                res.set(name, http.headers[name])
+            }
+            await context.useGuard([...globalGuards, ...guards])
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
+              return i1
 
-          else
-            res.json(funcData)
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
-          if (res.writableEnded)
-            return
-          res.status(err.status).json(err)
-        }
-      })
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
+            if (ctx)
+              instance[ctx] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return
+            if (res.writableEnded)
+              return
+
+            if (typeof funcData === 'string')
+              res.send(funcData)
+
+            else
+              res.json(funcData)
+          }
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
+            if (res.writableEnded)
+              return
+            res.status(err.status).json(err)
+          }
+        })
+      }
     }
   }
 

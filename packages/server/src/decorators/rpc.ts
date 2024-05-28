@@ -8,7 +8,7 @@ export function Event(isEvent = true) {
     })
   }
 }
-export function Queue(queue?: string) {
+export function Queue(queue = '') {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       state.rpc = mergeObject(state.rpc || getState(target, k)?.rpc, { queue })

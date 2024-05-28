@@ -24,8 +24,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'rpc')
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
@@ -38,21 +38,23 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
 
   async function subscribeQueues() {
     existQueue.clear()
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          await ch.assertQueue(queue)
 
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
-      if (rpc) {
-        const queue = rpc.queue || tag
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        await ch.assertQueue(queue)
-
-        ch.consume(queue, handleRequest, { noAck: true })
+          ch.consume(queue, handleRequest, { noAck: true })
+        }
       }
     }
   }
@@ -69,8 +71,9 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
       const { tag, func, args, id, queue: clientQueue } = data
 
       debug(`invoke method "${func}" in module "${tag}"`)
-      const meta = metaMap.get(tag)![func]
-
+      const meta = metaMap.get(tag)?.[func]
+      if (!meta)
+        return
       const {
         data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
         paramsType,

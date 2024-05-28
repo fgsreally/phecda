@@ -27,8 +27,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'http')
+      const { tag, func, controller, http } = item.data
+      if (controller !== 'http' || !http?.type)
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -122,78 +122,81 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         return errorHandler(e)
       }
     })
-    for (const i of meta) {
-      const { func, tag } = i.data
 
-      const {
-        paramsType,
-        data: {
-          interceptors,
-          guards,
-          params,
-          plugins,
-          filter,
-          ctx: CTX,
-          http,
-        },
-      } = metaMap.get(tag)![func]
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-      if (!http?.type)
-        continue
-      router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (ctx, next) => {
-        debug(`invoke method "${func}" in module "${tag}"`)
+        const {
+          paramsType,
+          data: {
+            ctx: CTX,
+            interceptors,
+            guards,
+            params,
+            plugins,
+            filter,
+            http,
+          },
+        } = meta
 
-        const instance = moduleMap.get(tag)!
-        const contextData = {
-          type: 'koa' as const,
-          ctx,
-          meta: i,
-          moduleMap,
-          tag,
-          func,
-          query: ctx.query,
-          params: ctx.params,
-          body: (ctx.request as any).body,
-          headers: ctx.headers,
-          data: (ctx as any).data,
-          next,
-        }
-        const context = new Context<KoaCtx>(contextData)
+        if (!http?.type)
+          continue
+        router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (ctx, next) => {
+          debug(`invoke method "${func}" in module "${tag}"`)
 
-        try {
-          if (http.headers) {
-            for (const name in http.headers)
-              ctx.set(name, http.headers[name])
+          const instance = moduleMap.get(tag)!
+          const contextData = {
+            type: 'koa' as const,
+            ctx,
+            meta,
+            moduleMap,
+            tag,
+            func,
+            query: ctx.query,
+            params: ctx.params,
+            body: (ctx.request as any).body,
+            headers: ctx.headers,
+            data: (ctx as any).data,
+            next,
           }
-          await context.useGuard([...globalGuards, ...guards])
-          const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-          if (i1 !== undefined)
-            return i1
+          const context = new Context<KoaCtx>(contextData)
 
-          const args = await context.usePipe(params.map((param) => {
-            return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-          }))
+          try {
+            if (http.headers) {
+              for (const name in http.headers)
+                ctx.set(name, http.headers[name])
+            }
+            await context.useGuard([...globalGuards, ...guards])
+            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+            if (i1 !== undefined)
+              return i1
 
-          if (CTX)
-            instance[CTX] = contextData
-          const funcData = await instance[func](...args)
-          const i2 = await context.usePostInterceptor(funcData)
-          if (i2 !== undefined)
-            return i2
+            const args = await context.usePipe(params.map((param) => {
+              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+            }))
 
-          if (ctx.res.writableEnded)
-            return
-          ctx.body = funcData
-        }
-        catch (e: any) {
-          const err = await context.useFilter(e, filter)
+            if (CTX)
+              instance[CTX] = contextData
+            const funcData = await instance[func](...args)
+            const i2 = await context.usePostInterceptor(funcData)
+            if (i2 !== undefined)
+              return i2
 
-          if (ctx.res.writableEnded)
-            return
-          ctx.status = err.status
-          ctx.body = err
-        }
-      })
+            if (ctx.res.writableEnded)
+              return
+            ctx.body = funcData
+          }
+          catch (e: any) {
+            const err = await context.useFilter(e, filter)
+
+            if (ctx.res.writableEnded)
+              return
+            ctx.status = err.status
+            ctx.body = err
+          }
+        })
+      }
     }
   }
 

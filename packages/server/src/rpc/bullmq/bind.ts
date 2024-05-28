@@ -1,4 +1,4 @@
-import type { ConnectionOptions } from 'bullmq'
+import type { ConnectionOptions, Job } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import Debug from 'debug'
 import type { Factory } from '../../core'
@@ -24,8 +24,8 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'rpc')
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
@@ -38,79 +38,93 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
 
   async function subscribeQueues() {
     existQueue.clear()
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
 
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
-      if (rpc) {
-        const queue = rpc.queue || tag
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        workerMap[queue] = new Worker(queue, async (job) => {
-          const { data } = job
-          const { tag, func, args, id, queue: clientQueue } = data
-          debug(`invoke method "${func}" in module "${tag}"`)
-          const meta = metaMap.get(tag)![func]
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
 
-          const {
-            data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
-            paramsType,
-          } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          workerMap[queue] = new Worker(queue, handleRequest, { connection: connectOpts })
+        }
+      }
+    }
+  }
 
-          if (!isEvent && !(clientQueue in queueMap))
-            queueMap[clientQueue] = new Queue(clientQueue, { connection: connectOpts })
+  async function handleRequest(job: Job) {
+    const { data } = job
+    const { tag, func, args, id, queue: clientQueue } = data
+    debug(`invoke method "${func}" in module "${tag}"`)
+    const meta = metaMap.get(tag)?.[func]
+    if (!meta)
+      return
+    const {
+      paramsType,
+      data: {
+        ctx,
+        interceptors,
+        guards,
+        params,
+        filter,
+        rpc: { isEvent } = {},
+      },
+    } = meta
 
-          const context = new Context<BullmqCtx>({
-            type: 'bullmq',
-            moduleMap,
-            meta,
-            tag,
-            func,
-            data,
-            send(data) {
-              if (!isEvent)
-                queueMap[clientQueue].add(`${tag}-${func}`, { data, id })
-            },
-          })
+    if (!isEvent && !(clientQueue in queueMap))
+      queueMap[clientQueue] = new Queue(clientQueue, { connection: connectOpts })
 
-          try {
-            await context.useGuard([...globalGuards, ...guards])
-            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (i1 !== undefined)
+    const context = new Context<BullmqCtx>({
+      type: 'bullmq',
+      moduleMap,
+      meta,
+      tag,
+      func,
+      data,
+      send(data) {
+        if (!isEvent)
+          queueMap[clientQueue].add(`${tag}-${func}`, { data, id })
+      },
+    })
 
-              return i1
+    try {
+      await context.useGuard([...globalGuards, ...guards])
+      const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
+      if (i1 !== undefined)
 
-            const handleArgs = await context.usePipe(params.map((param, i) => {
-              return { arg: args[i], reflect: paramsType[i], ...param }
-            }))
+        return i1
 
-            const instance = moduleMap.get(name)
-            if (ctx)
-              instance[ctx] = context.data
-            const funcData = await instance[func](...handleArgs)
+      const handleArgs = await context.usePipe(params.map((param, i) => {
+        return { arg: args[i], reflect: paramsType[i], ...param }
+      }))
 
-            const i2 = await context.usePostInterceptor(funcData)
+      const instance = moduleMap.get(tag)
+      if (ctx)
+        instance[ctx] = context.data
+      const funcData = await instance[func](...handleArgs)
 
-            if (i2 !== undefined)
-              return i2
-            if (!isEvent)
-              queueMap[clientQueue].add(`${tag}-${func}`, { data: funcData, id })
-          }
-          catch (e) {
-            const ret = await context.useFilter(e, filter)
-            if (!isEvent) {
-              queueMap[clientQueue].add(`${tag}-${func}`, {
-                data: ret,
-                error: true,
-                id,
-              })
-            }
-          }
-        }, { connection: connectOpts })
+      const i2 = await context.usePostInterceptor(funcData)
+
+      if (i2 !== undefined)
+        return i2
+      if (!isEvent)
+        queueMap[clientQueue].add(`${tag}-${func}`, { data: funcData, id })
+    }
+    catch (e) {
+      const ret = await context.useFilter(e, filter)
+      if (!isEvent) {
+        queueMap[clientQueue].add(`${tag}-${func}`, {
+          data: ret,
+          error: true,
+          id,
+        })
       }
     }
   }

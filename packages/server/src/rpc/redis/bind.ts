@@ -25,8 +25,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, controller } = item.data
-      if (controller !== 'rpc')
+      const { tag, func, controller, rpc } = item.data
+      if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
 
       if (metaMap.has(tag))
@@ -39,20 +39,23 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
 
   async function subscribeQueues() {
     existQueue.clear()
-    for (const item of meta) {
-      const {
-        data: {
-          rpc, tag,
-        },
-      } = item
 
-      if (rpc) {
-        const queue = rpc.queue || tag
+    for (const [tag, record] of metaMap) {
+      for (const func in record) {
+        const meta = metaMap.get(tag)![func]
+        const {
+          data: {
+            rpc,
+          },
+        } = meta
+        if (rpc) {
+          const queue = rpc.queue || tag
 
-        if (existQueue.has(queue))
-          continue
-        existQueue.add(queue)
-        await sub.subscribe(queue)
+          if (existQueue.has(queue))
+            continue
+          existQueue.add(queue)
+          await sub.subscribe(queue)
+        }
       }
     }
   }
@@ -66,8 +69,9 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       const { func, args, id, tag, queue: clientQueue } = data
       debug(`invoke method "${func}" in module "${tag}"`)
 
-      const meta = metaMap.get(tag)![func]
-
+      const meta = metaMap.get(tag)?.[func]
+      if (!meta)
+        return
       const {
         data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
         paramsType,
