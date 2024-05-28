@@ -26,8 +26,8 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller } = item.data
+      if (controller !== 'http')
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -175,6 +175,9 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
         },
       } = metaMap.get(tag)![func]
 
+      if (!http?.type)
+        continue
+
       fastify.register((fastify, _opts, done) => {
         Context.usePlugin(plugins).forEach((p) => {
           p[Symbol.for('skip-override')] = true
@@ -182,7 +185,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
           fastify.register(p)
         })
 
-        fastify[http!.type](http!.prefix + http!.route, define?.fastify || {}, async (req, res) => {
+        fastify[http.type](http.prefix + http.route, define?.fastify || {}, async (req, res) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const instance = moduleMap.get(tag)!
@@ -204,9 +207,9 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
           const context = new Context<FastifyCtx>(contextData)
 
           try {
-            if (http!.headers) {
-              for (const name in http!.headers)
-                res.header(name, http!.headers[name])
+            if (http.headers) {
+              for (const name in http.headers)
+                res.header(name, http.headers[name])
             }
             await context.useGuard([...globalGuards, ...guards])
             const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])

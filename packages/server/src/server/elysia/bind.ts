@@ -24,8 +24,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller } = item.data
+      if (controller !== 'http')
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -144,9 +144,12 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
       } = metaMap.get(tag)![func]
       const funcRouter = new App()
 
+      if (!http?.type)
+        continue
+
       Context.usePlugin(plugins).forEach(p => p(funcRouter))
       // @ts-expect-error todo
-      funcRouter[http.type](http!.prefix + http!.route, async (c) => {
+      funcRouter[http.type](http.prefix + http.route, async (c) => {
         debug(`invoke method "${func}" in module "${tag}"`)
         const instance = moduleMap.get(tag)!
         const contextData = {
@@ -166,7 +169,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         const context = new Context<ElysiaCtx>(contextData)
 
         try {
-          c.set.headers = http!.headers
+          if (http.headers)
+            c.set.headers = http.headers
           await context.useGuard([...globalGuards, ...guards])
           const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
           if (i1 !== undefined)

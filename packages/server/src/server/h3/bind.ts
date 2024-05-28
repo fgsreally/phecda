@@ -46,8 +46,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller } = item.data
+      if (controller !== 'http')
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -152,7 +152,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         data: {
           interceptors,
           http,
-
           guards,
           params,
           plugins,
@@ -161,8 +160,10 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         },
       } = metaMap.get(tag)![func]
 
+      if (!http?.type)
+        continue
       const needBody = params.some(item => item.type === 'body')
-      router[http!.type](http!.prefix + http!.route, eventHandler({
+      router[http.type](http.prefix + http.route, eventHandler({
         onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
         handler: async (event) => {
           debug(`invoke method "${func}" in module "${tag}"`)
@@ -185,7 +186,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           const context = new Context<H3Ctx>(contextData)
 
           try {
-            setHeaders(event, http!.headers || {})
+            setHeaders(event, http.headers || {})
             await context.useGuard([...globalGuards, ...guards])
             const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
             if (i1 !== undefined)

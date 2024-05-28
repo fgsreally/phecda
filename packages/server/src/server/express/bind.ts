@@ -26,8 +26,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, http } = item.data
-      if (!http?.type)
+      const { tag, func, controller } = item.data
+      if (controller !== 'http')
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
@@ -140,7 +140,10 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         },
       } = metaMap.get(tag)![func] as ControllerMeta
 
-      (router as Express)[http!.type](http!.prefix + http!.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+      if (!http?.type)
+        continue
+
+      (router as Express)[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
         debug(`invoke method "${func}" in module "${tag}"`)
 
         const instance = moduleMap.get(tag)!
@@ -163,9 +166,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         const context = new Context<ExpressCtx>(contextData)
 
         try {
-          if (http!.headers) {
-            for (const name in http!.headers)
-              res.set(name, http!.headers[name])
+          if (http.headers) {
+            for (const name in http.headers)
+              res.set(name, http.headers[name])
           }
           await context.useGuard([...globalGuards, ...guards])
           const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])

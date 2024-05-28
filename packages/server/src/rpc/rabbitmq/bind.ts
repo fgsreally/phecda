@@ -24,8 +24,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func, rpc } = item.data
-      if (!rpc)
+      const { tag, func, controller } = item.data
+      if (controller !== 'rpc')
         continue
 
       if (metaMap.has(tag))
