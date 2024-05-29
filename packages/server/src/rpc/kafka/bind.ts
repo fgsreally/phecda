@@ -74,7 +74,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
       const data = JSON.parse(message.value!.toString())
 
-      const { tag, func, args, id, queue: clientQueue, _ps } = data
+      const { tag, func, id, queue: clientQueue, _ps } = data
 
       if (_ps !== 1)
         return
@@ -83,9 +83,8 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
       const {
         data: {
-          guards, interceptors, params, filter, ctx, rpc,
+          rpc,
         },
-        paramsType,
       } = meta
       const isEvent = rpc!.isEvent
 
@@ -112,42 +111,23 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         },
       })
 
-      try {
-        await context.useGuard([...globalGuards, ...guards])
-        const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-        if (i1 !== undefined)
-          return i1
-
-        const handleArgs = await context.usePipe(params.map((param, i) => {
-          return { arg: args[i], reflect: paramsType[i], ...param }
-        }))
-
-        const instance = moduleMap.get(tag)
-        if (ctx)
-          instance[ctx] = context.data
-        const funcData = await instance[func](...handleArgs)
-
-        const i2 = await context.usePostInterceptor(funcData)
-        if (i2 !== undefined)
-          return i2
+      await context.run((returnData) => {
         if (!isEvent) {
           producer.send({
             topic: clientQueue,
             messages: [
-              { value: JSON.stringify({ data: funcData, id }) },
+              { value: JSON.stringify({ data: returnData, id }) },
             ],
           })
         }
-      }
-      catch (e) {
-        const ret = await context.useFilter(e, filter)
+      }, (err) => {
         if (!isEvent) {
           producer.send({
             topic: clientQueue,
             messages: [
               {
                 value: JSON.stringify({
-                  data: ret,
+                  data: err,
                   error: true,
                   id,
                 }),
@@ -155,7 +135,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
             ],
           })
         }
-      }
+      })
     },
   })
 

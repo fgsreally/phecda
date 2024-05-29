@@ -66,7 +66,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
 
     if (msg) {
       const data = JSON.parse(msg)
-      const { func, args, id, tag, queue: clientQueue, _ps } = data
+      const { func, id, tag, queue: clientQueue, _ps } = data
       debug(`invoke method "${func}" in module "${tag}"`)
 
       if (_ps !== 1)
@@ -74,8 +74,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       const meta = metaMap.get(tag)![func]
 
       const {
-        data: { rpc: { isEvent } = {}, guards, interceptors, params, name, filter, ctx },
-        paramsType,
+        data: { rpc: { isEvent } = {} },
       } = meta
 
       const context = new Context(<RedisCtx>{
@@ -94,39 +93,18 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         },
 
       })
-
-      try {
-        await context.useGuard([...globalGuards, ...guards])
-        const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-        if (i1 !== undefined)
-
-          return i1
-
-        const handleArgs = await context.usePipe(params.map((param, i) => {
-          return { arg: args[i], reflect: paramsType[i], ...param }
-        }))
-
-        const instance = moduleMap.get(name)
-        if (ctx)
-          instance[ctx] = context.data
-        const funcData = await instance[func](...handleArgs)
-        const i2 = await context.usePostInterceptor(funcData)
-
-        if (i2 !== undefined)
-          return i2
+      await context.run((returnData) => {
         if (!isEvent)
-          pub.publish(clientQueue, JSON.stringify({ data: funcData, id }))
-      }
-      catch (e) {
-        const ret = await context.useFilter(e, filter)
+          pub.publish(clientQueue, JSON.stringify({ data: returnData, id }))
+      }, (err) => {
         if (!isEvent) {
           pub.publish(clientQueue, JSON.stringify({
-            data: ret,
+            data: err,
             error: true,
             id,
           }))
         }
-      }
+      })
     }
   })
 
