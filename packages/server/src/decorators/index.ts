@@ -1,5 +1,5 @@
 import { Empty, getState, set, setPropertyState } from 'phecda-core'
-import { mergeObject, shallowClone } from './utils'
+import { mergeObject, shallowClone } from './helper'
 
 export function Injectable() {
   return (target: any) => Empty(target)
