@@ -50,7 +50,8 @@ export interface HttpContext extends BaseContext {
 
 export interface RpcContext extends BaseContext {
   send(data: any): void
-  data: { tag: string; func: string; args: any[]; id: string; queue: string }
+  args: any[]
+  id: string
 }
 export interface BaseError {
   // as a symbol

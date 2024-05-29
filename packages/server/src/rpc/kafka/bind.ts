@@ -74,7 +74,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
 
       const data = JSON.parse(message.value!.toString())
 
-      const { tag, func, id, queue: clientQueue, _ps } = data
+      const { tag, func, id, queue: clientQueue, _ps, args } = data
 
       if (_ps !== 1)
         return
@@ -92,13 +92,14 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         type: 'kafka',
         moduleMap,
         meta,
+        args,
+        id,
         tag,
         func,
         partition,
         topic,
         heartbeat,
         pause,
-        data,
         send(data) {
           if (!isEvent) {
             producer.send({

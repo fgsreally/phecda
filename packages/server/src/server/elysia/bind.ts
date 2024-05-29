@@ -144,7 +144,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
           if (http.headers)
             c.set.headers = http.headers
 
-          await context.run(returnData => returnData, (err) => {
+          return context.run(returnData => returnData, (err) => {
             c.set.status = err.status
             return err
           })

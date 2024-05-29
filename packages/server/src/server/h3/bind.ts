@@ -160,7 +160,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             const context = new Context<H3Ctx>(contextData)
             setHeaders(event, http.headers || {})
 
-            return await context.run(returnData => returnData, (err) => {
+            return context.run(returnData => returnData, (err) => {
               setResponseStatus(event, err.status)
               return err
             })

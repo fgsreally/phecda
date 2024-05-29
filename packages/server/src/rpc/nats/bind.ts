@@ -64,7 +64,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   }
   async function handleRequest(_: NatsError | null, msg: Msg) {
     const data = JSON.parse(sc.decode(msg.data))
-    const { tag, func, id, _ps } = data
+    const { tag, func, id, _ps, args } = data
 
     if (_ps !== 1)
       return
@@ -84,7 +84,8 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       meta,
       tag,
       func,
-      data,
+      args,
+      id,
       msg,
       send(data) {
         if (!isEvent)

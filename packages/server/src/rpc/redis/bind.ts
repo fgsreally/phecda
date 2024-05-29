@@ -66,7 +66,7 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
 
     if (msg) {
       const data = JSON.parse(msg)
-      const { func, id, tag, queue: clientQueue, _ps } = data
+      const { func, id, tag, queue: clientQueue, _ps, args } = data
       debug(`invoke method "${func}" in module "${tag}"`)
 
       if (_ps !== 1)
@@ -86,7 +86,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         channel,
         tag,
         func,
-        data,
+        args,
+        id,
         send(data) {
           if (!isEvent)
             pub.publish(clientQueue, JSON.stringify({ data, id }))

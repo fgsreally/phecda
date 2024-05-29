@@ -177,7 +177,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
               for (const name in http.headers)
                 res.header(name, http.headers[name])
             }
-            await context.run((returnData) => {
+            return context.run((returnData) => {
               if (res.sent)
                 return
               return returnData

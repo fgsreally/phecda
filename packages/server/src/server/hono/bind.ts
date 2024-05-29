@@ -138,7 +138,10 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
             for (const name in http.headers)
               c.header(name, http.headers[name])
           }
-          context.run((returnData) => {
+          return context.run((returnData) => {
+            if (returnData instanceof Response)
+              return returnData
+
             if (typeof returnData === 'string')
               return c.text(returnData)
 

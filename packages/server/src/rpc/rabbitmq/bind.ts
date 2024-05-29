@@ -66,7 +66,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
 
     if (msg) {
       const data = JSON.parse(msg.content.toString())
-      const { tag, func, id, queue: clientQueue, _ps } = data
+      const { tag, func, id, queue: clientQueue, _ps, args } = data
 
       if (_ps !== 1)
         return
@@ -83,7 +83,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         meta,
         tag,
         func,
-        data,
+        args,
+        id,
         ch,
         msg,
         send(data) {

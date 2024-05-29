@@ -148,6 +148,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               res.set(name, http.headers[name])
           }
           await context.run((returnData) => {
+            if (res.writableEnded)
+              return
+
             if (typeof returnData === 'string')
               res.send(returnData)
 
