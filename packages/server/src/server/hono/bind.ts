@@ -12,6 +12,8 @@ const debug = Debug('phecda-server/hono')
 export interface HonoCtx extends HttpContext {
   type: 'hono'
   context: HonoContext
+  app: Hono
+
 }
 
 export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
@@ -27,8 +29,8 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
 
       debug(`register method "${func}" in module "${tag}"`)
 
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -83,7 +85,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
               moduleMap,
               tag,
               func,
-              data: (c.req as any).data,
+              app: router,
               ...argToReq(params, item.args, c.req.header()),
             }
             const context = new Context<HonoCtx>(contextData)
@@ -130,7 +132,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, Se
             body: needBody ? await c.req.json() : undefined,
             params: c.req.param() as any,
             headers: c.req.header(),
-            data: (c.req as any).data,
+            app: router,
           }
 
           const context = new Context<HonoCtx>(contextData)

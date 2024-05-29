@@ -15,6 +15,8 @@ const debug = Debug('phecda-server/h3')
 export interface H3Ctx extends HttpContext {
   type: 'h3'
   event: H3Event
+  app: Router
+
 }
 export interface ServerOptions {
 
@@ -51,8 +53,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -107,7 +109,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 tag,
                 func,
                 parallel: true,
-                data: (event as any).data,
+                app: router,
                 ...argToReq(params, item.args, getRequestHeaders(event)),
               }
               const context = new Context<H3Ctx>(contextData)
@@ -153,7 +155,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               headers: getRequestHeaders(event) as IncomingHttpHeaders,
               params: getRouterParams(event),
               query: getQuery(event),
-              data: (event as any).data,
+              app: router,
 
               body: needBody ? await readBody(event, { strict: true }) : undefined,
             }

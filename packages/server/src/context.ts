@@ -36,7 +36,7 @@ export class Context<Data extends BaseContext> {
   static interceptorRecord: Record<PropertyKey, InterceptorType> = {}
 
   static pluginRecord: Record<PropertyKey, any> = {}
-  postInterceptors: Function[]
+  private postInterceptors: Function[]
 
   constructor(public data: Data) {
     if (IS_HMR)
@@ -80,7 +80,7 @@ export class Context<Data extends BaseContext> {
     }
   }
 
-  protected usePipe(args: PipeArg[]) {
+  private usePipe(args: PipeArg[]) {
     return Promise.all(args.map((item) => {
       if (item.pipe && !Context.pipeRecord[item.pipe]) {
         if (IS_STRICT) {
@@ -98,7 +98,7 @@ export class Context<Data extends BaseContext> {
     }))
   }
 
-  protected useFilter(arg: any, filter = 'default') {
+  private useFilter(arg: any, filter = 'default') {
     if (!Context.filterRecord[filter]) {
       if (IS_STRICT) {
         throw new FrameworkException(`can't find filter named "${filter}"`)
@@ -113,7 +113,7 @@ export class Context<Data extends BaseContext> {
     return Context.filterRecord[filter](arg, this.data)
   }
 
-  protected async useGuard(guards: string[]) {
+  private async useGuard(guards: string[]) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardRecord)) {
@@ -128,7 +128,7 @@ export class Context<Data extends BaseContext> {
     }
   }
 
-  protected async usePostInterceptor(data: any) {
+  private async usePostInterceptor(data: any) {
     for (const cb of this.postInterceptors) {
       const ret = await cb(data)
       if (ret !== undefined)
@@ -136,7 +136,7 @@ export class Context<Data extends BaseContext> {
     }
   }
 
-  protected async useInterceptor(interceptors: string[]) {
+  private async useInterceptor(interceptors: string[]) {
     const cb = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {

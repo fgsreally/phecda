@@ -45,13 +45,14 @@ export interface HttpContext extends BaseContext {
   body: Record<string, any>
   headers: IncomingHttpHeaders
   // redirect:(url:string)=>void
-  data: any
+
 }
 
 export interface RpcContext extends BaseContext {
-  send(data: any): void
   args: any[]
   id: string
+  queue: string
+  isEvent?: boolean
 }
 export interface BaseError {
   // as a symbol

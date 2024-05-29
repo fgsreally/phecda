@@ -15,6 +15,8 @@ export interface HyperExpressCtx extends HttpContext {
   request: Request
   response: Response
   next: Function
+  app: Router
+
 }
 
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
@@ -30,8 +32,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
       debug(`register method "${func}" in module "${tag}"`)
 
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -90,7 +92,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               tag,
               func,
               next,
-              data: (req as any).data,
+              app: router,
+
               ...argToReq(params, item.args, req.headers),
             }
             const context = new Context<HyperExpressCtx>(contextData)
@@ -135,10 +138,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             func,
             query: req.query_parameters,
             body: needBody ? await req.json({}) : undefined,
+            app: router,
 
             params: req.path_parameters,
             headers: req.headers,
-            data: (req as any).data,
             next,
           }
 

@@ -15,6 +15,8 @@ export interface ExpressCtx extends HttpContext {
   request: Request
   response: Response
   next: Function
+  app: Router
+
 }
 
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
@@ -31,8 +33,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -88,7 +90,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               tag,
               func,
               next,
-              data: (req as any).data,
+              app: router,
               ...argToReq(params, item.args, req.headers),
             }
             const context = new Context<ExpressCtx>(contextData)
@@ -133,7 +135,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             body: req.body,
             params: req.params,
             headers: req.headers,
-            data: (req as any).data,
+            app: router,
             next,
           }
 

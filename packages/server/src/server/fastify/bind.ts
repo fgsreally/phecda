@@ -1,4 +1,4 @@
-import type { FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
+import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { ServerOptions } from '../helper'
 import { argToReq } from '../helper'
@@ -14,6 +14,8 @@ export interface FastifyCtx extends HttpContext {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
+  app: FastifyInstance
+
 }
 
 export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}): FastifyPluginCallback {
@@ -31,8 +33,8 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -112,7 +114,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
                 moduleMap,
                 tag,
                 func,
-                data: (req as any).data,
+                app: fastify,
 
                 ...argToReq(params, item.args, req.headers),
 
@@ -169,7 +171,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, ServerOptions: S
               body: req.body as any,
               params: req.params as any,
               headers: req.headers,
-              data: (req as any).data,
+              app: fastify,
 
             }
             const context = new Context<FastifyCtx>(contextData)

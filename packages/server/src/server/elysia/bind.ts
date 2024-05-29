@@ -14,6 +14,7 @@ import { Define } from '../../decorators'
 const debug = Debug('phecda-server/elysia')
 export interface ElysiaCtx extends HttpContext {
   type: 'elysia'
+  app: App
   context: ElysiaContext
 }
 
@@ -29,8 +30,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -87,7 +88,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
               moduleMap,
               tag,
               func,
-              data: (c as any).data,
+              app,
               ...argToReq(params, item.args, c.headers),
             }
             const context = new Context<ElysiaCtx>(contextData)
@@ -137,7 +138,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
             body: c.body as any,
             params: c.params,
             headers: c.headers,
-            data: c.data,
+            app,
           }
 
           const context = new Context<ElysiaCtx>(contextData)

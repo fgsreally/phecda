@@ -27,6 +27,8 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -68,13 +70,8 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
     const meta = metaMap.get(tag)![func]
 
     const {
-      paramsType,
       data: {
-        ctx,
-        interceptors,
-        guards,
-        params,
-        filter,
+
         rpc: { isEvent } = {},
       },
     } = meta
@@ -89,45 +86,25 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
       tag,
       func,
       data,
-      send(data) {
-        if (!isEvent)
-          queueMap[clientQueue].add(`${tag}-${func}`, { data, id })
-      },
+      args,
+      id,
+      queue: job.queueName,
+      isEvent,
     })
 
-    try {
-      await context.useGuard([...globalGuards, ...guards])
-      const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-      if (i1 !== undefined)
-
-        return i1
-
-      const handleArgs = await context.usePipe(params.map((param, i) => {
-        return { arg: args[i], reflect: paramsType[i], ...param }
-      }))
-
-      const instance = moduleMap.get(tag)
-      if (ctx)
-        instance[ctx] = context.data
-      const funcData = await instance[func](...handleArgs)
-
-      const i2 = await context.usePostInterceptor(funcData)
-
-      if (i2 !== undefined)
-        return i2
+    await context.run((returnData) => {
       if (!isEvent)
-        queueMap[clientQueue].add(`${tag}-${func}`, { data: funcData, id })
-    }
-    catch (e) {
-      const ret = await context.useFilter(e, filter)
+
+        queueMap[clientQueue].add(`${tag}-${func}`, { data: returnData, id })
+    }, (err) => {
       if (!isEvent) {
         queueMap[clientQueue].add(`${tag}-${func}`, {
-          data: ret,
+          data: err,
           error: true,
           id,
         })
       }
-    }
+    })
   }
 
   detectAopDep(meta, {

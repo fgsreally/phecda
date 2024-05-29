@@ -27,6 +27,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -87,10 +89,8 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         id,
         ch,
         msg,
-        send(data) {
-          if (!isEvent)
-            ch.sendToQueue(clientQueue, Buffer.from(JSON.stringify({ data, id })))
-        },
+        isEvent,
+        queue: msg.fields.routingKey,
       })
       await context.run((returnData) => {
         if (!isEvent)

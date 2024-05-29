@@ -28,6 +28,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -88,10 +90,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         func,
         args,
         id,
-        send(data) {
-          if (!isEvent)
-            pub.publish(clientQueue, JSON.stringify({ data, id }))
-        },
+        isEvent,
+        queue: channel,
 
       })
       await context.run((returnData) => {

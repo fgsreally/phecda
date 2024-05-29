@@ -16,6 +16,7 @@ export interface KoaCtx extends HttpContext {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
   next: Function
+  app: Router
 }
 
 export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
@@ -33,8 +34,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
       debug(`register method "${func}" in module "${tag}"`)
 
-      item.data.guards = [...globalGuards, item.data.guards]
-      item.data.interceptors = [...globalInterceptors, item.data.interceptors]
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -85,7 +86,7 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               moduleMap,
               parallel: true,
               next,
-              data: (ctx as any).data,
+              app: router,
               ...argToReq(params, item.args, ctx.headers),
               tag,
               func,
@@ -120,6 +121,8 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
 
           const contextData = {
             type: 'koa' as const,
+            app: router,
+
             ctx,
             meta,
             moduleMap,
@@ -129,7 +132,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             params: ctx.params,
             body: (ctx.request as any).body,
             headers: ctx.headers,
-            data: (ctx as any).data,
             next,
           }
           const context = new Context<KoaCtx>(contextData)

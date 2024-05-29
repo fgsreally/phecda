@@ -30,6 +30,8 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -100,16 +102,9 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         topic,
         heartbeat,
         pause,
-        send(data) {
-          if (!isEvent) {
-            producer.send({
-              topic: clientQueue,
-              messages: [
-                { value: JSON.stringify({ data, id }) },
-              ],
-            })
-          }
-        },
+
+        isEvent,
+        queue: topic,
       })
 
       await context.run((returnData) => {

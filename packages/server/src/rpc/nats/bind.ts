@@ -29,6 +29,8 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -87,10 +89,9 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       args,
       id,
       msg,
-      send(data) {
-        if (!isEvent)
-          msg.respond(sc.encode(JSON.stringify({ data, id })))
-      },
+      isEvent,
+      // @ts-expect-error nats ts problem
+      queue: msg._msg.subject.toString(),
     })
 
     await context.run((returnData) => {
