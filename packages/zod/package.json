@@ -1,6 +1,6 @@
 {
   "name": "phecda-zod",
-  "version": "1.0.0",
+  "version": "1.0.1-beta.0",
   "description": "use zod instead of decorator/reflect-metadata",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -19,7 +19,7 @@
     "tsup": "^6.5.0"
   },
   "dependencies": {
-    "phecda-core": "workspace:3.0.0-beta.16",
+    "phecda-core": "workspace:3.0.0-beta.17",
     "zod": "^3.23.5"
   }
 }

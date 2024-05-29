@@ -1,5 +1,27 @@
 # phecda-server
 
+## 5.0.0-beta.33
+
+### Patch Changes
+
+- e48766e: break change!
+  refactor to support extends aop state and custom Controller
+  it seems danger
+- Updated dependencies [c2c6a5f]
+  - phecda-core@3.0.0-beta.17
+
+## 5.0.0-beta.32
+
+### Patch Changes
+
+- a7d9a65: replace compiler with generator to provide better scalability
+  loader can read config from config file, it's more flexible to control loader function
+  it's a big change for both runtime and compile sysmtem
+  refact cli with `cac`; use esm format instead
+  `phecda-client` plugin support generator and config file
+  improve cli, remove `fs-extra`(instead with `unimport`)
+  add schema to config file
+
 ## 5.0.0-beta.31
 
 ### Patch Changes

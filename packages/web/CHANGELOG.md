@@ -1,5 +1,12 @@
 # phecda-web
 
+## 1.0.1-beta.14
+
+### Patch Changes
+
+- Updated dependencies [c2c6a5f]
+  - phecda-core@3.0.0-beta.17
+
 ## 1.0.1-beta.13
 
 ### Patch Changes
