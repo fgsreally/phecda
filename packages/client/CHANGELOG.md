@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.0.4-beta.5
+
+### Patch Changes
+
+- b9c1bfe: isError(null) should be false
+
 ## 2.0.4-beta.4
 
 ### Patch Changes
