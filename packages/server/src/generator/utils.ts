@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fse from 'fs-extra'
 import type { Meta, MetaData } from '../meta'
 export abstract class Generator {
   constructor(
@@ -10,6 +10,6 @@ export abstract class Generator {
   abstract generateCode(meta: MetaData[]): string
 
   async output(meta: Meta[]) {
-    await fs.promises.writeFile(this.path, this.generateCode(meta.map(item => item.data)))
+    await fse.outputFile(this.path, this.generateCode(meta.map(item => item.data)))
   }
 }
