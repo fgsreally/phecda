@@ -9,12 +9,14 @@ import { IS_HMR, IS_STRICT } from './common'
 import type { ControllerMeta, Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
+import { resolveDep } from './helper'
 
 const debug = Debug('phecda-server(Context)')
 
+export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any> }
 export type GuardType<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
 export type InterceptorType<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
-export type PipeType<C extends BaseContext = any> = (arg: { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any> }, ctx: C) => Promise<any>
+export type PipeType<C extends BaseContext = any> = (arg: PipeArg, ctx: C) => Promise<any>
 export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
 export class Context<Data extends BaseContext> {
@@ -34,7 +36,7 @@ export class Context<Data extends BaseContext> {
   static interceptorRecord: Record<PropertyKey, InterceptorType> = {}
 
   static pluginRecord: Record<PropertyKey, any> = {}
-  postInterceptors: Function[]
+  private postInterceptors: Function[]
 
   constructor(public data: Data) {
     if (IS_HMR)
@@ -42,7 +44,43 @@ export class Context<Data extends BaseContext> {
       data._context = this
   }
 
-  usePipe(args: { arg: any; pipe?: string; define: Record<string, any>; type: string; key: string; index: number; reflect: any }[]) {
+  public async run<ReturnData = any, ReturnErr = any>(successCb: (data: any) => ReturnData, failCb: (err: any) => ReturnErr) {
+    const { meta, moduleMap } = this.data
+    const {
+      paramsType,
+      data: {
+        guards, interceptors, params,
+        tag, func, ctx, filter,
+
+      },
+    } = meta
+
+    try {
+      await this.useGuard(guards)
+      const i1 = await this.useInterceptor(interceptors)
+      if (i1 !== undefined)
+        return successCb(i1)
+
+      const args = await this.usePipe(params.map((param) => {
+        return { arg: resolveDep(this.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+      }))
+      const instance = moduleMap.get(tag)!
+      if (ctx)
+        instance[ctx] = this.data
+      const returnData = await instance[func](...args)
+      const i2 = await this.usePostInterceptor(returnData)
+      if (i2 !== undefined)
+        return successCb(i2)
+
+      return successCb(returnData)
+    }
+    catch (e) {
+      const err = await this.useFilter(e, filter)
+      return failCb(err)
+    }
+  }
+
+  private usePipe(args: PipeArg[]) {
     return Promise.all(args.map((item) => {
       if (item.pipe && !Context.pipeRecord[item.pipe]) {
         if (IS_STRICT) {
@@ -60,7 +98,7 @@ export class Context<Data extends BaseContext> {
     }))
   }
 
-  useFilter(arg: any, filter = 'default') {
+  private useFilter(arg: any, filter = 'default') {
     if (!Context.filterRecord[filter]) {
       if (IS_STRICT) {
         throw new FrameworkException(`can't find filter named "${filter}"`)
@@ -75,7 +113,7 @@ export class Context<Data extends BaseContext> {
     return Context.filterRecord[filter](arg, this.data)
   }
 
-  async useGuard(guards: string[]) {
+  private async useGuard(guards: string[]) {
     for (const guard of guards) {
       if (this.history.record(guard, 'guard')) {
         if (!(guard in Context.guardRecord)) {
@@ -90,7 +128,7 @@ export class Context<Data extends BaseContext> {
     }
   }
 
-  async usePostInterceptor(data: any) {
+  private async usePostInterceptor(data: any) {
     for (const cb of this.postInterceptors) {
       const ret = await cb(data)
       if (ret !== undefined)
@@ -98,7 +136,7 @@ export class Context<Data extends BaseContext> {
     }
   }
 
-  async useInterceptor(interceptors: string[]) {
+  private async useInterceptor(interceptors: string[]) {
     const cb = []
     for (const interceptor of interceptors) {
       if (this.history.record(interceptor, 'interceptor')) {

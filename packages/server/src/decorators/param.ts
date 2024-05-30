@@ -1,5 +1,5 @@
 import { getState, setPropertyState } from 'phecda-core'
-import { shallowClone } from './utils'
+import { shallowClone } from './helper'
 
 export function BaseParam(data: Record<string, any>): ParameterDecorator {
   return (target: any, k: PropertyKey | undefined, index: number) => {
@@ -44,7 +44,8 @@ export function Param(key: string) {
 
 // work for micro service
 export function Arg() {
-  return BaseParam({
-    type: 'params', key: '',
-  })
+  return (target: any, k: string, index: number) =>
+    BaseParam({
+      type: 'args', key: `${index}`,
+    })(target, k, index)
 }

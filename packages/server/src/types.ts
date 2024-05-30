@@ -1,6 +1,6 @@
 import type { IncomingHttpHeaders } from 'http'
 import type { Construct, Events } from 'phecda-core'
-import type { Meta } from './meta'
+import type { ControllerMeta } from './meta'
 import type { ERROR_SYMBOL } from './common'
 export interface Emitter {
   on<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
@@ -29,7 +29,7 @@ export type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
 export type OmitFunction<Instance> = Omit<Instance, PickFuncKeys<Instance>>
 
 export interface BaseContext {
-  meta: Meta
+  meta: ControllerMeta
   moduleMap: Record<string, any>
   type: string
   tag: string
@@ -45,12 +45,14 @@ export interface HttpContext extends BaseContext {
   body: Record<string, any>
   headers: IncomingHttpHeaders
   // redirect:(url:string)=>void
-  data: any
+
 }
 
 export interface RpcContext extends BaseContext {
-  send(data: any): void
-  data: { tag: string; func: string; args: any[]; id: string; queue: string }
+  args: any[]
+  id: string
+  queue: string
+  isEvent?: boolean
 }
 export interface BaseError {
   // as a symbol

@@ -12,6 +12,4 @@ export * from './utils'
 
 export * from 'phecda-core'
 
-// for custom framework bind
-export * from './rpc/helper'
-export * from './server/helper'
+export * from './helper'

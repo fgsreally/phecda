@@ -32,6 +32,7 @@ declare global {
   const Get: typeof import('phecda-server')['Get']
   const Global: typeof import('phecda-server')['Global']
   const Guard: typeof import('phecda-server')['Guard']
+  const HMR: typeof import('phecda-server')['HMR']
   const HTTPGenerator: typeof import('phecda-server')['HTTPGenerator']
   const Head: typeof import('phecda-server')['Head']
   const Header: typeof import('phecda-server')['Header']
@@ -80,8 +81,6 @@ declare global {
   type TestController = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']>
   const TestService: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']
   type TestService = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']>
-  const Tester: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['Tester']
-  type Tester = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['Tester']>
   const TimeoutException: typeof import('phecda-server')['TimeoutException']
   const TimerException: typeof import('phecda-server')['TimerException']
   const To: typeof import('phecda-server')['To']
@@ -91,6 +90,8 @@ declare global {
   const Unique: typeof import('phecda-server')['Unique']
   const Unmount: typeof import('phecda-server')['Unmount']
   const UnsupportedMediaTypeException: typeof import('phecda-server')['UnsupportedMediaTypeException']
+  const User: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['User']
+  type User = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['User']>
   const ValidateException: typeof import('phecda-server')['ValidateException']
   const Watcher: typeof import('phecda-server')['Watcher']
   const WorkerException: typeof import('phecda-server')['WorkerException']
@@ -128,6 +129,8 @@ declare global {
   const isAsyncFunc: typeof import('phecda-server')['isAsyncFunc']
   const isPhecda: typeof import('phecda-server')['isPhecda']
   const log: typeof import('phecda-server')['log']
+  const mergeArray: typeof import('phecda-server')['mergeArray']
+  const mergeObject: typeof import('phecda-server')['mergeObject']
   const plainToClass: typeof import('phecda-server')['plainToClass']
   const resolveDep: typeof import('phecda-server')['resolveDep']
   const set: typeof import('phecda-server')['set']
@@ -139,6 +142,7 @@ declare global {
   const setPropertyState: typeof import('phecda-server')['setPropertyState']
   const setState: typeof import('phecda-server')['setState']
   const setStateKey: typeof import('phecda-server')['setStateKey']
+  const shallowClone: typeof import('phecda-server')['shallowClone']
   const snapShot: typeof import('phecda-server')['snapShot']
   const transformInstance: typeof import('phecda-server')['transformInstance']
   const transformInstanceAsync: typeof import('phecda-server')['transformInstanceAsync']

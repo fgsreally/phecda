@@ -1,74 +1,54 @@
-import type { ExpressCtx } from 'phecda-server/express'
-export class Tester {
-  id: string
+import type { HttpContext } from 'phecda-server'
+
+const isString = Rule(data => typeof data === 'string', 'it should be a string')
+
+export class User {
+  @isString
   name: string
 
-  run() {
-    return this.id + this.name
+  @isString
+  password: string
+
+  getRandom() {
+    return this.name + Math.random()
   }
 }
 @Controller('/base')
-@Tag('test')
-@Pipe('test1')
-
 export class TestController extends Dev {
   static age = 12
   age = 1
-  context: ExpressCtx
+  @Ctx
+  context: HttpContext
+
   constructor(readonly service: TestService) {
     super()
-    addGuard('a', () => true)
-    addPlugin('aa', () => { })
   }
 
   @Init
   init() {
+    // initlize
   }
 
-  @Post('/mq1')
-  async mq(@Body('') body: undefined) {
-    return body
+  @Post('/login')
+  // @Filter()
+  // @Interceptor()
+  // @Guard()
+  // @Pipe()
+  // @Plugin()
+  login(@Body() user: User) {
+    this.service.login(user)
+    return user.getRandom()
   }
 
-  @Post('/gua1/:test')
-  @Filter('test')
-  @Pipe('test2')
-
-  async test(@Param('test') @Pipe('TestPipe') test: string, @Body('name') name: string, @Query() id: Tester) {
-    return `${test}-${name}-${id.id}-4542`
+  @Get('/test')
+  async emitTest(@Query('data') data = 1) {
+    emitter.emit('test', data)
   }
 
-  @Get('/query')
-  async query(@Query('id') id: any[], @Query('name') name = 10) {
-    return [id, name]
-  }
-
-  @Get('/send')
-  sendMsgToMQ(@Body('data') body: string): string {
-    emitter.emit('watch', 1)
-    return `send msg to mq ${body}`
-  }
-
-  @Define('user', 'A')
-  @Get('/get')
-  async get() {
-    emitter.emit('watch', 1)
-
-    return {
-      data: Date.now(),
-
-    }
-  }
-
-  @Get('/params')
-  async params(@Query() query: any) {
-    return query
-  }
-
-  @Watcher('watch')
-  watch(/** value */) {
-    // console.log('watch', value)
-    // publish()
+  @Get('/framework')
+  async framework() {
+    const { type } = this.context
+    return type
   }
 }
 // hmr works

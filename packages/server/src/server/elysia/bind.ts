@@ -3,7 +3,7 @@ import type { Context as ElysiaContext, InputSchema, LocalHook, RouteSchema, Sin
 import { Elysia as App } from 'elysia'
 import type { BaseMacro } from 'elysia/dist/types'
 import type { ServerOptions } from '../helper'
-import { argToReq, resolveDep } from '../helper'
+import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { ControllerMeta } from '../../meta'
@@ -14,6 +14,7 @@ import { Define } from '../../decorators'
 const debug = Debug('phecda-server/elysia')
 export interface ElysiaCtx extends HttpContext {
   type: 'elysia'
+  app: App
   context: ElysiaContext
 }
 
@@ -29,6 +30,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
+      item.data.guards = [...globalGuards, ...item.data.guards]
+      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -69,17 +72,12 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
               return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
             const {
-              paramsType,
 
               data: {
-                ctx,
                 params,
-                guards, interceptors,
-                filter,
+
               },
             } = meta
-
-            const instance = moduleMap.get(tag)
 
             const contextData = {
               type: 'elysia' as const,
@@ -90,31 +88,12 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
               moduleMap,
               tag,
               func,
-              data: (c as any).data,
+              app,
               ...argToReq(params, item.args, c.headers),
             }
             const context = new Context<ElysiaCtx>(contextData)
 
-            try {
-              await context.useGuard([...globalGuards, ...guards])
-              const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-              if (i1 !== undefined)
-                return resolve(i1)
-              const args = await context.usePipe(params.map((param) => {
-                return { arg: item.args[param.index], reflect: paramsType[param.index], ...param }
-              })) as any
-              if (ctx)
-                instance[ctx] = contextData
-              const funcData = await instance[func](...args)
-              const i2 = await context.usePostInterceptor(funcData)
-              if (i2 !== undefined)
-                return resolve(i2)
-
-              resolve(funcData)
-            }
-            catch (e: any) {
-              resolve(await context.useFilter(e, filter))
-            }
+            context.run(resolve, resolve)
           })
         })).then((ret) => {
           return ret
@@ -131,15 +110,10 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         const meta = metaMap.get(tag)![func]
 
         const {
-          paramsType,
           data: {
-            ctx,
             define,
-            interceptors,
-            guards,
-            params,
+
             plugins,
-            filter,
             http,
           },
         } = meta
@@ -153,7 +127,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         // @ts-expect-error todo
         funcRouter[http.type](http.prefix + http.route, async (c) => {
           debug(`invoke method "${func}" in module "${tag}"`)
-          const instance = moduleMap.get(tag)!
           const contextData = {
             type: 'elysia' as const,
             context: c,
@@ -165,37 +138,17 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
             body: c.body as any,
             params: c.params,
             headers: c.headers,
-            data: c.data,
+            app,
           }
 
           const context = new Context<ElysiaCtx>(contextData)
+          if (http.headers)
+            c.set.headers = http.headers
 
-          try {
-            if (http.headers)
-              c.set.headers = http.headers
-            await context.useGuard([...globalGuards, ...guards])
-            const i1 = await context.useInterceptor([...globalInterceptors, ...interceptors])
-            if (i1 !== undefined)
-
-              return i1
-
-            const args = await context.usePipe(params.map((param) => {
-              return { arg: resolveDep(context.data[param.type], param.key), reflect: paramsType[param.index], ...param }
-            }))
-            if (ctx)
-              instance[ctx] = contextData
-            const funcData = await instance[func](...args)
-            const i2 = await context.usePostInterceptor(funcData)
-            if (i2 !== undefined)
-              return i2
-            return funcData
-          }
-          catch (e: any) {
-            const err = await context.useFilter(e, filter)
-
+          return context.run(returnData => returnData, (err) => {
             c.set.status = err.status
             return err
-          }
+          })
         }, define.elysia)
 
         app.use(funcRouter)
@@ -221,6 +174,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
   })
 }
 
-export function Elysia(opts: LocalHook< InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro>) {
+export function Elysia(opts: LocalHook<InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro>) {
   return Define('elysia', opts)
 }

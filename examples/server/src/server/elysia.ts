@@ -13,4 +13,7 @@ app.group('/base', (app) => {
   bind(app, data)
   return app
 })
-app.listen(3008)
+app.listen(3008, () => {
+  // eslint-disable-next-line no-console
+  console.log('start elysia server...')
+})

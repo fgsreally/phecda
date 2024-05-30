@@ -1,5 +1,5 @@
 import { getState, setPropertyState } from 'phecda-core'
-import { mergeObject } from './utils'
+import { mergeObject } from './helper'
 
 export function Route(route: string, type: string): MethodDecorator {
   return (target: any, k: PropertyKey) => {

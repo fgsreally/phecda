@@ -1,5 +1,5 @@
 import { getState, setPropertyState } from 'phecda-core'
-import { mergeObject } from './utils'
+import { mergeObject } from './helper'
 
 export function Event(isEvent = true) {
   return (target: any, k?: PropertyKey) => {

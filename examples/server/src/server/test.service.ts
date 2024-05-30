@@ -1,30 +1,13 @@
-import { Dev, Empty, Init } from 'phecda-server'
-import { log } from './utils'
-
-class C {
-  run() {
-    log('cc2')
-
-    return 'c'
-  }
-}
-abstract class BaseService<T extends new (...args: any) => any> extends Dev {
-  abstract abInstance: InstanceType<T>
-
-  @Init
-  init() {
-    this.abInstance.run()
-    // this.onUnmount(() => {
-    //   console.log('unmount')
-    // })
+/* eslint-disable no-console */
+@Injectable()
+export class TestService {
+  login(user: User) {
+    // login logic
+    console.log(`user ${user.name} login ...`)
   }
 
-  find() {
-    return 'find!!'
+  @Watcher('test')
+  watch(data: number) {
+    console.log(`emit "test" event with ${data}`)
   }
-}
-
-@Empty
-export class TestService extends BaseService<typeof C> {
-  abInstance = new C()
 }
