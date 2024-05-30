@@ -1,7 +1,7 @@
 {
   "name": "phecda-web",
   "version": "1.0.1",
-  "description": "provide web function for phecda",
+  "description": "provide phecda function to web",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
