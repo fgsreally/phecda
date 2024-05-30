@@ -156,19 +156,19 @@
     "koa-body": "^6.0.1",
     "mock-amqplib": "^1.8.2",
     "nats": "^2.22.0",
+    "supertest": "^6.3.3",
     "tsup": "^6.5.0",
     "typescript": "^5.2.2",
-    "supertest": "^6.3.3",
     "unimport": "^3.7.1"
   },
   "dependencies": {
     "@swc-node/core": "^1.10.6",
     "cac": "^6.7.14",
+    "chokidar": "^3.5.3",
     "debug": "^4.3.4",
     "fs-extra": "^11.2.0",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
-    "chokidar": "^3.5.3",
     "reflect-metadata": "^0.1.13"
   }
 }

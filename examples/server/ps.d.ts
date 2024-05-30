@@ -77,10 +77,10 @@ declare global {
   const ServiceUnavailableException: typeof import('phecda-server')['ServiceUnavailableException']
   const Storage: typeof import('phecda-server')['Storage']
   const Tag: typeof import('phecda-server')['Tag']
-  const TestController: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']
-  type TestController = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']>
-  const TestService: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']
-  type TestService = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']>
+  const TestController: typeof import('D:/MyProject/2024/5/phecda/examples/server/src/server/test.controller')['TestController']
+  type TestController = InstanceType<typeof import('D:/MyProject/2024/5/phecda/examples/server/src/server/test.controller')['TestController']>
+  const TestService: typeof import('D:/MyProject/2024/5/phecda/examples/server/src/server/test.service')['TestService']
+  type TestService = InstanceType<typeof import('D:/MyProject/2024/5/phecda/examples/server/src/server/test.service')['TestService']>
   const TimeoutException: typeof import('phecda-server')['TimeoutException']
   const TimerException: typeof import('phecda-server')['TimerException']
   const To: typeof import('phecda-server')['To']
@@ -90,8 +90,8 @@ declare global {
   const Unique: typeof import('phecda-server')['Unique']
   const Unmount: typeof import('phecda-server')['Unmount']
   const UnsupportedMediaTypeException: typeof import('phecda-server')['UnsupportedMediaTypeException']
-  const User: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['User']
-  type User = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['User']>
+  const User: typeof import('D:/MyProject/2024/5/phecda/examples/server/src/server/test.controller')['User']
+  type User = InstanceType<typeof import('D:/MyProject/2024/5/phecda/examples/server/src/server/test.controller')['User']>
   const ValidateException: typeof import('phecda-server')['ValidateException']
   const Watcher: typeof import('phecda-server')['Watcher']
   const WorkerException: typeof import('phecda-server')['WorkerException']
