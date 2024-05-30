@@ -43,9 +43,8 @@ export function Param(key: string) {
 }
 
 // work for micro service
-export function Arg() {
-  return (target: any, k: string, index: number) =>
-    BaseParam({
-      type: 'args', key: `${index}`,
-    })(target, k, index)
+export function Arg(target: any, k: string, index: number) {
+  BaseParam({
+    type: 'args', key: `${index}`,
+  })(target, k, index)
 }
