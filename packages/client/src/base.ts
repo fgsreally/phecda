@@ -38,7 +38,7 @@ export function createParallelReq(instance: AxiosInstance, route = '/__PHECDA_SE
 }
 
 export function isError<T = any>(data: T | BaseError): data is BaseError {
-  return typeof data === 'object' && (data as any).__PS_ERROR__
+  return typeof data === 'object' && data !== null && (data as any).__PS_ERROR__
 }
 
 export function useC<T extends new (...args: any) => any>(Module: T): ToClientInstance<InstanceType<T>> {

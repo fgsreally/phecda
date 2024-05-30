@@ -81,8 +81,6 @@ declare global {
   type TestController = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['TestController']>
   const TestService: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']
   type TestService = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.service')['TestService']>
-  const Tester: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['Tester']
-  type Tester = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['Tester']>
   const TimeoutException: typeof import('phecda-server')['TimeoutException']
   const TimerException: typeof import('phecda-server')['TimerException']
   const To: typeof import('phecda-server')['To']
@@ -92,6 +90,8 @@ declare global {
   const Unique: typeof import('phecda-server')['Unique']
   const Unmount: typeof import('phecda-server')['Unmount']
   const UnsupportedMediaTypeException: typeof import('phecda-server')['UnsupportedMediaTypeException']
+  const User: typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['User']
+  type User = InstanceType<typeof import('D:/MyProject/2024/1/phecda/examples/server/src/server/test.controller')['User']>
   const ValidateException: typeof import('phecda-server')['ValidateException']
   const Watcher: typeof import('phecda-server')['Watcher']
   const WorkerException: typeof import('phecda-server')['WorkerException']
