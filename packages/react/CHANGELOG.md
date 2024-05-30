@@ -1,5 +1,26 @@
 # phecda-react
 
+## 0.1.0
+
+### Minor Changes
+
+- cf59f17: split part to web
+
+### Patch Changes
+
+- 120716e: refactor: remove all map;use cache/origin/state instead
+- 6a55ac9: won't load module with tag that has been loaded before
+- 074a815: model=class and module=instance
+- 9c83eae: add warn when using the same tag module
+- c258596: fix hmr problem
+- Updated dependencies [120716e]
+- Updated dependencies [e254263]
+- Updated dependencies [43cc4e9]
+- Updated dependencies [b041748]
+- Updated dependencies [074a815]
+- Updated dependencies [9c83eae]
+  - phecda-web@1.0.1
+
 ## 0.1.0-beta.19
 
 ### Patch Changes

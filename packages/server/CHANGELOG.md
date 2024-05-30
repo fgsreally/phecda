@@ -1,5 +1,130 @@
 # phecda-server
 
+## 5.0.0
+
+### Major Changes
+
+- fc8db58: there is too much simple fix and some functions seem useless in phecda;
+  I think a break change is essential
+
+### Minor Changes
+
+- bf097a6: support kafka
+
+### Patch Changes
+
+- cedd44d: unimport support all .ts files
+- 532ac3e: add Ctx to support inject context to custom property
+- cc22f20: child process can exit correctly
+- c792bef: rename `IS_DEV` to `IS_HMR`;
+  fix `PS_FILE_RE`;
+  fix spell in `TestFactory`
+  add debug to all bind
+  improve `detectAopDep`
+  add `parseMeta` to `Factory`
+  support `hono`/`elysia`(can't support full hmr)
+  remove internal symbol and middleware which seems useless
+  improve `interceptor`(it can intercept `PS` logic at now)
+- f22a5bc: relaunch after error throwed and file changed
+- e48766e: break change!
+  refactor to support extends aop state and custom Controller
+  it seems danger
+- 6bbadaf: support bullmq/nats
+
+  nats will respond empty object when using `@Event`
+
+  (in Factory) add parseModule opts and use process.env.PS_HTTP_CODE/PS_RPC_CODE to generate code in default
+
+- 370938e: fix kafka in rpc(but it seems slow and unstable,can't support hmr)
+  change default clientQueue to support kafka
+- a7d9a65: replace compiler with generator to provide better scalability
+  loader can read config from config file, it's more flexible to control loader function
+  it's a big change for both runtime and compile sysmtem
+  refact cli with `cac`; use esm format instead
+  `phecda-client` plugin support generator and config file
+  improve cli, remove `fs-extra`(instead with `unimport`)
+  add schema to config file
+- cf59f17: rename PPlugin to PAddon
+- 2f11e38: replace fs.watch with chokidar
+- 26f29d7: loader can redirect import path to http/rpc code path(only when set env PS_HTTP_CODE/PS_RPC_CODE),it will be helpful for types
+- 3554ca7: unimport can collect workspace export (when install fast-glob)
+- 07816fb: add generics to PPlugin
+- 42172dc: renmae Rpc to Event;support bullmq
+- d4186ff: only subscribe the same queue once in rpc
+  client generate a queue named `PS:hostname-pId`(only one queue) to collect data from server
+- 1cc36e2: ps cli support nodejs command line args
+- 949a013: loader can't resolve entry file(.ts) correctly in some cases
+- df556a5: add destroy to Factory
+- 5c782ce: fix fastify export to make sure tsup work
+  Rename `method` to `func` to ensure that it is distinct from the http request method and that the semantics are clear(break change actually)
+  add error handler when parallel requests invoke a func/module that does not exist(no such error handling in rpc)
+  Remove the ability to create files from the command line
+  Remove isolateSet in `Factory`,`Isolate` seems useless in phecda-server
+  add `code` command to generate code during ci
+- 358bdb4: add more internal dependences
+  decorator `Arg` doesn't need arguments
+- e031030: add init command to init tsconfig
+- 090b742: cli can relaunch even throw unhandle promise/uncaugth exception
+- 1233fd0: fix Mix to support internal abstract class like PGuard...
+- 8dafb4d: add defaultValue to Param decorator and default pipe;
+  remove pipeOpts on `Pipe`, all options should get from `ctx`(use `Define`)
+- 048b9ee: can set NODE_ENV when using phecda-server/register
+- 185be69: add config to Dev for modular;auto import can be banned(process.env.PS_NO_DTS)
+- 6920888: fix elysia types and add elysia specific decorator
+  fix fastify params
+  add Shebang to bin
+- 3c8cb67: add CustomResponse and improve types
+- 12d8d62: refactor parallel route; tag in PS must be string;all context should has both tag and method
+- 2e80166: support auto import
+- dc4d00b: TestHttp return a supertest agent
+- 9c89c0e: refactor rpc, add Queue to support custom queue;(methods on the same module use the same queue in default)
+  add timeout for rpc client
+- 380bcb0: add data to http ctx
+- 074a815: model=class and module=instance
+- 6b5b307: refactor types system
+- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- 2665dd1: rename PModule with PExtension
+- 3847605: add warn to all aop function
+- 2ddaef9: support hyper-express; add example
+- e812a14: exception status default to 0 (work for timer or internal error that filter can't catch); filter in both http/rpc should get status
+  add TimerException/WorkerException
+- c5cb4d6: add ctx to Err;
+  add next to ctx in koa/express
+- 9e90730: format uniqueue id in rpc for debug
+- 99481b4: fix P.res types;it will auto invoke toJSON function (only in types)
+- 8e0575c: add helper to help build custom framework
+  refactor Context (it only provide a method `run`)
+- 2b70fdf: Pipe can decorate method and class;add PS_LOG_LEVEL;add more debug info for aop
+  Define can decorate method/class/params(work for `Pipe`)
+- 9fa9507: add Mix
+- Updated dependencies [f25189c]
+- Updated dependencies [37bdc86]
+- Updated dependencies [b041748]
+- Updated dependencies [c40fece]
+- Updated dependencies [e8582aa]
+- Updated dependencies [e254263]
+- Updated dependencies [d1f7041]
+- Updated dependencies [c9445c6]
+- Updated dependencies [79484c3]
+- Updated dependencies [b041748]
+- Updated dependencies [c6427b1]
+- Updated dependencies [7b0d6fa]
+- Updated dependencies [c2c6a5f]
+- Updated dependencies [671fbc9]
+- Updated dependencies [4621244]
+- Updated dependencies [f83af88]
+- Updated dependencies [5a477d0]
+- Updated dependencies [ad47e7b]
+- Updated dependencies [671fbc9]
+- Updated dependencies [dbb599a]
+- Updated dependencies [074a815]
+- Updated dependencies [3fd911a]
+- Updated dependencies [aefd80c]
+- Updated dependencies [7242bb6]
+- Updated dependencies [8f35d74]
+- Updated dependencies [fc8db58]
+  - phecda-core@3.0.0
+
 ## 5.0.0-beta.34
 
 ### Patch Changes

@@ -1,5 +1,24 @@
 # phecda-client
 
+## 2.0.4
+
+### Patch Changes
+
+- 920450a: refact phecda-client unplugin to support rpc
+- ae64f33: plugin can handle .rpc.ts
+- a7d9a65: replace compiler with generator to provide better scalability
+  loader can read config from config file, it's more flexible to control loader function
+  it's a big change for both runtime and compile sysmtem
+  refact cli with `cac`; use esm format instead
+  `phecda-client` plugin support generator and config file
+  improve cli, remove `fs-extra`(instead with `unimport`)
+  add schema to config file
+- 082f2af: createChainReq can change the parallel route
+- b9c1bfe: isError(null) should be false
+- 6b5b307: refactor types system
+- c563af1: add Expand/ExpandRecursively types
+  client only export import api
+
 ## 2.0.4-beta.5
 
 ### Patch Changes

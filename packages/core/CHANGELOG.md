@@ -1,5 +1,53 @@
 # phecda-core
 
+## 3.0.0
+
+### Major Changes
+
+- fc8db58: there is too much simple fix and some functions seem useless in phecda;
+  I think a break change is essential
+
+### Minor Changes
+
+- dbb599a: transformClass support partial feature;rename classToValue to classToPlain(return json value)
+
+### Patch Changes
+
+- f25189c: move Isolate to core
+- 37bdc86: add AbConstruct
+- b041748: refactor set/get to keep it simple; rename getKey to getInject
+- c40fece: move Construct from server to core; fix isPhecda types
+- e8582aa: @Init can handle async function correctly
+- e254263: add types for watcher and storage when injectProperty;add toJSON/toString to Storage;fix Storage logic"
+- d1f7041: break change! add set/get;rename injectProperty/getProperty; refactor core.ts
+  refactor Inject
+- c9445c6: Tag support all propertyKeys
+  add Unique(equal to Tag(symbol)),it can't work on http or rpc in `phecda-server`
+- 79484c3: refactor to support Clear and Ignore(now it work intuitively) and reduce the number of assignments when get data from Phecda;
+
+  rename all var to key
+
+- b041748: fix and refactor Storage; fix getTag
+- c6427b1: refact Isolate
+- 7b0d6fa: fix addDecoToClass types
+- c2c6a5f: add setPropertyState/getShareState for convenience
+  add default param to getState
+  fix Clear/Ignore
+- 671fbc9: refactor functions in core.ts to support all module/instance/prototype
+- 4621244: refactor Err logic;
+  remove partial on transformClass;
+  remove Nested
+  change addDecoToClass params
+- f83af88: remove getSymbol;getTag can handle both class(module) and instance now
+- 5a477d0: refactor Effect
+- ad47e7b: add Unmount and unmountParallel
+- 671fbc9: add params to Err;add transformProperty
+- 074a815: model=class and module=instance
+- 3fd911a: remove registerSerial/registerParallel/unmountParallel,replace with invokeHandler
+- aefd80c: refactor transform logic to decorator `To` and add decorator `Rule` to separate async transform and transform;
+- 7242bb6: To support multiple callback
+- 8f35d74: isPhecda can judge all exports from dynamic import
+
 ## 3.0.0-beta.17
 
 ### Patch Changes
