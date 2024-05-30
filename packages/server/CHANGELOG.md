@@ -1,5 +1,12 @@
 # phecda-server
 
+## 5.0.0-beta.34
+
+### Patch Changes
+
+- 8e0575c: add helper to help build custom framework
+  refactor Context (it only provide a method `run`)
+
 ## 5.0.0-beta.33
 
 ### Patch Changes
