@@ -60,7 +60,7 @@ describe('rabbitmq rpc', () => {
     @Rpc()
     class TestRpc {
       @Queue()
-      run(@Arg() arg: number) {
+      run(@Arg arg: number) {
         fn()
         return arg
       }
@@ -95,7 +95,7 @@ describe('rabbitmq rpc', () => {
     class TestRpc {
       @Queue()
       @Guard('g1')
-      run(@Arg() arg: number) {
+      run(@Arg arg: number) {
         expect(arg).toBe(1)
         return ++arg
       }
@@ -129,7 +129,7 @@ describe('rabbitmq rpc', () => {
     class TestRpc {
       @Queue()
       @Interceptor('i1')
-      run(@Arg() arg: number) {
+      run(@Arg arg: number) {
         expect(arg).toBe(1)
         return ++arg
       }
@@ -159,7 +159,7 @@ describe('rabbitmq rpc', () => {
 
     class TestRpc {
       @Queue()
-      run(@Pipe('test') @Arg() arg: number) {
+      run(@Pipe('test') @Arg arg: number) {
         expect(arg).toBe('1')
         return arg
       }

@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import type { ToClientMap } from 'phecda-server'
+import type { Construct, ToClientMap } from 'phecda-server'
 import { createParallelReq, createReq, isError, useC } from './base'
 
  type ChainRequester<T extends Record<string, any>> = ToClientMap<T> & {
@@ -9,7 +9,7 @@ import { createParallelReq, createReq, isError, useC } from './base'
 let batchStack: any[] | null
 let batchPromise: any
 
-export function createChainReq<C extends Record<string, any>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean;route?: string }): ChainRequester<C> {
+export function createChainReq<C extends Record<string, Construct>>(instance: AxiosInstance, controllers: C, options?: { batch?: boolean;route?: string }): ChainRequester<C> {
   const rc: any = {
     options(config: AxiosRequestConfig) {
       this._options = config

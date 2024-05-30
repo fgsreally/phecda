@@ -1,9 +1,9 @@
 #! /usr/bin/env node
 import { fork } from 'child_process'
-import fs from 'fs'
 import { createRequire } from 'module'
 import pc from 'picocolors'
 import cac from 'cac'
+import fse from 'fs-extra'
 import { log } from '../dist/index.mjs'
 const cli = cac('phecda')
 const require = createRequire(import.meta.url)
@@ -64,11 +64,12 @@ process.on('SIGINT', () => {
   process.exit()
 })
 
-cli.command('init', 'init config file').action(() => {
-  log('init tsconfig.json')
+cli.command('init', 'init config file').action(async () => {
+  if (!fse.existsSync('tsconfig.json')) {
+    log('init tsconfig.json')
 
-  fs.writeFileSync(
-    'tsconfig.json',
+    await fse.outputFile(
+      'tsconfig.json',
     `{
     "compilerOptions": {
       "target": "esnext",
@@ -81,7 +82,6 @@ cli.command('init', 'init config file').action(() => {
       "moduleResolution": "Node",
       "strict": true,
       "resolveJsonModule": true,
-      "isolatedModules": true,
       "esModuleInterop": true,
       "noEmit": true,
       "noUnusedLocals": true,
@@ -92,37 +92,34 @@ cli.command('init', 'init config file').action(() => {
     "include": ["src","./ps.d.ts"]
   }
   `,
-  )
-
-  log('init ps.json')
-
-  fs.writeFileSync(
-    'ps.json',
-   `{
-    "$schema": "node_modules/phecda-server/bin/schema.json",
-    "resolve": [
-      {
-        "source": "controller",
-        "importer": "http",
-        "path": "http.ts"
-      },
-      {
-        "source": "rpc",
-        "importer": "client",
-        "path": "rpc.ts"
-      }
-    ],
-    "unimport": {
-      "dirs": ["./src/*"],
-      "dirsScanOptions":{
-          "filePatterns":["*.{service,controller,module}.ts"]
-      },
-      "dtsPath": "./ps.d.ts"
-    },
-    "moduleFile": []
+    )
   }
-  `,
-  )
+
+  if (!fse.existsSync('ps.json')) {
+    log('init ps.json')
+
+    await fse.outputFile(
+      'ps.json',
+     `{
+      "$schema": "node_modules/phecda-server/bin/schema.json",
+      "resolve": [
+        {
+          "source": "controller",
+          "importer": "http",
+          "path": ".ps/http.ts"
+        },
+        {
+          "source": "rpc",
+          "importer": "client",
+          "path": ".ps/rpc.ts"
+        }
+      ],
+      "unimport":false,
+      "moduleFile": []
+    }
+    `,
+    )
+  }
 })
 
 cli

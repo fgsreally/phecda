@@ -45,10 +45,20 @@ export async function initialize(data) {
     port = data.port
   log('read config...')
 
-  config = require(resolvePath(
+  const configPath = resolvePath(
     process.cwd(),
     process.env.PS_CONFIG_FILE || 'ps.json',
-  ))
+  )
+
+  config = require(configPath)
+
+  chokidar.watch(configPath, { persistent: true }).on('change', () => {
+    port.postMessage(
+      JSON.stringify({
+        type: 'relaunch',
+      }),
+    )
+  })
 
   if (!config.unimport)
     return
