@@ -19,5 +19,5 @@ bind(router, data)
 app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(3008, () => {
-  console.log(' started Koa')
+  console.log('started Koa')
 })
