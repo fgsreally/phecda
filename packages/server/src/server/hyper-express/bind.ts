@@ -1,12 +1,11 @@
 import type { Request, Response, Router } from 'hyper-express'
 import Debug from 'debug'
-import type { ServerOptions } from '../helper'
+import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { HttpContext } from '../../types'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/hyper-express')
@@ -19,8 +18,8 @@ export interface HyperExpressCtx extends HttpContext {
 
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
 
   const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
@@ -31,9 +30,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -98,7 +94,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             }
             const context = new Context<HyperExpressCtx>(contextData)
 
-            context.run(resolve, resolve)
+            context.run({
+              globalGuards, globalInterceptors, globalFilter, globalPipe,
+            }, resolve, resolve)
           })
         })).then((ret) => {
           res.json(ret)
@@ -150,7 +148,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             for (const name in http.headers)
               res.set(name, http.headers[name])
           }
-          await context.run((returnData) => {
+          await context.run({
+            globalGuards, globalInterceptors, globalFilter, globalPipe,
+          }, (returnData) => {
             if (res.writableEnded)
               return
 

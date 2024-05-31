@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { Body, Controller, Ctx, Exception, Get, Guard, HttpContext, Interceptor, Param, Pipe, Plugin, Post, Query, To } from '../../src'
+import { Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpContext, Interceptor, Param, Pipe, Plugin, Post, Query, To } from '../../src'
 class Info {
   @To((p) => {
     if (p !== 'phecda')
@@ -24,9 +24,15 @@ export class Test {
     return `${test}-${name}-${id}`
   }
 
+  @Get('/filter')
+  @Filter('test')
+  filter() {
+    throw new Exception('filter error', 500)
+  }
+
   @Get('/error')
-  error() {
-    throw new Exception('test error', 500)
+  error(@Query('msg') msg: string) {
+    throw new Exception(msg, 500)
   }
 
   @Post('/pipe')

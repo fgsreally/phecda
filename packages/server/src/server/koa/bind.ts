@@ -2,13 +2,13 @@ import type Router from '@koa/router'
 import type { RouterParamContext } from '@koa/router'
 import type { DefaultContext, DefaultState } from 'koa'
 import Debug from 'debug'
-import type { ServerOptions } from '../helper'
+import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { HttpContext } from '../../types'
+
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/koa')
@@ -19,8 +19,8 @@ export interface KoaCtx extends HttpContext {
   app: Router
 }
 
-export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
+export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
 
   const originStack = router.stack.slice(0, router.stack.length)
 
@@ -33,9 +33,6 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -92,7 +89,9 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
               func,
             }
             const context = new Context<KoaCtx>(contextData)
-            context.run(resolve, resolve)
+            context.run({
+              globalGuards, globalInterceptors, globalFilter, globalPipe,
+            }, resolve, resolve)
           })
         })).then((ret) => {
           ctx.body = ret
@@ -139,7 +138,10 @@ export function bind(router: Router, { moduleMap, meta }: Awaited<ReturnType<typ
             for (const name in http.headers)
               ctx.set(name, http.headers[name])
           }
-          await context.run((
+          await context.run({
+
+            globalGuards, globalInterceptors, globalFilter, globalPipe,
+          }, (
             returnData,
           ) => {
             if (ctx.res.writableEnded)

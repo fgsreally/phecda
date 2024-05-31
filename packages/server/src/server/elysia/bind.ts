@@ -2,13 +2,13 @@ import Debug from 'debug'
 import type { Context as ElysiaContext, InputSchema, LocalHook, RouteSchema, SingletonBase } from 'elysia'
 import { Elysia as App } from 'elysia'
 import type { BaseMacro } from 'elysia/dist/types'
-import type { ServerOptions } from '../helper'
+import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { HttpContext } from '../../types'
+
 import { HMR } from '../../hmr'
 import { Define } from '../../decorators'
 const debug = Debug('phecda-server/elysia')
@@ -18,8 +18,8 @@ export interface ElysiaCtx extends HttpContext {
   context: ElysiaContext
 }
 
-export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
+export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
   const { moduleMap, meta } = data
   const metaMap = new Map<string, Record<string, ControllerMeta>>()
   function handleMeta() {
@@ -30,8 +30,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -93,7 +91,9 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
             }
             const context = new Context<ElysiaCtx>(contextData)
 
-            context.run(resolve, resolve)
+            context.run({
+              globalGuards, globalInterceptors, globalFilter, globalPipe,
+            }, resolve, resolve)
           })
         })).then((ret) => {
           return ret
@@ -145,7 +145,9 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, S
           if (http.headers)
             c.set.headers = http.headers
 
-          return context.run(returnData => returnData, (err) => {
+          return context.run({
+            globalGuards, globalInterceptors, globalFilter, globalPipe,
+          }, returnData => returnData, (err) => {
             c.set.status = err.status
             return err
           })

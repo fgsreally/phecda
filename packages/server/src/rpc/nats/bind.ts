@@ -3,9 +3,9 @@ import { StringCodec } from 'nats'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { RpcContext } from '../../types'
+import type { RpcContext, RpcServerOptions } from '../helper'
 import { HMR } from '../../hmr'
-import type { RpcServerOptions } from '../helper'
+
 import type { ControllerMeta } from '../../meta'
 
 const debug = Debug('phecda-server/nats')
@@ -16,8 +16,8 @@ export interface NatsCtx extends RpcContext {
 
 }
 
-export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
-  const { globalGuards = [], globalInterceptors = [] } = opts || {}
+export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
+  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
   const sc = StringCodec()
   const subscriptionMap: Record<string, Subscription> = {}
 
@@ -29,8 +29,6 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -94,7 +92,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       queue: msg._msg.subject.toString(),
     })
 
-    await context.run((returnData) => {
+    await context.run({ globalGuards, globalInterceptors, globalFilter, globalPipe }, (returnData) => {
       if (!isEvent)
         msg.respond(sc.encode(JSON.stringify({ data: returnData, id })))
     }, (err) => {
