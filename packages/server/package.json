@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "server framework that provide IOC/type-reuse/http&rpc-adaptor ",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

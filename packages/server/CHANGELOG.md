@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.0.1
+
+### Patch Changes
+
+- 87550da: fix globalGuards/globalInterceptors logic (it will cause repeat and memory problem in hmr);support globalPipe and globalFilter"
+
 ## 5.0.0
 
 ### Major Changes
