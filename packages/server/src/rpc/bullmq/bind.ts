@@ -3,9 +3,9 @@ import { Queue, Worker } from 'bullmq'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context, detectAopDep } from '../../context'
-import type { RpcContext } from '../../types'
+import type { RpcContext, RpcServerOptions } from '../helper'
 import { HMR } from '../../hmr'
-import type { RpcServerOptions } from '../helper'
+
 import type { ControllerMeta } from '../../meta'
 
 const debug = Debug('phecda-server/bullmq')
@@ -14,8 +14,8 @@ export interface BullmqCtx extends RpcContext {
   type: 'bullmq'
 }
 
-export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
-  const { globalGuards = [], globalInterceptors = [] } = opts || {}
+export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
+  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
 
   const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const workerMap: Record<string, Worker> = {}
@@ -27,8 +27,6 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -92,7 +90,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
       isEvent,
     })
 
-    await context.run((returnData) => {
+    await context.run({ globalGuards, globalInterceptors, globalFilter, globalPipe }, (returnData) => {
       if (!isEvent)
 
         queueMap[clientQueue].add(`${tag}-${func}`, { data: returnData, id })

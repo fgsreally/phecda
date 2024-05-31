@@ -4,11 +4,11 @@ import request from 'supertest'
 import fastify from 'fastify'
 import type { FastifyCtx } from '../../src/server/fastify'
 import { bind } from '../../src/server/fastify'
-import type { ServerOptions as Options } from '../../src'
-import { ERROR_SYMBOL, Factory, addGuard, addInterceptor, addPipe } from '../../src'
+import type { HttpOptions } from '../../src'
+import { ERROR_SYMBOL, Factory, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
 import { Test } from '../fixtures/test.controller'
 
-async function createServer(opts?: Options) {
+async function createServer(opts?: HttpOptions) {
   const data = await Factory([Test])
   const app = fastify()
   app.register(bind(data, opts))
@@ -41,25 +41,47 @@ describe('fastify ', () => {
     expect(res3.body[1]).toEqual({ msg: 'test' })
   })
 
-  it('exception filter', async () => {
+  it('filter', async () => {
     const app = await createServer()
-
-    const res1 = await request(app).get('/error')
-    expect(res1.body).toEqual({ description: 'Exception', message: 'test error', status: 500, [ERROR_SYMBOL]: true })
+    addFilter('test', (e) => {
+      return { ...e.data, filter: true }
+    })
+    // default filter
+    const res1 = await request(app).get('/error?msg=test')
+    expect(res1.body).toEqual({ description: 'Exception', message: 'test', status: 500, [ERROR_SYMBOL]: true })
+    // specfic filter--test
+    const res2 = await request(app).get('/filter')
+    expect(res2.body).toEqual({ description: 'Exception', message: 'filter error', status: 500, [ERROR_SYMBOL]: true, filter: true })
   })
-  it('Pipe', async () => {
+  it('pipe', async () => {
     const app = await createServer()
 
     addPipe('add', ({ arg }) => {
       return arg + 1
     })
 
+    // default pipe
     const res1 = await request(app).post('/pipe').send({ info: { name: '' } })
 
     expect(res1.body).toMatchObject({ message: 'name should be phecda', [ERROR_SYMBOL]: true })
-
+    // specfic pipe--add
     const res2 = await request(app).post('/pipe').query({ id: '1' }).send({ info: { name: 'phecda' } })
     expect(res2.text).toBe('11-phecda')
+  })
+
+  it('global filter/pipe', async () => {
+    const fn = vi.fn()
+    addPipe('express', ({ arg }) => {
+      fn()
+      return arg
+    })
+    addFilter('express', (e) => {
+      fn()
+      return e.data
+    })
+    const app = await createServer({ globalPipe: 'express', globalFilter: 'express' })
+    await request(app).get('/error?msg=test')
+    expect(fn).toBeCalledTimes(2)
   })
 
   // fastify not using middleware

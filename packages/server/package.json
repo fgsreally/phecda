@@ -1,7 +1,7 @@
 {
   "name": "phecda-server",
   "version": "5.0.0",
-  "description": "provide express middlewares, `nestjs` format",
+  "description": "server framework that provide IOC/type-reuse/http&rpc-adaptor ",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

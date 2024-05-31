@@ -22,9 +22,7 @@ function ZodTo(cb: ((instance: any, addError:((msg: string) => void)) => any)) {
   }
 }
 export function zodToClass<
-    TOutput = any,
-    TDef extends ZodTypeDef = ZodTypeDef,
-    TInput = TOutput,
+    TOutput = any, TDef extends ZodTypeDef = ZodTypeDef, TInput = TOutput,
 >(zod: ZodSchema<TOutput, TDef, TInput>): (new (data?: Partial<z.infer<ZodSchema<TOutput, TDef, TInput>>>) => z.infer<ZodSchema<TOutput, TDef, TInput>>) & {
 
   schema: ZodSchema<TOutput, TDef, TInput>

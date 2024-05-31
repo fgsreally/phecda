@@ -7,7 +7,7 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { HttpContext } from '../../types'
+import type { HttpContext, HttpOptions } from '../helper'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/h3')
@@ -18,29 +18,9 @@ export interface H3Ctx extends HttpContext {
   app: Router
 
 }
-export interface ServerOptions {
 
-  /**
- * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
- */
-  route?: string
-  /**
- * 全局守卫
- */
-  globalGuards?: string[]
-  /**
- * 全局拦截器
- */
-  globalInterceptors?: string[]
-  /**
- * 专用路由的中间件(work for merge request)，全局中间件请在bindApp以外设置
- */
-  plugins?: string[]
-
-}
-
-export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, ServerOptions: ServerOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins } = { route: '/__PHECDA_SERVER__', globalGuards: [], globalInterceptors: [], plugins: [], ...ServerOptions } as Required<ServerOptions>
+export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
+  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
 
   const { moduleMap, meta } = data
 
@@ -53,8 +33,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         continue
 
       debug(`register method "${func}" in module "${tag}"`)
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -114,7 +92,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               }
               const context = new Context<H3Ctx>(contextData)
 
-              context.run(resolve, resolve)
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
             })
           }))
         }
@@ -162,7 +142,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             const context = new Context<H3Ctx>(contextData)
             setHeaders(event, http.headers || {})
 
-            return context.run(returnData => returnData, (err) => {
+            return context.run({
+              globalGuards, globalInterceptors, globalFilter, globalPipe,
+            }, returnData => returnData, (err) => {
               setResponseStatus(event, err.status)
               return err
             })

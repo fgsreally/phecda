@@ -4,7 +4,7 @@ import { defaultPipe } from './pipe'
 import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import { Histroy } from './history'
-import type { BaseContext } from './types'
+import type { BaseContext, DefaultOptions } from './types'
 import { IS_HMR, IS_STRICT } from './common'
 import type { ControllerMeta, Meta } from './meta'
 import { log } from './utils'
@@ -44,8 +44,9 @@ export class Context<Data extends BaseContext> {
       data._context = this
   }
 
-  public async run<ReturnData = any, ReturnErr = any>(successCb: (data: any) => ReturnData, failCb: (err: any) => ReturnErr) {
+  public async run<ReturnData = any, ReturnErr = any>(opts: DefaultOptions, successCb: (data: any) => ReturnData, failCb: (err: any) => ReturnErr) {
     const { meta, moduleMap } = this.data
+    const { globalGuards = [], globalFilter, globalInterceptors = [], globalPipe } = opts
     const {
       paramsType,
       data: {
@@ -56,13 +57,13 @@ export class Context<Data extends BaseContext> {
     } = meta
 
     try {
-      await this.useGuard(guards)
-      const i1 = await this.useInterceptor(interceptors)
+      await this.useGuard([...globalGuards, ...guards])
+      const i1 = await this.useInterceptor([...globalInterceptors, ...interceptors])
       if (i1 !== undefined)
         return successCb(i1)
 
       const args = await this.usePipe(params.map((param) => {
-        return { arg: resolveDep(this.data[param.type], param.key), reflect: paramsType[param.index], ...param }
+        return { arg: resolveDep(this.data[param.type], param.key), reflect: paramsType[param.index], ...param, pipe: param.pipe || globalPipe }
       }))
       const instance = moduleMap.get(tag)!
       if (ctx)
@@ -75,7 +76,7 @@ export class Context<Data extends BaseContext> {
       return successCb(returnData)
     }
     catch (e) {
-      const err = await this.useFilter(e, filter)
+      const err = await this.useFilter(e, filter || globalFilter)
       return failCb(err)
     }
   }

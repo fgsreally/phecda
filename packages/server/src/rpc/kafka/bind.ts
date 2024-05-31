@@ -3,9 +3,8 @@ import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { RpcContext } from '../../types'
+import type { RpcContext, RpcServerOptions } from '../helper'
 import { HMR } from '../../hmr'
-import type { RpcServerOptions } from '../helper'
 
 const debug = Debug('phecda-server/kafka')
 
@@ -19,8 +18,8 @@ export interface KafkaCtx extends RpcContext {
 }
 // @experiment
 
-export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
-  const { globalGuards = [], globalInterceptors = [] } = opts || {}
+export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
+  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
 
   const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
@@ -30,8 +29,6 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -107,7 +104,7 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         queue: topic,
       })
 
-      await context.run((returnData) => {
+      await context.run({ globalGuards, globalInterceptors, globalFilter, globalPipe }, (returnData) => {
         if (!isEvent) {
           producer.send({
             topic: clientQueue,

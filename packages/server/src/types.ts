@@ -1,4 +1,3 @@
-import type { IncomingHttpHeaders } from 'http'
 import type { Construct, Events } from 'phecda-core'
 import type { ControllerMeta } from './meta'
 import type { ERROR_SYMBOL } from './common'
@@ -37,23 +36,14 @@ export interface BaseContext {
   [key: string]: any
 
 }
-export interface HttpContext extends BaseContext {
-  parallel?: true
-  index?: number
-  query: Record<string, any>
-  params: Record<string, string>
-  body: Record<string, any>
-  headers: IncomingHttpHeaders
-  // redirect:(url:string)=>void
 
+export interface DefaultOptions {
+  globalGuards?: string[]
+  globalInterceptors?: string[]
+  globalFilter?: string
+  globalPipe?: string
 }
 
-export interface RpcContext extends BaseContext {
-  args: any[]
-  id: string
-  queue: string
-  isEvent?: boolean
-}
 export interface BaseError {
   // as a symbol
   [ERROR_SYMBOL]: true

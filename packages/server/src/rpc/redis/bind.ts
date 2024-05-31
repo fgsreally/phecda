@@ -3,9 +3,8 @@ import Debug from 'debug'
 import type { Factory } from '../../core'
 import type { ControllerMeta } from '../../meta'
 import { Context, detectAopDep } from '../../context'
-import type { RpcContext } from '../../types'
+import type { RpcContext, RpcServerOptions } from '../helper'
 import { HMR } from '../../hmr'
-import type { RpcServerOptions } from '../helper'
 
 const debug = Debug('phecda-server/redis')
 
@@ -17,8 +16,8 @@ export interface RedisCtx extends RpcContext {
 
 }
 
-export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts?: RpcServerOptions) {
-  const { globalGuards = [], globalInterceptors = [] } = opts || {}
+export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
+  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
 
   const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
@@ -28,8 +27,6 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
       const { tag, func, controller, rpc } = item.data
       if (controller !== 'rpc' || rpc?.queue === undefined)
         continue
-      item.data.guards = [...globalGuards, ...item.data.guards]
-      item.data.interceptors = [...globalInterceptors, ...item.data.interceptors]
 
       if (metaMap.has(tag))
         metaMap.get(tag)![func] = item as ControllerMeta
@@ -94,7 +91,9 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
         queue: channel,
 
       })
-      await context.run((returnData) => {
+      await context.run({
+        globalGuards, globalInterceptors, globalFilter, globalPipe,
+      }, (returnData) => {
         if (!isEvent)
           pub.publish(clientQueue, JSON.stringify({ data: returnData, id }))
       }, (err) => {
