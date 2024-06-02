@@ -1,8 +1,7 @@
 import { URL, fileURLToPath } from 'node:url'
 
 import { defineConfig } from 'vite'
-import plugin from 'phecda-client/vite'
-// import swc from 'unplugin-swc'
+import plugin from 'unplugin-phecda-server'
 export default defineConfig({
 
   server: {
@@ -11,10 +10,19 @@ export default defineConfig({
     },
   },
   plugins: [
-    plugin({ }),
+    plugin.vite({}),
     // ps.vite(),
+
   ],
 
+  build: {
+    ssr: true,
+    lib: {
+      entry: './src/server/express.ts',
+      formats: ['es'],
+      name: 'express',
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

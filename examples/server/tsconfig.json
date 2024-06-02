@@ -7,7 +7,7 @@
       "module": "esnext",
       "lib": ["esnext", "DOM"],
       "strictPropertyInitialization": false,
-      "moduleResolution": "Node",
+      "moduleResolution": "Bundler",
       "strict": true,
       "resolveJsonModule": true,
       "isolatedModules": false,
