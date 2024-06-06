@@ -51,14 +51,18 @@ export async function initialize(data) {
   )
 
   config = require(configPath)
+  if (!config.virtualFile)
+    config.virtualFile = {}
 
-  chokidar.watch(configPath, { persistent: true }).on('change', () => {
-    port.postMessage(
-      JSON.stringify({
-        type: 'relaunch',
-      }),
-    )
-  })
+  if (!process.env.PS_HMR_BAN) {
+    chokidar.watch(configPath, { persistent: true }).on('change', () => {
+      port.postMessage(
+        JSON.stringify({
+          type: 'relaunch',
+        }),
+      )
+    })
+  }
 
   if (!config.unimport)
     return
@@ -96,6 +100,14 @@ function getFileMid(file) {
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
+  // virtual file
+  if (config.virtualFile[specifier]) {
+    return {
+      format: 'ts',
+      url: specifier,
+      shortCircuit: true,
+    }
+  }
   // entrypoint
   if (!context.parentURL) {
     entryUrl = specifier
@@ -107,6 +119,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+  // url import
   if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
     const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
 
@@ -116,6 +129,8 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+
+  // hmr import
   if (
     context.parentURL.includes('/node_modules/phecda-server')
     && isAbsolute(specifier)
@@ -125,6 +140,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       .slice(1)
     context.parentURL = entryUrl
   }
+
   // import/require from external library
   if (context.parentURL.includes('/node_modules/'))
     return nextResolve(specifier)
@@ -167,10 +183,20 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+
   return nextResolve(specifier)
 }
+// @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
+  if (config.virtualFile[url]) {
+    return {
+      format: 'module',
+      source: config.virtualFile[url],
+      shortCircuit: true,
+    }
+  }
+
   url = url.split('?')[0]
   if (
     !url.includes('/node_modules/')
@@ -244,7 +270,9 @@ export const load = async (url, context, nextLoad) => {
       const { injectImports } = unimportRet
       return {
         format: 'module',
-        source: (await injectImports(compiled)).code,
+        source: (
+          await injectImports(compiled, (url.startsWith('file://') ? fileURLToPath(url) : url).replace(/\\/g, '/'))
+        ).code,
         shortCircuit: true,
       }
     }

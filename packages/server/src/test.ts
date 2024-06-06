@@ -61,9 +61,18 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
             else
               ret[item.type] = args[item.index]
           })
+          // @ts-expect-error @todo miss type
+          let agent = (isAgent ? Agent : request(app))[ret.func](ret.url)
+          if (Object.keys(ret.query).length > 0)
+            agent = agent.query(ret.query)
 
-          // @ts-expect-error miss type
-          return (isAgent ? Agent : request(app))[ret.func](ret.url).query(ret.query).set(ret.headers).send(ret.body)
+          if (Object.keys(ret.headers).length > 0)
+            agent = agent.set(ret.headers)
+
+          if (Object.keys(ret.body).length > 0)
+            agent = agent.send(ret.body)
+
+          return agent
         }
       },
     }) as any

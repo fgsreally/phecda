@@ -19,5 +19,9 @@
     },
     "dtsPath": "./ps.d.ts"
   },
+
+  "virtualFile": {
+    "virtual:xx":"console.log('virtual:xx')"
+  },
   "moduleFile": []
 }
