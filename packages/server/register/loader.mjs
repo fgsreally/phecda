@@ -54,13 +54,15 @@ export async function initialize(data) {
   if (!config.virtualFile)
     config.virtualFile = {}
 
-  chokidar.watch(configPath, { persistent: true }).on('change', () => {
-    port.postMessage(
-      JSON.stringify({
-        type: 'relaunch',
-      }),
-    )
-  })
+  if (!process.env.PS_HMR_BAN) {
+    chokidar.watch(configPath, { persistent: true }).on('change', () => {
+      port.postMessage(
+        JSON.stringify({
+          type: 'relaunch',
+        }),
+      )
+    })
+  }
 
   if (!config.unimport)
     return
