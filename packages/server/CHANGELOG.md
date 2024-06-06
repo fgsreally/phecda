@@ -1,5 +1,12 @@
 # phecda-server
 
+## 5.0.2
+
+### Patch Changes
+
+- 331a64b: fix TestHttp to support attach in supertest
+- 1278f47: support virtualFile in ps.json
+
 ## 5.0.1
 
 ### Patch Changes
