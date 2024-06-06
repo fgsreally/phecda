@@ -51,6 +51,8 @@ export async function initialize(data) {
   )
 
   config = require(configPath)
+  if (!config.virtualFile)
+    config.virtualFile = {}
 
   chokidar.watch(configPath, { persistent: true }).on('change', () => {
     port.postMessage(
@@ -96,6 +98,13 @@ function getFileMid(file) {
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
+  if (config.virtualFile[specifier]) {
+    return {
+      format: 'ts',
+      url: specifier,
+      shortCircuit: true,
+    }
+  }
   // entrypoint
   if (!context.parentURL) {
     entryUrl = specifier
@@ -167,10 +176,19 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+
   return nextResolve(specifier)
 }
 
 export const load = async (url, context, nextLoad) => {
+  if (config.virtualFile[url]) {
+    return {
+      format: 'module',
+      source: config.virtualFile[url],
+      shortCircuit: true,
+    }
+  }
+
   url = url.split('?')[0]
   if (
     !url.includes('/node_modules/')
