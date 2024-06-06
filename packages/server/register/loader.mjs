@@ -100,6 +100,7 @@ function getFileMid(file) {
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
+  // virtual file
   if (config.virtualFile[specifier]) {
     return {
       format: 'ts',
@@ -118,6 +119,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+  // url import
   if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
     const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
 
@@ -127,6 +129,8 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+
+  // hmr import
   if (
     context.parentURL.includes('/node_modules/phecda-server')
     && isAbsolute(specifier)
@@ -136,6 +140,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       .slice(1)
     context.parentURL = entryUrl
   }
+
   // import/require from external library
   if (context.parentURL.includes('/node_modules/'))
     return nextResolve(specifier)
@@ -181,6 +186,7 @@ export const resolve = async (specifier, context, nextResolve) => {
 
   return nextResolve(specifier)
 }
+// @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
   if (config.virtualFile[url]) {
@@ -264,7 +270,9 @@ export const load = async (url, context, nextLoad) => {
       const { injectImports } = unimportRet
       return {
         format: 'module',
-        source: (await injectImports(compiled)).code,
+        source: (
+          await injectImports(compiled, (url.startsWith('file://') ? fileURLToPath(url) : url).replace(/\\/g, '/'))
+        ).code,
         shortCircuit: true,
       }
     }
