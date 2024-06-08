@@ -1,12 +1,8 @@
 # 基础教学
 
-## 初始化
+## 实例化模块
 
-本质上是将所有的模块，或者说是类，
-
-控制反转+依赖注入将其实例化
-
-然后根据`Tag`或者类名注册到`map`里
+本质上是将所有的模块，或者说是类，控制反转+依赖注入将其实例化，然后根据`Tag`或者类名注册到`modulemap`里
 
 > `Tag`或者类名作为模块的标识，在`Phecda`架构中很重要，[详见](./module.md#模块覆盖)
 
@@ -24,7 +20,7 @@ data.modulemap.get('TestModule') //  TestController 实例,此时使用了类名
 data.modulemap.get('test2') //  Test2Module 实例,此时使用了tag
 ```
 
-然后在将其和服务端框架结合
+然后再将其和服务端框架结合
 
 <details>
 <summary>Express</summary>
@@ -86,7 +82,15 @@ bind(router, data)
 
 </details>
 
+
 ## 创建接口
+
+<!-- :::info
+`ps`中有两种基本类，
+一种是`controller`，负责暴露服务给外部，这里就是`http`接口
+
+一种是`service`，为`controller`提供功能服务
+::: -->
 
 ```ts
 import { Body, Controller, Param, Post, Query } from 'phecda'
@@ -112,7 +116,7 @@ class TestController {
 }
 ```
 
-:::warning
+:::danger
 
 `nestjs`使用者需要注意，这里的参数必须是来自客户端，不能使用特殊的自定义装饰器
 
@@ -139,6 +143,7 @@ test3(@User() user:any){
 
 ```ts
 import { Ctx, Get } from 'phecda-server'
+import type { ExpressCtx } from 'phecda-server/express'
 class TestController {
   @Ctx
   context: ExpressCtx
@@ -156,11 +161,7 @@ class TestController {
 
 ## 创建服务
 
-> 具体可以看`模块`这一章
 
-只有一个 `controller` 显然过于单薄，
-
-可以通过`服务` 从而有更优雅的实现
 
 ```ts
 import { Controller, Get, Param } from 'phecda-server'
@@ -181,8 +182,9 @@ class TestController {
   }
 }
 ```
-
-> `nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入，原因[详见](./other/compare.md)
+:::warning
+`nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入，原因[详见](./other/compare.md)
+:::
 
 
 前文中的
@@ -191,4 +193,4 @@ class TestController {
 const data = await Factory([TestController])
 ```
 
-此时不需要添加 `TestService`,它会作为 `TestController`s 的依赖被处理
+此时不需要添加 `TestService`,它会作为 `TestController` 的依赖被处理

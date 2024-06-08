@@ -5,19 +5,23 @@
 ## 服务端
 ### 安装依赖
 ```shell
-npm i phecda-server @swc-node/core
+npm i phecda-server 
 ```
-> 不需要热更新可以不安装后者
-> 
-> 但请务必安装，`<0.1s`的热更新绝对能颠覆一切考量，[详见](./hmr.md)
+### 初始化
+
+```shell
+npx phecda init
+```
 
 
+<!-- `<0.1s`的热更新绝对能颠覆一切考量 -->
 ### 代码
 
-以`express`为例,创建一个`user.controller.ts`和`user.service.ts`。
-> 其他框架[详见](./base.md)
-> 
-> 和`nestjs`几乎一致
+创建一个`user.controller.ts`和`user.service.ts`。
+
+
+
+
 
 
 ```ts
@@ -48,7 +52,10 @@ class UserController {
 }
 ```
 
-入口程序如下
+以`express`为例,入口程序如下
+
+> 其他框架[详见](./base.md)
+
 ```ts
 import { Factory } from 'phecda-server'
 import { bind } from 'phecda-server/express'
@@ -56,13 +63,14 @@ import express from 'express'
 import { UserController } from './user.controller'
 
 const data = await Factory([UserController], {
-  http: 'pmeta.js'// 输出的http代码的位置
+  generators: [new HTTPGenerator('.ps/http.ts')],
+// 输出的http代码的位置
 })
 const app = express()
 const router = express.Router()
 
 app.use(express.json())
-bind(router, data)// 这里相当于给了app绑定了一堆express中间件
+bind(router, data)// 这里相当于给了router绑定了一堆express中间件
 app.use(router)
 app.listen(3000)
 ```
@@ -88,7 +96,7 @@ npm i phecda-client
 import PC from 'phecda-client/vite'
 
 export default defineConfig({
-  plugins: [PC({ http: './pmeta.js'/** 生成的http代码的路径 */, })],
+  plugins: [PC()],
 })
 ```
 
@@ -96,6 +104,7 @@ export default defineConfig({
 运行时的部分：
 ```ts
 import axios from 'axios'
+import { createChainReq } from 'phecda-client'
 import { UserController } from '../server/user.controller'
 // 指向controller的路径！这里只是用它的类型，运行时并没有引入Controller，
 const instance = axios.create({

@@ -8,7 +8,7 @@
 
 
 ## 服务端
-服务端一侧，有两个`export`，一个是正常的`export`，另一个导出的是`pmeta.js`，但对应类型与前者相同
+服务端一侧，有两个`export`，一个是正常的`export`，另一个导出的是`http.js`，但对应类型与前者相同
 
 ```json
 {
@@ -19,7 +19,7 @@
       "require": "./dist/index.js"
     },
     "./client": {
-      "import": "./dist/pmeta.js"
+      "import": "./.ps/http.js"
     }
   },
   "typesVersions": {

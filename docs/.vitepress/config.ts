@@ -98,6 +98,10 @@ export default defineConfig({
               text: '基础使用',
               link: '/server/base',
             },
+            {
+              text: '规范',
+              link: '/server/rule',
+            },
           ],
         },
         {
@@ -161,10 +165,6 @@ export default defineConfig({
               link: '/server/route',
             },
 
-            {
-              text: '规范',
-              link: '/server/rule',
-            },
             {
               text: 'phecda-core',
               link: '/server/phecda-core',

@@ -29,7 +29,8 @@ async function request() {
 
 ```ts
 const data = await Factory([UserController], {
-  http: 'pmeta.js'// 输出代码到该位置
+  generators: [new HTTPGenerator('.ps/http.js')],
+
 })
 ```
 
