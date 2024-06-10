@@ -67,9 +67,10 @@ export async function initialize(data) {
   if (!config.unimport)
     return
   unimportRet = await genUnImportRet(config.unimport)
-  await unimportRet.init()
   if (unimportRet) {
     log('auto import...')
+    await unimportRet.init()
+
     writeFile(
       config.unimport.dtsPath || dtsPath,
       handleClassTypes(await unimportRet.generateTypeDeclarations()),

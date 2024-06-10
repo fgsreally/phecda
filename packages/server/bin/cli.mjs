@@ -116,8 +116,15 @@ cli.command('init', 'init config file').action(async (options) => {
           "path": ".ps/rpc.js"
         }
       ],
+    "unimport": {
+      "dirs": ["./src/server/*"],
+      "dirsScanOptions":{
+        "filePatterns":["*.{service,controller,module,rpc,edge,guard,interceptor,extension,pipe,filter,plugin}.ts"]
+       }
+     },
       "virtualFile":{},
       "moduleFile": []
+      
     }
     `,
     )
