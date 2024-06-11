@@ -43,6 +43,8 @@ export class TestController extends Dev {
   @Get('/test')
   async emitTest(@Query('data') data = 1) {
     emitter.emit('test', data)
+
+    return true
   }
 
   @Get('/framework')

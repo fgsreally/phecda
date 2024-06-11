@@ -5,7 +5,7 @@ import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
 import { log } from '../dist/index.mjs'
-const cli = cac('phecda').option('-c, --config', 'config file', {
+const cli = cac('phecda').option('-c,--config <config>', 'config file', {
   default: 'ps.json',
 })
 const require = createRequire(import.meta.url)
@@ -101,7 +101,7 @@ cli.command('init', 'init config file').action(async (options) => {
     log(`init ${options.config}`)
 
     await fse.outputFile(
-      'ps.json',
+      options.config,
      `{
       "$schema": "node_modules/phecda-server/bin/schema.json",
       "resolve": [
@@ -117,7 +117,7 @@ cli.command('init', 'init config file').action(async (options) => {
         }
       ],
     "unimport": {
-      "dirs": ["./src/server/*"],
+      "dirs": [],
       "dirsScanOptions":{
         "filePatterns":["*.{service,controller,module,rpc,edge,guard,interceptor,extension,pipe,filter,plugin}.ts"]
        }

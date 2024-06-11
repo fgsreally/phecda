@@ -63,7 +63,7 @@ import express from 'express'
 import { UserController } from './user.controller'
 
 const data = await Factory([UserController], {
-  generators: [new HTTPGenerator('.ps/http.ts')],
+  generators: [new HTTPGenerator()],
 // 输出的http代码的位置
 })
 const app = express()

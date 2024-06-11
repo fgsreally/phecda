@@ -1,8 +1,12 @@
 /* eslint-disable no-console */
-import { Arg, Event, Queue } from 'phecda-server'
+import { Arg, Event, Queue, type RpcContext } from 'phecda-server'
 
 @Rpc()
 export class TestRpc {
+  @Ctx
+
+context: RpcContext
+
   @Queue()
   run(@Arg arg: string) {
     console.log(`arg is ${arg}`)
@@ -12,6 +16,6 @@ export class TestRpc {
   @Queue('test')
   @Event()
   event(@Arg arg: string) {
-    console.log(`arg is ${arg}`)
+    console.log(`arg is ${arg}`, this.context.queue)
   }
 }

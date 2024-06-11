@@ -5,7 +5,7 @@ import { Factory, RPCGenerator } from 'phecda-server'
 import { TestRpc } from '../test.rpc'
 async function start() {
   const data = await Factory([TestRpc], {
-    generators: [new RPCGenerator('.ps/rpc.ts')],
+    generators: [new RPCGenerator()],
   })
 
   const kafka = new Kafka({

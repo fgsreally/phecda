@@ -4,7 +4,7 @@ import { bind } from 'phecda-server/h3'
 import { Factory, HTTPGenerator } from 'phecda-server'
 import { TestController } from './test.controller'
 const data = await Factory([TestController], {
-  generators: [new HTTPGenerator('.ps/http.ts')],
+  generators: [new HTTPGenerator()],
 
 })
 const app = createApp()

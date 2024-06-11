@@ -4,13 +4,15 @@ import { LOG_LEVEL } from './common'
 
 let time: number
 
-let internalLogger = console
+let internalLogger: Record<LogLevel, (msg: string) => void> = console
 
-export function setLogger(logger: typeof console) {
+type LogLevel = 'error' | 'info' | 'warn' | 'log'
+
+export function setLogger(logger: Record<LogLevel, (msg: string) => void>) {
   internalLogger = logger
 }
 
-export function log(msg: string, level: 'error' | 'info' | 'warn' | 'log' = 'log') {
+export function log(msg: string, level: LogLevel = 'log') {
   const logLevel = {
     info: 0,
     log: 1,
