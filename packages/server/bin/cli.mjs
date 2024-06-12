@@ -166,9 +166,6 @@ cli
 
 cli
   .command('generate [file]', 'generate code(mainly for ci)')
-  .option('-c, --config', 'config file', {
-    default: './ps.json',
-  })
   .action((file, options) => {
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = options.config

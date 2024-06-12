@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
+import type { FastifyInstance, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
@@ -18,8 +18,8 @@ export interface FastifyCtx extends HttpContext {
 
 }
 
-export function bind(data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}): FastifyPluginCallback {
-  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
+export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions & { fastifyOpts?: FastifyRegisterOptions<FastifyPluginOptions> } = {}) {
+  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe, fastifyOpts } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
   const {
     moduleMap, meta,
   } = data
@@ -58,7 +58,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, opts: HttpOption
     handleMeta()
   })
 
-  return (fastify, _, done) => {
+  fastify.register((fastify, _, done) => {
     fastify.register((fastify, _opts, done) => {
       plugins.forEach((p) => {
         const plugin = Context.usePlugin([p])[0]
@@ -197,7 +197,7 @@ export function bind(data: Awaited<ReturnType<typeof Factory>>, opts: HttpOption
     }
 
     done()
-  }
+  }, fastifyOpts)
 }
 
 export function Fastify(opts: RouteShorthandOptions) {
