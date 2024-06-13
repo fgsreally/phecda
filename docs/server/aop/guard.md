@@ -1,6 +1,8 @@
 # 守卫
 
- 运行在中间件之后，主要用于鉴权，
+ 如果插件为类似中间件的东西，那么运行在[插件](./plugin.md)之后，
+ 
+ 主要用于鉴权，
 
 具体参数详见类型提示
 
@@ -37,7 +39,7 @@ class TestController {
 Factory([Auth, TestController])
 ```
 
-### 全局使用
+## 全局守卫
 ```ts
 bind(app, data, {
   globalGuards: ['Auth'],

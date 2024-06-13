@@ -11,10 +11,10 @@ npm i kafkajs
 ```ts
 import { Kafka } from 'kafkajs'
 import { bind } from 'phecda-server/kafka'
-import { Factory } from 'phecda-server'
+import { Factory, RPCGenerator } from 'phecda-server'
 import { TestRpc } from '../test.rpc'
 const data = await Factory([TestRpc], {
-  rpc: 'src/rpc/kafka.ts',
+  generators: [new RPCGenerator()]
 })
 
 const redis = new Kafka({

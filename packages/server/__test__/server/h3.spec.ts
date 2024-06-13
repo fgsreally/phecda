@@ -97,7 +97,7 @@ describe('h3 ', () => {
     addPlugin('p1', plugin)
     addPlugin('p2', plugin)
 
-    const app = await createServer({ parallel_plugins: ['p1'], globalPlugins: ['p2'] })
+    const app = await createServer({ parallelPlugins: ['p1'], globalPlugins: ['p2'] })
 
     await request(app).get('/plugin')
     expect(fn).toHaveBeenCalledTimes(2)

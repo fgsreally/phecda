@@ -2,7 +2,7 @@
 前置拦截器运行在守卫之后，
 后置拦截器运行在方法执行之后
 
-:::info
+:::tip
 拦截器可以中止`ps`的逻辑，拦截器如果返回非undefined的值，会提前结束`ps`的运行逻辑，直接返回数据
 :::
 具体参数详见类型提示
@@ -20,7 +20,11 @@ class Cache extends PInterceptor<ExpressCtx> {
 
   use(ctx: ExpressCtx) {
     // 函数本身是前置拦截器
+
     // 如果返回一个函数，那么这个函数会作为后置拦截器
+    return () => {
+
+    }
     // 前置拦截器和后置拦截器如果执行后返回非空值，会直接返回这个值，如果已经返回过数据（如express中res.end已经执行过了，那则只是中断逻辑，不会返回数据
     // ...
   }
@@ -40,7 +44,7 @@ class TestController {
 Factory([TestController, Cache])
 ```
 
-### 全局使用
+## 全局拦截器
 ```ts
 bind(app, data, {
   globalInterceptors: ['Cache'],

@@ -9,8 +9,10 @@
     "build": "tsup",
     "dev": "tsup --watch"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["phecda","vue"],
+  "author": "fgsreally",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/vue",
+  
   "files": [
     "dist"
   ],

@@ -1,67 +1,37 @@
-# 模块
+# 模块运用
+
+## 什么是模块
 
 在`PS`中，通过
 1. `Factory`直接引入的类
 2. 构造函数间接引入的类，
 
-都是模块，（我们先暂时这么称呼）
+都是模块，（先暂时这么称呼）其只有一个限制 --`构造函数参数必须是注入的依赖`，
 
-<br>
+你可以把模块当普通的类用，也可以将普通的类封装成模块，只要理解`class`，一切就迎刃而解了
 
-不难发现，`PS`项目中会有两种模块
-
-一种是`Phecda`标准的类，
-
-它有两个特征：
-
-1. 本身or父类被`phecda`的装饰器修饰
-2. 构造函数中的所有参数，都是注入的依赖
-
-第二种类就是其他任意类
-
-> 但第二种类只能成为边缘模块，也就是它不能使用其他模块的能力，构造函数不能注入值
-> 
-> 不建议使用，只是单纯讲原理方便理解
->
-> 以下说的模块，都是第一类
-
-```ts
-import { Controller } from 'phecda-server'
-// 第二类模块
-class xx {
-  constructor() {} // 不能注入值
-
-}
-// 第一类模块
-@Controller('/') // 被装饰
-export class Test {
-  constructor(
-    protected xx: xx // 注入的依赖
-  ) {}
-}
-```
-
-:::warning 
-注意，`Phecda`模块的构造函数参数一定是注入的依赖，不要写入其他东西
-:::
+`ps`的装饰器会往类上添加元数据，但这并不影响类本身的行为
 
 ## 封装
-如果需要封装第一类模块，作为一个`npm`包给其他人使用，
+如何将一个类封装为模块，并作为一个`npm`包或依赖给他人使用？
 
 由于类上构造函数参数必须为注入的其他类，显然不能写入配置
 
-有很多解决方法，建议使用静态属性
+有很多解决方法，没有固定的要求，可以使用静态属性
 
-> `PS`放弃了`nestjs`的`@Module`(原因[详见](./other/compare.md)),故而不能使用类似`forAsyncRoot`的方法
 ```ts
 // 封装时
 @Tag('xx')
 class XxModule {
   static config: xx// 配置信息
 
-  @Init
-  private _init() {
+  constructor() {
     // 初始化,操作XxModule.config
+  }
+
+  @Init
+  private async _init() {
+    // 异步初始化,操作XxModule.config
   }
 }
 
@@ -70,8 +40,24 @@ xxModule.config = 'xx'
 Factory([XxModule])
 ```
 
+`ps`也内置了`Provide/Inject`
+```ts
+@Tag('xx')
+class XxModule {
+
+  constructor() {
+    const config = Inject('xx')
+  }
+
+}
+// ..
+
+Provide('xx', any)
+Factory([XxModule])
+```
+
 ## 内置模块
-`PS`提供了一些内置的模块，主要是帮助`aop`的，提供类似`nestjs`的能力
+`PS`提供了一些内置的模块，主要是[Aop](../aop/guard.md) 相关
 
 除此之外，还有一个内置模块`Dev`，
 
@@ -108,7 +94,6 @@ export class xx extends Dev {
 }
 ```
 :::info mixin
-
 
 `ts`确实有`mixin`的功能，但无论哪个版本都很孱弱
 
@@ -150,27 +135,21 @@ Factory([newXxModule])
 
 那么可以模块覆盖！
 
-假设有一个封装好的模块`xx`，它使用了另一个模块`a`（没有直接引入，是通过`xx`间接引入），
+假设有一个封装好的模块`dep1`，它使用了另一个模块`dep2`（没有直接引入，是通过`dep1`间接引入），
 
-我希望能用一个新的模块覆盖`a`
+我希望能用一个新的模块覆盖`dep2`
 ```ts
-@Tag('a')// 必须要和`a`模块的tag相同
+@Tag('dep2')// 必须要和`a`模块的相同
 class OverrideModule {
 
 }
 
 // main.ts
-Factory([OverrideModule, xx])// 要抢在真正的a模块之前注册
+Factory([OverrideModule, dep1])// 要抢在真正的a模块之前注册
 ```
 :::info 
 
-原因是：`PS`根据`Tag/类名` 做标记来判断的，如果两个模块有一样的标记，就使用最先被实例化的，
-
-将新的模块放到最前面，最先被实例化，
-
-<br>
-
-`xx`原本是要去加载`a`模块,而已经存在了一个标记为`a`且被实例化的模块，那它们就会直接用这个
+原因是：`PS`根据`Tag/类名` 做标记来判断的，如果两个模块有一样的标记，就使用最先被实例化的，将新的模块放到最前面，最先被实例化，`dep1`原本是要去加载`dep2`模块,而已经存在了一个标记为`dep2`且被实例化的模块，那它们就会直接用这个
 
 :::
 

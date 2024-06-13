@@ -18,7 +18,7 @@ export interface HonoCtx extends HttpContext {
 export type Plugin = MiddlewareHandler
 
 export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe } = opts
 
   const { moduleMap, meta } = data
 
@@ -30,7 +30,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
     }
   })
   detectAopDep(meta, {
-    plugins: [...globalPlugins, ...parallel_plugins],
+    plugins: [...globalPlugins, ...parallelPlugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
@@ -39,67 +39,69 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
 
   async function registerRoute() {
     Context.usePlugin<Plugin>(globalPlugins, 'hono').forEach(p => router.use(p))
-    router.post(parallel_route, ...Context.usePlugin<Plugin>(parallel_plugins, 'hono'), async (c) => {
-      const body = await c.req.json()
+    if (parallelRoute) {
+      router.post(parallelRoute, ...Context.usePlugin<Plugin>(parallelPlugins, 'hono'), async (c) => {
+        const body = await c.req.json()
 
-      async function errorHandler(e: any) {
-        const error = await Context.filterRecord.default(e)
-        c.status(error.status)
-        return c.json(error)
-      }
+        async function errorHandler(e: any) {
+          const error = await Context.filterRecord.default(e)
+          c.status(error.status)
+          return c.json(error)
+        }
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
 
-      try {
-        return Promise.all(body.map((item: any, i) => {
+        try {
+          return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag, func } = item
+            return new Promise(async (resolve) => {
+              const { tag, func } = item
 
-            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-            if (!metaMap.has(tag))
-              return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-            const meta = metaMap.get(tag)![func]
-            if (!meta)
-              return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+              const meta = metaMap.get(tag)![func]
+              if (!meta)
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-            const {
+              const {
 
-              data: {
-                params,
+                data: {
+                  params,
 
-              },
-            } = meta
+                },
+              } = meta
 
-            const contextData = {
-              type: 'hono' as const,
-              parallel: true,
-              context: c,
-              index: i,
-              meta,
-              moduleMap,
-              tag,
-              func,
-              app: router,
-              ...argToReq(params, item.args, c.req.header()),
-            }
-            const context = new Context<HonoCtx>(contextData)
+              const contextData = {
+                type: 'hono' as const,
+                parallel: true,
+                context: c,
+                index: i,
+                meta,
+                moduleMap,
+                tag,
+                func,
+                app: router,
+                ...argToReq(params, item.args, c.req.header()),
+              }
+              const context = new Context<HonoCtx>(contextData)
 
-            context.run({
-              globalGuards, globalInterceptors, globalFilter, globalPipe,
-            }, resolve, resolve)
-          })
-        })).then((ret) => {
-          return c.json(ret)
-        }) as any
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
+            })
+          })).then((ret) => {
+            return c.json(ret)
+          }) as any
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
+    }
 
     for (const [tag, record] of metaMap) {
       for (const func in record) {

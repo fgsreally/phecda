@@ -1,11 +1,12 @@
 # 自定义功能
 
-> 具体代码可见[phecda-server-ws]()
+> 具体代码可见[phecda-server-ws](https://github.com/fgsreally/phecda-ws)
+
 假设需要自定义`websocket`功能，那么需要：
-1. 控制器
-2. 适配器
-3. 代码生成器
-4. 请求器
+1. **控制器**
+2. **适配器**
+3. **代码生成器**
+4. **请求适配器**
 
 ## 控制器
 
@@ -28,4 +29,33 @@ class a {
 
 具体实现看源码
 
-## 配置
+## 配置文件
+需要更改[配置文件](./command.md#phecda-init)的`resolve`，使重定向
+
+```json
+{
+  "source": "wss",
+  "importer": "ws",
+  "path": ".ps/ws.js"
+}
+```
+
+## 请求适配器
+
+```ts
+import { createClient } from 'phecda-client-ws'
+
+const ws = new WebSocket('ws://localhost:3001')
+const client = createClient(ws, {
+  test: TestWs,
+}, {
+  test(data) {
+    console.log(data)
+  },
+})
+
+ws.onopen = () => {
+  console.log('open!')
+  client.test.add({ name: 'ws' })
+}
+```

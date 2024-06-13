@@ -1,6 +1,4 @@
 # 命令行工具
-前文中通过`phecda`启动程序，这本质是通过`register`(这意味着`nodejs`版本要大于`18.18`)，不然功能会有所缺失
-
 ## phecda init
 初始化`tsconfig.json`和`ps.json`，后者会被`register`读取，
 其配置如下：
@@ -11,12 +9,12 @@
     {
       "source": "controller",
       "importer": "http",
-      "path": ".ps/http.ts"// 如果本文件是 *.http.ts ,引入了另一个*.controller.ts，那么这个引入会重定向至`.ps/http.ts`
+      "path": ".ps/http.js"// 如果本文件是 *.http.ts ,引入了另一个*.controller.ts，那么这个引入会重定向至`.ps/http.ts`
     },
     {
       "source": "rpc",
       "importer": "client",
-      "path": ".ps/rpc.ts"// 如果本文件是 *.client.ts ,引入了另一个*.rpc.ts，那么这个引入会重定向至`.ps/rpc.ts`
+      "path": ".ps/rpc.js"// 如果本文件是 *.client.ts ,引入了另一个*.rpc.ts，那么这个引入会重定向至`.ps/rpc.ts`
     }
   ],
   "unimport": false, // 需要单独安装unimport,这些配置会传到createUnimport中
@@ -41,11 +39,9 @@
 2. `PS_LOG_LEVEL`  info/log/warning/error 对应0到3，只有高于`PS_LOG_LEVEL`的信息才会被输出
 
 
-::: warning HMR
-热更新需要遵循
-1. 类名/`Tag`不能更改，这是唯一标识
-2. 需要处理副作用，详见[模块](../module.md#)
-3. 由于绝大部分服务端框架不提供注销路由的功能，更改路由可能并无效果，可以完全重启或者使用[并行路由](../route.md)
-:::
-
 输入`e`并回车会退出程序，输入`r`回车会完全重启
+
+添加给`nodejs`的参数需:
+```shell
+npx phecda file.ts -- --inspect
+```

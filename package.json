@@ -29,7 +29,9 @@
     "turbo": "^1.8.2",
     "typescript": "^4.9.4",
     "unplugin-swc-esm": "^1.0.2",
-    "vitepress": "1.0.0-rc.40",
     "vitest": "^1.4.0"
+  },
+  "dependencies": {
+    "vitepress": "^1.2.3"
   }
 }

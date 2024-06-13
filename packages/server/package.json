@@ -121,11 +121,12 @@
   },
   "keywords": [
     "server",
-    "express",
-    "types-share",
-    "fullstack"
+    "IOC",
+    "rpc",
+    "types-share"
   ],
-  "author": "",
+  "author": "fgsreally",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/server",
   "files": [
     "dist",
     "register",

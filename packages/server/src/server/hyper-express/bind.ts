@@ -20,7 +20,7 @@ export interface HyperExpressCtx extends HttpContext {
 export type Plugin = MiddlewareHandler
 
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe } = opts
 
   const { moduleMap, meta } = data
 
@@ -32,7 +32,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
     }
   })
   detectAopDep(meta, {
-    plugins: [...globalPlugins, ...parallel_plugins],
+    plugins: [...globalPlugins, ...parallelPlugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
@@ -40,71 +40,73 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   registerRoute()
   async function registerRoute() {
     Context.usePlugin<Plugin>(globalPlugins, 'hyper-express').forEach(p => router.use(p))
-    router.post(parallel_route, {
-      middlewares: Context.usePlugin<Plugin>(parallel_plugins, 'hyper-express'),
-    }, async (req, res, next) => {
-      const body = await req.json()
+    if (parallelRoute) {
+      router.post(parallelRoute, {
+        middlewares: Context.usePlugin<Plugin>(parallelPlugins, 'hyper-express'),
+      }, async (req, res, next) => {
+        const body = await req.json()
 
-      async function errorHandler(e: any) {
-        const error = await Context.filterRecord.default(e)
-        return res.status(error.status).json(error)
-      }
+        async function errorHandler(e: any) {
+          const error = await Context.filterRecord.default(e)
+          return res.status(error.status).json(error)
+        }
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
 
-      try {
-        return Promise.all(body.map((item: any, i) => {
+        try {
+          return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag, func } = item
-            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+            return new Promise(async (resolve) => {
+              const { tag, func } = item
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-            if (!metaMap.has(tag))
-              return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-            const meta = metaMap.get(tag)![func]
-            if (!meta)
-              return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+              const meta = metaMap.get(tag)![func]
+              if (!meta)
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-            const {
+              const {
 
-              data: {
+                data: {
 
-                params,
+                  params,
 
-              },
-            } = meta
+                },
+              } = meta
 
-            const contextData = {
-              type: 'hyper-express' as const,
-              parallel: true,
-              request: req,
-              index: i,
-              meta,
-              response: res,
-              moduleMap,
-              tag,
-              func,
-              next,
-              app: router,
+              const contextData = {
+                type: 'hyper-express' as const,
+                parallel: true,
+                request: req,
+                index: i,
+                meta,
+                response: res,
+                moduleMap,
+                tag,
+                func,
+                next,
+                app: router,
 
-              ...argToReq(params, item.args, req.headers),
-            }
-            const context = new Context<HyperExpressCtx>(contextData)
+                ...argToReq(params, item.args, req.headers),
+              }
+              const context = new Context<HyperExpressCtx>(contextData)
 
-            context.run({
-              globalGuards, globalInterceptors, globalFilter, globalPipe,
-            }, resolve, resolve)
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
+            })
+          })).then((ret) => {
+            res.json(ret)
           })
-        })).then((ret) => {
-          res.json(ret)
-        })
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
+    }
 
     for (const [tag, record] of metaMap) {
       for (const func in record) {

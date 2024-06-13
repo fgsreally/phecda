@@ -19,7 +19,7 @@ export interface FastifyCtx extends HttpContext {
 export type Plugin = FastifyPluginCallback
 
 export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions & { fastifyOpts?: FastifyRegisterOptions<FastifyPluginOptions> } = {}) {
-  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe, fastifyOpts } = opts
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe, fastifyOpts } = opts
   const {
     moduleMap, meta,
   } = data
@@ -33,7 +33,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
   })
 
   detectAopDep(meta, {
-    plugins: [...globalPlugins, ...parallel_plugins],
+    plugins: [...globalPlugins, ...parallelPlugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
@@ -44,72 +44,74 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
       fastify.register(p)
     })
     fastify.register((fastify, _opts, done) => {
-      Context.usePlugin<Plugin>(parallel_plugins, 'fastify').forEach((p) => {
+      Context.usePlugin<Plugin>(parallelPlugins, 'fastify').forEach((p) => {
         (p as any)[Symbol.for('skip-override')] = true
         fastify.register(p)
       })
-      fastify.post(parallel_route, async (req, res) => {
-        const { body } = req as any
+      if (parallelRoute) {
+        fastify.post(parallelRoute, async (req, res) => {
+          const { body } = req as any
 
-        async function errorHandler(e: any) {
-          const error = await Context.filterRecord.default(e)
-          return res.status(error.status).send(error)
-        }
+          async function errorHandler(e: any) {
+            const error = await Context.filterRecord.default(e)
+            return res.status(error.status).send(error)
+          }
 
-        if (!Array.isArray(body))
-          return errorHandler(new BadRequestException('data format should be an array'))
+          if (!Array.isArray(body))
+            return errorHandler(new BadRequestException('data format should be an array'))
 
-        try {
-          return Promise.all(body.map((item: any, i) => {
+          try {
+            return Promise.all(body.map((item: any, i) => {
             // eslint-disable-next-line no-async-promise-executor
-            return new Promise(async (resolve) => {
-              const { tag, func } = item
-              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              return new Promise(async (resolve) => {
+                const { tag, func } = item
+                debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-              if (!metaMap.has(tag))
-                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+                if (!metaMap.has(tag))
+                  return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-              const meta = metaMap.get(tag)![func]
+                const meta = metaMap.get(tag)![func]
 
-              if (!meta)
-                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+                if (!meta)
+                  return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-              const {
+                const {
 
-                data: {
-                  params,
+                  data: {
+                    params,
 
-                },
-              } = meta
+                  },
+                } = meta
 
-              const contextData = {
-                type: 'fastify' as const,
-                parallel: true,
-                request: req,
-                index: i,
-                meta,
-                response: res,
-                moduleMap,
-                tag,
-                func,
-                app: fastify,
+                const contextData = {
+                  type: 'fastify' as const,
+                  parallel: true,
+                  request: req,
+                  index: i,
+                  meta,
+                  response: res,
+                  moduleMap,
+                  tag,
+                  func,
+                  app: fastify,
 
-                ...argToReq(params, item.args, req.headers),
+                  ...argToReq(params, item.args, req.headers),
 
-              }
-              const context = new Context<FastifyCtx>(contextData)
-              context.run({
-                globalGuards, globalInterceptors, globalFilter, globalPipe,
-              }, resolve, resolve)
+                }
+                const context = new Context<FastifyCtx>(contextData)
+                context.run({
+                  globalGuards, globalInterceptors, globalFilter, globalPipe,
+                }, resolve, resolve)
+              })
+            })).then((ret) => {
+              res.send(ret)
             })
-          })).then((ret) => {
-            res.send(ret)
-          })
-        }
-        catch (e) {
-          return errorHandler(e)
-        }
-      })
+          }
+          catch (e) {
+            return errorHandler(e)
+          }
+        })
+      }
 
       done()
     })

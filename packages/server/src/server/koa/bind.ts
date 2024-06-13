@@ -22,7 +22,7 @@ export interface KoaCtx extends HttpContext {
 export type Plugin = Router.Middleware
 
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe } = opts
 
   const { moduleMap, meta } = data
   const originStack = router.stack.slice(0, router.stack.length)
@@ -35,7 +35,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
     }
   })
   detectAopDep(meta, {
-    plugins: [...globalPlugins, ...parallel_plugins],
+    plugins: [...globalPlugins, ...parallelPlugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
@@ -43,65 +43,67 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   async function registerRoute() {
     Context.usePlugin<Plugin>(globalPlugins, 'koa').forEach(p => router.use(p))
 
-    router.post(parallel_route, ...Context.usePlugin<Plugin>(parallel_plugins, 'koa'), async (ctx, next) => {
-      const { body } = ctx.request as any
+    if (parallelRoute) {
+      router.post(parallelRoute, ...Context.usePlugin<Plugin>(parallelPlugins, 'koa'), async (ctx, next) => {
+        const { body } = ctx.request as any
 
-      async function errorHandler(e: any) {
-        const error = await Context.filterRecord.default(e)
-        ctx.status = error.status
-        ctx.body = error
-      }
+        async function errorHandler(e: any) {
+          const error = await Context.filterRecord.default(e)
+          ctx.status = error.status
+          ctx.body = error
+        }
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
 
-      try {
-        return Promise.all(body.map((item: any, i) => {
+        try {
+          return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag, func } = item
-            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+            return new Promise(async (resolve) => {
+              const { tag, func } = item
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-            if (!metaMap.has(tag))
-              return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-            const meta = metaMap.get(tag)![func]
-            if (!meta)
-              return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+              const meta = metaMap.get(tag)![func]
+              if (!meta)
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-            const {
-              data: {
-                params,
+              const {
+                data: {
+                  params,
 
-              },
-            } = meta
+                },
+              } = meta
 
-            const contextData = {
-              type: 'koa' as const,
-              index: i,
-              ctx,
-              meta,
-              moduleMap,
-              parallel: true,
-              next,
-              app: router,
-              ...argToReq(params, item.args, ctx.headers),
-              tag,
-              func,
-            }
-            const context = new Context<KoaCtx>(contextData)
-            context.run({
-              globalGuards, globalInterceptors, globalFilter, globalPipe,
-            }, resolve, resolve)
+              const contextData = {
+                type: 'koa' as const,
+                index: i,
+                ctx,
+                meta,
+                moduleMap,
+                parallel: true,
+                next,
+                app: router,
+                ...argToReq(params, item.args, ctx.headers),
+                tag,
+                func,
+              }
+              const context = new Context<KoaCtx>(contextData)
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
+            })
+          })).then((ret) => {
+            ctx.body = ret
           })
-        })).then((ret) => {
-          ctx.body = ret
-        })
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
+    }
 
     for (const [tag, record] of metaMap) {
       for (const func in record) {

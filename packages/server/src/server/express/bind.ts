@@ -21,7 +21,7 @@ export interface ExpressCtx extends HttpContext {
 export type Plugin = RequestHandler
 
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe } = opts
   const { moduleMap, meta } = data
 
   const originStack = router.stack.slice(0, router.stack.length)
@@ -34,7 +34,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
     }
   })
   detectAopDep(meta, {
-    plugins: [...globalPlugins, ...parallel_plugins],
+    plugins: [...globalPlugins, ...parallelPlugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
@@ -47,69 +47,72 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   })
 
   async function registerRoute() {
-    Context.usePlugin<Plugin>(globalPlugins, 'express').forEach(p => router.use(p));
-    (router as Express).post(parallel_route, ...Context.usePlugin<Plugin>(parallel_plugins, 'express'), async (req, res, next) => {
-      const { body } = req
+    Context.usePlugin<Plugin>(globalPlugins, 'express').forEach(p => router.use(p))
 
-      async function errorHandler(e: any) {
-        const error = await Context.filterRecord.default(e)
-        return res.status(error.status).json(error)
-      }
+    if (parallelRoute) {
+      (router as Express).post(parallelRoute, ...Context.usePlugin<Plugin>(parallelPlugins, 'express'), async (req, res, next) => {
+        const { body } = req
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+        async function errorHandler(e: any) {
+          const error = await Context.filterRecord.default(e)
+          return res.status(error.status).json(error)
+        }
 
-      try {
-        return Promise.all(body.map((item: any, i) => {
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
+
+        try {
+          return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag, func } = item
+            return new Promise(async (resolve) => {
+              const { tag, func } = item
 
-            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-            if (!metaMap.has(tag))
-              return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-            const meta = metaMap.get(tag)![func]
-            if (!meta)
-              return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+              const meta = metaMap.get(tag)![func]
+              if (!meta)
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-            const {
+              const {
 
-              data: {
-                params,
+                data: {
+                  params,
 
-              },
-            } = meta
+                },
+              } = meta
 
-            const contextData = {
-              type: 'express' as const,
-              parallel: true,
-              request: req,
-              index: i,
-              meta,
-              response: res,
-              moduleMap,
-              tag,
-              func,
-              next,
-              app: router,
-              ...argToReq(params, item.args, req.headers),
-            }
-            const context = new Context<ExpressCtx>(contextData)
+              const contextData = {
+                type: 'express' as const,
+                parallel: true,
+                request: req,
+                index: i,
+                meta,
+                response: res,
+                moduleMap,
+                tag,
+                func,
+                next,
+                app: router,
+                ...argToReq(params, item.args, req.headers),
+              }
+              const context = new Context<ExpressCtx>(contextData)
 
-            context.run({
-              globalGuards, globalInterceptors, globalFilter, globalPipe,
-            }, resolve, resolve)
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
+            })
+          })).then((ret) => {
+            res.json(ret)
           })
-        })).then((ret) => {
-          res.json(ret)
-        })
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
+    }
     for (const [tag, record] of metaMap) {
       for (const func in record) {
         const meta = metaMap.get(tag)![func]

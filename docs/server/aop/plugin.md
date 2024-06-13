@@ -1,11 +1,11 @@
 # 插件
 
-对应的服务端框架的扩展能力
+对应的服务端框架的扩展能力，为一个函数，根据不同服务端框架，返回不同的东西
 
-1. 在 `express` 中对应`express`中间件,
-2. `koa`对应`koa` 中间件，
-3. `fastify` 中对应 `register` 的插件
-4. `h3`对应`defineRequestMiddleware`
+1. 在 `express` 中返回`express`中间件,
+2. `koa`返回`koa`中间件，
+3. `fastify` 中返回 `register` 的插件
+4. `h3`返回`onRequest`，为`defineRequestMiddleware`的参数
 5. `rpc`中忽略
 
 :::danger
@@ -41,19 +41,19 @@ class TestController {
 Factory([Test, TestController])
 ```
 
-## 专用路由
-> 专用路由[详见](../route.md)
-由于渐进的特性，全局插件是很简单的，你只需要写在外部就行（就像处理一个`express`中间件一样）
-
-但专用路由中，是无法触发接口上的插件的！只能这样
+## 专用路由插件
+专用路由[详见](../advance/parallel-route.md)
 ```ts
 bind(app, data, {
-  plugins: ['Test'],
+  parallelPlugins: ['Test'],
+})
+```
+> 尽量不要这么用
+
+## 全局插件
+```ts
+bind(app, data, {
+  globalPlugins: ['Test'],
 })
 ```
 
-:::warning 警告
-
-如果要使用专用路由，尽量不要使用插件
-
-:::

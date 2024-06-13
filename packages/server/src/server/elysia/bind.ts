@@ -20,7 +20,7 @@ export interface ElysiaCtx extends HttpContext {
 export type Plugin = (app: App<any>) => void
 
 export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe } = opts
   const { moduleMap, meta } = data
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
@@ -31,7 +31,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
     }
   })
   detectAopDep(meta, {
-    plugins: [...globalPlugins, ...parallel_plugins],
+    plugins: [...globalPlugins, ...parallelPlugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
@@ -42,68 +42,70 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
     Context.usePlugin<Plugin>(globalPlugins, 'elysia').forEach(p => p(app))
 
     const parallelRouter = new App()
-    Context.usePlugin<Plugin>(parallel_plugins, 'elysia').forEach(p => p(parallelRouter))
-    parallelRouter.post(parallel_route, async (c) => {
-      const { body } = c
+    Context.usePlugin<Plugin>(parallelPlugins, 'elysia').forEach(p => p(parallelRouter))
+    if (parallelRoute) {
+      parallelRouter.post(parallelRoute, async (c) => {
+        const { body } = c
 
-      async function errorHandler(e: any) {
-        const error = await Context.filterRecord.default(e)
-        c.set.status = error.status
-        return error
-      }
+        async function errorHandler(e: any) {
+          const error = await Context.filterRecord.default(e)
+          c.set.status = error.status
+          return error
+        }
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
 
-      try {
-        return Promise.all(body.map((item: any, i) => {
+        try {
+          return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag, func } = item
+            return new Promise(async (resolve) => {
+              const { tag, func } = item
 
-            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-            if (!metaMap.has(tag))
-              return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-            const meta = metaMap.get(tag)![func]
-            if (!meta)
-              return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+              const meta = metaMap.get(tag)![func]
+              if (!meta)
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-            const {
+              const {
 
-              data: {
-                params,
+                data: {
+                  params,
 
-              },
-            } = meta
+                },
+              } = meta
 
-            const contextData = {
-              type: 'elysia' as const,
-              parallel: true,
-              context: c,
-              index: i,
-              meta,
-              moduleMap,
-              tag,
-              func,
-              app,
-              ...argToReq(params, item.args, c.headers),
-            }
-            const context = new Context<ElysiaCtx>(contextData)
+              const contextData = {
+                type: 'elysia' as const,
+                parallel: true,
+                context: c,
+                index: i,
+                meta,
+                moduleMap,
+                tag,
+                func,
+                app,
+                ...argToReq(params, item.args, c.headers),
+              }
+              const context = new Context<ElysiaCtx>(contextData)
 
-            context.run({
-              globalGuards, globalInterceptors, globalFilter, globalPipe,
-            }, resolve, resolve)
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
+            })
+          })).then((ret) => {
+            return ret
           })
-        })).then((ret) => {
-          return ret
-        })
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
+    }
 
     app.use(parallelRouter)
     for (const [tag, record] of metaMap) {

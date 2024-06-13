@@ -11,10 +11,10 @@ npm i ioredis
 ```ts
 import Redis from 'ioredis'
 import { bind } from 'phecda-server/redis'
-import { Factory } from 'phecda-server'
+import { Factory, RPCGenerator } from 'phecda-server'
 import { TestRpc } from '../test.rpc'
 const data = await Factory([TestRpc], {
-  rpc: 'src/rpc/redis.ts',
+  generators: [new RPCGenerator()]
 })
 
 const redis = new Redis()
