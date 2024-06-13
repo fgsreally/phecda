@@ -1,10 +1,9 @@
 import type { Consumer, Producer } from 'kafkajs'
 import Debug from 'debug'
 import type { Factory } from '../../core'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
+import { Context } from '../../context'
 import type { RpcContext, RpcServerOptions } from '../helper'
-import { HMR } from '../../hmr'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/kafka')
 
@@ -21,22 +20,19 @@ export interface KafkaCtx extends RpcContext {
 export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
   const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
 
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
   const existQueue = new Set<string>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, rpc } = item.data
-      if (controller !== 'rpc' || rpc?.queue === undefined)
-        continue
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, rpc, func, tag } = meta.data
+    if (controller === 'rpc' && rpc?.queue !== undefined) {
+      debug(`register method "${func}" in module "${tag}"`)
+      return true
     }
-  }
+  })
+
+  detectAopDep(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  }, 'rpc')
 
   async function subscribeQueues() {
     existQueue.clear()
@@ -60,11 +56,6 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
     }
   }
 
-  detectAopDep(meta, {
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  }, 'rpc')
-  handleMeta()
   await subscribeQueues()
   await consumer.run({
     eachMessage: async ({ message, partition, topic, heartbeat, pause }) => {
@@ -130,18 +121,5 @@ export async function bind(consumer: Consumer, producer: Producer, { moduleMap, 
         }
       })
     },
-  })
-
-  HMR(async () => {
-    detectAopDep(meta, {
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    }, 'rpc')
-
-    handleMeta()
-    // not unsubscribe in kafkajs
-    // await consumer.stop()
-    // existQueue.clear()
-    // subscribeQueues()
   })
 }

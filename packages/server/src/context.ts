@@ -1,12 +1,9 @@
-import pc from 'picocolors'
 import Debug from 'debug'
 import { defaultPipe } from './pipe'
 import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
-import { Histroy } from './history'
 import type { BaseContext, DefaultOptions } from './types'
 import { IS_HMR, IS_STRICT } from './common'
-import type { ControllerMeta, Meta } from './meta'
 import { log } from './utils'
 import type { Exception } from './exception'
 import { resolveDep } from './helper'
@@ -22,7 +19,6 @@ export type FilterType<C extends BaseContext = any, E extends Exception = any> =
 export class Context<Data extends BaseContext> {
   method: string
   params: string[]
-  history = new Histroy()
 
   static filterRecord: Record<PropertyKey, FilterType> = {
     default: defaultFilter,
@@ -35,7 +31,7 @@ export class Context<Data extends BaseContext> {
   static guardRecord: Record<PropertyKey, GuardType> = {}
   static interceptorRecord: Record<PropertyKey, InterceptorType> = {}
 
-  static pluginRecord: Record<PropertyKey, any> = {}
+  static pluginRecord: Record<PropertyKey, (framework: string) => any> = {}
   private postInterceptors: Function[]
 
   constructor(public data: Data) {
@@ -115,17 +111,15 @@ export class Context<Data extends BaseContext> {
   }
 
   private async useGuard(guards: string[]) {
-    for (const guard of guards) {
-      if (this.history.record(guard, 'guard')) {
-        if (!(guard in Context.guardRecord)) {
-          if (IS_STRICT)
-            throw new FrameworkException(`Can't find guard named "${guard}"`)
-          else debug(`Can't find guard named "${guard}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
-          continue
-        }
-        if (!await Context.guardRecord[guard](this.data))
-          throw new ForbiddenException(`Guard exception--[${guard}]`)
+    for (const guard of new Set(guards)) {
+      if (!(guard in Context.guardRecord)) {
+        if (IS_STRICT)
+          throw new FrameworkException(`Can't find guard named "${guard}"`)
+        else debug(`Can't find guard named "${guard}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
+        continue
       }
+      if (!await Context.guardRecord[guard](this.data))
+        throw new ForbiddenException(`Guard exception--[${guard}]`)
     }
   }
 
@@ -139,44 +133,43 @@ export class Context<Data extends BaseContext> {
 
   private async useInterceptor(interceptors: string[]) {
     const cb = []
-    for (const interceptor of interceptors) {
-      if (this.history.record(interceptor, 'interceptor')) {
-        if (!(interceptor in Context.interceptorRecord)) {
-          if (IS_STRICT)
-            throw new FrameworkException(`can't find interceptor named "${interceptor}"`)
-          else debug(`Can't find interceptor named "${interceptor}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
+    for (const interceptor of new Set(interceptors)) {
+      if (!(interceptor in Context.interceptorRecord)) {
+        if (IS_STRICT)
+          throw new FrameworkException(`can't find interceptor named "${interceptor}"`)
+        else debug(`Can't find interceptor named "${interceptor}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
 
-          continue
-        }
-        const interceptRet = await Context.interceptorRecord[interceptor](this.data)
-        if (interceptRet !== undefined) {
-          if (typeof interceptRet === 'function')
-            cb.push(interceptRet)
+        continue
+      }
+      const interceptRet = await Context.interceptorRecord[interceptor](this.data)
+      if (interceptRet !== undefined) {
+        if (typeof interceptRet === 'function')
+          cb.push(interceptRet)
 
-          else
-            return interceptRet
-        }
+        else
+          return interceptRet
       }
     }
     this.postInterceptors = cb
   }
 
-  static usePlugin(plugins: string[]) {
-    const ret = []
-    for (const m of plugins) {
+  static usePlugin<Plugin>(plugins: string[], framework: string) {
+    const ret: Plugin[] = []
+    for (const m of new Set(plugins)) {
       if (!(m in Context.pluginRecord)) {
         if (IS_STRICT)
           throw new FrameworkException(`can't find middleware named '${m}'`)
 
         continue
       }
-      ret.push(Context.pluginRecord[m])
+      const plugin = Context.pluginRecord[m](framework)
+      plugin && ret.push(plugin)
     }
-    return ret as any[]
+    return ret
   }
 }
 
-export function addPlugin<T>(key: PropertyKey, handler: T) {
+export function addPlugin<T>(key: PropertyKey, handler: (framework: string) => T) {
   if (Context.pluginRecord[key] && Context.pluginRecord[key] !== handler)
     log(`overwrite Plugin "${String(key)}"`, 'warn')
 
@@ -205,68 +198,4 @@ export function addInterceptor<C extends BaseContext>(key: PropertyKey, handler:
   if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
     log(`overwrite Interceptor "${String(key)}"`, 'warn')
   Context.interceptorRecord[key] = handler
-}
-
-// detect whether plugin/filter/pipe/guard/intercept is injected
-export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
-  guards?: string[]
-  interceptors?: string[]
-  plugins?: string[]
-} = {}, controller: string = 'http') {
-  const pluginSet = new Set<string>(plugins)
-
-  const guardSet = new Set<string>(guards)
-  const interceptorSet = new Set<string>(interceptors)
-  const pipeSet = new Set<string>()
-  const filterSet = new Set<string>()
-  const warningSet = new Set<string>();
-
-  (meta as ControllerMeta[]).forEach(({ data }) => {
-    if (data.controller !== controller) {
-      if (data[controller])
-        warningSet.add(`Module "${data.tag === data.name ? data.name : `${data.name}(${data.tag})`}"  should use ${controller} controller to decorate class or remove ${controller} decorator on method "${data.func}"`)
-
-      return
-    }
-    if (data.filter)
-      filterSet.add(data.filter)
-
-    data.interceptors.forEach(i => interceptorSet.add(i))
-    data.guards.forEach(i => guardSet.add(i))
-    data.plugins.forEach(i => pluginSet.add(i))
-    data.params.forEach((i) => {
-      if (i.pipe)
-        pipeSet.add(i.pipe)
-    })
-  })
-
-  const missPlugins = [...pluginSet].filter(i => !Context.pluginRecord[i])
-  const missGuards = [...guardSet].filter(i => !Context.guardRecord[i])
-  const missInterceptors = [...interceptorSet].filter(i => !Context.interceptorRecord[i])
-  const missPipes = [...pipeSet].filter(i => !Context.pipeRecord[i])
-  const missFilters = [...filterSet].filter(i => !Context.filterRecord[i])
-
-  if (missPlugins.length)
-    log(`${pc.white(`Plugin [${missPlugins.join(',')}]`)} doesn't exist`, 'warn')
-  if (missGuards.length)
-    log(`${pc.magenta(`Guard [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
-
-  if (missInterceptors.length)
-    log(`${pc.cyan(`Interceptor [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
-
-  if (missPipes.length)
-    log(`${pc.blue(`Pipe [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
-
-  if (missFilters.length)
-    log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
-
-  warningSet.forEach(warn => log(warn, 'warn'))
-
-  return {
-    missPlugins,
-    missGuards,
-    missInterceptors,
-    missPipes,
-    missFilters,
-  }
 }

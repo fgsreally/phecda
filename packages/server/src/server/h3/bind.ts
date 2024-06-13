@@ -1,14 +1,13 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
-import type { H3Event, Router } from 'h3'
+import type { H3Event, Router, _RequestMiddleware } from 'h3'
 import Debug from 'debug'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
+import { Context } from '../../context'
 import type { HttpContext, HttpOptions } from '../helper'
-import { HMR } from '../../hmr'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/h3')
 
@@ -19,32 +18,31 @@ export interface H3Ctx extends HttpContext {
 
 }
 
+export type Plugin = _RequestMiddleware
+
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
+  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
 
   const { moduleMap, meta } = data
 
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, http } = item.data
-      if (controller !== 'http' || !http?.type)
-        continue
-
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, http, func, tag } = meta.data
+    if (controller === 'http' && http?.type) {
       debug(`register method "${func}" in module "${tag}"`)
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+      return true
     }
-  }
+  })
+  detectAopDep(meta, {
+    plugins: [...globalPlugins, ...parallel_plugins],
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
 
-  async function createRoute() {
-    router.post(route, eventHandler({
-      onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+  registerRoute()
+
+  async function registerRoute() {
+    router.post(parallel_route, eventHandler({
+      onRequest: Context.usePlugin<Plugin>([...globalPlugins, ...parallel_plugins], 'h3').map(defineRequestMiddleware),
       handler: async (event) => {
         const body = await readBody(event, { strict: true })
         async function errorHandler(e: any) {
@@ -120,8 +118,10 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         if (!http?.type)
           continue
         const needBody = params.some(item => item.type === 'body')
+
         router[http.type](http.prefix + http.route, eventHandler({
-          onRequest: [...Context.usePlugin(plugins).map(p => defineRequestMiddleware(p))],
+          onRequest: Context.usePlugin<Plugin>([...globalPlugins, ...plugins], 'h3').map(defineRequestMiddleware),
+
           handler: async (event) => {
             debug(`invoke method "${func}" in module "${tag}"`)
 
@@ -153,22 +153,4 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
       }
     }
   }
-
-  detectAopDep(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-
-  handleMeta()
-  createRoute()
-
-  HMR(async () => {
-    detectAopDep(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-    handleMeta()
-  })
 }

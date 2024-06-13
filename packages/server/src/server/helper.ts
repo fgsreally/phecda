@@ -13,12 +13,17 @@ export interface HttpOptions extends DefaultOptions {
   /**
  * 专用路由的值，默认为/__PHECDA_SERVER__，处理phecda-client发出的合并请求
  */
-  route?: string
+  parallel_route?: string
 
   /**
  * 专用路由的插件(work for merge request)，
  */
-  plugins?: string[]
+  parallel_plugins?: string[]
+
+  /**
+   *  only work for http server
+   */
+  globalPlugins?: string[]
 
 }
 

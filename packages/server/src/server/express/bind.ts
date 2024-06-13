@@ -1,12 +1,11 @@
-import type { Express, Request, Response, Router } from 'express'
+import type { Express, Request, RequestHandler, Response, Router } from 'express'
 import Debug from 'debug'
 import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
-
+import { Context } from '../../context'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/express')
@@ -19,31 +18,37 @@ export interface ExpressCtx extends HttpContext {
 
 }
 
+export type Plugin = RequestHandler
+
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
+  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
   const { moduleMap, meta } = data
 
   const originStack = router.stack.slice(0, router.stack.length)
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, http } = item.data
-      if (controller !== 'http' || !http?.type)
-        continue
 
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, http, func, tag } = meta.data
+    if (controller === 'http' && http?.type) {
       debug(`register method "${func}" in module "${tag}"`)
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+      return true
     }
-  }
+  })
+  detectAopDep(meta, {
+    plugins: [...globalPlugins, ...parallel_plugins],
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
 
-  async function createRoute() {
-    (router as Express).post(route, ...Context.usePlugin(plugins), async (req, res, next) => {
+  registerRoute()
+
+  HMR(async () => {
+    router.stack = originStack// router.stack.slice(0, 1)
+    registerRoute()
+  })
+
+  async function registerRoute() {
+    Context.usePlugin<Plugin>(globalPlugins, 'express').forEach(p => router.use(p));
+    (router as Express).post(parallel_route, ...Context.usePlugin<Plugin>(parallel_plugins, 'express'), async (req, res, next) => {
       const { body } = req
 
       async function errorHandler(e: any) {
@@ -120,7 +125,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         if (!http?.type)
           continue
 
-        (router as Express)[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (req, res, next) => {
+        (router as Express)[http.type](http.prefix + http.route, ...Context.usePlugin<Plugin>(plugins, 'express'), async (req, res, next) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {
@@ -164,23 +169,4 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
       }
     }
   }
-
-  detectAopDep(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-  handleMeta()
-  createRoute()
-
-  HMR(async () => {
-    router.stack = originStack// router.stack.slice(0, 1)
-    detectAopDep(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-    handleMeta()
-    createRoute()
-  })
 }

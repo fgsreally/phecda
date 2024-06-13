@@ -1,14 +1,12 @@
-import type { FastifyInstance, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
+import type { FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
-
-import { HMR } from '../../hmr'
+import { Context } from '../../context'
 import { Define } from '../../decorators'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 const debug = Debug('phecda-server/fastify')
 export interface FastifyCtx extends HttpContext {
   type: 'fastify'
@@ -18,57 +16,39 @@ export interface FastifyCtx extends HttpContext {
 
 }
 
+export type Plugin = FastifyPluginCallback
+
 export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions & { fastifyOpts?: FastifyRegisterOptions<FastifyPluginOptions> } = {}) {
-  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe, fastifyOpts } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
+  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe, fastifyOpts } = opts
   const {
     moduleMap, meta,
   } = data
 
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, http } = item.data
-      if (controller !== 'http' || !http?.type)
-        continue
-
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, http, func, tag } = meta.data
+    if (controller === 'http' && http?.type) {
       debug(`register method "${func}" in module "${tag}"`)
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+      return true
     }
-  }
+  })
 
   detectAopDep(meta, {
-    plugins,
+    plugins: [...globalPlugins, ...parallel_plugins],
     guards: globalGuards,
     interceptors: globalInterceptors,
   })
-  handleMeta()
-
-  HMR(async () => {
-    detectAopDep(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-    handleMeta()
-  })
 
   fastify.register((fastify, _, done) => {
+    Context.usePlugin<Plugin>(globalPlugins, 'fastify').forEach((p) => {
+      (p as any)[Symbol.for('skip-override')] = true
+      fastify.register(p)
+    })
     fastify.register((fastify, _opts, done) => {
-      plugins.forEach((p) => {
-        const plugin = Context.usePlugin([p])[0]
-        if (plugin) {
-          plugin[Symbol.for('skip-override')] = true
-
-          fastify.register(plugin)
-        }
+      Context.usePlugin<Plugin>(parallel_plugins, 'fastify').forEach((p) => {
+        (p as any)[Symbol.for('skip-override')] = true
+        fastify.register(p)
       })
-      fastify.post(route, async (req, res) => {
+      fastify.post(parallel_route, async (req, res) => {
         const { body } = req as any
 
         async function errorHandler(e: any) {
@@ -150,8 +130,8 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
           continue
 
         fastify.register((fastify, _opts, done) => {
-          Context.usePlugin(plugins).forEach((p) => {
-            p[Symbol.for('skip-override')] = true
+          Context.usePlugin<Plugin>(plugins, 'fastify').forEach((p) => {
+            (p as any)[Symbol.for('skip-override')] = true
 
             fastify.register(p)
           })

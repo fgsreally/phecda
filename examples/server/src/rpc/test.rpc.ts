@@ -16,6 +16,6 @@ context: RpcContext
   @Queue('test')
   @Event()
   event(@Arg arg: string) {
-    console.log(`arg is ${arg}`, this.context.queue)
+    console.log(`arg is ${arg}`)
   }
 }

@@ -11,7 +11,7 @@ import { Test } from '../fixtures/test.controller'
 async function createServer(opts?: HttpOptions) {
   const data = await Factory([Test])
   const app = fastify()
-  app.register(bind(data, opts))
+  bind(app, data, opts)
   await app.ready()
   return app.server
 }

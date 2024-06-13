@@ -104,6 +104,7 @@ declare global {
   const addPlugin: typeof import('phecda-server')['addPlugin']
   const argToReq: typeof import('phecda-server')['argToReq']
   const classToPlain: typeof import('phecda-server')['classToPlain']
+  const createControllerMetaMap: typeof import('phecda-server')['createControllerMetaMap']
   const defaultPipe: typeof import('phecda-server')['defaultPipe']
   const detectAopDep: typeof import('phecda-server')['detectAopDep']
   const emitter: typeof import('phecda-server')['emitter']

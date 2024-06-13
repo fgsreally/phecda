@@ -2,7 +2,7 @@ import { getTag } from 'phecda-core'
 import { Context, addPlugin } from '../context'
 import { Dev } from './dev'
 
-export abstract class PPlugin<Params extends any[] = any[]> extends Dev {
+export abstract class PPlugin extends Dev {
   readonly key: PropertyKey
   constructor(tag?: string) {
     super()
@@ -15,5 +15,5 @@ export abstract class PPlugin<Params extends any[] = any[]> extends Dev {
     })
   }
 
-  abstract use(...args: Params): void
+  abstract use<Plugin = any>(framework: string): Plugin
 }

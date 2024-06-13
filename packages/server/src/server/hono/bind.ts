@@ -1,13 +1,12 @@
 import Debug from 'debug'
-import type { Hono, Context as HonoContext } from 'hono'
+import type { Hono, Context as HonoContext, MiddlewareHandler } from 'hono'
 import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
+import { Context } from '../../context'
 
-import { HMR } from '../../hmr'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 const debug = Debug('phecda-server/hono')
 export interface HonoCtx extends HttpContext {
   type: 'hono'
@@ -16,29 +15,31 @@ export interface HonoCtx extends HttpContext {
 
 }
 
+export type Plugin = MiddlewareHandler
+
 export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
+  const { globalGuards, globalInterceptors, parallel_route = '/__PHECDA_SERVER__', globalPlugins = [], parallel_plugins = [], globalFilter, globalPipe } = opts
+
   const { moduleMap, meta } = data
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, http } = item.data
-      if (controller !== 'http' || !http?.type)
-        continue
 
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, http, func, tag } = meta.data
+    if (controller === 'http' && http?.type) {
       debug(`register method "${func}" in module "${tag}"`)
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+      return true
     }
-  }
+  })
+  detectAopDep(meta, {
+    plugins: [...globalPlugins, ...parallel_plugins],
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
 
-  async function createRoute() {
-    router.post(route, ...Context.usePlugin(plugins), async (c) => {
+  registerRoute()
+
+  async function registerRoute() {
+    Context.usePlugin<Plugin>(globalPlugins, 'hono').forEach(p => router.use(p))
+    router.post(parallel_route, ...Context.usePlugin<Plugin>(parallel_plugins, 'hono'), async (c) => {
       const body = await c.req.json()
 
       async function errorHandler(e: any) {
@@ -93,7 +94,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
           })
         })).then((ret) => {
           return c.json(ret)
-        })
+        }) as any
       }
       catch (e) {
         return errorHandler(e)
@@ -117,7 +118,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
           continue
         const needBody = params.some(item => item.type === 'body')
 
-        router[http.type](http.prefix + http.route, ...Context.usePlugin(plugins), async (c) => {
+        router[http.type](http.prefix + http.route, ...Context.usePlugin<Plugin>(plugins, 'hono'), async (c) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {
@@ -158,21 +159,4 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
       }
     }
   }
-
-  detectAopDep(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-  handleMeta()
-  createRoute()
-
-  HMR(async () => {
-    detectAopDep(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-    handleMeta()
-  })
 }

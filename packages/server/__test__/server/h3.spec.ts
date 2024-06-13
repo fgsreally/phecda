@@ -89,21 +89,25 @@ describe('h3 ', () => {
   it('plugin', async () => {
     const fn = vi.fn()
 
-    addPlugin('p1', () => {
-      fn()
-    })
+    const plugin = () => {
+      return () => {
+        fn()
+      }
+    }
+    addPlugin('p1', plugin)
+    addPlugin('p2', plugin)
 
-    const app = await createServer({ plugins: ['p1'] })
+    const app = await createServer({ parallel_plugins: ['p1'], globalPlugins: ['p2'] })
 
     await request(app).get('/plugin')
-    expect(fn).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledTimes(2)
     await request(app).post('/__PHECDA_SERVER__').send([{
       tag: 'Test',
       func: 'plugin',
       args: [],
     }])
 
-    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fn).toHaveBeenCalledTimes(4)
   })
 
   it('guard/interceptor', async () => {

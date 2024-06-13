@@ -15,7 +15,7 @@ export interface PExtension<C extends BaseContext = any, E extends Exception = E
 
   filter(error: Error | E, ctx?: C): BaseError
 
-  plugin(...args: any): void
+  plugin<Plugin = any>(framework: string): Plugin
 }
 
 export class PExtension extends Dev {
@@ -29,6 +29,7 @@ export class PExtension extends Dev {
     if (this.pipe) {
       addPipe(key, this.pipe.bind(this))
       this.onUnmount(() => {
+        // no safe enough
         delete Context.pipeRecord[key]
       })
     }
