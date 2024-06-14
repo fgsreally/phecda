@@ -179,30 +179,13 @@ export default defineConfig({
               text: 'bun/deno',
               link: '/server/advance/bun-or-deno',
             },
-          ],
-        },
-        {
-          text: '微服务',
-          collapsed: true,
-          items: [
             {
-              text: '基础使用',
-              link: '/server/rpc/base',
-            },
-            {
-              text: 'rabbitmq',
-              link: '/server/rpc/rabbitmq',
-            },
-            {
-              text: 'redis',
-              link: '/server/rpc/redis',
-            },
-            {
-              text: 'kafka',
-              link: '/server/rpc/kafka',
+              text: '微服务',
+              link: '/server/advance/rpc',
             },
           ],
         },
+
         {
           text: '其他',
           collapsed: true,

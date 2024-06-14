@@ -19,7 +19,7 @@ export interface BullmqOptions {
   queueOpts?: QueueOptions
 }
 
-export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: BullmqOptions & RpcServerOptions = {}) {
+export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: BullmqOptions & RpcServerOptions = {}) {
   const { globalGuards, globalInterceptors, globalFilter, globalPipe, workerOpts, queueOpts } = opts
 
   const workerMap: Record<string, Worker> = {}
