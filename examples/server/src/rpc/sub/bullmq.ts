@@ -8,7 +8,14 @@ async function start() {
     generators: [new RPCGenerator()],
   })
 
-  bind({ port: 6379 }, data)
+  bind(data, {
+    workerOpts: {
+      connection: { port: 6379 },
+    },
+    queueOpts: {
+      connection: { port: 6379 },
+    },
+  })
 
   console.log('bullmq listen...')
 }

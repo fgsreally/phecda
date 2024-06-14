@@ -19,7 +19,7 @@ async function start() {
   await producer.connect()
   await consumer.connect()
 
-  await bind(consumer, producer, data)
+  await bind({ consumer, producer }, data)
 
   console.log('kafka listen...')
 }

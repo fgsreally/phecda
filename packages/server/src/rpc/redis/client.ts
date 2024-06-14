@@ -5,7 +5,7 @@ import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
 
-export async function createClient<S extends Record<string, any>>(pub: Redis, sub: Redis, controllers: S, opts?: RpcClientOptions) {
+export async function createClient<S extends Record<string, any>>({ pub, sub }: { pub: Redis; sub: Redis }, controllers: S, opts?: RpcClientOptions) {
   const ret = {} as ToClientMap<S>
   let eventId = 1
   let eventCount = 0

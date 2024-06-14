@@ -5,7 +5,7 @@ import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../helper'
 import { genClientQueue } from '../helper'
 // @experiment
-export async function createClient<S extends Record<string, any>>(producer: Producer, consumer: Consumer, controllers: S, opts?: RpcClientOptions) {
+export async function createClient<S extends Record<string, any>>({ producer, consumer }: { producer: Producer; consumer: Consumer }, controllers: S, opts?: RpcClientOptions) {
   let eventId = 1
   let eventCount = 1
 

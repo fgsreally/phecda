@@ -1,4 +1,4 @@
-import type { ConnectionOptions, Job } from 'bullmq'
+import type { Job, QueueOptions, WorkerOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 import Debug from 'debug'
 import type { Factory } from '../../core'
@@ -14,8 +14,13 @@ export interface BullmqCtx extends RpcContext {
   type: 'bullmq'
 }
 
-export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
-  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
+export interface BullmqOptions {
+  workerOpts?: WorkerOptions
+  queueOpts?: QueueOptions
+}
+
+export async function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: BullmqOptions & RpcServerOptions = {}) {
+  const { globalGuards, globalInterceptors, globalFilter, globalPipe, workerOpts, queueOpts } = opts
 
   const workerMap: Record<string, Worker> = {}
   const queueMap: Record<string, Queue> = {}
@@ -50,7 +55,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
           if (existQueue.has(queue))
             continue
           existQueue.add(queue)
-          workerMap[queue] = new Worker(queue, handleRequest, { connection: connectOpts })
+          workerMap[queue] = new Worker(queue, handleRequest, workerOpts)
         }
       }
     }
@@ -72,7 +77,7 @@ export async function bind(connectOpts: ConnectionOptions, { moduleMap, meta }: 
     } = meta
 
     if (!isEvent && !(clientQueue in queueMap))
-      queueMap[clientQueue] = new Queue(clientQueue, { connection: connectOpts })
+      queueMap[clientQueue] = new Queue(clientQueue, queueOpts)
 
     const context = new Context<BullmqCtx>({
       type: 'bullmq',
