@@ -67,9 +67,10 @@ export async function initialize(data) {
   if (!config.unimport)
     return
   unimportRet = await genUnImportRet(config.unimport)
-  await unimportRet.init()
   if (unimportRet) {
     log('auto import...')
+    await unimportRet.init()
+
     writeFile(
       config.unimport.dtsPath || dtsPath,
       handleClassTypes(await unimportRet.generateTypeDeclarations()),
@@ -120,9 +121,9 @@ export const resolve = async (specifier, context, nextResolve) => {
     }
   }
   // url import
+  // it seems useless
   if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
     const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
-
     return {
       format: 'ts',
       url,
@@ -151,7 +152,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     host,
     moduleResolutionCache,
   )
-  // import from local project to local project TS file
+  // import between loacl projects
   if (
     resolvedModule
     && !resolvedModule.resolvedFileName.includes('/node_modules/')

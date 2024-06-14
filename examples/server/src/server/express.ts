@@ -16,7 +16,7 @@ import 'virtual:xx'
 
 async function start() {
   const data = await Factory([TestController], {
-    generators: [new HTTPGenerator('.ps/http.ts')],
+    generators: [new HTTPGenerator()],
   })
   const router = express.Router()
 

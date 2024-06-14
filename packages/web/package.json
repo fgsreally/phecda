@@ -9,9 +9,10 @@
     "build": "tsup",
     "dev": "tsup --watch"
   },
-  "keywords": [],
-  "author": "",
-  "files": [
+  "keywords": ["phecda","web"],
+  "author": "fgsreally",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/web",
+    "files": [
     "dist"
   ],
   "license": "MIT",

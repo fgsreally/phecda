@@ -1,5 +1,5 @@
-## phecda-core
-有些功能来自`phecda-core`
+# phecda-core
+来自`phecda-core`的功能
 
 主要就是`初始化`/`事件总线`/`错误处理`
 
@@ -30,7 +30,7 @@ class Test {
 > 这里`emitter`用的是`nodejs`中的`eventEmitter`,
 > 如果想更改,可以参考`Factory`的源码实现
 
-::: danger
+::: warning
 
 当前架构无法支持`Isolate`
 

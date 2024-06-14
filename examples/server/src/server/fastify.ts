@@ -5,10 +5,16 @@ import Fastify from 'fastify'
 import { TestController } from './test.controller'
 
 const data = await Factory([TestController], {
-  generators: [new HTTPGenerator('.ps/http.ts')],
+  generators: [new HTTPGenerator()],
 })
 const fastify = Fastify({
   logger: false,
+})
+
+bind(fastify, data, {
+  fastifyOpts: {
+    prefix: '/base',
+  },
 })
 
 // addFilter('test', (e, tag, ctx) => {
@@ -29,10 +35,6 @@ const fastify = Fastify({
 //   })
 //   done()
 // })
-
-fastify.register(bind(data), {
-  prefix: '/base',
-})
 
 fastify.listen({ port: 3008 }, (err) => {
   if (err) {

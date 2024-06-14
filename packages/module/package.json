@@ -26,9 +26,10 @@
       ]
     }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["phecda","hmr","web","vite"],
+  "author": "fgsreally",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/module",
+  "license": "MIT",
   "dependencies": {
     "phecda-core": "workspace:*",
     "reflect-metadata": "^0.1.13"

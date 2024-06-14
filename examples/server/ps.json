@@ -1,27 +1,27 @@
 {
-  "$schema": "node_modules/phecda-server/bin/schema.json",
-  "resolve": [
-    {
-      "source": "controller",
-      "importer": "http",
-      "path": ".ps/http.ts"
-    },
-    {
-      "source": "rpc",
-      "importer": "client",
-      "path": ".ps/rpc.ts"
+      "$schema": "node_modules/phecda-server/bin/schema.json",
+      "resolve": [
+        {
+          "source": "controller",
+          "importer": "http",
+          "path": ".ps/http.js"
+        },
+        {
+          "source": "rpc",
+          "importer": "client",
+          "path": ".ps/rpc.js"
+        }
+      ],
+    "unimport": {
+      "dirs": ["./src/server/*"],
+      "dirsScanOptions":{
+        "filePatterns":["*.{service,controller,module,rpc,edge,guard,interceptor,extension,pipe,filter,plugin}.ts"]
+       }
+     },
+      "virtualFile":{
+        "virtual:xx":"console.log(1)"
+      },
+      "moduleFile": []
+      
     }
-  ],
-  "unimport": {
-    "dirs": ["./src/server/*"],
-    "dirsScanOptions":{
-        "filePatterns":["*.{service,controller,module}.ts"]
-    },
-    "dtsPath": "./ps.d.ts"
-  },
-
-  "virtualFile": {
-    "virtual:xx":"console.log('virtual:xx')"
-  },
-  "moduleFile": []
-}
+    

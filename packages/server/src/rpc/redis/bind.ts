@@ -1,10 +1,10 @@
 import type Redis from 'ioredis'
 import Debug from 'debug'
 import type { Factory } from '../../core'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
+import { Context } from '../../context'
 import type { RpcContext, RpcServerOptions } from '../helper'
 import { HMR } from '../../hmr'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/redis')
 
@@ -18,23 +18,20 @@ export interface RedisCtx extends RpcContext {
 
 export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
   const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
-
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
-  const existQueue = new Set<string>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, rpc } = item.data
-      if (controller !== 'rpc' || rpc?.queue === undefined)
-        continue
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, rpc, func, tag } = meta.data
+    if (controller === 'rpc' && rpc?.queue !== undefined) {
+      debug(`register method "${func}" in module "${tag}"`)
+      return true
     }
-  }
+  })
+
+  detectAopDep(meta, {
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  }, 'rpc')
+
+  const existQueue = new Set<string>()
 
   async function subscribeQueues() {
     existQueue.clear()
@@ -108,18 +105,8 @@ export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<Return
     }
   })
 
-  detectAopDep(meta, {
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  }, 'rpc')
-  handleMeta()
   subscribeQueues()
   HMR(async () => {
-    detectAopDep(meta, {
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    }, 'rpc')
-    handleMeta()
     for (const queue of existQueue)
       await sub.unsubscribe(queue)
 

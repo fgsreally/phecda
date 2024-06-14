@@ -51,9 +51,11 @@
     "phecda",
     "axios",
     "types-share",
-    "fullstack"
+    "phecda-server"
   ],
-  "author": "",
+  "author": "fgsreally",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/client",
+  
   "files": [
     "dist"
   ],

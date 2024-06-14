@@ -2,21 +2,21 @@
 layout: home
 
 title: Phecda
-titleTemplate: 贯穿一切的依赖注入方案
+titleTemplate: 贯穿一切的依赖注入
 
 hero:
   name: Phecda
-  text: 贯穿一切的依赖注入方案
+  text: 贯穿一切的依赖注入
   tagline: 100%的自定义对应100%的场景
 #   image:
 #     src: /Phecda.png
 #     alt: Phecda
   Introduction: 天玑
   actions:
-    - theme: server
-      text: 核心知识
-      link: /server/intro
-
+     - text: server
+       link: /server/intro
+     - text: vue
+       link: /vue/base
 
 
 features:

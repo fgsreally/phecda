@@ -60,8 +60,7 @@ describe('test utils', () => {
     // express
     const data = await Factory([Http])
     const app = Fastify()
-    app.register(bindFastify(data))
-
+    bindFastify(app, data)
     await app.ready()
     const { module } = await TestHttp(app.server, data)
     await module(Http).get().expect(200, 'get')

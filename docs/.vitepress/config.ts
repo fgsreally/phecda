@@ -84,10 +84,6 @@ export default defineConfig({
               text: 'intro',
               link: '/server/intro',
             },
-            {
-              text: '灵感来源',
-              link: '/server/inspire',
-            },
 
             {
               text: '快速开始',
@@ -95,8 +91,12 @@ export default defineConfig({
             },
 
             {
-              text: '基础使用',
+              text: '基础知识',
               link: '/server/base',
+            },
+            {
+              text: '规范',
+              link: '/server/standard',
             },
           ],
         },
@@ -129,27 +129,8 @@ export default defineConfig({
               text: 'extension',
               link: '/server/aop/extension',
             },
-            {
-              text: '自定义装饰器',
-              link: '/server/aop/decorator',
-            },
+
           ],
-        },
-        {
-          text: '客户端',
-          collapsed: false,
-          items: [
-            {
-              text: '调用',
-              link: '/server/client/invoke',
-            },
-            {
-              text: '构建工具',
-              link: '/server/client/bundler',
-            }, {
-              text: 'npm',
-              link: '/server/client/npm',
-            }],
         },
 
         {
@@ -157,32 +138,47 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
-              text: '合并请求',
-              link: '/server/route',
+              text: '模块运用(必读)',
+              link: '/server/advance/module',
+            },
+            {
+              text: '并行请求',
+              link: '/server/advance/parallel-route',
             },
 
-            {
-              text: '规范',
-              link: '/server/rule',
-            },
             {
               text: 'phecda-core',
-              link: '/server/phecda-core',
-            },
-            {
-              text: '模块(必读)',
-              link: '/server/module',
+              link: '/server/advance/phecda-core',
             },
 
+            {
+              text: '限制',
+              link: '/server/advance/limit',
+            },
+            {
+              text: '命令行',
+              link: '/server/advance/command',
+            },
+            {
+              text: '打包',
+              link: '/server/advance/bundle',
+            },
+            {
+              text: '跨项目',
+              link: '/server/advance/cross-project',
+            },
             {
               text: '热更新',
-              link: '/server/hmr',
+              link: '/server/advance/hmr',
             },
             {
-              text: '自动引入',
-              link: '/server/auto-import',
+              text: '自定义功能',
+              link: '/server/advance/custom',
             },
-
+            {
+              text: 'bun/deno',
+              link: '/server/advance/bun-or-deno',
+            },
           ],
         },
         {
@@ -216,13 +212,14 @@ export default defineConfig({
               link: '/server/other/compare',
             },
             {
+              text: '灵感来源',
+              link: '/server/other/inspire',
+            },
+            {
               text: '类型杂技',
               link: '/server/other/types',
             },
-            {
-              text: '性能',
-              link: '/server/other/benchmark',
-            },
+
             {
               text: '一些问题',
               link: '/server/other/problem',

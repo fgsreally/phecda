@@ -5,7 +5,9 @@ import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
 import { log } from '../dist/index.mjs'
-const cli = cac('phecda')
+const cli = cac('phecda').option('-c,--config <config>', 'config file', {
+  default: 'ps.json',
+})
 const require = createRequire(import.meta.url)
 let child
 
@@ -64,7 +66,7 @@ process.on('SIGINT', () => {
   process.exit()
 })
 
-cli.command('init', 'init config file').action(async () => {
+cli.command('init', 'init config file').action(async (options) => {
   if (!fse.existsSync('tsconfig.json')) {
     log('init tsconfig.json')
 
@@ -95,27 +97,34 @@ cli.command('init', 'init config file').action(async () => {
     )
   }
 
-  if (!fse.existsSync('ps.json')) {
-    log('init ps.json')
+  if (!fse.existsSync(options.config)) {
+    log(`init ${options.config}`)
 
     await fse.outputFile(
-      'ps.json',
+      options.config,
      `{
       "$schema": "node_modules/phecda-server/bin/schema.json",
       "resolve": [
         {
           "source": "controller",
           "importer": "http",
-          "path": ".ps/http.ts"
+          "path": ".ps/http.js"
         },
         {
           "source": "rpc",
           "importer": "client",
-          "path": ".ps/rpc.ts"
+          "path": ".ps/rpc.js"
         }
       ],
-      "unimport":false,
+    "unimport": {
+      "dirs": [],
+      "dirsScanOptions":{
+        "filePatterns":["*.{service,controller,module,rpc,edge,guard,interceptor,extension,pipe,filter,plugin}.ts"]
+       }
+     },
+      "virtualFile":{},
       "moduleFile": []
+      
     }
     `,
     )
@@ -125,9 +134,6 @@ cli.command('init', 'init config file').action(async () => {
 cli
   .command('[file]', 'run file')
   .alias('run')
-  .option('-c, --config', 'config file', {
-    default: './ps.json',
-  })
   .action((file, options) => {
     process.env.PS_CONFIG_FILE = options.config
 
@@ -160,9 +166,6 @@ cli
 
 cli
   .command('generate [file]', 'generate code(mainly for ci)')
-  .option('-c, --config', 'config file', {
-    default: './ps.json',
-  })
   .action((file, options) => {
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = options.config

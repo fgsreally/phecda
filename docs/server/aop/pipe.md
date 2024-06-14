@@ -2,7 +2,7 @@
 
 运行在拦截器之后，主要用于验证参数
 
-每个参数都会单独进入一个管道，(只能使用一个管道)
+每个参数都会单独进入一个管道，且**只能使用一个管道**
 
 ```ts
 import { Controller, Factory, PPipe, Pipe, Post, Query } from 'phecda-server'
@@ -28,7 +28,7 @@ class TestController {
 Factory([Validate, TestController])
 ```
 
-## 默认
+## 默认管道
 没有设置管道时，默认使用`default`管道,即`phecda-core`提供的验证能力
 
 > 和`class-validator`很像

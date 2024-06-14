@@ -4,21 +4,16 @@
 
 目前支持`rabbitmq`/`redis`/`kafka`
 
-## 快速开始
+## 创建控制器
 
 `controller`是为`http`服务的，在这里需要的是`rpc`
 
 创建`test.rpc.ts`
 
-::: warning
-
-实际上你完全可以用`http`中的`Get/Post/Body/Query...`，
-但为了区分，还是不要这么做
-:::
-
 ```ts
-import { Arg, Event, Queue } from 'phecda-server'
+import { Arg, Event, Queue, Rpc } from 'phecda-server'
 
+@Rpc()
 export class TestRpc {
   @Queue()
 
@@ -37,23 +32,16 @@ export class TestRpc {
 ```
 
 
-## 服务端输出代码
+## 初始化+产生代码
 
 
 
 ```ts
 const data = await Factory([UserController], {
-  rpc: 'rpc.js'// 输出代码到该位置
+  generators: [new RPCGenerator()]
 })
 ```
-由于和`http`一致，一样要将引入指向`rpc.js`，具体方法也是[构建工具](../client/bundler.md)和[npm](../client/npm.md)
+
+整体流程没有不同
 
 
-:::info
-
-我假定微服务中的调用方和服务方是在两个项目里（最起码是在 monorepo 中），
-
-如果在同个项目中,调用的代码所属文件须符合`*.client.ts`
-
-
-:::

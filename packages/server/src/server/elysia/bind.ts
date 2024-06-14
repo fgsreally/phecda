@@ -6,11 +6,10 @@ import type { HttpContext, HttpOptions } from '../helper'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
-import type { ControllerMeta } from '../../meta'
-import { Context, detectAopDep } from '../../context'
+import { Context } from '../../context'
 
-import { HMR } from '../../hmr'
 import { Define } from '../../decorators'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 const debug = Debug('phecda-server/elysia')
 export interface ElysiaCtx extends HttpContext {
   type: 'elysia'
@@ -18,91 +17,95 @@ export interface ElysiaCtx extends HttpContext {
   context: ElysiaContext
 }
 
+export type Plugin = (app: App<any>) => void
+
 export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, globalInterceptors, route, plugins, globalFilter, globalPipe } = { route: '/__PHECDA_SERVER__', plugins: [], ...opts }
+  const { globalGuards, globalInterceptors, parallelRoute = '/__PHECDA_SERVER__', globalPlugins = [], parallelPlugins = [], globalFilter, globalPipe } = opts
   const { moduleMap, meta } = data
-  const metaMap = new Map<string, Record<string, ControllerMeta>>()
-  function handleMeta() {
-    metaMap.clear()
-    for (const item of meta) {
-      const { tag, func, controller, http } = item.data
-      if (controller !== 'http' || !http?.type)
-        continue
 
+  const metaMap = createControllerMetaMap(meta, (meta) => {
+    const { controller, http, func, tag } = meta.data
+    if (controller === 'http' && http?.type) {
       debug(`register method "${func}" in module "${tag}"`)
-
-      if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
-
-      else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+      return true
     }
-  }
+  })
+  detectAopDep(meta, {
+    plugins: [...globalPlugins, ...parallelPlugins],
+    guards: globalGuards,
+    interceptors: globalInterceptors,
+  })
 
-  async function createRoute() {
+  registerRoute()
+
+  async function registerRoute() {
+    Context.usePlugin<Plugin>(globalPlugins, 'elysia').forEach(p => p(app))
+
     const parallelRouter = new App()
-    Context.usePlugin(plugins).forEach(p => p(parallelRouter))
-    parallelRouter.post(route, async (c) => {
-      const { body } = c
+    Context.usePlugin<Plugin>(parallelPlugins, 'elysia').forEach(p => p(parallelRouter))
+    if (parallelRoute) {
+      parallelRouter.post(parallelRoute, async (c) => {
+        const { body } = c
 
-      async function errorHandler(e: any) {
-        const error = await Context.filterRecord.default(e)
-        c.set.status = error.status
-        return error
-      }
+        async function errorHandler(e: any) {
+          const error = await Context.filterRecord.default(e)
+          c.set.status = error.status
+          return error
+        }
 
-      if (!Array.isArray(body))
-        return errorHandler(new BadRequestException('data format should be an array'))
+        if (!Array.isArray(body))
+          return errorHandler(new BadRequestException('data format should be an array'))
 
-      try {
-        return Promise.all(body.map((item: any, i) => {
+        try {
+          return Promise.all(body.map((item: any, i) => {
           // eslint-disable-next-line no-async-promise-executor
-          return new Promise(async (resolve) => {
-            const { tag, func } = item
+            return new Promise(async (resolve) => {
+              const { tag, func } = item
 
-            debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
 
-            if (!metaMap.has(tag))
-              return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
+              if (!metaMap.has(tag))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-            const meta = metaMap.get(tag)![func]
-            if (!meta)
-              return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+              const meta = metaMap.get(tag)![func]
+              if (!meta)
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-            const {
+              const {
 
-              data: {
-                params,
+                data: {
+                  params,
 
-              },
-            } = meta
+                },
+              } = meta
 
-            const contextData = {
-              type: 'elysia' as const,
-              parallel: true,
-              context: c,
-              index: i,
-              meta,
-              moduleMap,
-              tag,
-              func,
-              app,
-              ...argToReq(params, item.args, c.headers),
-            }
-            const context = new Context<ElysiaCtx>(contextData)
+              const contextData = {
+                type: 'elysia' as const,
+                parallel: true,
+                context: c,
+                index: i,
+                meta,
+                moduleMap,
+                tag,
+                func,
+                app,
+                ...argToReq(params, item.args, c.headers),
+              }
+              const context = new Context<ElysiaCtx>(contextData)
 
-            context.run({
-              globalGuards, globalInterceptors, globalFilter, globalPipe,
-            }, resolve, resolve)
+              context.run({
+                globalGuards, globalInterceptors, globalFilter, globalPipe,
+              }, resolve, resolve)
+            })
+          })).then((ret) => {
+            return ret
           })
-        })).then((ret) => {
-          return ret
-        })
-      }
-      catch (e) {
-        return errorHandler(e)
-      }
-    })
+        }
+        catch (e) {
+          return errorHandler(e)
+        }
+      })
+    }
 
     app.use(parallelRouter)
     for (const [tag, record] of metaMap) {
@@ -123,7 +126,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
         if (!http?.type)
           continue
 
-        Context.usePlugin(plugins).forEach(p => p(funcRouter))
+        Context.usePlugin<Plugin>(plugins, 'elysia').forEach(p => p(funcRouter))
         // @ts-expect-error todo
         funcRouter[http.type](http.prefix + http.route, async (c) => {
           debug(`invoke method "${func}" in module "${tag}"`)
@@ -157,23 +160,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
       }
     }
   }
-
-  detectAopDep(meta, {
-    plugins,
-    guards: globalGuards,
-    interceptors: globalInterceptors,
-  })
-  handleMeta()
-  createRoute()
-
-  HMR(async () => {
-    detectAopDep(meta, {
-      plugins,
-      guards: globalGuards,
-      interceptors: globalInterceptors,
-    })
-    handleMeta()
-  })
 }
 
 export function Elysia(opts: LocalHook<InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro>) {
