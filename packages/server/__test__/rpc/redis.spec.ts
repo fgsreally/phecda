@@ -47,7 +47,7 @@ describe('redis rpc', () => {
 
     const data = await Factory([TestRpc])
 
-    bind(sub, pub, data)
+    bind({ sub, pub }, data)
 
     pub.publish('create server', JSON.stringify({
       args: [1],
@@ -75,9 +75,9 @@ describe('redis rpc', () => {
 
     const data = await Factory([TestRpc])
 
-    bind(sub, pub, data)
+    bind({ sub, pub }, data)
 
-    const client = await createClient(pub, sub, {
+    const client = await createClient({ pub, sub }, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -105,9 +105,9 @@ describe('redis rpc', () => {
 
     const data = await Factory([TestRpc])
 
-    bind(sub, pub, data)
+    bind({ sub, pub }, data)
 
-    const client = await createClient(pub, sub, {
+    const client = await createClient({ pub, sub }, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -134,9 +134,9 @@ describe('redis rpc', () => {
 
     const data = await Factory([TestRpc])
 
-    bind(sub, pub, data)
+    bind({ sub, pub }, data)
 
-    const client = await createClient(pub, sub, {
+    const client = await createClient({ pub, sub }, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -160,9 +160,9 @@ describe('redis rpc', () => {
 
     const data = await Factory([TestRpc])
 
-    bind(sub, pub, data)
+    bind({ sub, pub }, data)
 
-    const client = await createClient(pub, sub, {
+    const client = await createClient({ pub, sub }, {
       test: Faker as unknown as typeof TestRpc,
     })
 
@@ -189,9 +189,9 @@ describe('redis rpc', () => {
 
     const data = await Factory([TestRpc])
 
-    bind(sub, pub, data)
+    bind({ sub, pub }, data)
 
-    const client = await createClient(pub, sub, {
+    const client = await createClient({ pub, sub }, {
       test: Faker as unknown as typeof TestRpc,
     })
 
