@@ -1,5 +1,19 @@
 # phecda-server
 
+## 5.1.0
+
+### Minor Changes
+
+- e205e55: 1. refactor ps plugin; it must be a function that return value 2. refactor all bind in ps to clean code 3. add helper funciton `createControllerMetaMap` and `detectAopDep`(both with hmr support) 4. parallelRoute can be `false`
+
+### Patch Changes
+
+- 92ebfbd: remove getConfig/setConfig;
+  add setLogger
+  add custom config file option to cli
+  add default path to Generator
+- 46cee17: ensure the parameters of 'bind' in Fastify are consistent with others.
+
 ## 5.0.2
 
 ### Patch Changes
