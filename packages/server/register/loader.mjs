@@ -186,7 +186,13 @@ export const resolve = async (specifier, context, nextResolve) => {
     }
   }
 
-  return nextResolve(specifier)
+  const resolveRet = await nextResolve(specifier)
+
+  // ts resolve fail in some cases
+  if (isAbsolute(resolveRet.url))
+    resolveRet.url = pathToFileURL(resolveRet.url).href
+
+  return resolveRet
 }
 // @todo the first params may be url or path, need to distinguish
 
