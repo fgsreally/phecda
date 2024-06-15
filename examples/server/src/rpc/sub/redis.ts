@@ -11,7 +11,7 @@ async function start() {
   const pub = new Redis()
   const sub = new Redis()
 
-  bind(sub, pub, data)
+  bind({ sub, pub }, data)
 
   console.log('redis listen...')
 }

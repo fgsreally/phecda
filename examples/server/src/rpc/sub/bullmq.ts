@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { bind } from 'phecda-server/bullmq'
+import { create } from 'phecda-server/bullmq'
 
 import { Factory, RPCGenerator } from 'phecda-server'
 import { TestRpc } from '../test.rpc'
@@ -8,7 +8,14 @@ async function start() {
     generators: [new RPCGenerator()],
   })
 
-  bind({ port: 6379 }, data)
+  create(data, {
+    workerOpts: {
+      connection: { port: 6379 },
+    },
+    queueOpts: {
+      connection: { port: 6379 },
+    },
+  })
 
   console.log('bullmq listen...')
 }

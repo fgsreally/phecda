@@ -17,7 +17,7 @@ export interface KafkaCtx extends RpcContext {
 }
 // @experiment
 
-export async function bind(consumer: Consumer, producer: Producer, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
+export async function bind({ consumer, producer }: { consumer: Consumer; producer: Producer }, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
   const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
 
   const existQueue = new Set<string>()

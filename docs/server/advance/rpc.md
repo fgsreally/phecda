@@ -45,3 +45,6 @@ const data = await Factory([UserController], {
 整体流程没有不同
 
 
+
+# 与服务端结合
+[详见](https://github.com/fgsreally/phecda/tree/main/examples/server)

@@ -16,7 +16,7 @@ export interface RedisCtx extends RpcContext {
 
 }
 
-export function bind(sub: Redis, pub: Redis, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
+export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
   const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
   const metaMap = createControllerMetaMap(meta, (meta) => {
     const { controller, rpc, func, tag } = meta.data
