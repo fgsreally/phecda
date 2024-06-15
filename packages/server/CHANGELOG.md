@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.1.1
+
+### Patch Changes
+
+- 4bee6d9: Ensure that the parameter order for bind and createClient in rpc matches the bind in the server
+
+  rename bind to create in bullmq(it can't bind anything actually)
+
 ## 5.1.0
 
 ### Minor Changes
