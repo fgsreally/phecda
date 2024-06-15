@@ -160,7 +160,7 @@
     "nats": "^2.22.0",
     "supertest": "^6.3.3",
     "tsup": "^6.5.0",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.5",
     "unimport": "^3.7.1"
   },
   "dependencies": {

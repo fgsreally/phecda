@@ -152,6 +152,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     host,
     moduleResolutionCache,
   )
+
   // import between loacl projects
   if (
     resolvedModule
@@ -272,7 +273,13 @@ export const load = async (url, context, nextLoad) => {
       return {
         format: 'module',
         source: (
-          await injectImports(compiled, (url.startsWith('file://') ? fileURLToPath(url) : url).replace(/\\/g, '/'))
+          await injectImports(
+            compiled,
+            (url.startsWith('file://') ? fileURLToPath(url) : url).replace(
+              /\\/g,
+              '/',
+            ),
+          )
         ).code,
         shortCircuit: true,
       }

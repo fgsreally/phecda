@@ -133,7 +133,7 @@ importers:
         version: 5.7.1
       elysia:
         specifier: ^1.0.17
-        version: 1.0.17(@sinclair/typebox@0.32.31)(typescript@4.9.4)
+        version: 1.0.17(@sinclair/typebox@0.32.31)(typescript@5.4.5)
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -190,8 +190,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       typescript:
-        specifier: ^4.9.3
-        version: 4.9.4
+        specifier: ^5.4.5
+        version: 5.4.5
       unplugin:
         specifier: ^1.3.1
         version: 1.10.1
@@ -355,7 +355,7 @@ importers:
         version: 5.7.1
       elysia:
         specifier: ^1.0.17
-        version: 1.0.17(@sinclair/typebox@0.32.31)(typescript@5.2.2)
+        version: 1.0.17(@sinclair/typebox@0.32.31)(typescript@5.4.5)
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -397,10 +397,10 @@ importers:
         version: 6.3.3
       tsup:
         specifier: ^6.5.0
-        version: 6.5.0(@swc/core@1.5.28)(typescript@5.2.2)
+        version: 6.5.0(@swc/core@1.5.28)(typescript@5.4.5)
       typescript:
-        specifier: ^5.2.2
-        version: 5.2.2
+        specifier: ^5.4.5
+        version: 5.4.5
       unimport:
         specifier: ^3.7.1
         version: 3.7.1
@@ -948,7 +948,7 @@ packages:
       acorn: 8.11.3
       acorn-walk: 8.3.2
       astring: 1.8.6
-      elysia: 1.0.17(@sinclair/typebox@0.32.31)(typescript@4.9.4)
+      elysia: 1.0.17(@sinclair/typebox@0.32.31)(typescript@5.4.5)
       glob: 10.3.10
       ts-morph: 18.0.0
     dev: false
@@ -2802,7 +2802,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     optional: true
 
@@ -2820,7 +2819,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     optional: true
 
@@ -2838,7 +2836,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     optional: true
 
@@ -2856,7 +2853,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     optional: true
 
@@ -4966,7 +4962,7 @@ packages:
     resolution: {integrity: sha512-oCglfs8yYKs9RQjJFOHonSnhikPK3y+0SvSYc/YpYJV//6rqc0/hbwd0c7vgK4vrl6y2gJAwjkhkSGWK+z4KRA==}
     dev: true
 
-  /elysia@1.0.15(@sinclair/typebox@0.32.31)(typescript@4.9.4):
+  /elysia@1.0.15(@sinclair/typebox@0.32.31)(typescript@5.4.5):
     resolution: {integrity: sha512-18dJnNV3X1a7vYKQHOQ9yS+upg6v0gb/L3kNlFwoq4grUPCpOi4II6ViXtWs1Qd1uWyqDJ+S6oUGMGlhIneehg==}
     peerDependencies:
       '@sinclair/typebox': '>= 0.31.0'
@@ -4983,30 +4979,9 @@ packages:
       eventemitter3: 5.0.1
       fast-decode-uri-component: 1.0.1
       fast-querystring: 1.1.2
-      typescript: 4.9.4
-    dev: false
+      typescript: 5.4.5
 
-  /elysia@1.0.15(@sinclair/typebox@0.32.31)(typescript@5.2.2):
-    resolution: {integrity: sha512-18dJnNV3X1a7vYKQHOQ9yS+upg6v0gb/L3kNlFwoq4grUPCpOi4II6ViXtWs1Qd1uWyqDJ+S6oUGMGlhIneehg==}
-    peerDependencies:
-      '@sinclair/typebox': '>= 0.31.0'
-      openapi-types: '>= 12.0.0'
-      typescript: '>= 5.0.0'
-    peerDependenciesMeta:
-      openapi-types:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      '@sinclair/typebox': 0.32.31
-      cookie: 0.6.0
-      eventemitter3: 5.0.1
-      fast-decode-uri-component: 1.0.1
-      fast-querystring: 1.1.2
-      typescript: 5.2.2
-    dev: true
-
-  /elysia@1.0.17(@sinclair/typebox@0.32.31)(typescript@4.9.4):
+  /elysia@1.0.17(@sinclair/typebox@0.32.31)(typescript@5.4.5):
     resolution: {integrity: sha512-j6+hR88M4W8WMAdpCFxM1U0iJx3aixrbnitX5yeKjGau7UdMueJABYNsGtmeM91+IhPTEGiB8jcuhLY5/TmPDg==}
     peerDependencies:
       '@sinclair/typebox': '>= 0.31.0'
@@ -5020,33 +4995,11 @@ packages:
     dependencies:
       '@sinclair/typebox': 0.32.31
       cookie: 0.6.0
-      elysia: 1.0.15(@sinclair/typebox@0.32.31)(typescript@4.9.4)
+      elysia: 1.0.15(@sinclair/typebox@0.32.31)(typescript@5.4.5)
       eventemitter3: 5.0.1
       fast-decode-uri-component: 1.0.1
       fast-querystring: 1.1.2
-      typescript: 4.9.4
-    dev: false
-
-  /elysia@1.0.17(@sinclair/typebox@0.32.31)(typescript@5.2.2):
-    resolution: {integrity: sha512-j6+hR88M4W8WMAdpCFxM1U0iJx3aixrbnitX5yeKjGau7UdMueJABYNsGtmeM91+IhPTEGiB8jcuhLY5/TmPDg==}
-    peerDependencies:
-      '@sinclair/typebox': '>= 0.31.0'
-      openapi-types: '>= 12.0.0'
-      typescript: '>= 5.0.0'
-    peerDependenciesMeta:
-      openapi-types:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      '@sinclair/typebox': 0.32.31
-      cookie: 0.6.0
-      elysia: 1.0.15(@sinclair/typebox@0.32.31)(typescript@5.2.2)
-      eventemitter3: 5.0.1
-      fast-decode-uri-component: 1.0.1
-      fast-querystring: 1.1.2
-      typescript: 5.2.2
-    dev: true
+      typescript: 5.4.5
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -9221,7 +9174,7 @@ packages:
       - ts-node
     dev: true
 
-  /tsup@6.5.0(@swc/core@1.5.28)(typescript@5.2.2):
+  /tsup@6.5.0(@swc/core@1.5.28)(typescript@5.4.5):
     resolution: {integrity: sha512-36u82r7rYqRHFkD15R20Cd4ercPkbYmuvRkz3Q1LCm5BsiFNUgpo36zbjVhCOgvjyxNBWNKHsaD5Rl8SykfzNA==}
     engines: {node: '>=14'}
     hasBin: true
@@ -9252,7 +9205,7 @@ packages:
       source-map: 0.8.0-beta.0
       sucrase: 3.29.0
       tree-kill: 1.2.2
-      typescript: 5.2.2
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -9422,17 +9375,16 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@5.2.2:
-    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-    dev: true
-
   /typescript@5.3.3:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
+
+  /typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   /ufo@1.3.2:
     resolution: {integrity: sha512-o+ORpgGwaYQXgqGDwd+hkS4PuZ3QnmqMMxRuajK/a38L6fTpcE5GPIfrf+L/KemFzfUpeUQc1rRS1iDBozvnFA==}
