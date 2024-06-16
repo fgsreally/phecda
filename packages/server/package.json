@@ -129,6 +129,7 @@
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/server",
   "files": [
     "dist",
+    "assets",
     "register",
     "bin"
   ],

@@ -39,16 +39,16 @@ if (isLowVersion)
   await initialize()
 
 let config
+
+const configPath = resolvePath(
+  process.env.PS_WORKDIR || process.cwd(),
+  process.env.PS_CONFIG_FILE || 'ps.json',
+)
 const require = createRequire(import.meta.url)
 export async function initialize(data) {
   if (data)
     port = data.port
   log('read config...')
-
-  const configPath = resolvePath(
-    process.cwd(),
-    process.env.PS_CONFIG_FILE || 'ps.json',
-  )
 
   config = require(configPath)
   if (!config.virtualFile)
@@ -173,7 +173,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       if (resolver) {
         return {
           format: 'ts',
-          url: pathToFileURL(resolvePath(process.cwd(), resolver.path)).href,
+          url: pathToFileURL(resolvePath(configPath, resolver.path)).href,
           shortCircuit: true,
         }
       }
