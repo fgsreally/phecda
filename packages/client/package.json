@@ -15,35 +15,14 @@
       "require": "./dist/index.js"
     },
     "./unplugin": {
-      "import": "./dist/unplugin/unplugin.mjs",
-      "require": "./dist/unplugin/unplugin.js"
-    },
-    "./vite": {
-      "import": "./dist/unplugin/vite.mjs",
-      "require": "./dist/unplugin/vite.js"
-    },
-    "./webpack": {
-      "import": "./dist/unplugin/webpack.mjs",
-      "require": "./dist/unplugin/webpack.js"
-    },
-    "./esbuild": {
-      "import": "./dist/unplugin/esbuild.mjs",
-      "require": "./dist/unplugin/esbuild.js"
+      "import": "./dist/unplugin.mjs",
+      "require": "./dist/unplugin.js"
     }
   },
   "typesVersions": {
     "*": {
-      "vite": [
-        "dist/unplugin/vite.d.ts"
-      ],
-      "webpack": [
-        "dist/unplugin/webpack.d.ts"
-      ],
-      "esbuild": [
-        "dist/unplugin/esbuild.d.ts"
-      ],
       "unplugin": [
-        "dist/unplugin/unplugin.d.ts"
+        "dist/unplugin.d.ts"
       ]
     }
   },
@@ -60,7 +39,6 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "vite": "^4.0.0",
     "phecda-server": "workspace:*",
     "tsup": "^6.5.0"
   },

@@ -1,16 +1,18 @@
 #! /usr/bin/env node
 import { fork } from 'child_process'
 import { createRequire } from 'module'
-import { dirname, fileURLToPath, join, resolve } from 'path'
+import { fileURLToPath } from 'url'
+
+import { dirname, join, resolve } from 'path'
 import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
 import { log } from '../dist/index.mjs'
+
 const cli = cac('phecda')
   .option('-c,--config <config>', 'config file', {
     default: 'ps.json',
   })
-  .allowUnknownOptions()
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -98,7 +100,8 @@ cli
   .command('<file> [workdir]', 'run file')
   .alias('run')
   .action((file, workdir, options) => {
-    process.env.PS_WORKDIR = workdir
+    if (workdir)
+      process.env.PS_WORKDIR = workdir
     process.env.PS_CONFIG_FILE = options.config
 
     log('process start!')
@@ -131,22 +134,12 @@ cli
 cli
   .command('generate <file> [workdir]', 'generate code(mainly for ci)')
   .action((file, workdir, options) => {
-    process.env.PS_WORKDIR = workdir
+    if (workdir)
+      process.env.PS_WORKDIR = workdir
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = options.config
     startChild(file, options['--'])
   })
-// if (cmd[0] === 'init') {
-
-// }
-// else if (cmd[0] === 'code') {
-//   process.env.PS_GENERATE = 'true'
-//   cmd.splice(0, 1)
-//   startChild(file,options['--'])
-// }
-// else {
-
-// }
 
 cli.help()
 cli.version(require('../package.json').version)

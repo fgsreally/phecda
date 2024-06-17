@@ -40,10 +40,13 @@ if (isLowVersion)
 
 let config
 
+const workdir = process.env.PS_WORKDIR || process.cwd()
+
 const configPath = resolvePath(
-  process.env.PS_WORKDIR || process.cwd(),
+  workdir,
   process.env.PS_CONFIG_FILE || 'ps.json',
 )
+
 const require = createRequire(import.meta.url)
 export async function initialize(data) {
   if (data)
@@ -72,7 +75,7 @@ export async function initialize(data) {
     await unimportRet.init()
 
     writeFile(
-      config.unimport.dtsPath || dtsPath,
+      resolvePath(workdir, config.unimport.dtsPath || dtsPath),
       handleClassTypes(await unimportRet.generateTypeDeclarations()),
     )
   }
@@ -173,7 +176,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       if (resolver) {
         return {
           format: 'ts',
-          url: pathToFileURL(resolvePath(configPath, resolver.path)).href,
+          url: pathToFileURL(resolvePath(workdir, resolver.path)).href,
           shortCircuit: true,
         }
       }
