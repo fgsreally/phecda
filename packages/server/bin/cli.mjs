@@ -76,6 +76,7 @@ process.on('SIGINT', () => {
 
 cli
   .command('init [workdir]', 'init config file')
+  .allowUnknownOptions()
   .option('-t,--tsconfig <tsconfig>', 'init tsconfig file', {
     default: 'tsconfig.json',
   })
@@ -98,6 +99,7 @@ cli
 
 cli
   .command('<file> [workdir]', 'run file')
+  .allowUnknownOptions()
   .alias('run')
   .action((file, workdir, options) => {
     if (workdir)
@@ -133,6 +135,7 @@ cli
 
 cli
   .command('generate <file> [workdir]', 'generate code(mainly for ci)')
+  .allowUnknownOptions()
   .action((file, workdir, options) => {
     if (workdir)
       process.env.PS_WORKDIR = workdir
