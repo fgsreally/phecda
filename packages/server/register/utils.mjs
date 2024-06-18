@@ -50,3 +50,7 @@ export function handleClassTypes(input) {
     return _
   })
 }
+
+export function slash(str) {
+  return str.replace(/\\/g, '/')
+}

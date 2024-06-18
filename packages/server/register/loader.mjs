@@ -11,7 +11,7 @@ import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { log } from '../dist/index.mjs'
-import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
+import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
 let port
 
@@ -76,7 +76,20 @@ export async function initialize(data) {
 
     writeFile(
       resolvePath(workdir, config.unimport.dtsPath || dtsPath),
-      handleClassTypes(await unimportRet.generateTypeDeclarations()),
+      handleClassTypes(
+        await unimportRet.generateTypeDeclarations({
+          resolvePath: (i) => {
+            if (i.from.startsWith('.') || isAbsolute(i.from)) {
+              const related = slash(
+                relative(workdir, i.from).replace(/\.ts(x)?$/, ''),
+              )
+
+              return !related.startsWith('.') ? `./${related}` : related
+            }
+            return i.from
+          },
+        }),
+      ),
     )
   }
 }
@@ -284,10 +297,7 @@ export const load = async (url, context, nextLoad) => {
         source: (
           await injectImports(
             compiled,
-            (url.startsWith('file://') ? fileURLToPath(url) : url).replace(
-              /\\/g,
-              '/',
-            ),
+            slash(url.startsWith('file://') ? fileURLToPath(url) : url),
           )
         ).code,
         shortCircuit: true,
