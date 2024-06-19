@@ -1,4 +1,4 @@
-import { isAbsolute } from 'path'
+import { basename } from 'path'
 import { transform } from '@swc-node/core'
 const injectInlineSourceMap = ({ code, map }) => {
   if (map) {
@@ -44,13 +44,13 @@ export async function genUnImportRet(opts) {
 
 export function handleClassTypes(input) {
   return input.replace(/const\s+(\w+)\s*:\s*typeof\s+import\(['"](.+)['"]\)\['(\w+)'\]/g, (_, n, p, e) => {
-    if (isAbsolute(p))
+    // TestController in test.controller
+    if (p.startsWith('./') && (basename(p).replace('.', '').toLowerCase() === e.toLowerCase()))
       return `${_}\n  type ${n} = InstanceType<typeof import('${p}')['${e}']>`
 
     return _
   })
 }
-
 export function slash(str) {
   return str.replace(/\\/g, '/')
 }

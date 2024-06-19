@@ -78,7 +78,9 @@ declare global {
   const Storage: typeof import('phecda-server')['Storage']
   const Tag: typeof import('phecda-server')['Tag']
   const TestController: typeof import('./src/server/test.controller')['TestController']
+  type TestController = InstanceType<typeof import('./src/server/test.controller')['TestController']>
   const TestService: typeof import('./src/server/test.service')['TestService']
+  type TestService = InstanceType<typeof import('./src/server/test.service')['TestService']>
   const TimeoutException: typeof import('phecda-server')['TimeoutException']
   const TimerException: typeof import('phecda-server')['TimerException']
   const To: typeof import('phecda-server')['To']
@@ -144,4 +146,5 @@ declare global {
   const transformInstanceAsync: typeof import('phecda-server')['transformInstanceAsync']
   const transformProperty: typeof import('phecda-server')['transformProperty']
   const transformPropertyAsync: typeof import('phecda-server')['transformPropertyAsync']
+  const x: typeof import('./src/server/test.controller')['x']
 }
