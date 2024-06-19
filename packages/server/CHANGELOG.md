@@ -1,5 +1,16 @@
 # phecda-server
 
+## 5.2.0
+
+### Minor Changes
+
+- 09bd238: create a singleton export for helper, it will keep ps export clear(mainly for unimport)
+
+### Patch Changes
+
+- 322a1cb: refactor cli and support workdir param (like `root` in `vite`)
+- b62d3b5: support use multiple Ctx
+
 ## 5.1.1
 
 ### Patch Changes

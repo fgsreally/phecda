@@ -1,6 +1,6 @@
 {
   "name": "phecda-client",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "client that use axios/type safe/connect to phecda-server",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

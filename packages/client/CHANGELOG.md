@@ -1,5 +1,13 @@
 # phecda-client
 
+## 2.1.0
+
+### Minor Changes
+
+- 483c6fa: support workdir in `ps`
+
+  (too much change in `ps` so it has to be a minor release)
+
 ## 2.0.4
 
 ### Patch Changes
