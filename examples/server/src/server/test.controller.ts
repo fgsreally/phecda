@@ -20,7 +20,7 @@ export class TestController extends Dev {
   @Ctx
   context: HttpContext
 
-  constructor(readonly service: TestService) {
+  constructor(private service: TestService) {
     super()
   }
 

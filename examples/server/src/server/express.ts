@@ -1,7 +1,6 @@
 import { bind } from 'phecda-server/express'
 import { Factory, HTTPGenerator, log } from 'phecda-server'
 import express from 'express'
-import 'virtual:xx'
 // addFilter('test', (e, tag, ctx) => {
 //   const readableStream = fs.createReadStream('./index.html')
 //   readableStream.pipe(ctx.response)
