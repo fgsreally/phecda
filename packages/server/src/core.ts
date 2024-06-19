@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { get, getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
+import { getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter } from './types'
 import type { MetaData } from './meta'
@@ -186,7 +186,8 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   const vars = getExposeKey(instance).filter(item => typeof item === 'string') as string[]
   const baseState = getState(instance) as MetaData
   initState(baseState)
-  const ctx = get(instance, 'context')
+
+  const ctxs = getState(instance).ctxs
 
   return vars.filter(i => typeof (instance as any)[i] === 'function').map((i) => {
     const state = getState(instance, i) as any
@@ -202,7 +203,6 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       if (typeof tag !== 'string')
         log(`can't use Tag with ${typeof tag} on controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
       initState(state)
-      meta.ctx = ctx
       meta.controller = baseState.controller
       meta[baseState.controller] = {
         ...baseState[baseState.controller],
@@ -221,6 +221,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
           break
       }
 
+      meta.ctxs = ctxs
       meta.params = params
       meta.filter = state.filter || baseState.filter
       meta.define = { ...baseState.define, ...state.define }

@@ -4,6 +4,7 @@ export const tsup: Options = {
   entry: [
     'src/index.ts',
     'src/test.ts',
+    'src/helper.ts',
     'src/server/express/index.ts',
     'src/server/koa/index.ts',
     'src/server/fastify/index.ts',

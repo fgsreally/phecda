@@ -1,13 +1,21 @@
 #! /usr/bin/env node
 import { fork } from 'child_process'
 import { createRequire } from 'module'
+import { fileURLToPath } from 'url'
+
+import { dirname, join, resolve } from 'path'
 import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
 import { log } from '../dist/index.mjs'
-const cli = cac('phecda').option('-c,--config <config>', 'config file', {
-  default: 'ps.json',
-})
+
+const cli = cac('phecda')
+  .option('-c,--config <config>', 'config file', {
+    default: 'ps.json',
+  })
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 const require = createRequire(import.meta.url)
 let child
 
@@ -66,75 +74,36 @@ process.on('SIGINT', () => {
   process.exit()
 })
 
-cli.command('init', 'init config file').action(async (options) => {
-  if (!fse.existsSync('tsconfig.json')) {
-    log('init tsconfig.json')
+cli
+  .command('init [workdir]', 'init config file')
+  .allowUnknownOptions()
+  .option('-t,--tsconfig <tsconfig>', 'init tsconfig file', {
+    default: 'tsconfig.json',
+  })
+  .action(async (workdir, options) => {
+    const tsconfigPath = join(workdir, options.tsconfig)
+    const psconfigPath = join(workdir, options.config)
 
-    await fse.outputFile(
-      'tsconfig.json',
-    `{
-    "compilerOptions": {
-      "target": "esnext",
-      "useDefineForClassFields": false,
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "module": "esnext",
-      "lib": ["esnext", "DOM"],
-      "strictPropertyInitialization": false,
-      "moduleResolution": "Node",
-      "strict": true,
-      "resolveJsonModule": true,
-      "esModuleInterop": true,
-      "noEmit": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "noImplicitReturns": true,
-      "skipLibCheck": true
-    },
-    "include": ["src","./ps.d.ts"]
-  }
-  `,
-    )
-  }
+    if (!fse.existsSync(tsconfigPath)) {
+      log(`create ${tsconfigPath}`)
 
-  if (!fse.existsSync(options.config)) {
-    log(`init ${options.config}`)
-
-    await fse.outputFile(
-      options.config,
-     `{
-      "$schema": "node_modules/phecda-server/bin/schema.json",
-      "resolve": [
-        {
-          "source": "controller",
-          "importer": "http",
-          "path": ".ps/http.js"
-        },
-        {
-          "source": "rpc",
-          "importer": "client",
-          "path": ".ps/rpc.js"
-        }
-      ],
-    "unimport": {
-      "dirs": [],
-      "dirsScanOptions":{
-        "filePatterns":["*.{service,controller,module,rpc,edge,guard,interceptor,extension,pipe,filter,plugin}.ts"]
-       }
-     },
-      "virtualFile":{},
-      "moduleFile": []
-      
+      await fse.copyFile(resolve(__dirname, '../assets/tsconfig.json'), tsconfigPath)
     }
-    `,
-    )
-  }
-})
+
+    if (!fse.existsSync(psconfigPath)) {
+      log(`create ${psconfigPath}`)
+
+      await fse.copyFile(resolve(__dirname, '../assets/ps.json'), psconfigPath)
+    }
+  })
 
 cli
-  .command('[file]', 'run file')
+  .command('<file> [workdir]', 'run file')
+  .allowUnknownOptions()
   .alias('run')
-  .action((file, options) => {
+  .action((file, workdir, options) => {
+    if (workdir)
+      process.env.PS_WORKDIR = workdir
     process.env.PS_CONFIG_FILE = options.config
 
     log('process start!')
@@ -165,23 +134,15 @@ cli
   })
 
 cli
-  .command('generate [file]', 'generate code(mainly for ci)')
-  .action((file, options) => {
+  .command('generate <file> [workdir]', 'generate code(mainly for ci)')
+  .allowUnknownOptions()
+  .action((file, workdir, options) => {
+    if (workdir)
+      process.env.PS_WORKDIR = workdir
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = options.config
     startChild(file, options['--'])
   })
-// if (cmd[0] === 'init') {
-
-// }
-// else if (cmd[0] === 'code') {
-//   process.env.PS_GENERATE = 'true'
-//   cmd.splice(0, 1)
-//   startChild(file,options['--'])
-// }
-// else {
-
-// }
 
 cli.help()
 cli.version(require('../package.json').version)

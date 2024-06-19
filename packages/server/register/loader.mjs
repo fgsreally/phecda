@@ -11,7 +11,7 @@ import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { log } from '../dist/index.mjs'
-import { compile, genUnImportRet, handleClassTypes } from './utils.mjs'
+import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
 let port
 
@@ -39,16 +39,19 @@ if (isLowVersion)
   await initialize()
 
 let config
+
+const workdir = process.env.PS_WORKDIR || process.cwd()
+
+const configPath = resolvePath(
+  workdir,
+  process.env.PS_CONFIG_FILE || 'ps.json',
+)
+
 const require = createRequire(import.meta.url)
 export async function initialize(data) {
   if (data)
     port = data.port
   log('read config...')
-
-  const configPath = resolvePath(
-    process.cwd(),
-    process.env.PS_CONFIG_FILE || 'ps.json',
-  )
 
   config = require(configPath)
   if (!config.virtualFile)
@@ -72,8 +75,21 @@ export async function initialize(data) {
     await unimportRet.init()
 
     writeFile(
-      config.unimport.dtsPath || dtsPath,
-      handleClassTypes(await unimportRet.generateTypeDeclarations()),
+      resolvePath(workdir, config.unimport.dtsPath || dtsPath),
+      handleClassTypes(
+        await unimportRet.generateTypeDeclarations({
+          resolvePath: (i) => {
+            if (i.from.startsWith('.') || isAbsolute(i.from)) {
+              const related = slash(
+                relative(workdir, i.from).replace(/\.ts(x)?$/, ''),
+              )
+
+              return !related.startsWith('.') ? `./${related}` : related
+            }
+            return i.from
+          },
+        }),
+      ),
     )
   }
 }
@@ -173,7 +189,7 @@ export const resolve = async (specifier, context, nextResolve) => {
       if (resolver) {
         return {
           format: 'ts',
-          url: pathToFileURL(resolvePath(process.cwd(), resolver.path)).href,
+          url: pathToFileURL(resolvePath(workdir, resolver.path)).href,
           shortCircuit: true,
         }
       }
@@ -281,10 +297,7 @@ export const load = async (url, context, nextLoad) => {
         source: (
           await injectImports(
             compiled,
-            (url.startsWith('file://') ? fileURLToPath(url) : url).replace(
-              /\\/g,
-              '/',
-            ),
+            slash(url.startsWith('file://') ? fileURLToPath(url) : url),
           )
         ).code,
         shortCircuit: true,

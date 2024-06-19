@@ -2,77 +2,83 @@
   "name": "phecda-server",
   "version": "5.1.1",
   "description": "server framework that provide IOC/type-reuse/http&rpc-adaptor",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "bin": {
-    "phecda": "bin/cli.mjs"
-  },
-  "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup"
-  },
+  "author": "fgsreally",
+  "license": "MIT",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/server",
+  "keywords": [
+    "server",
+    "IOC",
+    "rpc",
+    "types-share"
+  ],
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
       "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "node": "./dist/index.js"
     },
+    "./helper": {
+      "require": "./dist/helper.js",
+      "import": "./dist/helper.mjs"
+    },
     "./test": {
-      "import": "./dist/test.mjs",
-      "require": "./dist/test.js"
+      "require": "./dist/test.js",
+      "import": "./dist/test.mjs"
     },
     "./h3": {
-      "import": "./dist/server/h3/index.mjs",
-      "require": "./dist/server/h3/index.js"
+      "require": "./dist/server/h3/index.js",
+      "import": "./dist/server/h3/index.mjs"
     },
     "./express": {
-      "import": "./dist/server/express/index.mjs",
-      "require": "./dist/server/express/index.js"
+      "require": "./dist/server/express/index.js",
+      "import": "./dist/server/express/index.mjs"
     },
     "./koa": {
-      "import": "./dist/server/koa/index.mjs",
-      "require": "./dist/server/koa/index.js"
+      "require": "./dist/server/koa/index.js",
+      "import": "./dist/server/koa/index.mjs"
     },
     "./fastify": {
-      "import": "./dist/server/fastify/index.mjs",
-      "require": "./dist/server/fastify/index.js"
+      "require": "./dist/server/fastify/index.js",
+      "import": "./dist/server/fastify/index.mjs"
     },
     "./hyper-express": {
-      "import": "./dist/server/hyper-express/index.mjs",
-      "require": "./dist/server/hyper-express/index.js"
+      "require": "./dist/server/hyper-express/index.js",
+      "import": "./dist/server/hyper-express/index.mjs"
     },
     "./hono": {
-      "import": "./dist/server/hono/index.mjs",
-      "require": "./dist/server/hono/index.js"
+      "require": "./dist/server/hono/index.js",
+      "import": "./dist/server/hono/index.mjs"
     },
     "./elysia": {
-      "import": "./dist/server/elysia/index.mjs",
-      "require": "./dist/server/elysia/index.js"
+      "require": "./dist/server/elysia/index.js",
+      "import": "./dist/server/elysia/index.mjs"
     },
     "./redis": {
-      "import": "./dist/rpc/redis/index.mjs",
-      "require": "./dist/rpc/redis/index.js"
+      "require": "./dist/rpc/redis/index.js",
+      "import": "./dist/rpc/redis/index.mjs"
     },
     "./kafka": {
-      "import": "./dist/rpc/kafka/index.mjs",
-      "require": "./dist/rpc/kafka/index.js"
+      "require": "./dist/rpc/kafka/index.js",
+      "import": "./dist/rpc/kafka/index.mjs"
     },
     "./rabbitmq": {
-      "import": "./dist/rpc/rabbitmq/index.mjs",
-      "require": "./dist/rpc/rabbitmq/index.js"
+      "require": "./dist/rpc/rabbitmq/index.js",
+      "import": "./dist/rpc/rabbitmq/index.mjs"
     },
     "./bullmq": {
-      "import": "./dist/rpc/bullmq/index.mjs",
-      "require": "./dist/rpc/bullmq/index.js"
+      "require": "./dist/rpc/bullmq/index.js",
+      "import": "./dist/rpc/bullmq/index.mjs"
     },
     "./nats": {
-      "import": "./dist/rpc/nats/index.mjs",
-      "require": "./dist/rpc/nats/index.js"
+      "require": "./dist/rpc/nats/index.js",
+      "import": "./dist/rpc/nats/index.mjs"
     },
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "typesVersions": {
     "*": {
       ".": [
@@ -80,6 +86,9 @@
       ],
       "test": [
         "dist/test.d.ts"
+      ],
+      "helper": [
+        "dist/helper.d.ts"
       ],
       "h3": [
         "dist/server/h3/index.d.ts"
@@ -119,20 +128,29 @@
       ]
     }
   },
-  "keywords": [
-    "server",
-    "IOC",
-    "rpc",
-    "types-share"
-  ],
-  "author": "fgsreally",
-  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/server",
+  "bin": {
+    "phecda": "bin/cli.mjs"
+  },
   "files": [
     "dist",
+    "assets",
     "register",
     "bin"
   ],
-  "license": "MIT",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@swc-node/core": "^1.10.6",
+    "cac": "^6.7.14",
+    "chokidar": "^3.5.3",
+    "debug": "^4.3.4",
+    "fs-extra": "^11.2.0",
+    "phecda-core": "workspace:*",
+    "picocolors": "^1.0.0",
+    "reflect-metadata": "^0.1.13"
+  },
   "devDependencies": {
     "@koa/router": "^12.0.1",
     "@nucleoidjs/kafkajs-mock": "^0.0.1",
@@ -162,15 +180,5 @@
     "tsup": "^6.5.0",
     "typescript": "^5.4.5",
     "unimport": "^3.7.1"
-  },
-  "dependencies": {
-    "@swc-node/core": "^1.10.6",
-    "cac": "^6.7.14",
-    "chokidar": "^3.5.3",
-    "debug": "^4.3.4",
-    "fs-extra": "^11.2.0",
-    "phecda-core": "workspace:*",
-    "picocolors": "^1.0.0",
-    "reflect-metadata": "^0.1.13"
   }
 }

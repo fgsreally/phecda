@@ -1,7 +1,7 @@
 import { URL, fileURLToPath } from 'node:url'
 
 import { defineConfig } from 'vite'
-import plugin from 'phecda-client/vite'
+import pc from 'phecda-client/unplugin'
 // import swc from 'unplugin-swc'
 export default defineConfig({
 
@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    plugin({ }),
+    pc.vite({}),
     // ps.vite(),
   ],
 

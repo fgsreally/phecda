@@ -1,4 +1,4 @@
-import { isAbsolute } from 'path'
+import { basename } from 'path'
 import { transform } from '@swc-node/core'
 const injectInlineSourceMap = ({ code, map }) => {
   if (map) {
@@ -42,40 +42,15 @@ export async function genUnImportRet(opts) {
   }
 }
 
-// function slash(str) {
-//   return str.replace(/\\/g, '/')
-// }
-
-// async function findWorkspaceExports() {
-//   try {
-//     const { default: fg } = await import('fast-glob')
-//     const { scanExports } = await import('unimport')
-//     const result = await fg(
-//       '**/*.@(controller|service|module|extension|ext|guard|interceptor|plugin|filter|pipe|edge).ts',
-//       {
-//         ignore: ['node_modules'],
-//         absolute: true,
-//         cwd: process.cwd(),
-//         onlyFiles: true,
-//         followSymbolicLinks: true,
-//       },
-//     )
-
-//     const files = Array.from(new Set(result.flat())).map(slash)
-
-//     return (await Promise.all(files.map(i => scanExports(i, false))))
-//       .flat()
-//   }
-//   catch (e) {
-//     return []
-//   }
-// }
-
 export function handleClassTypes(input) {
   return input.replace(/const\s+(\w+)\s*:\s*typeof\s+import\(['"](.+)['"]\)\['(\w+)'\]/g, (_, n, p, e) => {
-    if (isAbsolute(p))
+    // TestController in test.controller
+    if (p.startsWith('./') && (basename(p).replace('.', '').toLowerCase() === e.toLowerCase()))
       return `${_}\n  type ${n} = InstanceType<typeof import('${p}')['${e}']>`
 
     return _
   })
+}
+export function slash(str) {
+  return str.replace(/\\/g, '/')
 }

@@ -13,14 +13,18 @@ export class User {
     return this.name + Math.random()
   }
 }
-@Controller('/base')
-export class TestController extends Dev {
-  static age = 12
-  age = 1
+
+class Base extends Dev {
   @Ctx
   context: HttpContext
+}
 
-  constructor(readonly service: TestService) {
+@Controller('/base')
+export class TestController extends Base {
+  static age = 12
+  age = 1
+
+  constructor(private service: TestService) {
     super()
   }
 
@@ -54,3 +58,5 @@ export class TestController extends Dev {
   }
 }
 // hmr works
+
+export const x = 1
