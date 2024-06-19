@@ -21,7 +21,7 @@ export interface ControllerMetaData extends ServiceMetaData {
     queue?: string
     isEvent?: boolean
   }
-  ctx?: string
+  ctxs?: string[]
   params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any> }[]
   guards: string[]
   pipe?: string

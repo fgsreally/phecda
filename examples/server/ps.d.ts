@@ -126,7 +126,6 @@ declare global {
   const isAsyncFunc: typeof import('phecda-server')['isAsyncFunc']
   const isPhecda: typeof import('phecda-server')['isPhecda']
   const log: typeof import('phecda-server')['log']
-  const mergeArray: typeof import('phecda-server')['mergeArray']
   const mergeObject: typeof import('phecda-server')['mergeObject']
   const plainToClass: typeof import('phecda-server')['plainToClass']
   const resolveDep: typeof import('phecda-server')['resolveDep']

@@ -47,7 +47,7 @@ export class Context<Data extends BaseContext> {
       paramsType,
       data: {
         guards, interceptors, params,
-        tag, func, ctx, filter,
+        tag, func, ctxs, filter,
 
       },
     } = meta
@@ -62,8 +62,10 @@ export class Context<Data extends BaseContext> {
         return { arg: resolveDep(this.data[param.type], param.key), reflect: paramsType[param.index], ...param, pipe: param.pipe || globalPipe }
       }))
       const instance = moduleMap.get(tag)!
-      if (ctx)
-        instance[ctx] = this.data
+      if (ctxs) {
+        ctxs.forEach(ctx => instance[ctx] = this.data,
+        )
+      }
       const returnData = await instance[func](...args)
       const i2 = await this.usePostInterceptor(returnData)
       if (i2 !== undefined)
