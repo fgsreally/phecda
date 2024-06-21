@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.2.1
+
+### Patch Changes
+
+- 443b231: types in helper should be exposed at phecda-server
+
 ## 5.2.0
 
 ### Minor Changes
