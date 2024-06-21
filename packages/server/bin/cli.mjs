@@ -9,10 +9,9 @@ import cac from 'cac'
 import fse from 'fs-extra'
 import { log } from '../dist/index.mjs'
 
-const cli = cac('phecda')
-  .option('-c,--config <config>', 'config file', {
-    default: 'ps.json',
-  })
+const cli = cac('phecda').option('-c,--config <config>', 'config file', {
+  default: 'ps.json',
+})
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -75,19 +74,25 @@ process.on('SIGINT', () => {
 })
 
 cli
-  .command('init [workdir]', 'init config file')
+  .command('init [root]', 'init config file')
   .allowUnknownOptions()
   .option('-t,--tsconfig <tsconfig>', 'init tsconfig file', {
     default: 'tsconfig.json',
   })
-  .action(async (workdir, options) => {
-    const tsconfigPath = join(workdir, options.tsconfig)
-    const psconfigPath = join(workdir, options.config)
+  .action(async (root, options) => {
+    if (!root)
+      root = ''
+
+    const tsconfigPath = join(root, options.tsconfig)
+    const psconfigPath = join(root, options.config)
 
     if (!fse.existsSync(tsconfigPath)) {
       log(`create ${tsconfigPath}`)
 
-      await fse.copyFile(resolve(__dirname, '../assets/tsconfig.json'), tsconfigPath)
+      await fse.copyFile(
+        resolve(__dirname, '../assets/tsconfig.json'),
+        tsconfigPath,
+      )
     }
 
     if (!fse.existsSync(psconfigPath)) {
@@ -95,15 +100,17 @@ cli
 
       await fse.copyFile(resolve(__dirname, '../assets/ps.json'), psconfigPath)
     }
+
+    log('init finish')
   })
 
 cli
-  .command('<file> [workdir]', 'run file')
+  .command('<file> [root]', 'run file')
   .allowUnknownOptions()
   .alias('run')
-  .action((file, workdir, options) => {
-    if (workdir)
-      process.env.PS_WORKDIR = workdir
+  .action((file, root, options) => {
+    if (root)
+      process.env.PS_WORKDIR = root
     process.env.PS_CONFIG_FILE = options.config
 
     log('process start!')
@@ -134,11 +141,11 @@ cli
   })
 
 cli
-  .command('generate <file> [workdir]', 'generate code(mainly for ci)')
+  .command('generate <file> [root]', 'generate code(mainly for ci)')
   .allowUnknownOptions()
-  .action((file, workdir, options) => {
-    if (workdir)
-      process.env.PS_WORKDIR = workdir
+  .action((file, root, options) => {
+    if (root)
+      process.env.PS_WORKDIR = root
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = options.config
     startChild(file, options['--'])

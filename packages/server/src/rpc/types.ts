@@ -10,6 +10,7 @@ export interface RpcClientOptions {
   timeout?: number
   max?: number
 }
+
 export interface RpcContext extends BaseContext {
   args: any[]
   id: string
