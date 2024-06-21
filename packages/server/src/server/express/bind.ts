@@ -1,6 +1,6 @@
 import type { Express, Request, RequestHandler, Response, Router } from 'express'
 import Debug from 'debug'
-import type { HttpContext, HttpOptions } from '../helper'
+import type { HttpContext, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'

@@ -2,7 +2,8 @@
 import { StringCodec } from 'nats'
 import type { NatsConnection } from 'nats'
 import type { ToClientMap } from '../../types'
-import type { RpcClientOptions } from '../helper'
+import type { RpcClientOptions } from '../types'
+
 
 export async function createClient<S extends Record<string, any>>(nc: NatsConnection, controllers: S, opts?: Omit<RpcClientOptions, 'key'>) {
   let eventId = 1
