@@ -2,7 +2,7 @@
 import { EventEmitter } from 'events'
 import type amqplib from 'amqplib'
 import type { ToClientMap } from '../../types'
-import type { RpcClientOptions } from '../helper'
+import type { RpcClientOptions } from '../types'
 import { genClientQueue } from '../helper'
 
 export async function createClient<S extends Record<string, any>>(ch: amqplib.Channel, controllers: S, opts?: RpcClientOptions) {

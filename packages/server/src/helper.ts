@@ -1,10 +1,11 @@
+// help you build custom framework or decorator
+
 import pc from 'picocolors'
 import { log } from './utils'
 import { Context } from './context'
 import { HMR } from './hmr'
 import { ControllerMeta, Meta } from './meta'
 
-// help you build your custom framework or decorator
 export * from './hmr'
 export * from './server/helper'
 export * from './rpc/helper'

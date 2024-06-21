@@ -1,6 +1,6 @@
 import Debug from 'debug'
 import type { Hono, Context as HonoContext, MiddlewareHandler } from 'hono'
-import type { HttpContext, HttpOptions } from '../helper'
+import type { HttpContext, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'

@@ -2,7 +2,7 @@ import type Redis from 'ioredis'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context } from '../../context'
-import type { RpcContext, RpcServerOptions } from '../helper'
+import type { RpcContext, RpcServerOptions } from '../types'
 import { HMR } from '../../hmr'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 

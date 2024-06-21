@@ -3,7 +3,8 @@
 import { EventEmitter } from 'events'
 import { Queue, Worker } from 'bullmq'
 import type { ToClientMap } from '../../types'
-import type { RpcClientOptions } from '../helper'
+import type { RpcClientOptions } from '../types'
+
 import { genClientQueue } from '../helper'
 import { BullmqOptions } from './bind'
 

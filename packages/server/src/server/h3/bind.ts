@@ -6,7 +6,7 @@ import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
-import type { HttpContext, HttpOptions } from '../helper'
+import type { HttpContext, HttpOptions } from '../types'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/h3')
