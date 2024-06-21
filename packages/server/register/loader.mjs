@@ -205,7 +205,7 @@ export const resolve = async (specifier, context, nextResolve) => {
   const resolveRet = await nextResolve(specifier)
 
   // ts resolve fail in some cases
-  if (isAbsolute(resolveRet.url))
+  if (resolveRet.url && isAbsolute(resolveRet.url))
     resolveRet.url = pathToFileURL(resolveRet.url).href
 
   return resolveRet

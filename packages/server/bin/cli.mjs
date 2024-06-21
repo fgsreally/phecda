@@ -106,6 +106,7 @@ cli
 
 cli
   .command('<file> [root]', 'run file')
+  .alias('run')
   .allowUnknownOptions()
   .alias('run')
   .action((file, root, options) => {
