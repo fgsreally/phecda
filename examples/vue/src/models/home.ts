@@ -13,7 +13,7 @@ export class Base {
 @Tag('aa')
 
 // @Tag('home')
-export class HomeModel<T> extends Base {
+export class HomeModel<T = string> extends Base {
   // name = 'home'
 
   constructor() {

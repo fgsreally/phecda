@@ -233,8 +233,8 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   })
 }
 
-function getParamTypes(Module: any, key?: string | symbol) {
-  return Reflect.getMetadata('design:paramtypes', Module, key!)
+function getParamTypes(Model: any, key?: string | symbol) {
+  return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
 function initState(state: any) {

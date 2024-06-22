@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.2.2
+
+### Patch Changes
+
+- 267ef58: fix init command when root is empty(rename workdir to root)
+
 ## 5.2.1
 
 ### Patch Changes

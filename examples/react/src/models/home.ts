@@ -2,7 +2,7 @@
 import { Watcher,Storage, Init } from 'phecda-react'
 
 
-@Storage('home')
+@Storage()
 export class HomeModel {
     name = 'home'
     changeName(name: string) {

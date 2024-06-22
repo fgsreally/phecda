@@ -1,11 +1,15 @@
 <!-- eslint-disable vue/comma-dangle -->
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { initialize, useV } from 'phecda-vue'
+import { getActiveCore, useV } from 'phecda-vue'
 import { HomeModel } from './models/home'
 import HelloWorld from './components/HelloWorld.vue'
 
 const { name, fullName } = useV(HomeModel)
+
+function reset() {
+  getActiveCore().reset(HomeModel)
+}
 </script>
 
 <template>
@@ -18,7 +22,7 @@ const { name, fullName } = useV(HomeModel)
       <HelloWorld msg="You did it!" />
 
       <nav>
-        <button @click="initialize(HomeModel)">
+        <button @click="reset">
           初始化数据
         </button>
 

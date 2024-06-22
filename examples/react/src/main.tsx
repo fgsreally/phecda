@@ -1,9 +1,8 @@
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { createPhecda, defaultWebInject} from 'phecda-react'
+import { createPhecda, } from 'phecda-react'
 
-defaultWebInject()
 
 createPhecda()
 
