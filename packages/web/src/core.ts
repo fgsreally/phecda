@@ -13,9 +13,9 @@ function getParamtypes(Model: Construct, key?: string | symbol) {
 }
 
 export class Core {
+  _o: Record<string, any> = {}
   _s: Record<string | symbol, any> = {}
   _m = new WeakMap()
-  _c = new WeakMap()
   constructor(
     protected proxyFn: Function,
   ) {
@@ -23,6 +23,8 @@ export class Core {
   }
 
   init(model: Construct) {
+    const tag = getTag(model)
+
     const initModel = () => {
       const paramtypes = getParamtypes(model) as Construct[]
       let instance: InstanceType<Construct>
@@ -36,24 +38,28 @@ export class Core {
       else {
         instance = this.proxyFn(new model())
       }
-      instance._promise = invokeHandler('init', instance)
+
+      if (tag in this._o) {
+        Object.assign(instance, this._o[tag as string])
+        delete this._o[tag as string]
+      }
+      else { instance._promise = invokeHandler('init', instance) }
+
       return instance
     }
 
-    const { _s: state, _m: sourcemap } = this
-    const isIsolated = get(model.prototype, 'isolate')
+    const { _s: state, _m: map } = this
 
-    if (isIsolated)
+    if (get(model.prototype, 'isolate'))
       return initModel()
 
-    const tag = getTag(model)
     if (tag in state) {
       if (process.env.NODE_ENV === 'development') { // HMR
-        if (sourcemap.get(state[tag]) === model)
+        if (map.get(state[tag]) === model)
           return state[tag]
       }
       else {
-        if (sourcemap.get(state[tag]) !== model)
+        if (map.get(state[tag]) !== model)
           console.warn(`Synonym model: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
         return state[tag]
       }
@@ -63,7 +69,7 @@ export class Core {
 
     state[tag] = instance
 
-    sourcemap.set(instance, model)
+    map.set(instance, model)
     return instance
   }
 
@@ -107,12 +113,16 @@ export class Core {
     return false
   }
 
-  serializeState() {
+  serialize() {
     const { _s: state } = this
 
-    return JSON.parse(JSON.stringify(state))
+    return JSON.stringify(state, (_key, value) => {
+      if (this._m.has(value))
+        return null
+    })
   }
-  load(state: Record<string, any>) {
-    this._s = state
+
+  load(str: string) {
+    this._o = JSON.parse(str)
   }
 }

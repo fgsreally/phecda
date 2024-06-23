@@ -1,28 +1,27 @@
-import { P, Tag } from 'phecda-vue'
-import { HomeModel } from './home'
+import { Base, Tag } from 'phecda-vue'
+import { UserModel } from './user'
 
 @Tag('about')
 // @Shallow
-export class AboutModel extends P {
-  constructor(protected home: HomeModel) {
+export class AboutModel extends Base {
+  constructor(protected user: UserModel) {
     super()
   }
 
-  data = {
-    name: 'fgs',
+  createdAt = {
+    hour: new Date().getHours(),
+
+    minute: new Date().getMinutes(),
+    second: new Date().getSeconds(),
   }
 
-  change_home_name() {
-    this.data.name = 'fgp'
-    this.home.changeName()
+  changeUserName(name: string) {
+    this.createdAt.second = new Date().getSeconds() // it won't update view
+    this.user.changeName(name)
   }
 
   emit_update() {
     this.emit('add', null)
-    this.emit('update', {
-      from: this.tag as string,
-      value: 'value from emitter',
-      type: 'update',
-    })
+    this.emit('update', 'jerry')
   }
 }

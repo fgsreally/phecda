@@ -1,7 +1,7 @@
-import { type Events, getTag } from 'phecda-core'
+import { type Events, Unmount, getTag } from 'phecda-core'
 import { emitter } from './plugin'
 
-export class P {
+export class Base {
   constructor() {
 
   }
@@ -17,6 +17,7 @@ export class P {
 
   on<Key extends keyof Events>(type: Key, handler: (arg: Events[Key]) => void): void {
     (emitter as any).on(type, handler)
+    this.onUnmount(() => emitter.off(type, handler))
   }
 
   emit<Key extends keyof Events>(type: Key, param: Events[Key]) {
@@ -25,5 +26,17 @@ export class P {
 
   off<Key extends keyof Events>(type: Key, handler?: (arg: Events[Key]) => void): void {
     (emitter as any).off(type, handler)
+  }
+
+  private readonly __UNMOUNT_SYMBOL__: (() => void)[] = []
+
+  private onUnmount(cb: () => void) {
+    this.__UNMOUNT_SYMBOL__.push(cb)
+  }
+
+  @Unmount
+  // @ts-expect-error for internal
+  private _unmount() {
+    return Promise.all(this.__UNMOUNT_SYMBOL__.map(fn => fn()))
   }
 }

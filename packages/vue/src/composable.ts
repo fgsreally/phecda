@@ -32,15 +32,15 @@ export function useR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceTy
   return getActiveCore().init(model)
 }
 
-const REF_SYMBOL = Symbol('ref')
-
+const cacheMap = new WeakMap()
 export function useV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
-  const { _c: cacheMap } = getActiveCore()
   const instance = getActiveCore().init(model)
-  const cache = cacheMap.get(instance) || {}
 
-  if (cache[REF_SYMBOL])
-    return cache[REF_SYMBOL]
+  if (cacheMap.has(instance))
+    return cacheMap.get(instance)
+
+  const cache = {} as Record<PropertyKey, any>
+
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
@@ -58,14 +58,14 @@ export function useV<T extends Construct>(model: T): ReplaceInstanceValues<Insta
       cache[key] = createSharedReactive(() => {
         return toRef(target, key)
       })
+
       return cache[key]()
     },
     set() { // readonly
       return false
     },
   })
-  cache[REF_SYMBOL] = proxy
-  if (!cacheMap.has(instance))
-    cacheMap.set(instance, cache)
+
+  cacheMap.set(instance, proxy)
   return proxy
 }
