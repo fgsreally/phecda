@@ -43,8 +43,8 @@ export class Core {
         Object.assign(instance, this._o[tag as string])
         delete this._o[tag as string]
       }
-      else { instance._promise = invokeHandler('init', instance) }
-
+      if (typeof window !== 'undefined')
+        instance._promise = invokeHandler('init', instance)
       return instance
     }
 

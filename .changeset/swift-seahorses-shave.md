@@ -17,3 +17,5 @@ only keep simple hook like `useR`
 Add `getActiveCore` for advanced operations
 
 fix to support `ssr`
+
+`init` handler won't exec in ssr 
