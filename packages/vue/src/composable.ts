@@ -1,17 +1,11 @@
 import { Construct, type Events, emitter } from 'phecda-web'
 import { UnwrapNestedRefs, onBeforeUnmount, toRaw, toRef } from 'vue'
 import type { ReplaceInstanceValues } from './types'
-import { type DeepPartial, createSharedReactive, mergeReactiveObjects } from './utils'
-import { getActiveCore } from './core'
+import { createSharedReactive } from './utils'
+import { VuePhecda, usePhecda } from './core'
 
 export function useRaw<T extends Construct>(model: T) {
   return toRaw(useR(model)) as unknown as InstanceType<T>
-}
-
-// like what pinia does
-export function usePatch<T extends Construct>(model: T, Data: DeepPartial<InstanceType<T>>) {
-  const instance = useR(model)
-  mergeReactiveObjects(instance, Data)
 }
 
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
@@ -28,13 +22,13 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
 
 // 还原模块
 
-export function useR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
-  return getActiveCore().init(model)
+export function useR<T extends Construct>(model: T, phecda?: VuePhecda): UnwrapNestedRefs<InstanceType<T>> {
+  return usePhecda(phecda).init(model) as any
 }
 
 const cacheMap = new WeakMap()
-export function useV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
-  const instance = getActiveCore().init(model)
+export function useV<T extends Construct>(model: T, phecda?: VuePhecda): ReplaceInstanceValues<InstanceType<T>> {
+  const instance = usePhecda(phecda).init(model)
 
   if (cacheMap.has(instance))
     return cacheMap.get(instance)

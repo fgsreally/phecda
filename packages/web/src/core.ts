@@ -3,6 +3,9 @@ import { get, getTag, invokeHandler } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 
 import 'reflect-metadata'
+import { defaultWebInject } from './plugin'
+import { DeepPartial } from './types'
+import { deepMerge } from './utils'
 
 export function wait(...instances: InstanceType<Construct>[]) {
   return Promise.all(instances.map(i => i._promise))
@@ -12,17 +15,17 @@ function getParamtypes(Model: Construct, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
-export class Core {
+export class WebPhecda {
   _o: Record<string, any> = {}
   _s: Record<string | symbol, any> = {}
   _m = new WeakMap()
   constructor(
     protected proxyFn: Function,
   ) {
-
+    defaultWebInject()
   }
 
-  init(model: Construct) {
+  init<Model extends Construct>(model: Model): InstanceType<Model> {
     const tag = getTag(model)
 
     const initModel = () => {
@@ -73,9 +76,15 @@ export class Core {
     return instance
   }
 
-  reset<M extends Construct>(model: M, deleteOtherProperty = true): InstanceType<M> | void {
+  patch<Model extends Construct>(model: Model, data: DeepPartial<InstanceType<Model>>) {
+    const tag = getTag(model)
     const { _s: state } = this
 
+    deepMerge(state[tag], data)
+  }
+
+  reset<Model extends Construct>(model: Model): InstanceType<Model> | void {
+    const { _s: state } = this
     const tag = getTag(model)
     if (!(tag in state))
       return this.init(model)
@@ -83,19 +92,18 @@ export class Core {
     const instance = this.init(model)
     const newInstance = new model()
     Object.assign(instance, newInstance)
-    if (deleteOtherProperty) {
-      for (const key in instance) {
-        if (!(key in newInstance))
-          delete instance[key]
-      }
+    // delete other property
+    for (const key in instance) {
+      if (!(key in newInstance))
+        delete instance[key]
     }
   }
 
-  async unmount(tag: PropertyKey) {
+  async unmount(modelOrTag: Construct | PropertyKey) {
+    const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
     const { _s: state } = this
-
-    await invokeHandler('unmount', state[tag as PropertyKey])
-    delete state[tag as PropertyKey]
+    await invokeHandler('unmount', state[tag])
+    delete state[tag]
   }
 
   async unmountAll() {
@@ -104,8 +112,10 @@ export class Core {
     return Promise.all(Object.keys(state).map(tag => this.unmount(tag)))
   }
 
-  ismount(tag: PropertyKey) {
+  ismount(modelOrTag: Construct | PropertyKey) {
     const { _s: state } = this
+    const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
+
     if (tag in state)
 
       return true

@@ -6,16 +6,16 @@
 
 remove filter in `phecda-vue` 
 
-refactor `useV` in `phecda-vue`, cache is managed by `useV` itself, not Core
+refactor `useV` in `phecda-vue`, cache is managed by `useV` itself, not Phecda instance
 
-using `reflect-metadata` and `proxy`
+using `reflect-metadata` and `Proxy`
 
-refactor to ensure `vue/react/web` structor is consistent with `phecda-server`
+refactor to ensure `vue/react/web` structor is similar to `phecda-server`
 
 only keep simple hook like `useR`
 
-Add `getActiveCore` for advanced operations
+Add `usePhecda` hook for advanced operations
 
-fix to support `ssr`
+Follow the provide/inject (vue) and context(react) pattern to support `ssr`
 
 `init` handler won't exec in ssr 

@@ -4,25 +4,26 @@
 <!-- eslint-disable vue/dot-location -->
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts">
-// eslint-disable-next-line vue/object-curly-newline
-import { usePatch, useV } from 'phecda-vue'
+ 
+import { usePhecda, useV } from 'phecda-vue'
 import { UserModel } from '@/models/user'
 
 const { name, fullName, obj, changeName, createdAt } = useV(UserModel)
+const p = usePhecda()
 </script>
 
 <template>
   <main>
     <section>
-      <p>{{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
-
+      <p>
+        {{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
       </p>
       <div>name:{{ name }}</div>
       <div>fullName:{{ fullName }}</div>
       <div> obj.id:{{ obj.id }}</div>
     </section>
 
-    <button @click="usePatch(UserModel, { obj: { id: Math.floor((Math.random() * 100)) } })">
+    <button @click="p.patch(UserModel, { obj: { id: Math.floor((Math.random() * 100)) } })">
       patch user id
     </button>
     <button @click="changeName('Tom')">

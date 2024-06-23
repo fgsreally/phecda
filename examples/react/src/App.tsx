@@ -3,7 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { Home } from "./Home";
-import { emitter } from "phecda-react";
+import { PhecdaContext, createPhecda, emitter } from "phecda-react";
 
 
 
@@ -13,7 +13,8 @@ function App() {
 
   return (
     <>
-      <div>
+     <PhecdaContext.Provider value={createPhecda()}>
+     <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
@@ -25,6 +26,7 @@ function App() {
       <button onClick={()=>emitter.emit('update','watcher')}>event emitter</button>
       <button onClick={() => changeMount(!isMount)}>{isMount?'mounting':'unmounting'}</button>
       {isMount && <Home></Home>}
+      </PhecdaContext.Provider>
     </>
   );
 }

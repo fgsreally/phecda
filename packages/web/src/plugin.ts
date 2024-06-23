@@ -6,8 +6,7 @@ import type { PhecdaEmitter } from './types'
 export const emitter: PhecdaEmitter = mitt()
 
 export function defaultWebInject() {
-  // @ts-expect-error work for vite
-  if (import.meta.env.SSR)
+  if (typeof window === 'undefined')
     return
 
   if (!getInject('watcher')) {

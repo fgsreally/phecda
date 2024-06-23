@@ -1,44 +1,10 @@
-/* eslint-disable no-prototype-builtins */
 import type { EffectScope } from 'vue'
 
-import { effectScope, isReactive, isRef, onScopeDispose, markRaw as raw } from 'vue'
+import { effectScope, onScopeDispose, markRaw as raw } from 'vue'
 import type { Raw } from './types'
-export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> }
 
 export function markRaw<T extends object>(value: T): Raw<T> {
   return raw(value) as any
-}
-
-export function isObject(o: any) {
-  return Object.prototype.toString.call(o) === '[object Object]'
-}
-
-// copy form pinia
-export function mergeReactiveObjects<
-  T extends Record<any, unknown> | Map<unknown, unknown> | Set<unknown>,
->(target: T, patchToApply: DeepPartial<T>): T {
-  for (const key in patchToApply) {
-    if (!patchToApply.hasOwnProperty(key))
-      continue
-    const subPatch = patchToApply[key]
-    const targetValue = target[key]
-    if (
-      isObject(targetValue)
-      && isObject(subPatch)
-      && target.hasOwnProperty(key)
-      && !isRef(subPatch)
-      && !isReactive(subPatch)
-    ) {
-      // @ts-expect-error types ignore
-      target[key] = mergeReactiveObjects(targetValue, subPatch)
-    }
-    else {
-      // @ts-expect-error: subPatch is a valid value
-      target[key] = subPatch
-    }
-  }
-
-  return target
 }
 
 export function createSharedReactive<F extends (...args: any) => any>(composable: F): () => ReturnType<F> {

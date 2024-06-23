@@ -1,27 +1,19 @@
 import { proxy } from 'valtio'
-import { Construct, Core, defaultWebInject, getTag } from 'phecda-web'
+import { WebPhecda } from 'phecda-web'
+import { createContext, useContext } from 'react'
 
-let activeCore: Core
+export const PhecdaContext = createContext(createPhecda())
+
 export function createPhecda() {
-  defaultWebInject()
-
-  activeCore = new Core((instance: any) => {
+  return new WebPhecda((instance: any) => {
     return proxy(instance)
   })
 }
+export function usePhecda() {
+  const activePhecda = useContext(PhecdaContext)
 
-export function getActiveCore() {
-  return activeCore
-}
+  if (!activePhecda && process.env.NODE_ENV === 'development')
+    throw new Error('[phecda-react]: must under <PhecdaContext.Provider></PhecdaContext.Provider> or manually inject the phecda instance ')
 
-export function reset<Model extends Construct>(model: Model, deleteOtherProperty?: boolean) {
-  return getActiveCore().reset(model, deleteOtherProperty)
-}
-
-export function ismount(model: Construct) {
-  return getActiveCore().ismount(getTag(model))
-}
-
-export function unmount(model: Construct) {
-  return getActiveCore().unmount(getTag(model))
+  return activePhecda
 }

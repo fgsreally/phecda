@@ -1,35 +1,26 @@
-import { reactive, shallowReactive } from 'vue'
-import { Construct, Core, defaultWebInject, get, getTag } from 'phecda-web'
+import { type App, hasInjectionContext, inject, reactive, shallowReactive } from 'vue'
+import { WebPhecda, get } from 'phecda-web'
 
-let activeCore: Core
+export const phecdaSymbol = Symbol('phecda-vue')
 
-export function getActiveCore() {
-  return activeCore
+export function usePhecda(phecda?: VuePhecda) {
+  if (phecda)
+    return phecda
+  const activePhecda = hasInjectionContext() && inject(phecdaSymbol)
+  if (!activePhecda && process.env.NODE_ENV === 'development')
+    throw new Error('[phecda-vue]: must install the vue plugin (if used in setup) or manually inject the phecda instance ')
+
+  return activePhecda as VuePhecda
 }
 
-export function createPhecda() {
-  defaultWebInject()
-
-  activeCore = new Core((instance: any) => {
-    return get(instance, 'shallow') ? shallowReactive(instance) : reactive(instance)
-  })
-
-  return {
-    serialize: activeCore.serialize.bind(activeCore),
-    unmount: activeCore.unmountAll.bind(activeCore),
-    load: activeCore.load.bind(activeCore),
-
+export class VuePhecda extends WebPhecda {
+  install(app: App) {
+    app.provide(phecdaSymbol, this)
   }
 }
 
-export function reset<Model extends Construct>(model: Model, deleteOtherProperty?: boolean) {
-  return getActiveCore().reset(model, deleteOtherProperty)
-}
-
-export function ismount(model: Construct) {
-  return getActiveCore().ismount(getTag(model))
-}
-
-export function unmount(model: Construct) {
-  return getActiveCore().unmount(getTag(model))
+export function createPhecda() {
+  return new VuePhecda((instance: any) => {
+    return get(instance, 'shallow') ? shallowReactive(instance) : reactive(instance)
+  })
 }
