@@ -1,5 +1,4 @@
 ---
-"phecda-react": major
 "phecda-vue": major
 "phecda-web": major
 ---
