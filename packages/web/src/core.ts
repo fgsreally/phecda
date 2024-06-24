@@ -15,10 +15,25 @@ function getParamtypes(Model: Construct, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
+export function bindMethod(instance: any) {
+  const cache = new WeakMap()
+  return new Proxy(instance, {
+    get(target, p) {
+      if (typeof target[p] === 'function' && !target[p].toString().startsWith('(')) {
+        if (!cache.has(target[p]))
+          cache.set(target[p], target[p].bind(target))
+
+        return cache.get(target[p])
+      }
+      return target[p]
+    },
+  })
+}
+
 export class WebPhecda {
-  _o: Record<string, any> = {}
-  _s: Record<string | symbol, any> = {}
-  _m = new WeakMap()
+  origin: Record<string, any> = {}
+  state: Record<string | symbol, any> = {}
+  modelMap = new WeakMap()
   constructor(
     protected proxyFn: Function,
   ) {
@@ -42,16 +57,16 @@ export class WebPhecda {
         instance = this.proxyFn(new model())
       }
 
-      if (tag in this._o) {
-        Object.assign(instance, this._o[tag as string])
-        delete this._o[tag as string]
+      if (tag in this.origin) {
+        Object.assign(instance, this.origin[tag as string])
+        delete this.origin[tag as string]
       }
       if (typeof window !== 'undefined')
         instance._promise = invokeHandler('init', instance)
-      return instance
+      return bindMethod(instance)
     }
 
-    const { _s: state, _m: map } = this
+    const { state, modelMap: map } = this
 
     if (get(model.prototype, 'isolate'))
       return initModel()
@@ -78,13 +93,36 @@ export class WebPhecda {
 
   patch<Model extends Construct>(model: Model, data: DeepPartial<InstanceType<Model>>) {
     const tag = getTag(model)
-    const { _s: state } = this
+    const { state } = this
 
     deepMerge(state[tag], data)
   }
 
-  reset<Model extends Construct>(model: Model): InstanceType<Model> | void {
-    const { _s: state } = this
+  wait(...modelOrTag: (Construct | PropertyKey)[]) {
+    const { state } = this
+
+    return Promise.all(modelOrTag.map((i) => {
+      if (typeof i === 'function')
+        i = getTag(i)
+
+      return state[i]._promise
+    }))
+  }
+
+  get<Model extends Construct>(model: Model): InstanceType<Model> {
+    const { state } = this
+
+    return state[getTag(model)]
+  }
+
+  has<Model extends Construct>(model: Model): boolean {
+    const { state } = this
+
+    return getTag(model) in state
+  }
+
+  reset<Model extends Construct>(model: Model) {
+    const { state } = this
     const tag = getTag(model)
     if (!(tag in state))
       return this.init(model)
@@ -101,19 +139,19 @@ export class WebPhecda {
 
   async unmount(modelOrTag: Construct | PropertyKey) {
     const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
-    const { _s: state } = this
+    const { state } = this
     await invokeHandler('unmount', state[tag])
     delete state[tag]
   }
 
   async unmountAll() {
-    const { _s: state } = this
+    const { state } = this
 
     return Promise.all(Object.keys(state).map(tag => this.unmount(tag)))
   }
 
   ismount(modelOrTag: Construct | PropertyKey) {
-    const { _s: state } = this
+    const { state } = this
     const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
 
     if (tag in state)
@@ -124,15 +162,15 @@ export class WebPhecda {
   }
 
   serialize() {
-    const { _s: state } = this
+    const { state } = this
 
     return JSON.stringify(state, (_key, value) => {
-      if (this._m.has(value))
+      if (this.modelMap.has(value))
         return null
     })
   }
 
   load(str: string) {
-    this._o = JSON.parse(str)
+    this.origin = JSON.parse(str)
   }
 }

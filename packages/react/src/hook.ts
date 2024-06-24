@@ -1,8 +1,21 @@
 import type { Construct, Events } from 'phecda-web'
-import { useEffect } from 'react'
-import { emitter } from 'phecda-web'
+import { useContext, useEffect } from 'react'
+import { bindMethod, emitter } from 'phecda-web'
 import { useSnapshot } from 'valtio'
-import { usePhecda } from './core'
+import { PhecdaContext } from './core'
+
+const cacheMap = new WeakMap()
+export function usePhecda() {
+  const activePhecda = useContext(PhecdaContext)
+
+  if (!activePhecda)
+    throw new Error('[phecda-react]: must under <PhecdaContext.Provider></PhecdaContext.Provider> or manually inject the phecda instance ')
+
+  if (!cacheMap.has(activePhecda))
+    cacheMap.set(activePhecda, bindMethod(activePhecda))
+
+  return activePhecda
+}
 
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
   useEffect(() => {
@@ -17,7 +30,7 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
   ]
 }
 
-export function useR<T extends Construct>(model: T): [InstanceType<T>, InstanceType<T>] {
+export function useR<T extends Construct>(model: T): InstanceType<T> {
   const proxyInstance = usePhecda().init(model)
-  return [useSnapshot(proxyInstance), proxyInstance]
+  return useSnapshot(proxyInstance) as any
 }

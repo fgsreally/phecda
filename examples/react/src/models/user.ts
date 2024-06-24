@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Base, Clear, Global, Init, Storage, Tag, WatchEffect, Watcher, markRaw } from 'phecda-vue'
+import { Base, Clear, Global, Init, Storage, Tag, Watcher,  } from 'phecda-react'
 @Tag('BaseUser')
 
 export class BaseUser extends Base {
@@ -13,18 +13,17 @@ export class BaseUser extends Base {
 @Storage()
 @Tag('User')
 
-export class UserModel<Data = any> extends BaseUser {
+export class UserModel extends BaseUser {
   constructor() {
     super()
   }
 
-  createdAt = markRaw({
+  createdAt = ({
     hour: new Date().getHours(),
     minute: new Date().getMinutes(),
     second: new Date().getSeconds(),
   })
 
-  data: Data
   readonly obj = {
     id: 1,
     isChange: false,
@@ -51,10 +50,8 @@ export class UserModel<Data = any> extends BaseUser {
   }
 
   @Clear
-   _init_: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  override _init_: any
 
-  @WatchEffect()
-  private _effect() {
-    console.log(`watch effect:${this.name}`)
-  }
+
 }

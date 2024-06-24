@@ -1,11 +1,23 @@
-import { Construct, type Events, emitter } from 'phecda-web'
-import { UnwrapNestedRefs, onBeforeUnmount, toRaw, toRef } from 'vue'
+import { Construct, type Events, bindMethod, emitter } from 'phecda-web'
+import { UnwrapNestedRefs, hasInjectionContext, inject, onBeforeUnmount, toRaw, toRef } from 'vue'
 import type { ReplaceInstanceValues } from './types'
 import { createSharedReactive } from './utils'
-import { VuePhecda, usePhecda } from './core'
+import { VuePhecda, phecdaSymbol } from './core'
+
+const cacheMap = new WeakMap()
 
 export function useRaw<T extends Construct>(model: T) {
   return toRaw(useR(model)) as unknown as InstanceType<T>
+}
+
+export function usePhecda(phecda?: VuePhecda) {
+  const activePhecda = phecda || (hasInjectionContext() && inject(phecdaSymbol))
+  if (!activePhecda)
+    throw new Error('[phecda-vue]: must install the vue plugin (if used in setup) or manually inject the phecda instance ')
+  if (!cacheMap.has(activePhecda))
+    cacheMap.set(activePhecda, bindMethod(activePhecda))
+
+  return cacheMap.get(activePhecda) as VuePhecda
 }
 
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
@@ -26,7 +38,6 @@ export function useR<T extends Construct>(model: T, phecda?: VuePhecda): UnwrapN
   return usePhecda(phecda).init(model) as any
 }
 
-const cacheMap = new WeakMap()
 export function useV<T extends Construct>(model: T, phecda?: VuePhecda): ReplaceInstanceValues<InstanceType<T>> {
   const instance = usePhecda(phecda).init(model)
 
@@ -38,6 +49,10 @@ export function useV<T extends Construct>(model: T, phecda?: VuePhecda): Replace
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
+        // for ()=>{}
+        if (target[key].toString().startsWith('('))
+          return target[key]
+
         if (!cache[key])
           cache[key] = target[key].bind(target)
         return cache[key]

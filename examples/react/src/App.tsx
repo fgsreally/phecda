@@ -1,31 +1,35 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
-import { Home } from "./Home";
-import { PhecdaContext, createPhecda, emitter } from "phecda-react";
+import { Home } from "./views/Home";
+import { PhecdaContext, createPhecda, usePhecda } from "phecda-react";
 
+import {
+  createBrowserRouter,
+  RouterProvider,
 
-
+  Link,
+} from "react-router-dom";
+import { UserModel } from "./models/user";
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home></Home>,
+  },
+  // {
+  //   path: "about",
+  //   element: <About></About>
+  // },
+]);
 
 function App() {
-  const [isMount, changeMount] = useState(true);
-
+  const { reset } = usePhecda();
   return (
     <>
-     <PhecdaContext.Provider value={createPhecda()}>
-     <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <button onClick={()=>emitter.emit('update','watcher')}>event emitter</button>
-      <button onClick={() => changeMount(!isMount)}>{isMount?'mounting':'unmounting'}</button>
-      {isMount && <Home></Home>}
+      <PhecdaContext.Provider value={createPhecda()}>
+        <button onClick={()=>reset(UserModel)}>initlize</button>
+        {/* <Link to="about">About Us</Link> */}
+
+        <RouterProvider router={router}></RouterProvider>
       </PhecdaContext.Provider>
     </>
   );

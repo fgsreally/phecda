@@ -5,7 +5,7 @@ import { usePhecda, useR } from 'phecda-vue'
 import { UserModel } from '@/models/user'
 
 const User = useR(UserModel)
-const p = usePhecda()
+const { reset } = usePhecda()
 </script>
 
 <template>
@@ -23,8 +23,8 @@ const p = usePhecda()
 
     <div class="wrapper">
       <nav>
-        <button @click="p.reset(UserModel)">
-          初始化数据
+        <button @click="reset(UserModel)">
+          initlize
         </button>
       </nav>
     </div>

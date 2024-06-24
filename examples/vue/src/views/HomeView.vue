@@ -4,12 +4,12 @@
 <!-- eslint-disable vue/dot-location -->
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts">
- 
+
 import { usePhecda, useV } from 'phecda-vue'
 import { UserModel } from '@/models/user'
 
 const { name, fullName, obj, changeName, createdAt } = useV(UserModel)
-const p = usePhecda()
+const { patch } = usePhecda()
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const p = usePhecda()
       <div> obj.id:{{ obj.id }}</div>
     </section>
 
-    <button @click="p.patch(UserModel, { obj: { id: Math.floor((Math.random() * 100)) } })">
+    <button @click="patch(UserModel, { obj: { id: Math.floor((Math.random() * 100)) } })">
       patch user id
     </button>
     <button @click="changeName('Tom')">
