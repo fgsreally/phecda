@@ -1,12 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Err, Init } from 'phecda-web'
-import { createApp } from 'vue'
-import { Isolate, Tag, Watcher, createPhecda, defaultWebInject, emitter, useO, useR, useV, waitUntilInit } from '../src/index'
-describe('work for vue', () => {
-  it('watcher', async () => {
-    createApp({}).use(createPhecda())
-    defaultWebInject()
+import { Err, Init, wait } from 'phecda-web'
+import { Isolate, Tag, Watcher, createPhecda, emitter, useR, useV } from '../src/index'
 
+declare module 'phecda-web' {
+
+  interface Events {
+    test: string
+  }
+}
+
+describe('outside setup function', () => {
+  const phecda = createPhecda()
+
+  it('watcher', async () => {
     class WatchPlayer {
       name: string
       @Watcher('test')
@@ -14,7 +20,7 @@ describe('work for vue', () => {
         this.name = name
       }
     }
-    const { name } = useV(WatchPlayer)
+    const { name } = useV(WatchPlayer, phecda)
 
     expect(name.value).toBeUndefined()
 
@@ -41,14 +47,14 @@ describe('work for vue', () => {
       }
     }
     // work with useR
-    const ret = useR(ErrorMaker)
+    const ret = useR(ErrorMaker, phecda)
     ret.invoke()
     expect(fn).toHaveLastReturnedWith('invoke error')
     await expect(ret.throw()).rejects.toThrow('throw error')
     expect(fn).toHaveBeenCalledTimes(2)
 
     // work with useV
-    const { invoke, throw: ThrowError } = useV(ErrorMaker)
+    const { invoke, throw: ThrowError } = useV(ErrorMaker, phecda)
 
     invoke()
     expect(fn).toHaveLastReturnedWith('invoke error')
@@ -57,7 +63,7 @@ describe('work for vue', () => {
     expect(fn).toHaveBeenCalledTimes(4)
   })
 
-  it('waitUntilInit', async () => {
+  it('wait', async () => {
     let isInit = false
     class A {
 
@@ -69,7 +75,7 @@ describe('work for vue', () => {
       }
     }
 
-    await waitUntilInit(useO(A), useO(B))
+    await wait(useR(A, phecda), useR(B, phecda))
     expect(isInit).toBeTruthy()
   })
 
@@ -80,7 +86,7 @@ describe('work for vue', () => {
 
     }
 
-    const a = useR(A)
-    expect(a === useR(A)).toBeFalsy()
+    const a = useR(A, phecda)
+    expect(a === useR(A, phecda)).toBeFalsy()
   })
 })
