@@ -6,10 +6,14 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "target": "esnext",
+    "module": "esnext",
+
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
-    "ignoreDeprecations":"5.0",
-    "strictPropertyInitialization":false
+    "ignoreDeprecations": "5.0",
+    "strictPropertyInitialization": false
   },
 
   "references": [

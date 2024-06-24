@@ -9,10 +9,12 @@
     "build": "tsup",
     "dev": "tsup --watch"
   },
-  "keywords": ["phecda","vue"],
+  "keywords": [
+    "phecda",
+    "vue"
+  ],
   "author": "fgsreally",
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/vue",
-  
   "files": [
     "dist"
   ],
@@ -22,6 +24,7 @@
     "vue": "^3.2.45"
   },
   "devDependencies": {
+    "@vue/test-utils": "^2.4.6",
     "tsup": "^6.5.0"
   }
 }

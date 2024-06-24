@@ -1,4 +1,4 @@
-import { HomeModel } from './home';
+import { HomeModel } from './user';
 import 'phecda-vue'
 
 declare module 'phecda-vue'{
@@ -7,11 +7,7 @@ declare module 'phecda-vue'{
       }
      
       interface Events{
-        update:{
-          type:string,
-          value:string,
-          from:string
-        }
+        update:string
         add:null
       }
 }

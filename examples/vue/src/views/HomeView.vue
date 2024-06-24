@@ -4,26 +4,30 @@
 <!-- eslint-disable vue/dot-location -->
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts">
-// eslint-disable-next-line vue/object-curly-newline
-import { usePatch, useV } from 'phecda-vue'
-import TheWelcome from '../components/TheWelcome.vue'
-import { HomeModel } from '@/models/home'
-const { name, fullName, obj, changeName } = useV(HomeModel)
 
+import { usePhecda, useV } from 'phecda-vue'
+import { UserModel } from '@/models/user'
+
+const { name, fullName, obj, changeName, createdAt } = useV(UserModel)
+const { patch } = usePhecda()
 </script>
 
 <template>
   <main>
-    <div> name:{{ name }}</div>
-    <div>fullName:{{ fullName }}</div>
-    <div> obj.id:{{ obj.id }}</div>
-    <div>obj.isChange:{{ obj.isChange }}</div>
-    <button @click="usePatch(HomeModel, { obj: { isChange: true } })">
-      patch home obj
+    <section>
+      <p>
+        {{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
+      </p>
+      <div>name:{{ name }}</div>
+      <div>fullName:{{ fullName }}</div>
+      <div> obj.id:{{ obj.id }}</div>
+    </section>
+
+    <button @click="patch(UserModel, { obj: { id: Math.floor((Math.random() * 100)) } })">
+      patch user id
     </button>
-    <button @click="changeName">
-      change home name
+    <button @click="changeName('Tom')">
+      change home name to Tom
     </button>
-    <TheWelcome />
   </main>
 </template>

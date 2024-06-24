@@ -1,22 +1,23 @@
 {
   "name": "phecda-react",
   "version": "0.1.0",
+  "private": true,
   "description": "provide phecda function to react by valtio",
+  "author": "fgsreally",
+  "license": "MIT",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/react",
+  "keywords": ["phecda", "react"],
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch"
   },
-  "keywords": ["phecda","react"],
-  "author": "fgsreally",
-  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/react",
-  
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
   "dependencies": {
     "phecda-web": "workspace:*",
     "react": "^18.2.0",

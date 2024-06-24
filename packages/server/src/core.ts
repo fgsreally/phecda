@@ -100,7 +100,11 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 
       if (constructorMap.get(tag) !== Model && !constructorSet.has(Model)) {
         constructorSet.add(Model)// a module will only warn once
-        log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Model.name}"`, 'warn')
+
+        if (constructorMap.get(tag) instanceof Model)
+          log(`Module taged ${String(tag)} has been overwritten`)
+        else
+          log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Model.name}"`, 'warn')
       }
       return { instance, tag }
     }
@@ -233,8 +237,8 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   })
 }
 
-function getParamTypes(Module: any, key?: string | symbol) {
-  return Reflect.getMetadata('design:paramtypes', Module, key!)
+function getParamTypes(Model: any, key?: string | symbol) {
+  return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
 function initState(state: any) {
