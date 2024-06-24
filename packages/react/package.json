@@ -1,6 +1,7 @@
 {
   "name": "phecda-react",
   "version": "0.1.0",
+  "private": true,
   "description": "provide phecda function to react by valtio",
   "author": "fgsreally",
   "license": "MIT",
