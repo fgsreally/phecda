@@ -1,16 +1,18 @@
 {
   "name": "phecda-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "provide phecda function to react by valtio",
   "author": "fgsreally",
   "license": "MIT",
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/react",
-  "keywords": ["phecda", "react"],
+  "keywords": [
+    "phecda",
+    "react"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-
   "files": [
     "dist"
   ],

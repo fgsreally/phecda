@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.2.3
+
+### Patch Changes
+
+- 73ca668: fix resolve in loader (when ts resolver return undefined)
+
+  valid overlay modules won't trigger warning
+
 ## 5.2.2
 
 ### Patch Changes
