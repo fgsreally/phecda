@@ -1,5 +1,26 @@
 # phecda-react
 
+## 1.0.0
+
+### Major Changes
+
+- 37148d6: using `reflect-metadata` and `Proxy`
+
+  refactor to ensure `vue/react/web` structor is similar to `phecda-server`
+
+  only keep simple hook like `useR`
+
+  Add `usePhecda` hook for advanced operations
+
+  Follow the provide/inject (vue) and context(react) pattern to support `ssr`
+
+  `init` handler won't exec in ssr
+
+### Patch Changes
+
+- Updated dependencies [37148d6]
+  - phecda-web@2.0.1
+
 ## 0.1.1
 
 ### Patch Changes
