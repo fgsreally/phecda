@@ -35,6 +35,7 @@ export class UserModel<Data = any> extends BaseUser {
   }
 
   changeName(name: string) {
+    console.log(this)
     this.createdAt.second = new Date().getSeconds() // it won't update view
     this.name = name
   }

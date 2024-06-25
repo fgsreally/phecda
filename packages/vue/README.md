@@ -1,5 +1,5 @@
 # phecda-vue
-provide store/form/table with phecda function to vue
+provide state management with phecda function to vue
 
 ## store
 ```ts
