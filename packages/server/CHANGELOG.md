@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.2.4
+
+### Patch Changes
+
+- 51391ef: legal override module won't output warning (it can't work in 5.2.3)
+
 ## 5.2.3
 
 ### Patch Changes

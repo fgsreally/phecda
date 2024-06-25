@@ -1,5 +1,16 @@
 # phecda-vue
 
+## 4.0.1
+
+### Patch Changes
+
+- 37148d6: update sth to support phecda-react
+
+  refactor `Shallow` in `phecda-vue`
+
+- Updated dependencies [37148d6]
+  - phecda-web@2.0.1
+
 ## 4.0.0
 
 ### Major Changes
