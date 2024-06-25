@@ -15,19 +15,24 @@ function getParamtypes(Model: Construct, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
-export function bindMethod(instance: any) {
-  const cache = new WeakMap()
-  return new Proxy(instance, {
-    get(target, p) {
-      if (typeof target[p] === 'function' && !target[p].toString().startsWith('(')) {
-        if (!cache.has(target[p]))
-          cache.set(target[p], target[p].bind(target))
+const bindCache = new WeakMap()
 
-        return cache.get(target[p])
-      }
-      return target[p]
-    },
-  })
+export function bindMethod(instance: any) {
+  if (!bindCache.has(instance)) {
+    const cache = new WeakMap()
+    bindCache.set(instance, new Proxy(instance, {
+      get(target, p) {
+        if (typeof target[p] === 'function' && !target[p].toString().startsWith('(')) {
+          if (!cache.has(target[p]))
+            cache.set(target[p], target[p].bind(target))
+
+          return cache.get(target[p])
+        }
+        return target[p]
+      },
+    }))
+  }
+  return bindCache.get(instance)
 }
 
 export class WebPhecda {
@@ -35,11 +40,12 @@ export class WebPhecda {
   state: Record<string | symbol, any> = {}
   modelMap = new WeakMap()
   constructor(
-    protected proxyFn: Function,
+    protected parseModule: <Instance = any>(instance: Instance) => Instance,
   ) {
     defaultWebInject()
   }
 
+  // Initialize a module that has not been created yet, and return it directly if it is cached.
   init<Model extends Construct>(model: Model): InstanceType<Model> {
     const tag = getTag(model)
 
@@ -51,10 +57,10 @@ export class WebPhecda {
         for (const i in paramtypes)
           paramtypesInstances[i] = this.init(paramtypes[i])
 
-        instance = this.proxyFn(new model(...paramtypesInstances))
+        instance = this.parseModule(new model(...paramtypesInstances))
       }
       else {
-        instance = this.proxyFn(new model())
+        instance = this.parseModule(new model())
       }
 
       if (tag in this.origin) {
@@ -63,7 +69,7 @@ export class WebPhecda {
       }
       if (typeof window !== 'undefined')
         instance._promise = invokeHandler('init', instance)
-      return bindMethod(instance)
+      return instance
     }
 
     const { state, modelMap: map } = this
