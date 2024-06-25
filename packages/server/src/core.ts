@@ -101,8 +101,8 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
       if (constructorMap.get(tag) !== Model && !constructorSet.has(Model)) {
         constructorSet.add(Model)// a module will only warn once
 
-        if (constructorMap.get(tag) instanceof Model)
-          log(`Module taged ${String(tag)} has been overwritten`)
+        if (instance instanceof Model)
+          log(`Module taged ${String(tag)} has been overridden`)// legal override
         else
           log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Model.name}"`, 'warn')
       }

@@ -1,22 +1,25 @@
-import { proxy, usePhecda, useSnapshot } from "phecda-react";
+import { usePhecda, useR } from "phecda-react";
 import { UserModel } from "../models/user";
-
-const newUser = proxy(new UserModel());
+import { Link } from "react-router-dom";
 
 export function Home() {
-  const user = useSnapshot(newUser);
-  const { patch } = usePhecda();
+  const [userGetter, userSetter] = useR(UserModel);
+  const { reset, patch } = usePhecda();
+
   return (
     <>
       <main>
+        <Link to="about">to about</Link>
+        <button onClick={() => reset(UserModel)}>initlize</button>
+
         <section>
           <p>
-            {user.createdAt.hour} : {user.createdAt.minute}:
-            {user.createdAt.second}
+            {userGetter.createdAt.hour} : {userGetter.createdAt.minute}:
+            {userGetter.createdAt.second}
           </p>
-          <div>name:{user.name}</div>
-          <div>fullName:{user.fullName}</div>
-          <div> obj.id:{user.obj.id}</div>
+          <div>name:{userGetter.name}</div>
+          <div>fullName:{userGetter.fullName}</div>
+          <div> obj.id:{userGetter.obj.id}</div>
         </section>
 
         <button
@@ -26,7 +29,7 @@ export function Home() {
         >
           patch user id
         </button>
-        <button onClick={() => user.changeName("Tom")}>
+        <button onClick={() => userSetter.changeName("Tom")}>
           change home name to Tom
         </button>
       </main>

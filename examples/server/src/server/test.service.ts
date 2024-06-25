@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 @Injectable()
+@Tag('TestService')
 export class TestService {
   login(user: User) {
     // login logic

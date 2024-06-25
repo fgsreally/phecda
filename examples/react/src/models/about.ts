@@ -1,11 +1,12 @@
-import { Base, Tag } from 'phecda-vue'
+import { Base, Tag,  } from 'phecda-react'
 import { UserModel } from './user'
 
 @Tag('about')
-// @Shallow
 export class AboutModel extends Base {
   constructor(protected user: UserModel) {
     super()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+
   }
 
   createdAt = {
@@ -18,6 +19,7 @@ export class AboutModel extends Base {
   changeUserName(name: string) {
     this.createdAt.second = new Date().getSeconds() // it won't update view
     this.user.changeName(name)
+
   }
 
   emit_update() {

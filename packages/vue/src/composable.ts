@@ -49,13 +49,13 @@ export function useV<T extends Construct>(model: T, phecda?: VuePhecda): Replace
   const proxy = new Proxy(instance, {
     get(target: any, key) {
       if (typeof target[key] === 'function') {
-        // for ()=>{}
-        if (target[key].toString().startsWith('('))
-          return target[key]
+        // if (target[key].toString().startsWith('('))
+        //   return target[key]
 
-        if (!cache[key])
-          cache[key] = target[key].bind(target)
-        return cache[key]
+        // if (!cache[key])
+        //   cache[key] = target[key].bind(target)
+        // return cache[key]
+        return target[key]
       }
       if (target[key]?.__v_skip)// markRaw
         return target[key]

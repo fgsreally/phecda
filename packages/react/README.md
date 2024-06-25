@@ -1,5 +1,20 @@
-valtio can't support `phecda-web^2` so I can' upgrade phecda-react to `1.0`
+# phecda-react
 
-use `phecda-react@0.1.0` instead(May be in trouble)
+> it need a compile plugin to support `emitDecoratorMetadata` in `vite/webpack`
 
-still wip...
+it depends on `valtio`
+
+## quick
+
+```tsx
+export function Home() {
+  const [getter, setter] = useR(UserModel)
+
+  return (
+    <>
+      <div>{getter.name}</div>
+      <button onClick={() => { setter.changeName() }}></button>
+    </>
+  )
+}
+```

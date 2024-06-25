@@ -1,7 +1,7 @@
 import { type App, reactive, shallowReactive } from 'vue'
-import { WebPhecda, get } from 'phecda-web'
+import { WebPhecda, bindMethod, get } from 'phecda-web'
 
-export const phecdaSymbol = Symbol('phecda-vue')
+export const phecdaSymbol = Symbol(process.env.NODE_ENV === 'development' ? 'phecda-vue' : undefined)
 
 export class VuePhecda extends WebPhecda {
   install(app: App) {
@@ -11,6 +11,6 @@ export class VuePhecda extends WebPhecda {
 
 export function createPhecda() {
   return new VuePhecda((instance: any) => {
-    return get(instance, 'shallow') ? shallowReactive(instance) : reactive(instance)
+    return bindMethod(get(instance, 'shallow') ? shallowReactive(instance) : reactive(instance))
   })
 }

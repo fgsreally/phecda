@@ -2,18 +2,15 @@
 import { useV } from 'phecda-vue'
 import { AboutModel } from '../models/about'
 const { changeUserName, emit_update, createdAt } = useV(AboutModel)
-
 </script>
 
 <template>
   <div class="about">
     <h1>This is an about page</h1>
     <section>
-      <p>{{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
-
+      <p>
+        {{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
       </p>
-
-
     </section>
     <button @click="() => changeUserName('jane')">
       change user name to Jane
