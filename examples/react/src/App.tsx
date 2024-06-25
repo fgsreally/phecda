@@ -2,12 +2,11 @@
 import "./App.css";
 import { About } from "./views/About";
 import { Home } from "./views/Home";
-import { PhecdaContext, createPhecda, usePhecda } from "phecda-react";
+import { PhecdaContext, createPhecda } from "phecda-react";
 import {
   createBrowserRouter,
   RouterProvider,
 
-  Link,
 } from "react-router-dom";
 const router = createBrowserRouter([
   {

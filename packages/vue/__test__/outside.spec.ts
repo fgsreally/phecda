@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Err, Init, wait } from 'phecda-web'
-import { Isolate, Tag, Watcher, createPhecda, emitter, useR, useV } from '../src/index'
+import { Isolate, Tag, Watcher, createPhecda, emitter, getR, getV } from '../src/index'
 
 declare module 'phecda-web' {
 
@@ -20,7 +20,7 @@ describe('outside setup function', () => {
         this.name = name
       }
     }
-    const { name } = useV(WatchPlayer, phecda)
+    const { name } = getV(WatchPlayer, phecda)
 
     expect(name.value).toBeUndefined()
 
@@ -46,15 +46,15 @@ describe('outside setup function', () => {
         return Promise.reject('throw error')
       }
     }
-    // work with useR
-    const ret = useR(ErrorMaker, phecda)
+    // work with getR
+    const ret = getR(ErrorMaker, phecda)
     ret.invoke()
     expect(fn).toHaveLastReturnedWith('invoke error')
     await expect(ret.throw()).rejects.toThrow('throw error')
     expect(fn).toHaveBeenCalledTimes(2)
 
-    // work with useV
-    const { invoke, throw: ThrowError } = useV(ErrorMaker, phecda)
+    // work with getV
+    const { invoke, throw: ThrowError } = getV(ErrorMaker, phecda)
 
     invoke()
     expect(fn).toHaveLastReturnedWith('invoke error')
@@ -75,7 +75,7 @@ describe('outside setup function', () => {
       }
     }
 
-    await wait(useR(A, phecda), useR(B, phecda))
+    await wait(getR(A, phecda), getR(B, phecda))
     expect(isInit).toBeTruthy()
   })
 
@@ -86,7 +86,7 @@ describe('outside setup function', () => {
 
     }
 
-    const a = useR(A, phecda)
-    expect(a === useR(A, phecda)).toBeFalsy()
+    const a = getR(A, phecda)
+    expect(a === getR(A, phecda)).toBeFalsy()
   })
 })
