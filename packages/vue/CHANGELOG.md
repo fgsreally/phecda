@@ -1,5 +1,18 @@
 # phecda-vue
 
+## 4.0.2
+
+### Patch Changes
+
+- b7ab24b: Functions starting with "use" must and can only be used inside the component.
+
+  add `getR/getPhecda/getV` to work outside component
+
+- 34513a7: add vue app to VuePhecda
+- 34513a7: add defaultPhecda to support pure browser environment (not in ssr/nodejs)
+- Updated dependencies [34513a7]
+  - phecda-web@2.0.2
+
 ## 4.0.1
 
 ### Patch Changes
