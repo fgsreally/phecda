@@ -6,9 +6,6 @@ import type { PhecdaEmitter } from './types'
 export const emitter: PhecdaEmitter = mitt()
 
 export function defaultWebInject() {
-  if (typeof window === 'undefined')
-    return
-
   if (!getInject('watcher')) {
     setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
       const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v

@@ -3,7 +3,7 @@ import { get, getTag, invokeHandler } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 
 import 'reflect-metadata'
-import { defaultWebInject } from './plugin'
+import { defaultWebInject } from './inject'
 import { DeepPartial } from './types'
 import { deepMerge } from './utils'
 
@@ -13,6 +13,16 @@ export function wait(...instances: InstanceType<Construct>[]) {
 
 function getParamtypes(Model: Construct, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
+}
+
+let defaultPhecda: WebPhecda
+
+export function setDefaultPhecda(phecda: WebPhecda) {
+  defaultPhecda = phecda
+}
+// for cases that not in ssr
+export function getDefaultPhecda() {
+  return defaultPhecda
 }
 
 const bindCache = new WeakMap()
@@ -42,7 +52,10 @@ export class WebPhecda {
   constructor(
     protected parseModule: <Instance = any>(instance: Instance) => Instance,
   ) {
-    defaultWebInject()
+    if (typeof window !== 'undefined') {
+      defaultWebInject()
+      setDefaultPhecda(this)
+    }
   }
 
   // Initialize a module that has not been created yet, and return it directly if it is cached.

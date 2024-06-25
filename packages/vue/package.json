@@ -2,23 +2,23 @@
   "name": "phecda-vue",
   "version": "4.0.1",
   "description": "provide phecda function to vue",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch"
-  },
+  "author": "fgsreally",
+  "license": "MIT",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/vue",
   "keywords": [
     "phecda",
     "vue"
   ],
-  "author": "fgsreally",
-  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/vue",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "license": "MIT",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
   "dependencies": {
     "phecda-web": "workspace:*",
     "vue": "^3.2.45"

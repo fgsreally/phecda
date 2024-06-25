@@ -1,5 +1,5 @@
 import { type Events, Unmount, getTag } from 'phecda-core'
-import { emitter } from './plugin'
+import { emitter } from './inject'
 
 export class Base {
   constructor() {
