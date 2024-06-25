@@ -1,12 +1,14 @@
-import { usePhecda, useR  } from "phecda-react";
+import { usePhecda, useR ,getR} from "phecda-react";
 import { UserModel } from "../models/user";
 import { Link } from "react-router-dom";
 
 export function Home() {
-  const [userGetter, userSetter] = useR(UserModel);
+  const [userGetter] = useR(UserModel);
   const { reset, patch } = usePhecda();
 
- 
+  function changeName(name: string) {
+    getR(UserModel).changeName(name);
+  }
 
   return (
     <>
@@ -31,7 +33,7 @@ export function Home() {
         >
           patch user id
         </button>
-        <button onClick={() => userSetter.changeName("Tom")}>
+        <button onClick={() => changeName("Tom")}>
           change home name to Tom
         </button>
       </main>

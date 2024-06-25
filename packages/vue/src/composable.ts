@@ -23,7 +23,7 @@ export function usePhecda() {
   return cacheMap.get(activePhecda) as VuePhecda
 }
 
-export function getPhecda(phecda: VuePhecda) {
+export function getPhecda(phecda?: VuePhecda) {
   const activePhecda = phecda || getDefaultPhecda()
   if (!activePhecda)
     throw new Error('[phecda-vue]:  manually inject the phecda instance if there is no default phecda')

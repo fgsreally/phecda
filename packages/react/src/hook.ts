@@ -1,5 +1,5 @@
 import type { Construct, Events, WebPhecda } from 'phecda-web'
-import { bindMethod, emitter } from 'phecda-web'
+import { bindMethod, emitter, getDefaultPhecda } from 'phecda-web'
 import { useContext, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { PhecdaContext } from './core'

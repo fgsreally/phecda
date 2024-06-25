@@ -5,11 +5,15 @@
 <!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts">
 
-import { usePhecda, useV } from 'phecda-vue'
+import { getV, usePhecda, useV } from 'phecda-vue'
 import { UserModel } from '@/models/user'
 
-const { name, fullName, obj, changeName, createdAt } = useV(UserModel)
+const { name, fullName, obj, createdAt } = useV(UserModel)
 const { patch } = usePhecda()
+
+function changeName(name: string) {
+  getV(UserModel).changeName(name)
+}
 </script>
 
 <template>
