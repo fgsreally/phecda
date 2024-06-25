@@ -1,5 +1,11 @@
 # phecda-web
 
+## 2.0.2
+
+### Patch Changes
+
+- 34513a7: add defaultPhecda to support pure browser environment (not in ssr/nodejs)
+
 ## 2.0.1
 
 ### Patch Changes
