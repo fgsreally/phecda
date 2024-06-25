@@ -4,8 +4,10 @@ import { WebPhecda, bindMethod, get } from 'phecda-web'
 export const phecdaSymbol = Symbol(process.env.NODE_ENV === 'development' ? 'phecda-vue' : undefined)
 
 export class VuePhecda extends WebPhecda {
+  vueApp: App
   install(app: App) {
     app.provide(phecdaSymbol, this)
+    this.vueApp = app
   }
 }
 

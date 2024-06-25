@@ -1,5 +1,5 @@
 export * from 'phecda-core'
 export * from './types'
-export * from './plugin'
+export * from './inject'
 export * from './core'
 export * from './base'

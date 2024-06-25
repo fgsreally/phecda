@@ -1,12 +1,12 @@
 import type { Construct, Events, WebPhecda } from 'phecda-web'
-import { bindMethod, emitter } from 'phecda-web'
+import { bindMethod, emitter, getDefaultPhecda } from 'phecda-web'
 import { useContext, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { PhecdaContext } from './core'
 
 const cacheMap = new WeakMap()
 export function usePhecda() {
-  const activePhecda = useContext(PhecdaContext)
+  const activePhecda = useContext(PhecdaContext) || getDefaultPhecda()
 
   if (!activePhecda)
     throw new Error('[phecda-react]: must under <PhecdaContext.Provider></PhecdaContext.Provider> or manually inject the phecda instance ')
