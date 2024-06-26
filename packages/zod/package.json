@@ -16,7 +16,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "tsup": "^8.1.0"
   },
   "dependencies": {
     "phecda-core": "workspace:3.0.0",

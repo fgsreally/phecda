@@ -16,10 +16,9 @@
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "jsx": "preserve",
     "lib": [
-      "esnext",
-      "dom"
+      "esnext"
+
     ],
     "types": [
       "node"

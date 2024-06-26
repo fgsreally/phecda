@@ -20,7 +20,9 @@ let defaultPhecda: WebPhecda
 export function setDefaultPhecda(phecda: WebPhecda) {
   defaultPhecda = phecda
 }
-// for cases that not in ssr
+/**
+ * for cases that not in ssr
+ */
 export function getDefaultPhecda() {
   return defaultPhecda
 }
@@ -58,7 +60,9 @@ export class WebPhecda {
     }
   }
 
-  // Initialize a module that has not been created yet, and return it directly if it is cached.
+  /**
+ *   Initialize a module that has not been created yet, and return it directly if it is cached.
+ */
   init<Model extends Construct>(model: Model): InstanceType<Model> {
     const tag = getTag(model)
 
