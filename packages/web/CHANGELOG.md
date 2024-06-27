@@ -1,5 +1,17 @@
 # phecda-web
 
+## 2.0.3
+
+### Patch Changes
+
+- 8f2fe66: add mitt emitter to Webphecda to support flexible operation
+
+  rename `origin` on `WebPhecda` to `memory`
+
+- 8f2fe66: add namespace to support phecda-vue/phecda-react work in the same app
+
+  namespace should be a Map
+
 ## 2.0.2
 
 ### Patch Changes
