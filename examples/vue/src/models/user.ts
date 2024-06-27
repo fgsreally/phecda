@@ -10,7 +10,7 @@ export class BaseUser extends Base {
   }
 }
 @Global
-// @Storage()
+@Storage()
 @Tag('User')
 
 export class UserModel<Data = any> extends BaseUser {
