@@ -1,5 +1,17 @@
 # phecda-react
 
+## 1.0.2
+
+### Patch Changes
+
+- 8f2fe66: add namespace to support phecda-vue/phecda-react work in the same app
+
+  namespace should be a Map
+
+- Updated dependencies [8f2fe66]
+- Updated dependencies [8f2fe66]
+  - phecda-web@2.0.3
+
 ## 1.0.1
 
 ### Patch Changes

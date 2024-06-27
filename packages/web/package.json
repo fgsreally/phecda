@@ -1,6 +1,6 @@
 {
   "name": "phecda-web",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "using proxy, provide phecda function to web app",
   "author": "fgsreally",
   "license": "MIT",
