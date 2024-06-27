@@ -177,7 +177,7 @@
     "mock-amqplib": "^1.8.2",
     "nats": "^2.22.0",
     "supertest": "^6.3.3",
-    "tsup": "^6.5.0",
+    "tsup": "^8.1.0",
     "typescript": "^5.4.5",
     "unimport": "^3.7.1"
   }

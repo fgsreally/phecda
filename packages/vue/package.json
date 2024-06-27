@@ -20,11 +20,12 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
+    "@vue/devtools-api": "^6.6.3",
     "phecda-web": "workspace:*",
     "vue": "^3.2.45"
   },
   "devDependencies": {
     "@vue/test-utils": "^2.4.6",
-    "tsup": "^6.5.0"
+    "tsup": "^8.1.0"
   }
 }

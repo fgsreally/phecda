@@ -25,6 +25,6 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "tsup": "^8.1.0"
   }
 }

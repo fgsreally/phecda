@@ -18,7 +18,7 @@ export function usePhecda() {
 }
 
 export function getPhecda(phecda?: WebPhecda) {
-  const activePhecda = phecda || getDefaultPhecda()
+  const activePhecda = phecda || getDefaultPhecda('react')
   if (!activePhecda)
     throw new Error('[phecda-react]  manually inject the phecda instance if there is no default phecda')
 

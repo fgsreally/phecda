@@ -1,70 +1,99 @@
 /* eslint-disable new-cap */
 import { get, getTag, invokeHandler } from 'phecda-core'
 import type { Construct } from 'phecda-core'
-
 import 'reflect-metadata'
+import mitt, { Handler, WildcardHandler } from 'mitt'
 import { defaultWebInject } from './inject'
 import { DeepPartial } from './types'
 import { deepMerge } from './utils'
 
 export function wait(...instances: InstanceType<Construct>[]) {
-  return Promise.all(instances.map(i => i._promise))
+  return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
 }
 
 function getParamtypes(Model: Construct, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
-let defaultPhecda: WebPhecda
+export const phecdaNamespace = new Map<string, WebPhecda>()
 
-export function setDefaultPhecda(phecda: WebPhecda) {
-  defaultPhecda = phecda
+export function setDefaultPhecda(namespace: string, phecda: WebPhecda) {
+  phecdaNamespace.set(namespace, phecda)
 }
-// for cases that not in ssr
-export function getDefaultPhecda() {
-  return defaultPhecda
+/**
+ * for cases that not in ssr
+ */
+export function getDefaultPhecda(namespace: string) {
+  return phecdaNamespace.get(namespace)
+}
+
+export function delDefaultPhecda(namespace: string) {
+  return phecdaNamespace.delete(namespace)
 }
 
 const bindCache = new WeakMap()
 
-export function bindMethod(instance: any) {
+export function bindMethod(instance: any, wrapper?: (instance: any, key: PropertyKey) => Function) {
   if (!bindCache.has(instance)) {
     const cache = new WeakMap()
     bindCache.set(instance, new Proxy(instance, {
       get(target, p) {
         if (typeof target[p] === 'function' && !target[p].toString().startsWith('(')) {
           if (!cache.has(target[p]))
-            cache.set(target[p], target[p].bind(target))
+            cache.set(target[p], wrapper ? wrapper(target, p) : target[p].bind(target))
 
           return cache.get(target[p])
         }
         return target[p]
       },
+
     }))
   }
   return bindCache.get(instance)
 }
 
+interface InternalEvents {
+  Instantiate: { tag: PropertyKey }
+  Reset: { tag: PropertyKey }
+  Initialize: { tag: PropertyKey }
+  Patch: { tag: PropertyKey; data: any }
+  Synonym: { tag: PropertyKey }
+  Hmr: { tag: PropertyKey }
+  Unmount: { tag: PropertyKey }
+  Load: { data: any }
+  [key: string | symbol]: any
+}
+
 export class WebPhecda {
-  origin: Record<string, any> = {}
+  /**
+   * for ssr or manual inject
+   */
+  memory: Record<string, any> = {}
   state: Record<string | symbol, any> = {}
   modelMap = new WeakMap()
+  emitter = mitt<InternalEvents>()
+
   constructor(
+    protected namespace: string,
     protected parseModule: <Instance = any>(instance: Instance) => Instance,
   ) {
     if (typeof window !== 'undefined') {
       defaultWebInject()
-      setDefaultPhecda(this)
+      setDefaultPhecda(namespace, this)
     }
   }
 
-  // Initialize a module that has not been created yet, and return it directly if it is cached.
+  /**
+ *   Initialize a module that has not been created yet, and return it directly if it is cached.
+ */
   init<Model extends Construct>(model: Model): InstanceType<Model> {
     const tag = getTag(model)
 
     const initModel = () => {
       const paramtypes = getParamtypes(model) as Construct[]
       let instance: InstanceType<Construct>
+
+      this.emit('Instantiate', { tag })
       if (paramtypes) {
         const paramtypesInstances = [] as any[]
         for (const i in paramtypes)
@@ -76,12 +105,13 @@ export class WebPhecda {
         instance = this.parseModule(new model())
       }
 
-      if (tag in this.origin) {
-        Object.assign(instance, this.origin[tag as string])
-        delete this.origin[tag as string]
+      if (tag in this.memory)
+        Object.assign(instance, this.memory[tag as string])
+
+      if (typeof window !== 'undefined') {
+        this.emit('Initialize', { tag })
+        instance.__PROMISE_SYMBOL__ = invokeHandler('init', instance)
       }
-      if (typeof window !== 'undefined')
-        instance._promise = invokeHandler('init', instance)
       return instance
     }
 
@@ -94,10 +124,15 @@ export class WebPhecda {
       if (process.env.NODE_ENV === 'development') { // HMR
         if (map.get(state[tag]) === model)
           return state[tag]
+        else this.emit('Hmr', { tag })
       }
       else {
-        if (map.get(state[tag]) !== model)
+        if (map.get(state[tag]) !== model) {
+          this.emit('Synonym', { tag })
+
           console.warn(`Synonym model: Module taged "${String(tag)}" has been loaded before, so won't load Module "${model.name}"`)
+        }
+
         return state[tag]
       }
     }
@@ -113,31 +148,29 @@ export class WebPhecda {
   patch<Model extends Construct>(model: Model, data: DeepPartial<InstanceType<Model>>) {
     const tag = getTag(model)
     const { state } = this
-
+    this.emit('Patch', { tag, data })
     deepMerge(state[tag], data)
   }
 
   wait(...modelOrTag: (Construct | PropertyKey)[]) {
-    const { state } = this
-
     return Promise.all(modelOrTag.map((i) => {
       if (typeof i === 'function')
         i = getTag(i)
 
-      return state[i]._promise
+      return this.get(i).__PROMISE_SYMBOL__
     }))
   }
 
-  get<Model extends Construct>(model: Model): InstanceType<Model> {
+  get<Model extends Construct>(modelOrTag: Model | PropertyKey): InstanceType<Model> {
     const { state } = this
-
-    return state[getTag(model)]
+    const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
+    return state[tag]
   }
 
-  has<Model extends Construct>(model: Model): boolean {
+  getModel(tag: PropertyKey): Construct {
     const { state } = this
 
-    return getTag(model) in state
+    return this.modelMap.get(state[tag])
   }
 
   reset<Model extends Construct>(model: Model) {
@@ -145,6 +178,8 @@ export class WebPhecda {
     const tag = getTag(model)
     if (!(tag in state))
       return this.init(model)
+
+    this.emit('Reset', { tag })
 
     const instance = this.init(model)
     const newInstance = new model()
@@ -158,8 +193,14 @@ export class WebPhecda {
 
   async unmount(modelOrTag: Construct | PropertyKey) {
     const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
+
+    if (!this.has(tag))
+      return
+
+    this.emit('Unmount', { tag })
+
     const { state } = this
-    await invokeHandler('unmount', state[tag])
+    await invokeHandler('unmount', this.get(tag))
     delete state[tag]
   }
 
@@ -169,7 +210,7 @@ export class WebPhecda {
     return Promise.all(Object.keys(state).map(tag => this.unmount(tag)))
   }
 
-  ismount(modelOrTag: Construct | PropertyKey) {
+  has(modelOrTag: Construct | PropertyKey) {
     const { state } = this
     const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
 
@@ -190,6 +231,26 @@ export class WebPhecda {
   }
 
   load(str: string) {
-    this.origin = JSON.parse(str)
+    const state = JSON.parse(str)
+
+    this.emit('Load', { data: state })
+
+    for (const tag in state) {
+      if (tag in this.state)
+        Object.assign(this.state[tag], state[tag])
+
+      else
+        this.memory[tag] = state[tag]
+    }
+  }
+
+  emit<Key extends keyof InternalEvents>(type: Key, event?: InternalEvents[Key]) {
+    this.emitter.emit(type, event)
+  }
+
+  on<Key extends keyof InternalEvents>(type: Key, handler: Handler<InternalEvents[Key]>): void
+  on(type: '*', handler: WildcardHandler<InternalEvents>): void
+  on(type: '*', handler: WildcardHandler<InternalEvents>) {
+    this.emitter.on(type, handler)
   }
 }

@@ -9,7 +9,10 @@
     "dev": "tsup --watch",
     "build": "tsup"
   },
-  "keywords": ["phecda","core"],
+  "keywords": [
+    "phecda",
+    "core"
+  ],
   "author": "fgsreally",
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/core",
   "files": [
@@ -17,6 +20,6 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "tsup": "^8.1.0"
   }
 }

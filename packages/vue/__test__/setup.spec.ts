@@ -68,6 +68,7 @@ describe('in vue component', () => {
             this.name = 'phecda-vue'
           }
         }
+
         const { reset } = usePhecda()
         const user = useR(User)
         return { user, reset, User }
@@ -87,8 +88,5 @@ describe('in vue component', () => {
     expect(wrapper.find('div').text()).toBe('')
   })
 })
-
-// ppt
-// ppt
 
 ///
