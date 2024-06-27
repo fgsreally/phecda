@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-declare const __VUE_DEVTOOLS_TOAST__: (msg: string, type?: 'normal' | 'error' | 'warn') => void
 
 export const componentStateTypes: string[] = []
 
@@ -11,11 +10,7 @@ export function toastMessage(
   type?: 'normal' | 'error' | 'warn' | undefined,
 ) {
   const piniaMessage = `[phecda-vue]: ${message}`
-
-  if (typeof __VUE_DEVTOOLS_TOAST__ === 'function')
-    __VUE_DEVTOOLS_TOAST__(piniaMessage, type)
-
-  else if (type === 'error')
+  if (type === 'error')
     console.error(piniaMessage)
 
   else if (type === 'warn')

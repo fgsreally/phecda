@@ -47,24 +47,3 @@ export function zodToClass<
 
   return Z as any
 }
-
-// export function getZodPaths(model: ReturnType<typeof zodToClass>, path = ''): [string, string][] {
-//   const { schema } = model
-//   if (ins._def.typeName === 'ZodObject') {
-//     console.log(schema.shape)
-
-//     // 如果是对象类型，遍历其属性
-//     return Object.entries(schema._def.shape).flatMap(([key, value]) => {
-//       const newPath = path ? `${path}.${key}` : key
-//       return getPathsAndTypes(value, newPath)
-//     })
-//   }
-//   else if (schema._def.typeName === 'zodArray') {
-//     // 如果是数组类型，递归处理数组元素的 schema
-//     return getPathsAndTypes(schema._def.typeName, `${path}[]`)
-//   }
-//   else {
-//     // 其他基本类型直接返回路径和类型
-//     return [[path, schema._def.typeName]]
-//   }
-// }

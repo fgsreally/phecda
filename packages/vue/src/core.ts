@@ -1,4 +1,4 @@
-import { type App, reactive, shallowReactive, watch } from 'vue'
+import { type App, reactive, shallowReactive, toRaw, watch } from 'vue'
 import { WebPhecda, bindMethod, get, getTag } from 'phecda-web'
 import { setupDevtoolsPlugin } from '@vue/devtools-api'
 import { INSPECTOR_ID, MUTATIONS_LAYER_ID, USE_DEVTOOLS, componentStateTypes, toastMessage } from './devtools'
@@ -136,16 +136,18 @@ export class VuePhecda extends WebPhecda {
             {
               icon: 'content_copy',
               action: async () => {
-                await navigator.clipboard.writeText(this.serialize())
                 toastMessage('Global state copied to clipboard.')
+
+                await navigator.clipboard.writeText(this.serialize())
               },
               tooltip: 'Serialize and copy the state',
             },
             {
               icon: 'content_paste',
               action: async () => {
-                await this.load(await navigator.clipboard.readText())
                 toastMessage('Global state pasted from clipboard.')
+
+                await this.load(await navigator.clipboard.readText())
 
                 api.sendInspectorTree(INSPECTOR_ID)
                 api.sendInspectorState(INSPECTOR_ID)
@@ -157,7 +159,7 @@ export class VuePhecda extends WebPhecda {
           nodeActions: [
             {
               icon: 'restore',
-              tooltip: 'Reset the state (with "$reset")',
+              tooltip: 'Reset the state ',
               action: (nodeId) => {
                 this.reset(this.getModel(nodeId),
                 )
@@ -208,6 +210,12 @@ export class VuePhecda extends WebPhecda {
               }
 
               Object.entries(instance).forEach(([key, value]) => {
+                if (this.modelMap.has(value as any)) {
+                  const tag = String(getTag(toRaw(value)))
+                  payload.state.state.unshift({ editable: false, key, value: `[PV] ${tag}`, raw: `Phecda Vue Module [${tag}]` })
+                  return
+                }
+
                 if (!key.startsWith('__'))
                   payload.state.state.push({ editable: true, key, value })
 
@@ -220,7 +228,8 @@ export class VuePhecda extends WebPhecda {
               })
 
               getAllMethods(instance).forEach((item) => {
-                payload.state[item.startsWith('__') ? 'internals' : 'methods'].push({ editable: false, key: item, value: Object.getPrototypeOf(instance)[item] })
+                if (typeof instance[item] === 'function')
+                  payload.state[item.startsWith('__') ? 'internals' : 'methods'].push({ editable: false, key: item, value: Object.getPrototypeOf(instance)[item] })
               })
             }
           }

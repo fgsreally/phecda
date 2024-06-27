@@ -46,6 +46,7 @@ export function bindMethod(instance: any, wrapper?: (instance: any, key: Propert
         }
         return target[p]
       },
+
     }))
   }
   return bindCache.get(instance)
