@@ -497,15 +497,15 @@ function identity(arg) {
   return arg;
 }
 function createSingletonPromise(fn) {
-  let _promise;
+  let __PROMISE_SYMBOL__;
   function wrapper() {
-    if (!_promise)
-      _promise = fn();
-    return _promise;
+    if (!__PROMISE_SYMBOL__)
+      __PROMISE_SYMBOL__ = fn();
+    return __PROMISE_SYMBOL__;
   }
   wrapper.reset = async () => {
-    const _prev = _promise;
-    _promise = void 0;
+    const _prev = __PROMISE_SYMBOL__;
+    __PROMISE_SYMBOL__ = void 0;
     if (_prev)
       await _prev;
   };
@@ -2472,9 +2472,9 @@ function useAsyncState(promise, initialState, options) {
     isLoading.value = true;
     if (delay2 > 0)
       await promiseTimeout(delay2);
-    const _promise = typeof promise === "function" ? promise(...args) : promise;
+    const __PROMISE_SYMBOL__ = typeof promise === "function" ? promise(...args) : promise;
     try {
-      const data = await _promise;
+      const data = await __PROMISE_SYMBOL__;
       state.value = data;
       isReady.value = true;
       onSuccess(data);
@@ -6836,7 +6836,7 @@ function useScriptTag(src, onLoaded = noop, options = {}) {
     attrs = {}
   } = options;
   const scriptTag = ref(null);
-  let _promise = null;
+  let __PROMISE_SYMBOL__ = null;
   const loadScript = (waitForScriptLoad) => new Promise((resolve, reject) => {
     const resolveWithElement = (el2) => {
       scriptTag.value = el2;
@@ -6880,14 +6880,14 @@ function useScriptTag(src, onLoaded = noop, options = {}) {
       resolveWithElement(el);
   });
   const load = (waitForScriptLoad = true) => {
-    if (!_promise)
-      _promise = loadScript(waitForScriptLoad);
-    return _promise;
+    if (!__PROMISE_SYMBOL__)
+      __PROMISE_SYMBOL__ = loadScript(waitForScriptLoad);
+    return __PROMISE_SYMBOL__;
   };
   const unload = () => {
     if (!document2)
       return;
-    _promise = null;
+    __PROMISE_SYMBOL__ = null;
     if (scriptTag.value)
       scriptTag.value = null;
     const el = document2.querySelector(`script[src="${toValue(src)}"]`);

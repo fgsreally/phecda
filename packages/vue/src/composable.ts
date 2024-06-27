@@ -1,8 +1,9 @@
-import { Construct, type Events, bindMethod, emitter, getDefaultPhecda } from 'phecda-web'
-import { UnwrapNestedRefs, hasInjectionContext, inject, onBeforeUnmount, toRaw, toRef } from 'vue'
+import { Construct, type Events, bindMethod, emitter, getDefaultPhecda, getTag } from 'phecda-web'
+import { UnwrapNestedRefs, getCurrentInstance, hasInjectionContext, inject, onBeforeUnmount, toRaw, toRef } from 'vue'
 import type { ReplaceInstanceValues } from './types'
 import { createSharedReactive } from './utils'
 import { VuePhecda, phecdaSymbol } from './core'
+import { USE_DEVTOOLS } from './devtools'
 
 const cacheMap = new WeakMap()
 
@@ -23,8 +24,20 @@ export function usePhecda() {
   return cacheMap.get(activePhecda) as VuePhecda
 }
 
+function setStateToComponent(model: Construct) {
+  if (USE_DEVTOOLS) {
+    const currentInstance = getCurrentInstance()
+    if (currentInstance && currentInstance.proxy) {
+      const vm = currentInstance.proxy
+      const cache: any = '_phecda_vue' in vm ? vm._phecda_vue! : ((vm as any)._phecda_vue = {})
+      const tag = getTag(model)
+      cache[tag] = usePhecda().init(model)
+    }
+  }
+}
+
 export function getPhecda(phecda?: VuePhecda) {
-  const activePhecda = phecda || getDefaultPhecda()
+  const activePhecda = phecda || getDefaultPhecda('vue')
   if (!activePhecda)
     throw new Error('[phecda-vue]:  manually inject the phecda instance if there is no default phecda')
   if (!cacheMap.has(activePhecda))
@@ -48,6 +61,7 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
 // 还原模块
 
 export function useR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
+  setStateToComponent(model)
   return usePhecda().init(model) as any
 }
 
@@ -56,6 +70,8 @@ export function getR<T extends Construct>(model: T, phecda?: VuePhecda): UnwrapN
 }
 
 export function useV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
+  setStateToComponent(model)
+
   const instance = usePhecda().init(model)
 
   if (cacheMap.has(instance))

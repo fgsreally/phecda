@@ -5,7 +5,7 @@ import { Base, Clear, Global, Init, Storage, Tag, WatchEffect, Watcher, markRaw 
 export class BaseUser extends Base {
   name = 'BaseUser'
   @Init
-  async _init_() {
+  async __init__() {
     console.log('init BaseUser')
   }
 }
@@ -52,7 +52,7 @@ export class UserModel<Data = any> extends BaseUser {
   }
 
   @Clear
-   _init_: any
+   __init__: any
 
   @WatchEffect()
   private _effect() {

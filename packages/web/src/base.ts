@@ -2,6 +2,9 @@ import { type Events, Unmount, getTag } from 'phecda-core'
 import { emitter } from './inject'
 
 export class Base {
+  private readonly __UNMOUNT_SYMBOL__: (() => void)[] = []
+  private readonly __PROMISE_SYMBOL__: Promise<void>
+
   constructor() {
 
   }
@@ -11,8 +14,7 @@ export class Base {
   }
 
   then(cb: () => void, reject?: (e: any) => void) {
-    // @ts-expect-error when Init is async
-    return this._promise.then(cb, reject)
+    return this.__PROMISE_SYMBOL__.then(cb, reject)
   }
 
   on<Key extends keyof Events>(type: Key, handler: (arg: Events[Key]) => void): void {
@@ -27,8 +29,6 @@ export class Base {
   off<Key extends keyof Events>(type: Key, handler?: (arg: Events[Key]) => void): void {
     (emitter as any).off(type, handler)
   }
-
-  private readonly __UNMOUNT_SYMBOL__: (() => void)[] = []
 
   private onUnmount(cb: () => void) {
     this.__UNMOUNT_SYMBOL__.push(cb)

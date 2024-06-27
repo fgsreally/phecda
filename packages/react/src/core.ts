@@ -7,7 +7,7 @@ export const PhecdaContext = createContext<WebPhecda | undefined>(undefined)
 export const phecdaSymbol = Symbol('')
 
 export function createPhecda() {
-  return new WebPhecda((instance: any) => {
+  return new WebPhecda('react', (instance: any) => {
     return proxy(instance)
   })
 }
