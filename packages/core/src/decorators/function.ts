@@ -1,11 +1,10 @@
-import { PHECDA_KEY, init, set, setHandler, setStateKey } from '../core'
+import { init, set, setHandler, setStateKey } from '../core'
 import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
 import { getInject } from '../di'
 
 export function Isolate(model: any) {
   set(model.prototype, 'isolate', true)
-  model.prototype[PHECDA_KEY].__ISOLATE__ = true
 }
 
 export function Tag(tag: PropertyKey) {
@@ -209,4 +208,15 @@ export function Storage({ key: storeKey, json, stringify }: {
       },
     })
   }
+}
+
+export function If(value: Boolean, ...decorators: (ClassDecorator[]) | (PropertyDecorator[]) | (ParameterDecorator[])) {
+  if (value) {
+    return (...args: any[]) => {
+      // @ts-expect-error  parameters pass to decorators
+      decorators.forEach(d => d(...args))
+    }
+  }
+
+  return () => {}
 }

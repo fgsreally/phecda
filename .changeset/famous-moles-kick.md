@@ -2,4 +2,7 @@
 "phecda-core": patch
 ---
 
-fix Global
+fix Global and Isolate
+
+add `If`
+

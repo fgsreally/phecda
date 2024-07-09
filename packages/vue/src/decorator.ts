@@ -1,10 +1,8 @@
 import { set, setHandler, setStateKey } from 'phecda-web'
 import type { WatchOptions, WatchStopHandle } from 'vue'
 import { watchEffect } from 'vue'
-export function Shallow(isShallow = true) {
-  return (model: any) => {
-    set(model.prototype, 'shallow', isShallow)
-  }
+export function Shallow(model: any) {
+  set(model.prototype, 'shallow', true)
 }
 
 export function WatchEffect(option?: WatchOptions) {
