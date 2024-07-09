@@ -1,5 +1,13 @@
 # phecda-server
 
+## 5.2.5
+
+### Patch Changes
+
+- 865976b: only generate Code when NODE_ENV===development
+- Updated dependencies [c18997a]
+  - phecda-core@3.0.1
+
 ## 5.2.4
 
 ### Patch Changes

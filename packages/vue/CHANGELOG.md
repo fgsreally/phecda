@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 4.0.4
+
+### Patch Changes
+
+- 44d82c3: revert decorator `Shallow` because of `If`
+  - phecda-web@2.0.4
+
 ## 4.0.3
 
 ### Patch Changes
