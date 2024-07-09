@@ -40,9 +40,8 @@ export function Global(model: any) {
   setStateKey(model)
   setHandler(model, undefined, {
     init: async (instance: any) => {
-      const tag = instance[PHECDA_KEY].__TAG__
-      if (!tag)
-        return
+      const tag = getTag(instance)
+
       if (!(globalThis as any).__PHECDA__)
         (globalThis as any).__PHECDA__ = {};
       (globalThis as any).__PHECDA__[tag] = instance.constructor
