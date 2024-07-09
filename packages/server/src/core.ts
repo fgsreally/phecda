@@ -144,7 +144,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     await buildDepModule(model)
 
   async function generateCode() {
-    if (generators) {
+    if (generators && IS_HMR) {
       return Promise.all(generators.map((generator) => {
         debug(`generate "${generator.name}" code to ${generator.path}`)
 

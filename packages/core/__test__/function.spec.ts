@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Err, Expose, Init, Tag, addDecoToClass, getBind, getExposeKey, getTag, invokeHandler, isPhecda } from '../src'
+import { Assign, Bind, Effect, Empty, Err, Expose, If, Init, Isolate, Tag, addDecoToClass, get, getBind, getExposeKey, getTag, invokeHandler, isPhecda } from '../src'
 
 describe('helper', () => {
   it('isPhecda', async () => {
@@ -48,7 +48,7 @@ describe('helper', () => {
   it('bind', () => {
     class Test {
       @Bind('phecda')
-          key: string
+      key: string
     }
     expect(getBind(Test).key).toBe('phecda')
   })
@@ -114,5 +114,19 @@ describe('helper', () => {
     expect(fn).toBeCalled()
 
     expect(i.throw.bind(i)).toThrowError('invoke error')
+  })
+
+  it('If', () => {
+    @If(true, Isolate)
+    class Test1 {
+
+    }
+    @If(false, Isolate)
+    class Test2 {
+
+    }
+
+    expect(get(Test1.prototype, 'isolate')).toBeTruthy()
+    expect(get(Test2.prototype, 'isolate')).toBeFalsy()
   })
 })
