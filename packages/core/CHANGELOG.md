@@ -1,5 +1,13 @@
 # phecda-core
 
+## 3.0.1
+
+### Patch Changes
+
+- c18997a: fix Global and Isolate
+
+  add `If`
+
 ## 3.0.0
 
 ### Major Changes
