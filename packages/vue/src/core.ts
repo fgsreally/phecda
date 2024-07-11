@@ -1,5 +1,5 @@
 import { type App, reactive, shallowReactive, toRaw, watch } from 'vue'
-import { WebPhecda, bindMethod, get, getTag } from 'phecda-web'
+import { type Construct, WebPhecda, bindMethod, get, getTag } from 'phecda-web'
 import { setupDevtoolsPlugin } from '@vue/devtools-api'
 import { INSPECTOR_ID, MUTATIONS_LAYER_ID, USE_DEVTOOLS, componentStateTypes, toastMessage } from './devtools'
 
@@ -257,7 +257,7 @@ export class VuePhecda extends WebPhecda {
   }
 }
 
-export function createPhecda() {
+export function createPhecda(models?: Construct[]) {
   const phecda = new VuePhecda('vue', (instance: any) => {
     return bindMethod(get(instance, 'shallow') ? shallowReactive(instance) : reactive(instance), USE_DEVTOOLS
       ? (instance: any, key: PropertyKey) => {
@@ -283,9 +283,12 @@ export function createPhecda() {
       : undefined)
   })
 
+  models?.forEach(model => phecda.init(model))
+
   return phecda
 }
 
+// work for devtools only
 function findPrototypeWithMethod(instance: any, method: PropertyKey) {
   let proto = Object.getPrototypeOf(instance)
   while (proto) {
@@ -329,18 +332,3 @@ function getAllGetters(obj: any) {
 
   return [...getters]
 }
-
-// function getAllGetters(obj: any) {
-//   const getters = new Set()
-//   let currentObj = obj
-
-//   do {
-//     Object.getOwnPropertyNames(currentObj).forEach((prop) => {
-//       const propDescriptor: any = Object.getOwnPropertyDescriptor(currentObj, prop)
-//       if (typeof propDescriptor.get === 'function')
-//         getters.add(prop)
-//     })
-//   } while ((currentObj = Object.getPrototypeOf(currentObj)) && currentObj !== Object.prototype)
-
-//   return [...getters]
-// }

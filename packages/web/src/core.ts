@@ -38,12 +38,13 @@ export function bindMethod(instance: any, wrapper?: (instance: any, key: Propert
     const cache = new WeakMap()
     bindCache.set(instance, new Proxy(instance, {
       get(target, p) {
-        if (typeof target[p] === 'function' && !target[p].toString().startsWith('(')) {
+        if (typeof target[p] === 'function' && p !== 'constructor' && !target[p].toString().startsWith('(')) {
           if (!cache.has(target[p]))
             cache.set(target[p], wrapper ? wrapper(target, p) : target[p].bind(target))
 
           return cache.get(target[p])
         }
+
         return target[p]
       },
 
@@ -81,6 +82,21 @@ export class WebPhecda {
       defaultWebInject()
       setDefaultPhecda(namespace, this)
     }
+  }
+
+  // @ts-expect-error internal
+  private then<TResult1 = this, TResult2 = never>(
+    onfulfilled?: ((value: Omit<this, 'then'>) => TResult1 | PromiseLike<TResult1>) | undefined | null,
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null,
+  ): this {
+    const then = this.then
+    // @todo it's a bad solution
+    // @ts-expect-error just a trick
+    this.then = undefined
+    wait(...Object.values(this.state)).then(() => onfulfilled?.(this), onrejected).then(() => {
+      this.then = then
+    })
+    return this
   }
 
   /**

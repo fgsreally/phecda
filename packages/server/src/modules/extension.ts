@@ -3,7 +3,7 @@ import { getTag } from 'phecda-core'
 import type { BaseContext, BaseError } from '../types'
 import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
 import type { Exception } from '../exception'
-import { Dev } from './dev'
+import { ServerBase } from './base'
 
 export interface PExtension<C extends BaseContext = any, E extends Exception = Exception> {
 
@@ -18,7 +18,7 @@ export interface PExtension<C extends BaseContext = any, E extends Exception = E
   plugin<Plugin = any>(framework: string): Plugin
 }
 
-export class PExtension extends Dev {
+export class PExtension extends ServerBase {
   readonly key: PropertyKey
 
   constructor(tag?: string) {

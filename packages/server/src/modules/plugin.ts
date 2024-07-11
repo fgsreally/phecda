@@ -1,8 +1,8 @@
 import { getTag } from 'phecda-core'
 import { Context, addPlugin } from '../context'
-import { Dev } from './dev'
+import { ServerBase } from './base'
 
-export abstract class PPlugin extends Dev {
+export abstract class PPlugin extends ServerBase {
   readonly key: PropertyKey
   constructor(tag?: string) {
     super()
