@@ -44,6 +44,7 @@ export function bindMethod(instance: any, wrapper?: (instance: any, key: Propert
 
           return cache.get(target[p])
         }
+
         return target[p]
       },
 
@@ -83,11 +84,19 @@ export class WebPhecda {
     }
   }
 
-
-  then() {
-    return this.wait(...Object.keys(this.state))
+  public then<TResult1 = this, TResult2 = never>(
+    onfulfilled?: ((value: Omit<this, 'then'>) => TResult1 | PromiseLike<TResult1>) | undefined | null,
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null,
+  ): this {
+    const then = this.then
+    // @todo it's a bad solution
+    // @ts-expect-error just a trick
+    this.then = undefined
+    wait(...Object.values(this.state)).then(() => onfulfilled?.(this), onrejected).then(() => {
+      this.then = then
+    })
+    return this
   }
-
 
   /**
  *   Initialize a module that has not been created yet, and return it directly if it is cached.

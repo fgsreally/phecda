@@ -43,6 +43,13 @@ export class UserModel<Data = any> extends BaseUser {
   @Init
   private _init_user() {
     this.on('update', this.changeName.bind(this))
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('timer')
+        resolve()
+      }, 3000)
+    })
   }
 
   @Watcher('update', { once: true })
