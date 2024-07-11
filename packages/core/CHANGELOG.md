@@ -1,5 +1,15 @@
 # phecda-core
 
+## 3.0.2
+
+### Patch Changes
+
+- a55a92f: move Base to core;
+
+  replace Dev with ServerBase in phecda-server
+
+  replace Base with WebBase in phecda-web
+
 ## 3.0.1
 
 ### Patch Changes

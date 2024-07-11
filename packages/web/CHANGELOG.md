@@ -1,5 +1,22 @@
 # phecda-web
 
+## 2.0.5
+
+### Patch Changes
+
+- a55a92f: move Base to core;
+
+  replace Dev with ServerBase in phecda-server
+
+  replace Base with WebBase in phecda-web
+
+- f9578f7: add `then` on `Webphecda` to support use createPhecda(in react or vue) with `await`
+
+  fix `bindMethod`, `constructor` should be excluded
+
+- Updated dependencies [a55a92f]
+  - phecda-core@3.0.2
+
 ## 2.0.4
 
 ### Patch Changes
