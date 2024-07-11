@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { Base, Clear, Global, Init, Storage, Tag, WatchEffect, Watcher, markRaw } from 'phecda-vue'
+import { Clear, Global, Init, Storage, Tag, WatchEffect, Watcher, WebBase, markRaw } from 'phecda-vue'
 @Tag('BaseUser')
 
-export class BaseUser extends Base {
+export class BaseUser extends WebBase {
   name = 'BaseUser'
   @Init
   async __init__() {
@@ -35,7 +35,6 @@ export class UserModel<Data = any> extends BaseUser {
   }
 
   changeName(name: string) {
-    console.log(this)
     this.createdAt.second = new Date().getSeconds() // it won't update view
     this.name = name
   }

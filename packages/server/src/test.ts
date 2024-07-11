@@ -6,20 +6,20 @@ import { Factory } from './core'
 import type { PickFunc } from './types'
 import type { ControllerMeta } from './meta'
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
-  const { moduleMap, constructorMap } = await Factory(Modules)
+  const { moduleMap, modelMap } = await Factory(Modules)
 
   return {
-    get<C extends T[number]>(Module: C): InstanceType<C> {
-      const tag = getTag(Module)
-      const instance = moduleMap.get(tag)
+    get<C extends T[number]>(Model: C): InstanceType<C> {
+      const tag = getTag(Model)
+      const module = moduleMap.get(tag)
 
-      if (!instance)
+      if (!module)
         throw new Error(`module "${String(tag)}" doesn't exist`)
 
-      if (constructorMap.get(tag) !== Module)
-        throw new Error(`module "${Module.name}" and "${String(tag)}" in modulemap are different modules`)
+      if (modelMap.get(module) !== Model)
+        throw new Error(`module "${Model.name}" and "${String(tag)}" in modulemap are different modules`)
 
-      return instance
+      return module
     },
   }
 }
@@ -35,8 +35,8 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
   function module<T extends Construct>(Module: T): SuperTestRequest<PickFunc<InstanceType<T>>> {
     const tag = getTag(Module)
 
-    const instance = moduleMap.get(tag)
-    if (!instance)
+    const module = moduleMap.get(tag)
+    if (!module)
       throw new Error(`module "${String(tag)}" doesn't exist`)
 
     return new Proxy({}, {

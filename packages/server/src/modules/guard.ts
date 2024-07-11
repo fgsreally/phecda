@@ -1,9 +1,9 @@
 import { getTag } from 'phecda-core'
 import { Context, addGuard } from '../context'
 import type { BaseContext } from '../types'
-import { Dev } from './dev'
+import { ServerBase } from './base'
 
-export abstract class PGuard<C extends BaseContext = any> extends Dev {
+export abstract class PGuard<C extends BaseContext = any> extends ServerBase {
   abstract use(ctx: C): Promise<boolean> | boolean
   readonly key: PropertyKey
   constructor(tag?: string) {

@@ -15,13 +15,7 @@ export type AbConstruct<T = any> = abstract new (...args: any[]) => T
 
 export interface Handler {
   [key: string]: any
-  // init?: (instance: any) => any
-  // pipe?: (instance: any) => void
-  // rule?: RegExp | string | Function | number
-  // info?: string
-  // meta?: any
-  // error?: any
-  // http?: any
+
 }
 export interface Phecda {
   prototype: any

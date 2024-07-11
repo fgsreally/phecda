@@ -13,16 +13,17 @@ import type { Generator } from './generator'
 const debug = Debug('phecda-server(Factory)')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
-
-export async function Factory(models: (new (...args: any) => any)[], opts: {
+export interface Options {
   parseModule?: (module: any) => any
   parseMeta?: (meta: Meta) => Meta | null | undefined
   generators?: Generator[]
-} = {}) {
+}
+
+export async function Factory(models: Construct[], opts: Options = {}) {
   const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
   const meta: Meta[] = []
-  const constructorMap = new Map()
-  const constructorSet = new WeakSet()
+  const modelMap = new WeakMap<InstanceType<Construct>, Construct>()
+  const modelSet = new WeakSet<Construct>()
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
   const { parseModule = (module: any) => module, parseMeta = (meta: any) => meta, generators } = opts
   if (!getInject('watcher')) {
@@ -46,20 +47,20 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     if (!moduleMap.has(tag))
       return
 
-    const instance = moduleMap.get(tag)
+    const module = moduleMap.get(tag)
 
     debug(`unmount module "${String(tag)}"`)
-    await invokeHandler('unmount', instance)
+    await invokeHandler('unmount', module)
     debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
-    constructorMap.delete(tag)
+    modelMap.delete(module)
     for (let i = meta.length - 1; i >= 0; i--) {
       if (meta[i].data.tag === tag)
         meta.splice(i, 1)
     }
 
-    return instance
+    return module
   }
 
   async function destroy() {
@@ -73,7 +74,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     const tag = getTag(Model)
     const oldInstance = await del(tag)
 
-    const { instance: newModule } = await buildDepModule(Model)
+    const { module: newModule } = await buildDepModule(Model)
 
     if (oldInstance && dependenceGraph.has(tag)) {
       debug(`replace module "${String(tag)}"`);
@@ -90,23 +91,23 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 
   async function buildDepModule(Model: Construct) {
     const paramtypes = getParamTypes(Model) as Construct[]
-    let instance: InstanceType<Construct>
+    let module: InstanceType<Construct>
     const tag = getTag(Model)
 
     if (moduleMap.has(tag)) {
-      instance = moduleMap.get(tag)
-      if (!instance)
+      module = moduleMap.get(tag)
+      if (!module)
         throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${String(tag)}--[module] ${Model}`)
 
-      if (constructorMap.get(tag) !== Model && !constructorSet.has(Model)) {
-        constructorSet.add(Model)// a module will only warn once
+      if (modelMap.get(module) !== Model && !modelSet.has(Model)) {
+        modelSet.add(Model)// a module will only warn once
 
-        if (instance instanceof Model)
+        if (module instanceof Model)
           log(`Module taged ${String(tag)} has been overridden`)// legal override
         else
           log(`Synonym module: Module taged "${String(tag)}" has been loaded before, so phecda-server won't load Module "${Model.name}"`, 'warn')
       }
-      return { instance, tag }
+      return { module, tag }
     }
     moduleMap.set(tag, undefined)
     debug(`instantiate module "${String(tag)}"`)
@@ -114,30 +115,30 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
     if (paramtypes) {
       const paramtypesInstances = [] as any[]
       for (const i in paramtypes) {
-        const { instance: sub, tag: subTag } = await buildDepModule(paramtypes[i])
+        const { module: sub, tag: subTag } = await buildDepModule(paramtypes[i])
         paramtypesInstances[i] = sub
         if (!dependenceGraph.has(subTag))
           dependenceGraph.set(subTag, new Set())
         dependenceGraph.get(subTag)!.add(tag)
       }
 
-      instance = parseModule(new Model(...paramtypesInstances))
+      module = parseModule(new Model(...paramtypesInstances))
     }
     else {
-      instance = parseModule(new Model())
+      module = parseModule(new Model())
     }
-    meta.push(...getMetaFromInstance(instance, tag, Model.name).map(parseMeta).filter(item => !!item))
+    meta.push(...getMetaFromInstance(module, tag, Model.name).map(parseMeta).filter(item => !!item))
 
     debug(`init module "${String(tag)}"`)
 
     if (!IS_ONLY_GENERATE)
-      await invokeHandler('init', instance)
+      await invokeHandler('init', module)
 
     debug(`add module "${String(tag)}"`)
 
-    moduleMap.set(tag, instance)
-    constructorMap.set(tag, Model)
-    return { instance, tag }
+    moduleMap.set(tag, module)
+    modelMap.set(module, Model)
+    return { module, tag }
   }
 
   for (const model of models)
@@ -178,7 +179,7 @@ export async function Factory(models: (new (...args: any) => any)[], opts: {
 
   return {
     moduleMap,
-    constructorMap,
+    modelMap,
     meta,
     add,
     del,

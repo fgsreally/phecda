@@ -1,9 +1,9 @@
-import { Base, Tag } from 'phecda-vue'
+import { Tag, WebBase } from 'phecda-vue'
 import { UserModel } from './user'
 
 @Tag('about')
 // @Shallow
-export class AboutModel extends Base {
+export class AboutModel extends WebBase {
   constructor(protected user: UserModel) {
     super()
   }

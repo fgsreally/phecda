@@ -2,9 +2,9 @@ import { getTag } from 'phecda-core'
 import { Context, addFilter } from '../context'
 import type { Exception } from '../exception'
 import type { BaseContext, BaseError } from '../types'
-import { Dev } from './dev'
+import { ServerBase } from './base'
 
-export abstract class PFilter<C extends BaseContext = any, E extends Exception = Exception > extends Dev {
+export abstract class PFilter<C extends BaseContext = any, E extends Exception = Exception > extends ServerBase {
   readonly key: PropertyKey
   constructor(tag?: string) {
     super()

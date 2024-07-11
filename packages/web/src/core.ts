@@ -84,6 +84,7 @@ export class WebPhecda {
     }
   }
 
+  // @ts-expect-error internal
   private then<TResult1 = this, TResult2 = never>(
     onfulfilled?: ((value: Omit<this, 'then'>) => TResult1 | PromiseLike<TResult1>) | undefined | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null,
