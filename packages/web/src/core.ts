@@ -38,7 +38,7 @@ export function bindMethod(instance: any, wrapper?: (instance: any, key: Propert
     const cache = new WeakMap()
     bindCache.set(instance, new Proxy(instance, {
       get(target, p) {
-        if (typeof target[p] === 'function' && !target[p].toString().startsWith('(')) {
+        if (typeof target[p] === 'function' && p !== 'constructor' && !target[p].toString().startsWith('(')) {
           if (!cache.has(target[p]))
             cache.set(target[p], wrapper ? wrapper(target, p) : target[p].bind(target))
 
@@ -84,7 +84,7 @@ export class WebPhecda {
     }
   }
 
-  public then<TResult1 = this, TResult2 = never>(
+  private then<TResult1 = this, TResult2 = never>(
     onfulfilled?: ((value: Omit<this, 'then'>) => TResult1 | PromiseLike<TResult1>) | undefined | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null,
   ): this {
