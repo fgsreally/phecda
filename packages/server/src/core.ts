@@ -253,3 +253,5 @@ function initState(state: any) {
   if (!state.interceptors)
     state.interceptors = new Set()
 }
+
+export const createPhecda = Factory
