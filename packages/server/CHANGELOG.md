@@ -1,5 +1,22 @@
 # phecda-server
 
+## 5.2.6
+
+### Patch Changes
+
+- a55a92f: move Base to core;
+
+  replace Dev with ServerBase in phecda-server
+
+  replace Base with WebBase in phecda-web
+
+- a55a92f: refactor Factory, modelMap should be a WeakMap
+
+  add `createPhecda`(=Factory)
+
+- Updated dependencies [a55a92f]
+  - phecda-core@3.0.2
+
 ## 5.2.5
 
 ### Patch Changes

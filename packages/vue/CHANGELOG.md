@@ -1,5 +1,15 @@
 # phecda-vue
 
+## 4.0.5
+
+### Patch Changes
+
+- f9578f7: add getRaw
+- f9578f7: add param `models` to `createPhecda`
+- Updated dependencies [a55a92f]
+- Updated dependencies [f9578f7]
+  - phecda-web@2.0.5
+
 ## 4.0.4
 
 ### Patch Changes
