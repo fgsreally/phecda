@@ -11,6 +11,10 @@ export function useRaw<T extends Construct>(model: T) {
   return toRaw(useR(model)) as unknown as InstanceType<T>
 }
 
+export function getRaw<T extends Construct>(model: T) {
+  return toRaw(getR(model)) as unknown as InstanceType<T>
+}
+
 export function usePhecda() {
   if (!hasInjectionContext())
     throw new Error('[phecda-vue]: use hook inside component setup function')

@@ -83,6 +83,12 @@ export class WebPhecda {
     }
   }
 
+
+  then() {
+    return this.wait(...Object.keys(this.state))
+  }
+
+
   /**
  *   Initialize a module that has not been created yet, and return it directly if it is cached.
  */
