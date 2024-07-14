@@ -1,6 +1,5 @@
 import type { Ref } from 'vue'
 
-
 export declare const RawSymbol: unique symbol
 
 export type Raw<T> = T & {

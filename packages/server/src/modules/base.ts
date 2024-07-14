@@ -1,7 +1,7 @@
 import { Base, Empty } from 'phecda-core'
-import { Ctx } from 'src/decorators'
-import type { HttpContext } from 'src/server/types'
-import type { RpcContext } from 'src/rpc/types'
+import type { HttpContext } from '../server/types'
+import type { RpcContext } from '../rpc/types'
+import { Ctx } from '../decorators'
 import { emitter } from '../core'
 
 @Empty
