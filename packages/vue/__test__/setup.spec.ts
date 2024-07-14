@@ -88,5 +88,3 @@ describe('in vue component', () => {
     expect(wrapper.find('div').text()).toBe('')
   })
 })
-
-///
