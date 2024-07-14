@@ -63,7 +63,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
         try {
           return Promise.all(body.map((item: any, i) => {
-          // eslint-disable-next-line no-async-promise-executor
+            // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
 
@@ -97,8 +97,14 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 next,
                 app: router,
                 ...argToReq(params, item.args, req.headers),
-              }
-              const context = new Context<ExpressCtx>(contextData)
+                getCookie: key => req.cookies[key],
+                setCookie: (key, value, opts) => res.cookie(key, value, opts || {}),
+                delCookie: key => res.cookie(key, '', { expires: new Date(0) }),
+                redirect: (url, status) => status ? res.redirect(status, url) : res.redirect(url),
+                setResHeaders: headers => res.set(headers),
+                setResStatus: code => res.status(code),
+              } as ExpressCtx
+              const context = new Context(contextData)
 
               context.run({
                 globalGuards, globalInterceptors, globalFilter, globalPipe,
@@ -145,13 +151,19 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             headers: req.headers,
             app: router,
             next,
-          }
+            getCookie: key => req.cookies[key],
+            setCookie: (key, value, opts) => res.cookie(key, value, opts || {}),
 
-          const context = new Context<ExpressCtx>(contextData)
-          if (http.headers) {
-            for (const name in http.headers)
-              res.set(name, http.headers[name])
-          }
+            delCookie: key => res.cookie(key, '', { expires: new Date(0) }),
+
+            redirect: (url, status) => status ? res.redirect(status, url) : res.redirect(url),
+            setResHeaders: headers => res.set(headers),
+            setResStatus: code => res.status(code),
+          } as ExpressCtx
+
+          const context = new Context(contextData)
+          if (http.headers)
+            res.set(http.headers)
 
           await context.run({
             globalGuards, globalInterceptors, globalFilter, globalPipe,

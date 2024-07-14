@@ -62,7 +62,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
 
           try {
             return Promise.all(body.map((item: any, i) => {
-            // eslint-disable-next-line no-async-promise-executor
+              // eslint-disable-next-line no-async-promise-executor
               return new Promise(async (resolve) => {
                 const { tag, func } = item
                 debug(`(parallel)invoke method "${func}" in module "${tag}"`)
@@ -96,9 +96,18 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                   app: fastify,
 
                   ...argToReq(params, item.args, req.headers),
+                  // @ts-expect-error need @fastify/cookie
+                  getCookie: key => req.cookies[key],
+                  // @ts-expect-error need @fastify/cookie
+                  setCookie: (key, value, opts) => res.setCookie(key, value, opts),
+                  // @ts-expect-error need @fastify/cookie
 
-                }
-                const context = new Context<FastifyCtx>(contextData)
+                  delCookie: key => res.clearCookie(key),
+                  redirect: (url, status) => res.redirect(url, status),
+                  setResHeaders: headers => res.headers(headers),
+                  setResStatus: code => res.status(code),
+                } as FastifyCtx
+                const context = new Context(contextData)
                 context.run({
                   globalGuards, globalInterceptors, globalFilter, globalPipe,
                 }, resolve, resolve)
@@ -154,13 +163,22 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
               params: req.params as any,
               headers: req.headers,
               app: fastify,
+              // @ts-expect-error need @fastify/cookie
+              getCookie: key => req.cookies[key],
+              // @ts-expect-error need @fastify/cookie
+              setCookie: (key, value, opts) => res.setCookie(key, value, opts),
+              // @ts-expect-error need @fastify/cookie
+              delCookie: key => res.clearCookie(key, { path: '' }),
+              redirect: (url, status) => res.redirect(url, status),
+              setResHeaders: headers => res.headers(headers),
+              setResStatus: code => res.status(code),
 
-            }
-            const context = new Context<FastifyCtx>(contextData)
-            if (http.headers) {
-              for (const name in http.headers)
-                res.header(name, http.headers[name])
-            }
+            } as FastifyCtx
+
+            const context = new Context(contextData)
+            if (http.headers)
+              res.headers(http.headers)
+
             return context.run({
               globalGuards, globalInterceptors, globalFilter, globalPipe,
             }, (returnData) => {

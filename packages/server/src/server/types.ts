@@ -26,6 +26,34 @@ export interface HttpContext extends BaseContext {
   params: Record<string, string>
   body: Record<string, any>
   headers: IncomingHttpHeaders
-  // redirect:(url:string)=>void
+  redirect: (url: string, status?: number) => void
+  getCookie(key: string): string | undefined
+  setCookie(key: string, value: string, opts?: CookieSerializeOptions): void
+  delCookie(key: string): void
+  setResHeaders: (headers: Record<string, string>) => void
+  setResStatus: (status: number) => void
+}
 
+// from cookie-es
+export interface CookieSerializeOptions {
+
+  domain?: string | undefined
+
+  encode?(value: string): string
+
+  expires?: Date | undefined
+
+  httpOnly?: boolean | undefined
+
+  maxAge?: number | undefined
+
+  path?: string | undefined
+
+  priority?: 'low' | 'medium' | 'high' | undefined
+
+  sameSite?: true | false | 'lax' | 'strict' | 'none' | undefined
+
+  secure?: boolean | undefined
+
+  partitioned?: boolean
 }

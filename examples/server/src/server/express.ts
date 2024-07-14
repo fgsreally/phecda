@@ -1,6 +1,7 @@
 import { bind } from 'phecda-server/express'
 import { Factory, HTTPGenerator, log } from 'phecda-server'
 import express from 'express'
+import cookie from 'cookie-parser'
 // addFilter('test', (e, tag, ctx) => {
 //   const readableStream = fs.createReadStream('./index.html')
 //   readableStream.pipe(ctx.response)
@@ -11,7 +12,6 @@ import express from 'express'
 //     })
 //   })
 // })
-
 async function start() {
   const data = await Factory([TestController], {
     generators: [new HTTPGenerator()],
@@ -23,6 +23,7 @@ async function start() {
   })
 
   const app = express()
+  app.use(cookie())
   app.all('*', (_req, res, next) => {
     // console.log(req.headers)
     res.header('Access-Control-Allow-Origin', '*')

@@ -126,7 +126,7 @@ export class WebPhecda {
 
       if (typeof window !== 'undefined') {
         this.emit('Initialize', { tag })
-        instance.__PROMISE_SYMBOL__ = invokeHandler('init', instance)
+        invokeHandler('init', instance)
       }
       return instance
     }

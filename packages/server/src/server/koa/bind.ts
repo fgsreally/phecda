@@ -89,8 +89,14 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 ...argToReq(params, item.args, ctx.headers),
                 tag,
                 func,
-              }
-              const context = new Context<KoaCtx>(contextData)
+                getCookie: key => ctx.cookies.get(key),
+                setCookie: (key, value, opts) => ctx.cookies.set(key, value, opts),
+                delCookie: key => ctx.cookies.set(key, '', { expires: new Date(0) }),
+                redirect: url => ctx.redirect(url),
+                setResHeaders: headers => ctx.set(headers),
+                setResStatus: status => ctx.status = status,
+              } as KoaCtx
+              const context = new Context(contextData)
               context.run({
                 globalGuards, globalInterceptors, globalFilter, globalPipe,
               }, resolve, resolve)
@@ -135,12 +141,19 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             body: (ctx.request as any).body,
             headers: ctx.headers,
             next,
-          }
-          const context = new Context<KoaCtx>(contextData)
-          if (http.headers) {
-            for (const name in http.headers)
-              ctx.set(name, http.headers[name])
-          }
+            getCookie: key => ctx.cookies.get(key),
+            setCookie: (key, value, opts) => ctx.cookies.set(key, value, opts),
+            delCookie: key => ctx.cookies.set(key, '', { expires: new Date(0) }),
+
+            redirect: url => ctx.redirect(url),
+            setResHeaders: headers => ctx.set(headers),
+            setResStatus: status => ctx.status = status,
+
+          } as KoaCtx
+          const context = new Context(contextData)
+          if (http.headers)
+            ctx.set(http.headers)
+
           await context.run({
 
             globalGuards, globalInterceptors, globalFilter, globalPipe,

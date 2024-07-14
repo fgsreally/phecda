@@ -19,6 +19,7 @@ export interface Handler {
 }
 export interface Phecda {
   prototype: any
+  __PROMISE_SYMBOL__: Promise<any>
   [PHECDA_KEY]: {
 
     __EXPOSE_KEY: Set<PropertyKey>

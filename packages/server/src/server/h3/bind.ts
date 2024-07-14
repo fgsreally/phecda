@@ -1,5 +1,5 @@
 import type { IncomingHttpHeaders } from 'node:http'
-import { defineRequestMiddleware, eventHandler, getQuery, getRequestHeaders, getRouterParams, readBody, setHeaders, setResponseStatus } from 'h3'
+import { defineRequestMiddleware, deleteCookie, eventHandler, getCookie, getQuery, getRequestHeaders, getRouterParams, readBody, sendRedirect, setCookie, setHeaders, setResponseHeaders, setResponseStatus } from 'h3'
 import type { H3Event, Router, _RequestMiddleware } from 'h3'
 import Debug from 'debug'
 import { argToReq } from '../helper'
@@ -57,7 +57,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
           try {
             return Promise.all(body.map((item: any, i) => {
-            // eslint-disable-next-line no-async-promise-executor
+              // eslint-disable-next-line no-async-promise-executor
               return new Promise(async (resolve) => {
                 const { tag, func } = item
 
@@ -87,9 +87,18 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                   func,
                   parallel: true,
                   app: router,
+
                   ...argToReq(params, item.args, getRequestHeaders(event)),
-                }
-                const context = new Context<H3Ctx>(contextData)
+                  getCookie: key => getCookie(event, key),
+                  setCookie: (key, value, opts) => setCookie(event, key, value, opts),
+                  delCookie: key => deleteCookie(event, key),
+                  redirect: (url, status) => sendRedirect(event, url, status),
+                  setResHeaders: headers => setResponseHeaders(event, headers),
+                  setResStatus: code => setResponseStatus(event, code),
+
+                } as H3Ctx
+
+                const context = new Context(contextData)
 
                 context.run({
                   globalGuards, globalInterceptors, globalFilter, globalPipe,
@@ -138,10 +147,16 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               params: getRouterParams(event),
               query: getQuery(event),
               app: router,
-
               body: needBody ? await readBody(event, { strict: true }) : undefined,
-            }
-            const context = new Context<H3Ctx>(contextData)
+              getCookie: key => getCookie(event, key),
+              setCookie: (key, value, opts) => setCookie(event, key, value, opts),
+              redirect: url => sendRedirect(event, url),
+              setResHeaders: headers => setResponseHeaders(event, headers),
+              setResStatus: code => setResponseStatus(event, code),
+              delCookie: key => deleteCookie(event, key),
+
+            } as H3Ctx
+            const context = new Context(contextData)
             setHeaders(event, http.headers || {})
 
             return context.run({
