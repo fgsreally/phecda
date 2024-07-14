@@ -1,5 +1,6 @@
 import Debug from 'debug'
 import type { Hono, Context as HonoContext, MiddlewareHandler } from 'hono'
+import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import type { HttpContext, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
@@ -86,8 +87,17 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
                 func,
                 app: router,
                 ...argToReq(params, item.args, c.req.header()),
-              }
-              const context = new Context<HonoCtx>(contextData)
+                getCookie: key => getCookie(c, key),
+                delCookie: key => deleteCookie(c, key),
+                setCookie: (key, value, opts) => setCookie(c, key, value, opts as any),
+                redirect: url => c.redirect(url),
+                setResHeaders: (headers) => {
+                  for (const name in headers)
+                    c.header(name, headers[name])
+                },
+                setResStatus: status => c.status(status as any),
+              } as HonoCtx
+              const context = new Context(contextData)
 
               context.run({
                 globalGuards, globalInterceptors, globalFilter, globalPipe,
@@ -135,9 +145,18 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
             params: c.req.param() as any,
             headers: c.req.header(),
             app: router,
-          }
+            getCookie: key => getCookie(c, key),
+            delCookie: key => deleteCookie(c, key),
+            setCookie: (key, value, opts) => setCookie(c, key, value, opts as any),
+            redirect: url => c.redirect(url),
+            setResHeaders: (headers) => {
+              for (const name in headers)
+                c.header(name, headers[name])
+            },
+            setResStatus: status => c.status(status as any),
+          } as HonoCtx
 
-          const context = new Context<HonoCtx>(contextData)
+          const context = new Context(contextData)
           if (http.headers) {
             for (const name in http.headers)
               c.header(name, http.headers[name])

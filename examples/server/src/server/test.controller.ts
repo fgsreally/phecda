@@ -1,5 +1,3 @@
-import type { HttpContext } from 'phecda-server'
-
 const isString = Rule(data => typeof data === 'string', 'it should be a string')
 
 export class User {
@@ -14,13 +12,8 @@ export class User {
   }
 }
 
-class Base extends Dev {
-  @Ctx
-  context: HttpContext
-}
-
 @Controller('/base')
-export class TestController extends Base {
+export class TestController extends HttpBase {
   static age = 12
   age = 1
 
@@ -54,6 +47,7 @@ export class TestController extends Base {
   @Get('/framework')
   async framework() {
     const { type } = this.context
+
     return type
   }
 }

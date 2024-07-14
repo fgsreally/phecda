@@ -56,7 +56,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
         try {
           return Promise.all(body.map((item: any, i) => {
-          // eslint-disable-next-line no-async-promise-executor
+            // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
               debug(`(parallel)invoke method "${func}" in module "${tag}"`)
@@ -89,10 +89,15 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 func,
                 next,
                 app: router,
-
                 ...argToReq(params, item.args, req.headers),
-              }
-              const context = new Context<HyperExpressCtx>(contextData)
+                getCookie: key => req.cookies[key],
+                setCookie: (key, value, opts) => res.cookie(key, value, opts?.expires && opts.expires.getTime() - Date.now(), opts || {}),
+                delCookie: key => res.clearCookie(key),
+                redirect: url => res.redirect(url),
+                setResHeaders: headers => res.set(headers),
+                setResStatus: code => res.status(code),
+              } as HyperExpressCtx
+              const context = new Context(contextData)
 
               context.run({
                 globalGuards, globalInterceptors, globalFilter, globalPipe,
@@ -142,9 +147,15 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             params: req.path_parameters,
             headers: req.headers,
             next,
-          }
+            getCookie: key => req.cookies[key],
+            setCookie: (key, value, opts) => res.cookie(key, value, opts?.expires && opts.expires.getTime() - Date.now(), opts || {}),
+            delCookie: key => res.clearCookie(key),
+            redirect: url => res.redirect(url),
+            setResHeaders: headers => res.set(headers),
+            setResStatus: code => res.status(code),
+          } as HyperExpressCtx
 
-          const context = new Context<HyperExpressCtx>(contextData)
+          const context = new Context(contextData)
           if (http.headers) {
             for (const name in http.headers)
               res.set(name, http.headers[name])

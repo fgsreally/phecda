@@ -58,7 +58,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
 
         try {
           return Promise.all(body.map((item: any, i) => {
-          // eslint-disable-next-line no-async-promise-executor
+            // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
 
@@ -90,8 +90,14 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
                 func,
                 app,
                 ...argToReq(params, item.args, c.headers),
-              }
-              const context = new Context<ElysiaCtx>(contextData)
+                getCookie: key => c.cookie[key].value,
+                setCookie: (key, value, opts = {}) => c.cookie[key].set({ ...opts, value }),
+                delCookie: key => c.cookie[key].remove(),
+                redirect: url => c.redirect(url),
+                setResHeaders: headers => Object.assign(c.set.headers, headers),
+                setResStatus: status => c.set.status = status,
+              } as ElysiaCtx
+              const context = new Context(contextData)
 
               context.run({
                 globalGuards, globalInterceptors, globalFilter, globalPipe,
@@ -142,9 +148,15 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
             params: c.params,
             headers: c.headers,
             app,
-          }
+            getCookie: key => c.cookie[key].value,
+            setCookie: (key, value, opts = {}) => c.cookie[key].set({ ...opts, value }),
+            delCookie: key => c.cookie[key].remove(),
+            redirect: url => c.redirect(url),
+            setResHeaders: headers => Object.assign(c.set.headers, headers),
+            setResStatus: status => c.set.status = status,
+          } as ElysiaCtx
 
-          const context = new Context<ElysiaCtx>(contextData)
+          const context = new Context(contextData)
           if (http.headers)
             c.set.headers = http.headers
 

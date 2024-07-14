@@ -2,13 +2,18 @@ import { bind } from 'phecda-server/fastify'
 
 import { Factory, HTTPGenerator } from 'phecda-server'
 import Fastify from 'fastify'
+import cookie from '@fastify/cookie'
 import { TestController } from './test.controller'
-
 const data = await Factory([TestController], {
   generators: [new HTTPGenerator()],
 })
 const fastify = Fastify({
   logger: false,
+})
+
+fastify.register(cookie, {
+  secret: 'my-secret',
+  hook: 'onRequest',
 })
 
 bind(fastify, data, {

@@ -59,7 +59,6 @@ export async function Factory(models: Construct[], opts: Options = {}) {
       if (meta[i].data.tag === tag)
         meta.splice(i, 1)
     }
-
     return module
   }
 
@@ -72,8 +71,8 @@ export async function Factory(models: Construct[], opts: Options = {}) {
 
   async function add(Model: Construct) {
     const tag = getTag(Model)
-    const oldInstance = await del(tag)
 
+    const oldInstance = await del(tag)
     const { module: newModule } = await buildDepModule(Model)
 
     if (oldInstance && dependenceGraph.has(tag)) {

@@ -215,7 +215,7 @@ export function invokeHandler(event: string, module: Phecda) {
     return getHandler(module, item).filter(h => !!h[event]).map(h => h[event](module))
   }).flat()
 
-  return Promise.all(initHandlers)
+  return module.__PROMISE_SYMBOL__ = Promise.all(initHandlers)
 }
 
 export function set(proto: any, key: string, value: any) {
