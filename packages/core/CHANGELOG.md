@@ -1,5 +1,15 @@
 # phecda-core
 
+## 3.1.1
+
+### Patch Changes
+
+- c126577: add Empty to Base (turn class to Phecda class);
+
+  remove Injectable from server to core
+
+- c126577: phecda-core doesn't need ts metadata;
+
 ## 3.1.0
 
 ### Minor Changes
