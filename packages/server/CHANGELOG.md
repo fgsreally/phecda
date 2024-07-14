@@ -1,5 +1,17 @@
 # phecda-server
 
+## 5.3.1
+
+### Patch Changes
+
+- c126577: add Empty to Base (turn class to Phecda class);
+
+  remove Injectable from server to core
+
+- Updated dependencies [c126577]
+- Updated dependencies [c126577]
+  - phecda-core@3.1.1
+
 ## 5.3.0
 
 ### Minor Changes
