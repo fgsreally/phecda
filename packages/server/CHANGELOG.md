@@ -1,5 +1,18 @@
 # phecda-server
 
+## 5.3.0
+
+### Minor Changes
+
+- f477841: add methods(`redirect/getCookie/setCookie/delCookie/setResHeaders/setResStatus`) to `HttpContext`
+
+  add `HttpBase/RpcBase`
+
+### Patch Changes
+
+- Updated dependencies [f477841]
+  - phecda-core@3.1.0
+
 ## 5.2.6
 
 ### Patch Changes

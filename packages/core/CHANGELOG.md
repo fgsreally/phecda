@@ -1,5 +1,11 @@
 # phecda-core
 
+## 3.1.0
+
+### Minor Changes
+
+- f477841: refactor invokeHandler, it will add **PROMISE_SYMBOL** to instance directly
+
 ## 3.0.2
 
 ### Patch Changes
