@@ -57,3 +57,7 @@ export function Expose(proto: any, key: PropertyKey) {
 export function Empty(model: any) {
   init(model.prototype)
 }
+
+export function Injectable() {
+  return (target: any) => Empty(target)
+}

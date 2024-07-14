@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
-import { Init, createPhecda, usePhecda, useR, useV } from '../src'
+import { Base, Empty, Init, createPhecda, getR, getV, usePhecda, useR, useV } from '../src'
 describe('in vue component', () => {
   it('useV', async () => {
     const Comp = defineComponent({
@@ -88,5 +88,3 @@ describe('in vue component', () => {
     expect(wrapper.find('div').text()).toBe('')
   })
 })
-
-///

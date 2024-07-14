@@ -1,9 +1,5 @@
-import { Empty, SHARE_KEY, getState, setPropertyState } from 'phecda-core'
+import { SHARE_KEY, getState, setPropertyState } from 'phecda-core'
 import { mergeObject, shallowClone } from './helper'
-
-export function Injectable() {
-  return (target: any) => Empty(target)
-}
 
 export const Ctx: PropertyDecorator = (target: any, key: PropertyKey) => {
   setPropertyState(target, SHARE_KEY, (state) => {
