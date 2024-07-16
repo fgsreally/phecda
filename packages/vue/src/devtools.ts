@@ -20,4 +20,4 @@ export function toastMessage(
     console.log(piniaMessage)
 }
 
-export const USE_DEVTOOLS = process.env.NODE_ENV === 'development' && typeof window
+export const USE_DEVTOOLS = process.env.NODE_ENV !== 'production' && typeof window
