@@ -1,5 +1,4 @@
 import pc from 'picocolors'
-import type { AbConstruct, Construct } from 'phecda-core'
 import { LOG_LEVEL } from './common'
 
 let time: number
@@ -30,13 +29,4 @@ export function log(msg: string, level: LogLevel = 'log') {
   time = current
 
   internalLogger[level](`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)} ${pc.gray(interval)}`)
-}
-
-export function Mix<C1 extends Construct | AbConstruct, C2 extends Construct>(InternalClass: C1, ExtendClass: C2) {
-  return class extends InternalClass {
-    constructor(...args: any) {
-      super()
-      Object.assign(this, new ExtendClass(...args))
-    }
-  } as new (...args: ConstructorParameters<C2>) => InstanceType<C1> & InstanceType<C2>
 }
