@@ -1,5 +1,12 @@
 # phecda-react
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [9a6341e]
+  - phecda-web@2.0.8
+
 ## 1.0.6
 
 ### Patch Changes

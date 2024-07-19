@@ -1,5 +1,12 @@
 # phecda-vue
 
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies [9a6341e]
+  - phecda-web@2.0.8
+
 ## 4.0.7
 
 ### Patch Changes
