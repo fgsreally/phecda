@@ -31,5 +31,4 @@ export function log(msg: string, level: LogLevel = 'log') {
   internalLogger[level](`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)} ${pc.gray(interval)}`)
 }
 
-
-export {Mixin} from 'ts-mixer'
+export { Mixin } from 'ts-mixer'

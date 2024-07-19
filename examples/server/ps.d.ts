@@ -49,7 +49,7 @@ declare global {
   const Isolate: typeof import('phecda-server')['Isolate']
   const LOG_LEVEL: typeof import('phecda-server')['LOG_LEVEL']
   const Meta: typeof import('phecda-server')['Meta']
-  const Mix: typeof import('phecda-server')['Mix']
+  const Mixin: typeof import('phecda-server')['Mixin']
   const NotFoundException: typeof import('phecda-server')['NotFoundException']
   const PExtension: typeof import('phecda-server')['PExtension']
   const PFilter: typeof import('phecda-server')['PFilter']
