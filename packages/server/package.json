@@ -149,7 +149,8 @@
     "fs-extra": "^11.2.0",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
     "@koa/router": "^12.0.1",
