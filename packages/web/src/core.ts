@@ -11,8 +11,8 @@ export function wait(...instances: InstanceType<Construct>[]) {
   return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
 }
 
-function getParamtypes(Model: Construct, key?: string | symbol) {
-  return Reflect.getMetadata('design:paramtypes', Model, key!)
+export function getParamtypes(Model: Construct) {
+  return Reflect.getMetadata('design:paramtypes', Model)
 }
 
 export const phecdaNamespace = new Map<string, WebPhecda>()
