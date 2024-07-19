@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.3.2
+
+### Patch Changes
+
+- deb691d: support Mixin(can't extends metadata)
+
 ## 5.3.1
 
 ### Patch Changes

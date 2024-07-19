@@ -1,5 +1,13 @@
 # phecda-web
 
+## 2.0.8
+
+### Patch Changes
+
+- 9a6341e: export getParamtypes
+
+  support Mixin(can't extends metadata)
+
 ## 2.0.7
 
 ### Patch Changes
