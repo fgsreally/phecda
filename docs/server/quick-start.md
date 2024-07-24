@@ -100,7 +100,7 @@ export default defineConfig({
 ```ts
 import axios from 'axios'
 import { createChainReq } from 'phecda-client'
-import { UserController } from '../server/user.controller'
+import type { UserController } from '../server/user.controller'
 // 指向controller的路径！这里只是用它的类型，并没有真正引入Controller，
 
 const instance = axios.create({

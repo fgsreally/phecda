@@ -19,7 +19,6 @@ class Test {
   }
 
   @Err(errorHandler)// 不建议
-  // only work on controller
   error() {
     throw new Error('any error')// invoke errorHandler
   }

@@ -42,6 +42,8 @@ class a {
 
 ## 请求适配器
 
+具体实现看源码
+
 ```ts
 import { createClient } from 'phecda-client-ws'
 

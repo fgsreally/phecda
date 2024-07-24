@@ -11,7 +11,7 @@
 
 这在`phecda`架构中很危险！
 
-假设控制器类名原本为`TestController`，打包可能变成`TestController2`,这会导致开发生产有较大区别
+假设控制器类名原本为`TestController`，打包可能类名会变成`TestController2`,这会导致开发生产有较大区别
 
 两种解决方法：
 

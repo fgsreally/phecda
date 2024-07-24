@@ -1,7 +1,12 @@
 # 命令行工具
+
+:::info
+不要太在意，用一下就知道了
+:::
+
 ## phecda init
 初始化`tsconfig.json`和`ps.json`，后者会被`register`读取，
-其配置如下：
+一个例子：
 ```json5
 {
   "$schema": "node_modules/phecda-server/bin/schema.json",
