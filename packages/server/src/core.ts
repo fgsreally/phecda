@@ -214,14 +214,15 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       }
 
       const params = [] as any[]
-      for (const i of state.params || []) {
-        if (!i.pipe)
-          i.pipe = state.pipe || baseState.pipe
-        if (!i.define)
-          i.define = {}
+      for (const item of state.params || []) {
+        const newItem = { ...item }
+        if (!newItem.pipe)
+          newItem.pipe = state.pipe || baseState.pipe
+        if (!newItem.define)
+          newItem.define = {}
 
-        params.unshift(i)
-        if (i.index === 0)
+        params.unshift(newItem)
+        if (item.index === 0)
           break
       }
 
@@ -233,10 +234,25 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       meta.guards = [...new Set([...baseState.guards, ...state.guards])]
       meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
     }
-    return new Meta(meta as unknown as MetaData, getParamTypes(instance, i as string) || [])
+    return new Meta(deepFreeze(meta as unknown as MetaData), getParamTypes(instance, i as string) || [])
   })
 }
 
+function deepFreeze<T extends Record<string, any>>(object: T): T {
+  // 先冻结对象本身
+  Object.freeze(object)
+
+  // 获取对象的所有属性名
+  Object.getOwnPropertyNames(object).forEach((prop) => {
+    // 如果属性是对象，并且没有被冻结，则递归冻结
+    if (object[prop] !== null
+      && (typeof object[prop] === 'object' || typeof object[prop] === 'function')
+      && !Object.isFrozen(object[prop]))
+      deepFreeze(object[prop])
+  })
+
+  return object
+}
 function getParamTypes(Model: any, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }

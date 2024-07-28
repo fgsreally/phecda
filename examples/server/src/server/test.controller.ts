@@ -13,6 +13,7 @@ export class User {
 }
 
 @Controller('/base')
+@Define('a', {})
 export class TestController extends HttpBase {
   static age = 12
   age = 1
