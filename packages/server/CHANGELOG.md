@@ -1,5 +1,11 @@
 # phecda-server
 
+## 5.3.3
+
+### Patch Changes
+
+- 6f11209: freeze meta to make it inmutable (danger change)
+
 ## 5.3.2
 
 ### Patch Changes
