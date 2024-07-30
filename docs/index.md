@@ -12,11 +12,11 @@ hero:
 #     src: /Phecda.png
 #     alt: Phecda
   Introduction: 天玑
-  actions:
-     - text: server
-       link: /server/intro
-     - text: vue
-       link: /vue/base
+  # actions:
+  #    - text: server
+  #      link: /server/intro
+  #    - text: web
+  #      link: /web/intro
 
 
 features:

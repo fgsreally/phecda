@@ -165,7 +165,7 @@ class TestController {
 ```
 
 :::warning
-`nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入，原因[详见](./other/compare.md)
+`nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入
 :::
 
 前文中的

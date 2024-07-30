@@ -1,6 +1,6 @@
 # 打包
 
-如果需要打包，可以使用`unplugin-phecda-server`（我目前只测试过`vite`）
+如果需要打包，可以使用`unplugin-phecda-server`（目前只测试过`vite`）
 
 我不太推崇这个行为，
 

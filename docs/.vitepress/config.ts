@@ -30,7 +30,7 @@ export default defineConfig({
       { text: 'core', link: '/core/intro', activeMatch: '/core/' },
 
       { text: 'server', link: '/server/intro', activeMatch: '/server/' },
-      { text: 'vue', link: '/vue/base', activeMatch: '/vue/' },
+      { text: 'web', link: '/web/intro', activeMatch: '/web/' },
 
       // { text: '框架封装', link: '/pack/', activeMatch: '/pack/' },
 
@@ -61,18 +61,26 @@ export default defineConfig({
         },
 
       ],
-      '/vue/': [
+      '/web/': [
+        {
+          text: 'intro',
+          link: '/web/intro',
+        },
         {
           text: '基础使用',
-          link: '/vue/base',
+          link: '/web/base',
         },
         {
-          text: 'phecda-core',
-          link: '/vue/phecda-core',
+          text: 'api',
+          link: '/web/api',
         },
         {
-          text: 'module',
-          link: '/vue/module',
+          text: 'phecda-vue',
+          link: '/web/vue/base',
+        },
+        {
+          text: 'phecda-react',
+          link: '/web/react/base',
         },
       ],
       '/server/': [
@@ -83,6 +91,10 @@ export default defineConfig({
             {
               text: 'intro',
               link: '/server/intro',
+            },
+            {
+              text: '灵感来源',
+              link: '/server/inspire',
             },
 
             {
@@ -190,14 +202,7 @@ export default defineConfig({
           text: '其他',
           collapsed: true,
           items: [
-            {
-              text: '和其他框架比较',
-              link: '/server/other/compare',
-            },
-            {
-              text: '灵感来源',
-              link: '/server/other/inspire',
-            },
+
             {
               text: '类型杂技',
               link: '/server/other/types',
@@ -207,51 +212,11 @@ export default defineConfig({
               text: '一些问题',
               link: '/server/other/problem',
             },
-            {
-              text: 'changelog',
-              link: '/server/other/changelog',
-            },
 
           ],
         },
       ],
-      // '/blog': [
-      //   {
-      //     text: '设计思路',
-      //     collapsed: true,
-      //     items: [
-      //       {
-      //         text: '开始之前',
-      //         link: '/blog/index',
-      //       },
-      //       {
-      //         text: '从哪儿开始',
-      //         link: '/blog/question',
-      //       },
-      //       {
-      //         text: '特性',
-      //         link: '/blog/feature',
-      //       },
-
-      //       {
-      //         text: '自定义',
-      //         link: '/blog/custom',
-      //       },
-      //       {
-      //         text: '自定义平台',
-      //         link: '/blog/platform',
-      //       },
-      //       {
-      //         text: '进展',
-      //         link: '/blog/changelog',
-      //       },
-      //     ],
-      //   },
-      // ],
 
     },
   },
 })
-
-// <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.17/build/spline-viewer.js"></script>
-// <spline-viewer url="https://prod.spline.design/5LO-7-aInDCm0cWL/scene.splinecode"></spline-viewer>
