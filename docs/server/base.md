@@ -2,7 +2,11 @@
 
 ## 基本结构
 
-ps 中有这么一些角色
+`ps` 中有这么一些角色，
+
+> 抱歉，我无意设计的如此复杂，但前文所说的几个特性不太能用简单的办法解决，
+>
+> 不过不知道也没什么影响，反正我自己肯定是记不住的
 
 1. **模块**也就是类，前文的`UserController/UserService`都是
 2. **生成器**,它会生成一些代码，用于生成请求，即前文的`HttpGenerator`
@@ -49,6 +53,8 @@ data.meta // 元数据数组
 
 :::tip
 `ps`中模块（类）分为以下几种，
+
+> 啊，前面的角色不重要，这个真的很重要
 
 1. **控制器**，负责把服务暴露给外部，在`express`中对应着`controller`（类名为`XXController`），负责暴露`http`接口，
    在`rabbitmq`中对应着`rpc`（类名为`XXRpc`），负责暴露队列
@@ -159,7 +165,7 @@ class TestController {
 ```
 
 :::warning
-`nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入，原因[详见](./other/compare.md)
+`nestjs`使用者请注意，只有通过构造函数实现依赖注入这一种方式，没有其他注入
 :::
 
 前文中的
@@ -191,9 +197,7 @@ bind(router, data) // work for router
 
 ```ts
 import { bind } from 'phecda-server/fastify'
-const app = Fastify({
-  logger: true,
-})
+const app = Fastify()
 
 bind(app, data)
 ```
@@ -268,7 +272,7 @@ const ret = await request.user.login('username', 'password') // 请求数据
 
 很明显，这是个重定向性质的行为，[快速开始](./quick-start.md)里通过`vite`插件，
 
-但通过命令行工具`phecda <entry file>` 也可以实现，
+但通过命令`phecda <entry file>` 也可以实现，
 
 > 这里之所以说调用方而不是前端或者客户端，因为也可以是服务端不同程序之间的调用
 >

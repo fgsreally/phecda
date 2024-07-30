@@ -33,9 +33,9 @@ import {
   version,
   watch,
   watchEffect
-} from "./chunk-75WXDY27.js";
+} from "./chunk-DUUF7HS2.js";
 
-// node_modules/.pnpm/vitepress@1.2.3_@algolia+client-search@4.23.3_@types+node@18.11.18_search-insights@2.14.0_typescript@4.9.4/node_modules/vitepress/lib/vue-demi.mjs
+// node_modules/.pnpm/vitepress@1.2.3_@algolia+client-search@4.23.3_@types+node@18.19.39_search-insights@2.14.0_typescript@4.9.5/node_modules/vitepress/lib/vue-demi.mjs
 var isVue2 = false;
 var isVue3 = true;
 function set(target, key, val) {
@@ -55,7 +55,7 @@ function del(target, key) {
   delete target[key];
 }
 
-// node_modules/.pnpm/@vueuse+shared@10.11.0_vue@3.4.27/node_modules/@vueuse/shared/index.mjs
+// node_modules/.pnpm/@vueuse+shared@10.11.0_vue@3.4.30/node_modules/@vueuse/shared/index.mjs
 function computedEager(fn, options) {
   var _a;
   const result = shallowRef();
@@ -497,15 +497,15 @@ function identity(arg) {
   return arg;
 }
 function createSingletonPromise(fn) {
-  let __PROMISE_SYMBOL__;
+  let _promise;
   function wrapper() {
-    if (!__PROMISE_SYMBOL__)
-      __PROMISE_SYMBOL__ = fn();
-    return __PROMISE_SYMBOL__;
+    if (!_promise)
+      _promise = fn();
+    return _promise;
   }
   wrapper.reset = async () => {
-    const _prev = __PROMISE_SYMBOL__;
-    __PROMISE_SYMBOL__ = void 0;
+    const _prev = _promise;
+    _promise = void 0;
     if (_prev)
       await _prev;
   };
@@ -1552,7 +1552,7 @@ function whenever(source, cb, options) {
   return stop;
 }
 
-// node_modules/.pnpm/@vueuse+core@10.11.0_vue@3.4.27/node_modules/@vueuse/core/index.mjs
+// node_modules/.pnpm/@vueuse+core@10.11.0_vue@3.4.30/node_modules/@vueuse/core/index.mjs
 function computedAsync(evaluationCallback, initialState, optionsOrRef) {
   let options;
   if (isRef(optionsOrRef)) {
@@ -2472,9 +2472,9 @@ function useAsyncState(promise, initialState, options) {
     isLoading.value = true;
     if (delay2 > 0)
       await promiseTimeout(delay2);
-    const __PROMISE_SYMBOL__ = typeof promise === "function" ? promise(...args) : promise;
+    const _promise = typeof promise === "function" ? promise(...args) : promise;
     try {
-      const data = await __PROMISE_SYMBOL__;
+      const data = await _promise;
       state.value = data;
       isReady.value = true;
       onSuccess(data);
@@ -6836,7 +6836,7 @@ function useScriptTag(src, onLoaded = noop, options = {}) {
     attrs = {}
   } = options;
   const scriptTag = ref(null);
-  let __PROMISE_SYMBOL__ = null;
+  let _promise = null;
   const loadScript = (waitForScriptLoad) => new Promise((resolve, reject) => {
     const resolveWithElement = (el2) => {
       scriptTag.value = el2;
@@ -6880,14 +6880,14 @@ function useScriptTag(src, onLoaded = noop, options = {}) {
       resolveWithElement(el);
   });
   const load = (waitForScriptLoad = true) => {
-    if (!__PROMISE_SYMBOL__)
-      __PROMISE_SYMBOL__ = loadScript(waitForScriptLoad);
-    return __PROMISE_SYMBOL__;
+    if (!_promise)
+      _promise = loadScript(waitForScriptLoad);
+    return _promise;
   };
   const unload = () => {
     if (!document2)
       return;
-    __PROMISE_SYMBOL__ = null;
+    _promise = null;
     if (scriptTag.value)
       scriptTag.value = null;
     const el = document2.querySelector(`script[src="${toValue(src)}"]`);

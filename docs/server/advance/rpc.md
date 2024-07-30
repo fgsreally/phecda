@@ -2,7 +2,7 @@
 
 提供与`http`体验一致的微服务
 
-目前支持`rabbitmq`/`redis`/`kafka`
+目前支持`rabbitmq`/`redis`/`kafka`/`nats`/`bullmq`
 
 ## 创建控制器
 
@@ -23,7 +23,6 @@ export class TestRpc {
   }
 
   @Queue('test')// 走test这个channel
-
   @Event() // 标记这个是事件模式，不会返回任何值
   event(@Arg() arg: string) {
     console.log(`arg is ${arg}`)
@@ -46,5 +45,9 @@ const data = await Factory([UserController], {
 
 
 
-# 与服务端结合
-[详见](https://github.com/fgsreally/phecda/tree/main/examples/server)
+## 与服务端结合[适配器]
+由于不同的微服务技术架构差异过大，又要保证低侵入，难以保证结构一致
+
+
+
+具体[详见](https://github.com/fgsreally/phecda/tree/main/examples/server/src/rpc)

@@ -19,7 +19,6 @@ class Test {
   }
 
   @Err(errorHandler)// 不建议
-  // only work on controller
   error() {
     throw new Error('any error')// invoke errorHandler
   }
@@ -28,10 +27,6 @@ class Test {
 
 
 > 这里`emitter`用的是`nodejs`中的`eventEmitter`,
+
 > 如果想更改,可以参考`Factory`的源码实现
 
-::: warning
-
-当前架构无法支持`Isolate`
-
-:::

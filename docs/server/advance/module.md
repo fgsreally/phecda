@@ -1,5 +1,7 @@
 # 模块运用
 
+> 其实不复杂，就是面向对象的那些伎俩
+
 ## 什么是模块
 
 在`PS`中，通过
@@ -59,11 +61,11 @@ Factory([XxModule])
 ## 内置模块
 `PS`提供了一些内置的模块，主要是[Aop](../aop/guard.md) 相关
 
-除此之外，还有一个内置模块`Dev`，
+除此之外，还有一个内置模块`ServerBase`（继承自`phecda-core`的`Base`,提供了一些有用的功能，)
 
 它会帮助你在热更新的时候，移除副作用
 ```ts
-class Test extends Dev {
+class Test extends ServerBase {
   constructor() {
     this.onUnmount(() => {
     // 移除副作用
@@ -80,38 +82,32 @@ class Test extends Dev {
 
 假设我需要一个模块拥有两方面的能力：
 
-1. 热更新的能力（上述的`Dev`）
+1. 热更新的能力（上述的`ServerBase`）
 
 2. 第三方的类（好吧，我们假设使用了`ioredis`,它会提供一个`Redis`类）
 
 最简单的方法当然是使用组合
 
 ```ts
-import { Dev } from 'phecda-server'
+import { ServerBase } from 'phecda-server'
 import { Redis } from 'ioredis'
-export class xx extends Dev {
+export class xx extends ServerBase {
   redis = new Redis()
 }
 ```
-:::info mixin
 
-`ts`确实有`mixin`的功能，但无论哪个版本都很孱弱
-
-[ts-mixer](https://github.com/tannerntannern/ts-mixer/tree/master)也有一定的问题
-:::
 
 但如果真的需要继承两个类:
 
 ```ts
-import { Dev } from 'phecda-server'
+import { Mixin, ServerBase } from 'phecda-server'
 import { Redis } from 'ioredis'
 
-// 第一个参数是内置模块的话，不会有任何问题，但如果是其他来源的类，可能会有隐患
-export class xx extends Mix(Dev, Redis) {
+export class xx extends Mixin(ServerBase, Redis) {
 
 }
 ```
-
+> `Mixin`来源自[ts-mixer](https://www.npmjs.com/package/ts-mixer) 
 
 ## 模块修改
 假设有一个封装好的模块`xx`，但在我觉得其功能不太对，可以继承时简单的修改

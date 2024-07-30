@@ -1,7 +1,12 @@
 # 命令行工具
+
+:::info
+不要太在意，用一下就知道了
+:::
+
 ## phecda init
-初始化`tsconfig.json`和`ps.json`，后者会被`register`读取，
-其配置如下：
+初始化`tsconfig.json`和`ps.json`，后者会被运行时读取，
+一个例子：
 ```json5
 {
   "$schema": "node_modules/phecda-server/bin/schema.json",
@@ -26,22 +31,29 @@
 ```
 
 ## phecda generate [file]
-启动程序，使生成器产生代码，然后退出
+启动程序，使生成器生成代码，然后退出
 用于`ci/cd`
 
 
 
 ## phecda [file]
-启动程序，除非单独设置环境变量`NODE_ENV`为非`development`，否则都启动热更新
+启动程序，这是最常用的
 
-还有一些环境变量配置：
+
+
+### 环境变量 
 1. `PS_STRICT` 如果设置，那么使用了未设置的守卫、拦截器等，会直接报错
-2. `PS_LOG_LEVEL`  info/log/warning/error 对应0到3，只有高于`PS_LOG_LEVEL`的信息才会被输出
+2. `PS_LOG_LEVEL`  `info/log/warning/error` 对应0到3，只有高于`PS_LOG_LEVEL`的信息才会被输出
+3. `NODE_ENV`为非`development`时，禁止热更新
 
 
+### 交互命令
 输入`e`并回车会退出程序，输入`r`回车会完全重启
 
-添加给`nodejs`的参数需:
+
+
+### nodejs 参数
+传递给`nodejs`的参数需:
 ```shell
 npx phecda file.ts -- --inspect
 ```
