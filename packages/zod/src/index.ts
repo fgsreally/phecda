@@ -1,7 +1,7 @@
 import type { ZodSchema, ZodTypeDef, z } from 'zod'
 import { addDecoToClass, setHandler, setStateKey } from 'phecda-core'
 
-function ZodTo(cb: ((instance: any, addError:((msg: string) => void)) => any)) {
+function ZodTo(cb: ((instance: any, addError: ((msg: string) => void)) => any)) {
   return (proto: any, key?: PropertyKey) => {
     setStateKey(proto, key)
     setHandler(proto, key, {
@@ -9,10 +9,8 @@ function ZodTo(cb: ((instance: any, addError:((msg: string) => void)) => any)) {
         const ret = cb(instance, addError)
 
         if (ret) {
-          for (const key in instance) {
-            if (key !== '_value')
-              delete instance[key]
-          }
+          for (const key in instance)
+            delete instance[key]
 
           for (const key in ret)
             instance[key] = ret[key]
@@ -22,7 +20,7 @@ function ZodTo(cb: ((instance: any, addError:((msg: string) => void)) => any)) {
   }
 }
 export function zodToClass<
-    TOutput = any, TDef extends ZodTypeDef = ZodTypeDef, TInput = TOutput,
+  TOutput = any, TDef extends ZodTypeDef = ZodTypeDef, TInput = TOutput,
 >(zod: ZodSchema<TOutput, TDef, TInput>): (new (data?: Partial<z.infer<ZodSchema<TOutput, TDef, TInput>>>) => z.infer<ZodSchema<TOutput, TDef, TInput>>) & {
 
   schema: ZodSchema<TOutput, TDef, TInput>

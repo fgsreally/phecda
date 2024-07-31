@@ -23,6 +23,7 @@ describe('zod in phecda', () => {
     instance.isAdmin = true
 
     expect(transformInstance(instance).length).toBe(0)
+    expect('xx' in instance).toBe(false)
 
     expect(UserModel.schema).toBeDefined()
     expect(instance).toMatchSnapshot()
