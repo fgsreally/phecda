@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
+import { getExposeKey, getInject, getMeta, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter } from './types'
 import type { MetaData } from './meta'
@@ -188,13 +188,13 @@ export async function Factory(models: Construct[], opts: Options = {}) {
 
 function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   const vars = getExposeKey(instance).filter(item => typeof item === 'string') as string[]
-  const baseState = getState(instance) as MetaData
+  const baseState = getMeta(instance) as MetaData
   initState(baseState)
 
-  const ctxs = getState(instance).ctxs
+  const ctxs = getMeta(instance).ctxs
 
   return vars.filter(i => typeof (instance as any)[i] === 'function').map((i) => {
-    const state = getState(instance, i) as any
+    const state = getMeta(instance, i) as any
 
     const meta = {
       ...state,

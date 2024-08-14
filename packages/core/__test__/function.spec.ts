@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Bind, Effect, Empty, Err, Expose, If, Init, Isolate, Tag, addDecoToClass, get, getBind, getExposeKey, getTag, invokeHandler, isPhecda } from '../src'
+import { Assign, Effect, Empty, Err, Expose, If, Init, Isolate, Tag, addDecoToClass, get, getExposeKey, getTag, invokeInit, isPhecda } from '../src'
 
 describe('helper', () => {
   it('isPhecda', async () => {
@@ -41,16 +41,8 @@ describe('helper', () => {
       key = 'test'
     }
     const instance = new Test() as any
-    await invokeHandler('init', instance)
+    await invokeInit(instance)
     expect(instance.key).toBe('test2')
-  })
-
-  it('bind', () => {
-    class Test {
-      @Bind('phecda')
-      key: string
-    }
-    expect(getBind(Test).key).toBe('phecda')
   })
 
   it('Effect', async () => {
@@ -61,7 +53,7 @@ describe('helper', () => {
     }
 
     const instance = new Test() as any
-    await invokeHandler('init', instance)
+    await invokeInit(instance)
     expect(instance.key).toBe(10)
     expect(instance.$_key).toBe(10)
 
@@ -82,11 +74,11 @@ describe('helper', () => {
     }
 
     const i1 = new A()
-    await invokeHandler('init', i1 as any)
+    await invokeInit(i1)
 
     expect(i1.isReady).toBeTruthy()
     const i2 = new A()
-    await invokeHandler('init', i2 as any)
+    await invokeInit(i2)
 
     expect(i2.isReady).toBeTruthy()
   })
@@ -109,7 +101,8 @@ describe('helper', () => {
       }
     }
     const i = new Test()
-    invokeHandler('init', i as any)
+    invokeInit(i)
+
     i.invoke()
     expect(fn).toBeCalled()
 

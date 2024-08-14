@@ -1,5 +1,5 @@
 /* eslint-disable no-prototype-builtins */
-import type { Construct, Handler, Phecda } from './types'
+import type { Construct, Phecda } from './types'
 
 // 有的时候，类上多个方法、属性需要共用一些东西
 // SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
@@ -24,31 +24,23 @@ export function init(proto: Phecda) {
          * 暴露的变量，
          * 只要属性上存在至少一个装饰器，该属性就会被捕捉到
         */
-      __EXPOSE_KEY: new Set(),
+      __EXPOSE_KEY__: new Set(),
       /**
          * @Ignore 绑定的属性，
          * 某属性即使被捕捉，可被强行忽略，优先级最高
         */
-      __IGNORE_KEY: new Set(),
+      __IGNORE_KEY__: new Set(),
       /**
          * @Clear 绑定的属性，
-         * 消除父类在该key上的state/handler, 但export key 和 state
+         * 消除父类在该key上的state/handler
         */
 
-      __CLEAR_KEY: new Set(),
+      __CLEAR_KEY__: new Set(),
+
       /**
-         * 存在状态的变量
-         * @deprecated
+         * 元数据
         */
-      __STATE_KEY: new Set(),
-      /**
-         * 状态变量的处理器
-        */
-      __STATE_HANDLER__: new Map(),
-      /**
-         * 状态变量的共有状态
-        */
-      __STATE_NAMESPACE__: new Map(),
+      __META__: new Map<PropertyKey, any[]>(),
     }
   }
 }
@@ -62,85 +54,32 @@ export function getPhecdaFromTarget(target: any) {
   return Object.getPrototypeOf(target)// module
 }
 
-// it should be setmodelVar
-export function setStateKey(proto: Phecda, key?: PropertyKey) {
-  if (!key) {
-    key = SHARE_KEY
+export function setExposeKey(proto: Phecda, property?: PropertyKey) {
+  if (!property) {
+    property = SHARE_KEY
     proto = proto.prototype
   }
   init(proto)
 
-  proto[PHECDA_KEY].__STATE_KEY.add(key)
-  // 绑定状态的值，均属于暴露的值
-  setExposeKey(proto, key)
+  proto[PHECDA_KEY].__EXPOSE_KEY__.add(property)
 }
 
-export function setExposeKey(proto: Phecda, key?: PropertyKey) {
-  if (!key) {
-    key = SHARE_KEY
+export function setIgnoreKey(proto: Phecda, property?: PropertyKey) {
+  if (!property) {
+    property = SHARE_KEY
     proto = proto.prototype
   }
   init(proto)
-
-  proto[PHECDA_KEY].__EXPOSE_KEY.add(key)
+  proto[PHECDA_KEY].__IGNORE_KEY__.add(property)
 }
 
-export function setIgnoreKey(proto: Phecda, key?: PropertyKey) {
-  if (!key) {
-    key = SHARE_KEY
-    proto = proto.prototype
-  }
-  init(proto)
-  proto[PHECDA_KEY].__IGNORE_KEY.add(key)
-}
-
-export function setHandler(proto: Phecda, key: PropertyKey | undefined, handler: Handler) {
-  if (!key) {
-    key = SHARE_KEY
-    proto = proto.prototype
-  }
-  init(proto)
-  if (!proto[PHECDA_KEY].__STATE_HANDLER__.has(key))
-    proto[PHECDA_KEY].__STATE_HANDLER__.set(key, [handler])
-  else
-    proto[PHECDA_KEY].__STATE_HANDLER__.get(key)!.push(handler)
-}
-
-export function setState(proto: Phecda, key: PropertyKey | undefined, state: Record<string, any>) {
-  if (!key) {
-    key = SHARE_KEY
-    proto = proto.prototype
-  }
-  init(proto)
-  const namespace = proto[PHECDA_KEY].__STATE_NAMESPACE__
-
-  namespace.set(key, state)
-}
-
-// 存在状态的属性
-export function getOwnStateKey(target: any) {
-  const proto: Phecda = getPhecdaFromTarget(target)
-  return [...proto[PHECDA_KEY].__STATE_KEY] as string[]
-}
-
-export function getStateKey(target: any) {
-  let proto: Phecda = getPhecdaFromTarget(target)
-  const set = new Set<PropertyKey>()
-  while (proto?.[PHECDA_KEY]) {
-    if (proto.hasOwnProperty(PHECDA_KEY))
-      proto[PHECDA_KEY].__STATE_KEY.forEach(item => set.add(item))
-
-    proto = Object.getPrototypeOf(proto)
-  }
-  return [...set]
-}
 // 暴露的属性
 // 存在状态必然暴露，反之未必，但expose可以被ignore，前者不行
 // 一般而言用这个就行，某些特定情况，可用前一种
 export function getOwnExposeKey(target: any) {
   const proto: Phecda = getPhecdaFromTarget(target)
 
-  return [...proto[PHECDA_KEY].__EXPOSE_KEY].filter(item => !proto[PHECDA_KEY].__IGNORE_KEY.has(item)) as string[]
+  return [...proto[PHECDA_KEY].__EXPOSE_KEY__].filter(item => !proto[PHECDA_KEY].__IGNORE_KEY__.has(item)) as string[]
 }
 
 export function getExposeKey(target: any) {
@@ -150,7 +89,7 @@ export function getExposeKey(target: any) {
   const origin = proto
   while (proto?.[PHECDA_KEY]) {
     if (proto.hasOwnProperty(PHECDA_KEY))
-      [...proto[PHECDA_KEY].__EXPOSE_KEY].forEach(item => !origin[PHECDA_KEY].__IGNORE_KEY.has(item) && set.add(item))
+      [...proto[PHECDA_KEY].__EXPOSE_KEY__].forEach(item => !origin[PHECDA_KEY].__IGNORE_KEY__.has(item) && set.add(item))
 
     proto = Object.getPrototypeOf(proto)
   }
@@ -160,41 +99,53 @@ export function getExposeKey(target: any) {
 export function getOwnIgnoreKey(target: any) {
   const proto: Phecda = getPhecdaFromTarget(target)
 
-  return [...proto[PHECDA_KEY]?.__IGNORE_KEY] as string[]
+  return [...proto[PHECDA_KEY]?.__IGNORE_KEY__] as string[]
 }
 
-export function getOwnHandler(target: any, key: PropertyKey) {
+export function setMeta(proto: Phecda, property: PropertyKey | undefined, meta: Record<string, any>) {
+  if (!property) {
+    property = SHARE_KEY
+    proto = proto.prototype
+  }
+  init(proto)
+  const oldMeta = proto[PHECDA_KEY].__META__.get(property) || []
+
+  oldMeta.push(meta)
+
+  proto[PHECDA_KEY].__META__.set(property, oldMeta)
+}
+
+// 获得含有meta的键，不包括internal Meta
+export function getOwnMetaKey(target: any) {
   const proto: Phecda = getPhecdaFromTarget(target)
-
-  return proto[PHECDA_KEY]?.__STATE_HANDLER__.get(key) || []
+  return [...proto[PHECDA_KEY].__META__.keys()]
 }
 
-export function getHandler(target: any, key: PropertyKey) {
+export function getMetaKey(target: any) {
   let proto: Phecda = getPhecdaFromTarget(target)
-  const set = new Set<any>()
+  const set = new Set<PropertyKey>()
   while (proto?.[PHECDA_KEY]) {
     if (proto.hasOwnProperty(PHECDA_KEY)) {
-      proto[PHECDA_KEY].__STATE_HANDLER__.get(key)?.forEach(item => set.add(item))
-      if (proto[PHECDA_KEY].__CLEAR_KEY.has(key))
-        break
+      for (const property of proto[PHECDA_KEY].__META__.keys())
+        set.add(property)
     }
+
     proto = Object.getPrototypeOf(proto)
   }
-
   return [...set]
 }
 
-export function getState(target: any, key: PropertyKey = SHARE_KEY) {
+export function getMeta(target: any, property: PropertyKey = SHARE_KEY) {
   let proto: Phecda = getPhecdaFromTarget(target)
-  let ret: any = {}
+  let ret: any[] = []
   while (proto?.[PHECDA_KEY]) {
     if (proto.hasOwnProperty(PHECDA_KEY)) {
-      const state = proto[PHECDA_KEY].__STATE_NAMESPACE__.get(key)
+      const meta = proto[PHECDA_KEY].__META__.get(property)
 
-      if (state)
-        ret = { ...state, ...ret }
+      if (meta)
+        ret = [...ret, ...meta]
 
-      if (proto[PHECDA_KEY].__CLEAR_KEY.has(key))
+      if (proto[PHECDA_KEY].__CLEAR_KEY__.has(property))
         break
     }
     proto = Object.getPrototypeOf(proto)
@@ -202,27 +153,17 @@ export function getState(target: any, key: PropertyKey = SHARE_KEY) {
 
   return ret
 }
-export function getOwnState(target: any, key: PropertyKey = SHARE_KEY): Record<string, any> {
+export function getOwnMeta(target: any, property: PropertyKey = SHARE_KEY): Record<string, any> {
   const proto: Phecda = getPhecdaFromTarget(target)
 
-  return proto[PHECDA_KEY].__STATE_NAMESPACE__.get(key) || {}
+  return proto[PHECDA_KEY].__META__.get(property) || []
 }
 
-export function invokeHandler(event: string, module: Phecda) {
-  const stateVars = getExposeKey(module) as PropertyKey[]
-
-  const initHandlers = stateVars.map((item) => {
-    return getHandler(module, item).filter(h => !!h[event]).map(h => h[event](module))
-  }).flat()
-
-  return module.__PROMISE_SYMBOL__ = Promise.all(initHandlers)
-}
-
-export function set(proto: any, key: string, value: any) {
+export function set(proto: any, property: string, value: any) {
   init(proto)
-  proto[`__${key.toUpperCase()}__`] = value
+  proto[`__${property.toUpperCase()}__`] = value
 }
 
-export function get(proto: any, key: string) {
-  return proto[`__${key.toUpperCase()}__`]
+export function get(proto: any, property: string) {
+  return proto[`__${property.toUpperCase()}__`]
 }

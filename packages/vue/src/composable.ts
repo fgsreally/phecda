@@ -28,7 +28,7 @@ export function usePhecda() {
   return cacheMap.get(activePhecda) as VuePhecda
 }
 
-function setStateToComponent(model: Construct) {
+function setMetaToComponent(model: Construct) {
   if (USE_DEVTOOLS) {
     const currentInstance = getCurrentInstance()
     if (currentInstance && currentInstance.proxy) {
@@ -65,7 +65,7 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
 // 还原模块
 
 export function useR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
-  setStateToComponent(model)
+  setMetaToComponent(model)
   return usePhecda().init(model) as any
 }
 
@@ -74,7 +74,7 @@ export function getR<T extends Construct>(model: T, phecda?: VuePhecda): UnwrapN
 }
 
 export function useV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
-  setStateToComponent(model)
+  setMetaToComponent(model)
 
   const instance = usePhecda().init(model)
 

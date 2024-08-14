@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { Clear, Ignore, SHARE_KEY, addDecoToClass, getExposeKey, getOwnExposeKey, getPhecdaFromTarget, getState, setState, setStateKey } from '../src'
+import { Clear, Ignore, SHARE_KEY, addDecoToClass, getExposeKey, getMeta, getOwnExposeKey, getPhecdaFromTarget, setExposeKey, setMeta } from '../src'
 
 describe('extends won\'t pollute namespace', () => {
   it('getPhecdaFromTarget', () => {
     function Test(target: any, key: any) {
-      setStateKey(target, key)
+      setExposeKey(target, key)
     }
     class A {
       @Test
@@ -16,7 +16,7 @@ describe('extends won\'t pollute namespace', () => {
   })
   it('expose keys', () => {
     function Test(target: any, key?: any) {
-      setStateKey(target, key)
+      setExposeKey(target, key)
     }
 
     @Test
@@ -61,10 +61,10 @@ describe('extends won\'t pollute namespace', () => {
     expect(getOwnExposeKey(E)).toMatchSnapshot()
   })
 
-  it('setState', () => {
+  it('setMeta', () => {
     function Test(value: any) {
       return (target: any, key: any) => {
-        setState(target, key, value)
+        setMeta(target, key, value)
       }
     }
     class A {
@@ -82,14 +82,14 @@ describe('extends won\'t pollute namespace', () => {
       x: string
     }
 
-    expect(getState(B, 'x')).toMatchSnapshot()
-    expect(getState(C, 'x')).toMatchSnapshot()
+    expect(getMeta(B, 'x')).toMatchSnapshot()
+    expect(getMeta(C, 'x')).toMatchSnapshot()
   })
 
   it('clear', () => {
     function Test(value: any) {
       return (target: any, key?: any) => {
-        setState(target, key, value)
+        setMeta(target, key, value)
       }
     }
 
@@ -111,16 +111,16 @@ describe('extends won\'t pollute namespace', () => {
       @Test({ c: 1 })
       x: string
     }
-    expect(getState(A)).toEqual({ tag: 'A' })
+    expect(getMeta(A)).toEqual({ tag: 'A' })
 
-    expect(getState(B, 'x')).toEqual({ b: 1 })
-    expect(getState(C, 'x')).toEqual({ b: 1, c: 1 })
+    expect(getMeta(B, 'x')).toEqual({ b: 1 })
+    expect(getMeta(C, 'x')).toEqual({ b: 1, c: 1 })
     addDecoToClass(C, 'x', Clear)
-    expect(getState(C, 'x')).toEqual({ c: 1 })
+    expect(getMeta(C, 'x')).toEqual({ c: 1 })
 
-    expect(getState(B)).toEqual({ tag: 'A' })
-    expect(getState(new B())).toEqual({ tag: 'A' })
+    expect(getMeta(B)).toEqual({ tag: 'A' })
+    expect(getMeta(new B())).toEqual({ tag: 'A' })
 
-    expect(getState(C)).toEqual({})
+    expect(getMeta(C)).toEqual({})
   })
 })

@@ -1,57 +1,46 @@
-import { PHECDA_KEY, SHARE_KEY, init, setExposeKey, setHandler, setIgnoreKey, setState, setStateKey } from '../core'
+import { PHECDA_KEY, SHARE_KEY, init, setExposeKey, setIgnoreKey, setMeta } from '../core'
 import type { Phecda } from '../types'
 
-export function Init(proto: any, key: PropertyKey) {
-  setStateKey(proto, key)
+export function Init(proto: any, property: PropertyKey) {
+  setExposeKey(proto, property)
 
-  setHandler(proto, key, {
+  setMeta(proto, property, {
     async init(instance: any) {
-      return instance[key]()
+      return instance[property]()
     },
   })
 }
 
-export function Unmount(proto: any, key: PropertyKey) {
-  setStateKey(proto, key)
+export function Unmount(proto: any, property: PropertyKey) {
+  setExposeKey(proto, property)
 
-  setHandler(proto, key, {
+  setMeta(proto, property, {
     async unmount(instance: any) {
-      return instance[key]()
+      return instance[property]()
     },
   })
 }
 
-// bind value
-// won't assign
-export function Bind(value: any) {
-  return (proto: any, k: PropertyKey) => {
-    setStateKey(proto, k)
-    setState(proto, k, {
-      value,
-    })
-  }
-}
-
-export function Ignore(proto: any, key?: PropertyKey) {
-  if (!key) {
+export function Ignore(proto: any, property?: PropertyKey) {
+  if (!property) {
     proto = proto.prototype
-    key = SHARE_KEY
+    property = SHARE_KEY
   };
-  setIgnoreKey(proto, key)
+  setIgnoreKey(proto, property)
 }
 
-export function Clear(proto: any, key?: PropertyKey) {
-  if (!key) {
+export function Clear(proto: any, property?: PropertyKey) {
+  if (!property) {
     proto = proto.prototype
-    key = SHARE_KEY
+    property = SHARE_KEY
   };
   init(proto);
 
-  (proto as Phecda)[PHECDA_KEY].__CLEAR_KEY.add(key)
+  (proto as Phecda)[PHECDA_KEY].__CLEAR_KEY__.add(property)
 }
 
-export function Expose(proto: any, key: PropertyKey) {
-  setExposeKey(proto, key)
+export function Expose(proto: any, property: PropertyKey) {
+  setExposeKey(proto, property)
 }
 
 export function Empty(model: any) {

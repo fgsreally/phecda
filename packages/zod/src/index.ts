@@ -1,9 +1,9 @@
 import type { ZodSchema, ZodTypeDef, z } from 'zod'
-import { addDecoToClass, setHandler, setStateKey } from 'phecda-core'
+import { addDecoToClass, setHandler, setMetaKey } from 'phecda-core'
 
 function ZodTo(cb: ((instance: any, addError: ((msg: string) => void)) => any)) {
   return (proto: any, key?: PropertyKey) => {
-    setStateKey(proto, key)
+    setMetaKey(proto, key)
     setHandler(proto, key, {
       async pipe(instance: any, addError: (msg: string) => void) {
         const ret = cb(instance, addError)

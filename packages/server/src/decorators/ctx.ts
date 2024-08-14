@@ -1,10 +1,10 @@
-import { SHARE_KEY, getState, setPropertyState } from 'phecda-core'
+import { SHARE_KEY, getMeta, setPropertyState } from 'phecda-core'
 import { mergeObject, shallowClone } from './helper'
 
 export const Ctx: PropertyDecorator = (target: any, key: PropertyKey) => {
   setPropertyState(target, SHARE_KEY, (state) => {
     if (!state.ctxs)
-      state.ctxs = new Set([...(getState(target)?.ctxs || [])])
+      state.ctxs = new Set([...(getMeta(target)?.ctxs || [])])
 
     state.ctxs.add(key)
   })
@@ -14,7 +14,7 @@ export function Define(key: string, value: any): any {
   return (target: any, k?: any, index?: number) => {
     if (typeof index === 'number') {
       setPropertyState(target, k, (state) => {
-        const parentState = getState(target, k)?.params || []
+        const parentState = getMeta(target, k)?.params || []
 
         if (!state.params)
           state.params = [...parentState].map(shallowClone)
@@ -28,7 +28,7 @@ export function Define(key: string, value: any): any {
       return
     }
     setPropertyState(target, k, (state) => {
-      const parentState = getState(target, k)?.define
+      const parentState = getMeta(target, k)?.define
       if (!state.define)
         state.define = mergeObject(parentState)
 

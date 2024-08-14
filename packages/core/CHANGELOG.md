@@ -65,7 +65,7 @@
 - c6427b1: refact Isolate
 - 7b0d6fa: fix addDecoToClass types
 - c2c6a5f: add setPropertyState/getShareState for convenience
-  add default param to getState
+  add default param to getMeta
   fix Clear/Ignore
 - 671fbc9: refactor functions in core.ts to support all module/instance/prototype
 - 4621244: refactor Err logic;
@@ -87,7 +87,7 @@
 ### Patch Changes
 
 - c2c6a5f: add setPropertyState/getShareState for convenience
-  add default param to getState
+  add default param to getMeta
   fix Clear/Ignore
 
 ## 3.0.0-beta.16

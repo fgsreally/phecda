@@ -1,17 +1,17 @@
-import { getState, setPropertyState } from 'phecda-core'
+import { getMeta, setPropertyState } from 'phecda-core'
 import { mergeObject } from './helper'
 
 export function Event(isEvent = true) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
-      state.rpc = mergeObject(state.rpc || getState(target, k)?.rpc, { isEvent })
+      state.rpc = mergeObject(state.rpc || getMeta(target, k)?.rpc, { isEvent })
     })
   }
 }
 export function Queue(queue = '') {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
-      state.rpc = mergeObject(state.rpc || getState(target, k)?.rpc, { queue })
+      state.rpc = mergeObject(state.rpc || getMeta(target, k)?.rpc, { queue })
     })
   }
 }

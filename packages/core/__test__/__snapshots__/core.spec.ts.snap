@@ -51,14 +51,14 @@ exports[`extends won't pollute namespace > expose keys 8`] = `
 ]
 `;
 
-exports[`extends won't pollute namespace > setState 1`] = `
+exports[`extends won't pollute namespace > setMeta 1`] = `
 {
   "a": 1,
   "b": 1,
 }
 `;
 
-exports[`extends won't pollute namespace > setState 2`] = `
+exports[`extends won't pollute namespace > setMeta 2`] = `
 {
   "a": 1,
   "b": 0,

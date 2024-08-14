@@ -1,10 +1,10 @@
-import { getState, setPropertyState } from 'phecda-core'
+import { getMeta, setPropertyState } from 'phecda-core'
 import { BaseParam } from './param'
 export function Guard(...guards: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       if (!state.guards)
-        state.guards = new Set([...(getState(target, k)?.guards || [])])
+        state.guards = new Set([...(getMeta(target, k)?.guards || [])])
 
       guards.forEach((guard) => {
         if (state.guards.has(guard))
@@ -20,7 +20,7 @@ export function Plugin(...plugins: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       if (!state.plugins)
-        state.plugins = new Set([...(getState(target, k)?.plugins || [])])
+        state.plugins = new Set([...(getMeta(target, k)?.plugins || [])])
 
       plugins.forEach((plugin) => {
         if (state.plugins.has(plugin))
@@ -36,7 +36,7 @@ export function Interceptor(...interceptors: string[]) {
   return (target: any, k?: PropertyKey) => {
     setPropertyState(target, k, (state) => {
       if (!state.interceptors)
-        state.interceptors = new Set([...(getState(target, k)?.interceptors || [])])
+        state.interceptors = new Set([...(getMeta(target, k)?.interceptors || [])])
 
       interceptors.forEach((interceptor) => {
         if (state.interceptors.has(interceptor))
