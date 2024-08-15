@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Clear, Ctx, Factory, Init, Injectable, Tag } from '../src'
+import { Clear, Ctx, createPhecda as Factory, Init, Injectable, Tag } from '../src'
 import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
 
@@ -177,6 +177,7 @@ describe('Factory ', () => {
 
     const { meta } = await Factory([A, B, C, D, E])
     const data = meta.map(item => item.data)
+    console.log(data)
     expect(data).toMatchSnapshot()
   })
 })

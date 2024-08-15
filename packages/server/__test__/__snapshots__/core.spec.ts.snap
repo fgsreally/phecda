@@ -4,9 +4,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
     "controller": "http",
-    "ctxs": Set {
-      "context",
-    },
+    "ctxs": undefined,
     "define": {},
     "filter": undefined,
     "func": "test",

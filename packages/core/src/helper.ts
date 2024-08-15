@@ -147,6 +147,10 @@ export function invokeInit(instance: any) {
   return instance.__PROMISE_SYMBOL__ = invoke(instance, 'init')
 }
 
+export function invokeUnmount(instance: any) {
+  return instance.__PROMISE_SYMBOL__ = invoke(instance, 'unmount')
+}
+
 export function If(value: Boolean, ...decorators: (ClassDecorator[]) | (PropertyDecorator[]) | (ParameterDecorator[])) {
   if (value) {
     return (...args: any[]) => {
@@ -156,4 +160,32 @@ export function If(value: Boolean, ...decorators: (ClassDecorator[]) | (Property
   }
 
   return () => { }
+}
+
+export function getMergedMeta(target: any, property?: PropertyKey, merger: (prev: any, cur: any) => any = defaultMerger) {
+  const meta = getMeta(target, property)
+
+  return meta.reduce((p, c) => {
+    return merger(p, c)
+  }, {})
+}
+
+function defaultMerger(prev: any, cur: any) {
+  const newMeta: any = {}
+  for (const key in prev)
+    newMeta[key] = prev[key]
+  for (const key in cur) {
+    if (newMeta[key] && cur[key]) {
+      if (Array.isArray(newMeta[key]) && Array.isArray(cur[key]))
+        newMeta[key] = [...new Set(...newMeta[key], ...cur[key])]
+      else if (typeof newMeta[key] === 'object' && typeof cur[key] === 'object')
+        newMeta[key] = defaultMerger(newMeta[key], cur[key])
+      else
+        newMeta[key] = cur[key]
+    }
+    else {
+      newMeta[key] = cur[key]
+    }
+  }
+  return newMeta
 }

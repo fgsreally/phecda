@@ -1,21 +1,12 @@
-import { getMeta, setPropertyState } from 'phecda-core'
-import { shallowClone } from './helper'
+import { setMeta } from 'phecda-core'
 
 export function BaseParam(data: Record<string, any>): ParameterDecorator {
-  return (target: any, k: PropertyKey | undefined, index: number) => {
-    if (!k)
+  return (target: any, property: PropertyKey | undefined, index: number) => {
+    if (!property)
       return
-    setPropertyState(target, k, (state) => {
-      if (!state.params)
-        state.params = [...(getMeta(target, k)?.params || [])].map(shallowClone)
 
-      const existItem = state.params.find((item: any) => item.index === index)
-
-      if (existItem)
-        Object.assign(existItem, data)
-
-      else
-        state.params.push({ ...data, index })
+    setMeta(target, property, {
+      params: [{ ...data, index }],
     })
   }
 }

@@ -108,6 +108,7 @@ export function setMeta(proto: Phecda, property: PropertyKey | undefined, meta: 
     proto = proto.prototype
   }
   init(proto)
+  setExposeKey(proto, property)
   const oldMeta = proto[PHECDA_KEY].__META__.get(property) || []
 
   oldMeta.push(meta)
@@ -143,7 +144,7 @@ export function getMeta(target: any, property: PropertyKey = SHARE_KEY) {
       const meta = proto[PHECDA_KEY].__META__.get(property)
 
       if (meta)
-        ret = [...ret, ...meta]
+        ret = [...meta, ...ret]
 
       if (proto[PHECDA_KEY].__CLEAR_KEY__.has(property))
         break
