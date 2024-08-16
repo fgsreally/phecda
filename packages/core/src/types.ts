@@ -18,13 +18,7 @@ export interface Phecda {
   __PROMISE_SYMBOL__: Promise<any>
   [PHECDA_KEY]: {
 
-    __EXPOSE_KEY__: Set<PropertyKey>
-
-    __IGNORE_KEY__: Set<PropertyKey>
-
-    __CLEAR_KEY__: Set<PropertyKey>
-
-    __META__: Map<PropertyKey, any[]>
+    __META__: Map<PropertyKey, { data: any[]; params: Map<number, any> }>
 
     // [key: string]: any
   }

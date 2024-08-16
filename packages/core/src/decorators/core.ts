@@ -1,10 +1,7 @@
-import { PHECDA_KEY, SHARE_KEY, init, setExposeKey, setIgnoreKey, setMeta } from '../core'
-import type { Phecda } from '../types'
+import { init, setMeta } from '../core'
 
 export function Init(proto: any, property: PropertyKey) {
-  setExposeKey(proto, property)
-
-  setMeta(proto, property, {
+  setMeta(proto, property, undefined, {
     async init(instance: any) {
       return instance[property]()
     },
@@ -12,35 +9,15 @@ export function Init(proto: any, property: PropertyKey) {
 }
 
 export function Unmount(proto: any, property: PropertyKey) {
-  setExposeKey(proto, property)
-
-  setMeta(proto, property, {
+  setMeta(proto, property, undefined, {
     async unmount(instance: any) {
       return instance[property]()
     },
   })
 }
 
-export function Ignore(proto: any, property?: PropertyKey) {
-  if (!property) {
-    proto = proto.prototype
-    property = SHARE_KEY
-  };
-  setIgnoreKey(proto, property)
-}
-
-export function Clear(proto: any, property?: PropertyKey) {
-  if (!property) {
-    proto = proto.prototype
-    property = SHARE_KEY
-  };
-  init(proto);
-
-  (proto as Phecda)[PHECDA_KEY].__CLEAR_KEY__.add(property)
-}
-
-export function Expose(proto: any, property: PropertyKey) {
-  setExposeKey(proto, property)
+export function Expose(proto: any, property?: PropertyKey, index?: number) {
+  setMeta(proto, property, index, {})
 }
 
 export function Empty(model: any) {

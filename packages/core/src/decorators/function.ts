@@ -1,4 +1,4 @@
-import { init, set, setExposeKey, setMeta } from '../core'
+import { init, set, setMeta } from '../core'
 import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
 import { getInject } from '../di'
@@ -22,8 +22,7 @@ export function Unique(desc?: string) {
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
   return (model: any) => {
-    setExposeKey(model)
-    setMeta(model, undefined, {
+    setMeta(model, undefined, undefined, {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -36,8 +35,7 @@ export function Assign(cb: (instance?: any) => any) {
 }
 
 export function Global(model: any) {
-  setExposeKey(model)
-  setMeta(model, undefined, {
+  setMeta(model, undefined, undefined, {
     init: async (instance: any) => {
       const tag = getTag(instance)
 
@@ -51,8 +49,7 @@ export function Global(model: any) {
 // @todo  when function return a Promise
 export function Err(cb: (e: Error | any, instance: any, property: string) => void, isCatch = false) {
   return (proto: any, property: PropertyKey) => {
-    setExposeKey(proto, property)
-    setMeta(proto, property, {
+    setMeta(proto, property, undefined, {
       init: (instance: any) => {
         if (typeof instance[property] === 'function') {
           const oldFn = instance[property].bind(instance)
@@ -104,8 +101,7 @@ export interface WatcherParam {
 export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
   let cb: Function
   return (proto: any, property: string) => {
-    setExposeKey(proto, property)
-    setMeta(proto, property, {
+    setMeta(proto, property, undefined, {
       init(instance: any) {
         return cb = getInject('watcher')?.({ eventName, instance, property, options })
       },
@@ -118,8 +114,7 @@ export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
 
 export function Effect(cb: (value: any, instance: any, property: string) => void) {
   return (proto: any, property: string) => {
-    setExposeKey(proto, property)
-    setMeta(proto, property, {
+    setMeta(proto, property, undefined, {
       init(instance: any) {
         instance[`$_${property}`] = instance[property]
         Object.defineProperty(instance, property, {
@@ -149,16 +144,11 @@ export function Storage({ key, json, stringify }: {
     stringify = v => JSON.stringify(v)
 
   return (proto: any, property?: PropertyKey) => {
-    // @todo
-    // if (typeof proto === 'function')
-    //   proto = proto.prototype
-
     const tag = key || getTag(proto)
 
     init(proto)
 
-    setExposeKey(proto, property)
-    setMeta(proto, property, {
+    setMeta(proto, property, undefined, {
       init: (instance: any) => {
         return getInject('storage')?.({ instance, property, tag, toJSON: json, toString: stringify })
       },
