@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`helper > use function to add decorator 1`] = `
+exports[`helper > add decorator 1`] = `
 [
   "name",
 ]

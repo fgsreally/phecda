@@ -162,8 +162,8 @@ export function If(value: Boolean, ...decorators: (ClassDecorator[]) | (Property
   return () => { }
 }
 
-export function getMergedMeta(target: any, property?: PropertyKey, merger: (prev: any, cur: any) => any = defaultMerger) {
-  const meta = getMeta(target, property)
+export function getMergedMeta(target: any, property?: PropertyKey, index?: number, merger: (prev: any, cur: any) => any = defaultMerger) {
+  const meta = getMeta(target, property, index)
 
   return meta.reduce((p, c) => {
     return merger(p, c)
@@ -176,12 +176,19 @@ function defaultMerger(prev: any, cur: any) {
     newMeta[key] = prev[key]
   for (const key in cur) {
     if (newMeta[key] && cur[key]) {
-      if (Array.isArray(newMeta[key]) && Array.isArray(cur[key]))
-        newMeta[key] = [...new Set(...newMeta[key], ...cur[key])]
-      else if (typeof newMeta[key] === 'object' && typeof cur[key] === 'object')
+      if (Array.isArray(newMeta[key]) && Array.isArray(cur[key])) {
+        const set = new Set(newMeta[key])
+        cur[key].forEach((item) => {
+          set.delete(item)
+          set.add(item)
+        })
+
+        newMeta[key] = [...set]
+      }
+      else if (typeof newMeta[key] === 'object' && typeof cur[key] === 'object') {
         newMeta[key] = defaultMerger(newMeta[key], cur[key])
-      else
-        newMeta[key] = cur[key]
+      }
+      else { newMeta[key] = cur[key] }
     }
     else {
       newMeta[key] = cur[key]
