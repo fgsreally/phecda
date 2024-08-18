@@ -2,23 +2,16 @@ import { setMeta } from 'phecda-core'
 
 export function Route(route: string, type: string): MethodDecorator {
   return (target: any, property: PropertyKey) => {
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       http: {
         route, type,
       },
     })
-    // setPropertyState(target, k, (state) => {
-    //   state.http = mergeObject((state.http || getMeta(target, k)?.http),
-    //     {
-    //       route,
-    //       type,
-    //     })
-    // })
   }
 }
 export function Header(headers: Record<string, string>): MethodDecorator {
   return (target: any, property: PropertyKey) => {
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       http: {
         headers,
       },
@@ -46,7 +39,7 @@ export function Delete(route = '') {
 
 export function Controller(prefix = '') {
   return (target: any) => {
-    setMeta(target, undefined, {
+    setMeta(target, undefined, undefined, {
       controller: 'http',
       http: { prefix },
     })

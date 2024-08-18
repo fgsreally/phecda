@@ -5,9 +5,7 @@ export function BaseParam(data: Record<string, any>): ParameterDecorator {
     if (!property)
       return
 
-    setMeta(target, property, {
-      params: [{ ...data, index }],
-    })
+    setMeta(target, property, index, data)
   }
 }
 

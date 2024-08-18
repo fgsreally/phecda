@@ -4,7 +4,9 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
     "controller": "http",
-    "ctxs": undefined,
+    "ctxs": [
+      "context",
+    ],
     "define": {},
     "filter": undefined,
     "func": "test",
@@ -105,145 +107,6 @@ exports[`Factory  > In extended case 1`] = `
     ],
     "plugins": [],
     "tag": "B",
-  },
-]
-`;
-
-exports[`Factory  > decorator in extends case 1`] = `
-[
-  {
-    "controller": "http",
-    "ctxs": undefined,
-    "define": {},
-    "filter": undefined,
-    "func": "test",
-    "guards": [
-      "A",
-      "test",
-    ],
-    "http": {
-      "prefix": "",
-      "route": "",
-      "type": "post",
-    },
-    "interceptors": [],
-    "name": "A",
-    "params": [
-      {
-        "define": {},
-        "index": 0,
-        "key": "",
-        "pipe": undefined,
-        "type": "body",
-      },
-    ],
-    "plugins": [],
-    "tag": "A",
-  },
-  {
-    "controller": "http",
-    "ctxs": undefined,
-    "define": {
-      "class": "b",
-      "method": "b",
-    },
-    "filter": undefined,
-    "func": "test",
-    "guards": [
-      "A",
-      "test",
-      "test3",
-      "test2",
-    ],
-    "http": {
-      "headers": {
-        "b": "b",
-        "key": "b",
-      },
-      "prefix": "",
-      "route": "",
-      "type": "post",
-    },
-    "interceptors": [],
-    "name": "B",
-    "params": [
-      {
-        "define": {
-          "b": "b",
-        },
-        "index": 0,
-        "key": "",
-        "pipe": undefined,
-        "type": "body",
-      },
-    ],
-    "plugins": [],
-    "tag": "B",
-  },
-  {
-    "controller": "http",
-    "ctxs": undefined,
-    "define": {
-      "class": "c",
-      "method": "c",
-    },
-    "filter": undefined,
-    "func": "test",
-    "guards": [
-      "A",
-      "test3",
-      "test2",
-      "test",
-    ],
-    "http": {
-      "headers": {
-        "b": "b",
-        "c": "c",
-        "key": "c",
-      },
-      "prefix": "",
-      "route": "/test",
-      "type": "post",
-    },
-    "interceptors": [],
-    "name": "C",
-    "params": [
-      {
-        "define": {
-          "b": "b",
-          "c": "c",
-        },
-        "index": 0,
-        "key": "",
-        "pipe": "C",
-        "type": "body",
-      },
-    ],
-    "plugins": [],
-    "tag": "C",
-  },
-  {
-    "controller": "http",
-    "ctxs": undefined,
-    "define": {},
-    "filter": undefined,
-    "func": "test",
-    "guards": [
-      "A",
-    ],
-    "http": {
-      "prefix": "",
-    },
-    "interceptors": [],
-    "name": "D",
-    "params": [],
-    "plugins": [],
-    "tag": "D",
-  },
-  {
-    "func": "test",
-    "name": "E",
-    "tag": "E",
   },
 ]
 `;

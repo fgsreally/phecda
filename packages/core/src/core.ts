@@ -128,19 +128,22 @@ export function getMetaKey(target: any) {
   return [...set]
 }
 
-export function getOwnMetaParmas(target: any, key: PropertyKey = SHARE_KEY) {
+export function getOwnMetaParams(target: any, key: PropertyKey = SHARE_KEY) {
   const proto: Phecda = getPhecdaFromTarget(target)
   const { params } = proto[PHECDA_KEY].__META__.get(key)!
-  return params.keys()
+  return [...params.keys()]
 }
 
-export function getMetaParmas(target: any, key: PropertyKey = SHARE_KEY) {
+export function getMetaParams(target: any, key: PropertyKey = SHARE_KEY) {
   let proto: Phecda = getPhecdaFromTarget(target)
-  const set = new Set<PropertyKey>()
+  const set = new Set<number>()
   while (proto?.[PHECDA_KEY]) {
     if (proto.hasOwnProperty(PHECDA_KEY)) {
-      for (const index of proto[PHECDA_KEY].__META__.get(key)!.params.keys())
-        set.add(index)
+      const meta = proto[PHECDA_KEY].__META__.get(key)
+      if (meta) {
+        for (const index of meta.params.keys())
+          set.add(index)
+      }
     }
 
     proto = Object.getPrototypeOf(proto)
@@ -154,10 +157,16 @@ export function getMeta(target: any, property: PropertyKey = SHARE_KEY, index?: 
   while (proto?.[PHECDA_KEY]) {
     if (proto.hasOwnProperty(PHECDA_KEY)) {
       const meta = proto[PHECDA_KEY].__META__.get(property)!
-      if (typeof index === 'number')
-        ret.unshift(...meta.params.get(index))
-      else
-        ret.unshift(...meta.data)
+
+      if (meta) {
+        if (typeof index === 'number') {
+          const paramMeta = meta.params.get(index)
+
+          if (paramMeta)
+            ret.unshift(...paramMeta)
+        }
+        else { ret.unshift(...meta.data) }
+      }
     }
     proto = Object.getPrototypeOf(proto)
   }

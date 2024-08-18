@@ -1,13 +1,16 @@
 import { expect } from 'vitest'
-import { Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpContext, Interceptor, Param, Pipe, Plugin, Post, Query, To } from '../../src'
+import { Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpContext, Interceptor, Param, Pipe, Plugin, Post, Query, addPipe } from '../../src'
 class Info {
-  @To((p) => {
-    if (p !== 'phecda')
-      throw new Error('name should be phecda')
-    return p
-  })
   name: string
 }
+
+addPipe('default', ({ arg, reflect }) => {
+  if (reflect === Info) {
+    if (arg.name !== 'phecda')
+      throw new Error('name should be phecda')
+  }
+  return arg
+})
 
 @Controller('')
 export class Test {

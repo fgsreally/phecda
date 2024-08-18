@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Expose, getMergedMeta, getMeta, getMetaParmas, getPhecdaFromTarget, setMeta } from '../src'
+import { Expose, getMergedMeta, getMeta, getMetaParams, getPhecdaFromTarget, setMeta } from '../src'
 
 describe('set meta', () => {
   it('getPhecdaFromTarget', () => {
@@ -55,11 +55,11 @@ describe('set meta', () => {
       }
     }
 
-    expect(getMetaParmas(B, 'x')).toMatchSnapshot()
+    expect(getMetaParams(B, 'x')).toMatchSnapshot()
     expect(getMeta(B, 'x')).toMatchSnapshot()
     expect(getMeta(B, 'x', 0)).toMatchSnapshot()
 
-    expect(getMetaParmas(C, 'x')).toMatchSnapshot()
+    expect(getMetaParams(C, 'x')).toMatchSnapshot()
     expect(getMeta(C, 'x')).toMatchSnapshot()
     expect(getMeta(C, 'x', 0)).toMatchSnapshot()
 
@@ -90,10 +90,10 @@ describe('set meta', () => {
       }
     }
 
-    expect(getMetaParmas(B)).toMatchSnapshot()
+    expect(getMetaParams(B)).toMatchSnapshot()
     expect(getMeta(B)).toMatchSnapshot()
     expect(getMeta(B, undefined, 0)).toMatchSnapshot()
-    expect(getMetaParmas(C)).toMatchSnapshot()
+    expect(getMetaParams(C)).toMatchSnapshot()
     expect(getMeta(C)).toMatchSnapshot()
     expect(getMeta(C, undefined, 0)).toMatchSnapshot()
     expect(getMergedMeta(C)).toEqual(expectData)

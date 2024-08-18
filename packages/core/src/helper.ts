@@ -164,7 +164,6 @@ export function If(value: Boolean, ...decorators: (ClassDecorator[]) | (Property
 
 export function getMergedMeta(target: any, property?: PropertyKey, index?: number, merger: (prev: any, cur: any) => any = defaultMerger) {
   const meta = getMeta(target, property, index)
-
   return meta.reduce((p, c) => {
     return merger(p, c)
   }, {})
@@ -178,7 +177,7 @@ function defaultMerger(prev: any, cur: any) {
     if (newMeta[key] && cur[key]) {
       if (Array.isArray(newMeta[key]) && Array.isArray(cur[key])) {
         const set = new Set(newMeta[key])
-        cur[key].forEach((item) => {
+        cur[key].forEach((item: any) => {
           set.delete(item)
           set.add(item)
         })

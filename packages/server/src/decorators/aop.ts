@@ -2,7 +2,7 @@ import { setMeta } from 'phecda-core'
 import { BaseParam } from './param'
 export function Guard(...guards: string[]) {
   return (target: any, property?: PropertyKey) => {
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       guards,
     })
 
@@ -22,7 +22,7 @@ export function Guard(...guards: string[]) {
 
 export function Plugin(...plugins: string[]) {
   return (target: any, property?: PropertyKey) => {
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       plugins,
     })
   }
@@ -30,14 +30,14 @@ export function Plugin(...plugins: string[]) {
 
 export function Interceptor(...interceptors: string[]) {
   return (target: any, property?: PropertyKey) => {
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       interceptors,
     })
   }
 }
 export function Filter(filter: string) {
   return (target: any, property?: PropertyKey) => {
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       filter,
     })
   }
@@ -49,7 +49,7 @@ export function Pipe(pipe?: string) {
 
       return
     }
-    setMeta(target, property, {
+    setMeta(target, property, undefined, {
       pipe,
     })
   }
