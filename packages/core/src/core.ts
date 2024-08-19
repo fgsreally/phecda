@@ -3,7 +3,9 @@ import type { Construct, Phecda } from './types'
 
 // 有的时候，类上多个方法、属性需要共用一些东西
 // SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
-export const SHARE_KEY = Symbol('phecda')
+export const SHARE_KEY = Symbol('phecda[share]')
+export const CLEAR_KEY = Symbol('phecda[clear]')
+
 export const PHECDA_KEY = Symbol('phecda')
 // type safe
 // 由于绝大部分的后续使用都是通过实例化（不支持抽象类），故不加AbConstruct
@@ -148,7 +150,7 @@ export function getMetaParams(target: any, key: PropertyKey = SHARE_KEY) {
 
     proto = Object.getPrototypeOf(proto)
   }
-  return [...set]
+  return [...set].sort((a, b) => a - b)
 }
 
 export function getMeta(target: any, property: PropertyKey = SHARE_KEY, index?: number) {
@@ -162,10 +164,18 @@ export function getMeta(target: any, property: PropertyKey = SHARE_KEY, index?: 
         if (typeof index === 'number') {
           const paramMeta = meta.params.get(index)
 
-          if (paramMeta)
+          if (paramMeta) {
+            if (paramMeta.some((item: any) => item[CLEAR_KEY]))
+              break
             ret.unshift(...paramMeta)
+          }
         }
-        else { ret.unshift(...meta.data) }
+        else {
+          if (meta.data.some((item: any) => item[CLEAR_KEY]))
+            break
+
+          ret.unshift(...meta.data)
+        }
       }
     }
     proto = Object.getPrototypeOf(proto)

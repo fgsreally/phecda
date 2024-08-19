@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Assign, Effect, Err, If, Init, Isolate, get, invokeInit } from '../src'
+import { Assign, Clear, Effect, Err, Expose, If, Init, Isolate, get, getMeta, invokeInit } from '../src'
 
 describe('decorators', () => {
   it('init', async () => {
@@ -76,7 +76,7 @@ describe('decorators', () => {
     const fn = vi.fn(v => v)
     class Test {
       @Effect(fn)
-      key = 10
+            key = 10
     }
 
     const instance = new Test() as any
@@ -88,5 +88,20 @@ describe('decorators', () => {
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveReturnedWith(20)
     expect(instance.key).toBe(20)
+  })
+
+  it('Clear', () => {
+    class A {
+      @Expose
+            name: string
+    }
+
+    class B extends A {
+      @Clear
+            name: string
+    }
+
+    expect(getMeta(A, 'name').length).toBe(1)
+    expect(getMeta(B, 'name').length).toBe(0)
   })
 })

@@ -211,7 +211,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
         ...meta[baseMeta.controller],
       }
 
-      const params = getMetaParams(instance, i).sort((a, b) => a - b).map(item => getMergedMeta(instance, i, item))
+      const params = getMetaParams(instance, i).map(item => getMergedMeta(instance, i, item))
       params.forEach((item, index) => {
         if (!item.pipe)
           item.pipe = meta.pipe || baseMeta.pipe
