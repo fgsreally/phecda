@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Clear, Ctx, createPhecda as Factory, Init, Injectable, Tag } from '../src'
+import { Ctx, createPhecda as Factory, Init, Injectable, Tag } from '../src'
 import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
 
@@ -127,44 +127,44 @@ describe('Factory ', () => {
     expect(fn).toHaveBeenCalledTimes(2)
   })
 
-  // it('decorator in extends case', async () => {
-  //   @Controller()
-  //   @Guard('A')
+  it('decorator in extends case', async () => {
+    @Controller()
+    @Guard('A')
 
-  //   class A {
-  //     @Guard('test')
-  //     @Post()
-  //     test(@Body() body: any) {
-  //       return body
-  //     }
-  //   }
-  //   @Define('class', 'b')
+    class A {
+      @Guard('test')
+      @Post()
+      test(@Body() body: any) {
+        return body
+      }
+    }
+    @Define('class', 'b')
 
-  //   class B extends A {
-  //     @Guard('test2')
-  //     @Guard('test3')
-  //     @Header({ key: 'b', b: 'b' })
-  //     @Define('method', 'b')
+    class B extends A {
+      @Guard('test2')
+      @Guard('test3')
+      @Header({ key: 'b', b: 'b' })
+      @Define('method', 'b')
 
-  //     test(@Define('b', 'b') body: any) {
-  //       super.test(body)
-  //     }
-  //   }
+      test(@Define('b', 'b') body: any) {
+        super.test(body)
+      }
+    }
 
-  //   @Define('class', 'c')
-  //   class C extends B {
-  //     @Header({ key: 'c', c: 'c' })
-  //     @Guard('test')
-  //     @Post('/test')
-  //     @Define('method', 'c')
+    @Define('class', 'c')
+    class C extends B {
+      @Header({ key: 'c', c: 'c' })
+      @Guard('test')
+      @Post('/test')
+      @Define('method', 'c')
 
-  //     test(@Pipe('C') @Define('c', 'c') body: any) {
-  //       super.test(body)
-  //     }
-  //   }
+      test(@Pipe('C') @Define('c', 'c') body: any) {
+        super.test(body)
+      }
+    }
 
-  //   const { meta } = await Factory([A, B, C])
-  //   const data = meta.map(item => item.data)
-  //   expect(data).toMatchSnapshot()
-  // })
+    const { meta } = await Factory([A, B, C])
+    const data = meta.map(item => item.data)
+    expect(data).toMatchSnapshot()
+  })
 })

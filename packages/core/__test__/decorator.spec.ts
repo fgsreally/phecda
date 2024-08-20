@@ -98,10 +98,12 @@ describe('decorators', () => {
 
     class B extends A {
       @Clear
+      @Expose
             name: string
     }
 
     expect(getMeta(A, 'name').length).toBe(1)
-    expect(getMeta(B, 'name').length).toBe(0)
+
+    expect(getMeta(B, 'name').length).toBe(2)
   })
 })

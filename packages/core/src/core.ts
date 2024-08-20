@@ -165,16 +165,15 @@ export function getMeta(target: any, property: PropertyKey = SHARE_KEY, index?: 
           const paramMeta = meta.params.get(index)
 
           if (paramMeta) {
+            ret.unshift(...paramMeta)
             if (paramMeta.some((item: any) => item[CLEAR_KEY]))
               break
-            ret.unshift(...paramMeta)
           }
         }
         else {
+          ret.unshift(...meta.data)
           if (meta.data.some((item: any) => item[CLEAR_KEY]))
             break
-
-          ret.unshift(...meta.data)
         }
       }
     }

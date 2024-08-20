@@ -1,4 +1,4 @@
-import { get, getMeta, getMetaKey } from './core'
+import { CLEAR_KEY, get, getMeta, getMetaKey } from './core'
 import type { AbConstruct, Construct } from './types'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
@@ -171,9 +171,17 @@ export function getMergedMeta(target: any, property?: PropertyKey, index?: numbe
 
 function defaultMerger(prev: any, cur: any) {
   const newMeta: any = {}
-  for (const key in prev)
+  for (const key in prev) {
+    if (key === CLEAR_KEY as any)
+      continue
+
     newMeta[key] = prev[key]
+  }
+
   for (const key in cur) {
+    if (key === CLEAR_KEY as any)
+      continue
+
     if (newMeta[key] && cur[key]) {
       if (Array.isArray(newMeta[key]) && Array.isArray(cur[key])) {
         const set = new Set(newMeta[key])
