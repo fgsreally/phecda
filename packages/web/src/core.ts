@@ -1,5 +1,5 @@
 /* eslint-disable new-cap */
-import { get, getTag, invokeHandler } from 'phecda-core'
+import { get, getTag, invokeInit, invokeUnmount } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 import 'reflect-metadata'
 import mitt, { Handler, WildcardHandler } from 'mitt'
@@ -126,7 +126,7 @@ export class WebPhecda {
 
       if (typeof window !== 'undefined') {
         this.emit('Initialize', { tag })
-        invokeHandler('init', instance)
+        invokeInit(instance)
       }
       return instance
     }
@@ -216,7 +216,7 @@ export class WebPhecda {
     this.emit('Unmount', { tag })
 
     const { state } = this
-    await invokeHandler('unmount', this.get(tag))
+    await invokeUnmount(this.get(tag))
     delete state[tag]
   }
 
