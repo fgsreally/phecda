@@ -2,23 +2,23 @@
   "name": "phecda-core",
   "version": "3.1.1",
   "description": "provide base function and abstract limit to other phecda module ",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup"
-  },
+  "author": "fgsreally",
+  "license": "MIT",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/core",
   "keywords": [
     "phecda",
     "core"
   ],
-  "author": "fgsreally",
-  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/core",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "license": "MIT",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
   "devDependencies": {
     "tsup": "^8.1.0"
   }

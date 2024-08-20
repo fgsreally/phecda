@@ -1,21 +1,10 @@
 import type { ZodSchema, ZodTypeDef, z } from 'zod'
-import { addDecoToClass, setHandler, setMetaKey } from 'phecda-core'
+import { addDecoToClass, getMeta, setMeta } from 'phecda-core'
 
-function ZodTo(cb: ((instance: any, addError: ((msg: string) => void)) => any)) {
-  return (proto: any, key?: PropertyKey) => {
-    setMetaKey(proto, key)
-    setHandler(proto, key, {
-      async pipe(instance: any, addError: (msg: string) => void) {
-        const ret = cb(instance, addError)
-
-        if (ret) {
-          for (const key in instance)
-            delete instance[key]
-
-          for (const key in ret)
-            instance[key] = ret[key]
-        }
-      },
+function ZodTo(zod: ZodSchema) {
+  return (proto: any) => {
+    setMeta(proto, undefined, undefined, {
+      zod,
     })
   }
 }
@@ -27,21 +16,19 @@ export function zodToClass<
 } {
   class Z {
     constructor(data: any) {
-      for (const key in data)
-        // @ts-expect-error trick
-        this[key] = data[key]
+      Object.assign(this, data)
     }
 
     static schema = zod
   }
 
-  addDecoToClass(Z, undefined, ZodTo((ins, addError) => {
-    const result = zod.safeParse(ins)
-    if (!result.success)
-      result.error.issues.forEach(({ message }) => addError(message))
-
-    else return result.data
-  }))
+  addDecoToClass(Z, undefined, ZodTo(zod))
 
   return Z as any
+}
+
+export function parse<Construct extends ReturnType<typeof zodToClass>>(C: Construct, data: ConstructorParameters<Construct>[0]) {
+  const meta = getMeta(C)
+  const zod = meta.find(item => !!item.zod).zod as ZodSchema
+  return zod.safeParse(data)
 }
