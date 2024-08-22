@@ -1,15 +1,7 @@
-const isString = Rule(data => typeof data === 'string', 'it should be a string')
-
 export class User {
-  @isString
   name: string
 
-  @isString
   password: string
-
-  getRandom() {
-    return this.name + Math.random()
-  }
 }
 
 @Controller('/base')
@@ -35,7 +27,7 @@ export class TestController extends HttpBase {
   // @Plugin()
   login(@Body() user: User) {
     this.service.login(user)
-    return user.getRandom()
+    return user.name + Math.random()
   }
 
   @Get('/test')

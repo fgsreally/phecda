@@ -21,8 +21,5 @@ describe('phecda-zod', () => {
     expect(ret2.success).toBeTruthy()
     expect(ret2.data).toMatchSnapshot()
     expect('xx' in ret2.data).toBe(false)
-
-    // expect(UserModel.schema).toBeDefined()
-    // expect(instance).toMatchSnapshot()
   })
 })

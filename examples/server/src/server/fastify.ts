@@ -1,6 +1,6 @@
 import { bind } from 'phecda-server/fastify'
 
-import { Factory, HTTPGenerator } from 'phecda-server'
+import { Factory, HTTPGenerator, log } from 'phecda-server'
 import Fastify from 'fastify'
 import cookie from '@fastify/cookie'
 import { TestController } from './test.controller'
@@ -47,6 +47,5 @@ fastify.listen({ port: 3008 }, (err) => {
     process.exit(1)
   }
 
-  // eslint-disable-next-line no-console
-  console.log('start listening..')
+  log('started Fastify')
 })

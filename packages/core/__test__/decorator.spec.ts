@@ -104,6 +104,6 @@ describe('decorators', () => {
 
     expect(getMeta(A, 'name').length).toBe(1)
 
-    expect(getMeta(B, 'name').length).toBe(2)
+    expect(getMeta(B, 'name').length).toBe(0)
   })
 })

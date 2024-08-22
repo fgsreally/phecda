@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import { Arg, Event, Queue, type RpcContext } from 'phecda-server'
+import { Arg, Queue, type RpcContext } from 'phecda-server'
 
 @Rpc()
 export class TestRpc {
   @Ctx
 
-context: RpcContext
+  context: RpcContext
 
   @Queue()
   run(@Arg arg: string) {
@@ -13,8 +13,7 @@ context: RpcContext
     return arg
   }
 
-  @Queue('test')
-  @Event()
+  @Queue('test', true)
   event(@Arg arg: string) {
     console.log(`arg is ${arg}`)
   }

@@ -162,17 +162,23 @@ export function getMeta(target: any, property: PropertyKey = SHARE_KEY, index?: 
 
       if (meta) {
         if (typeof index === 'number') {
-          const paramMeta = meta.params.get(index)
+          const paramMeta = meta.params.get(index) as any[]
 
           if (paramMeta) {
-            ret.unshift(...paramMeta)
-            if (paramMeta.some((item: any) => item[CLEAR_KEY]))
+            // ret.unshift(...paramMeta)
+            const index = paramMeta.findIndex((item: any) => item[CLEAR_KEY])
+
+            ret.unshift(...paramMeta.slice(index + 1))
+
+            if (index > -1)
               break
           }
         }
         else {
-          ret.unshift(...meta.data)
-          if (meta.data.some((item: any) => item[CLEAR_KEY]))
+          const index = meta.data.findIndex((item: any) => item[CLEAR_KEY])
+          ret.unshift(...meta.data.slice(index + 1))
+
+          if (index > -1)
             break
         }
       }
