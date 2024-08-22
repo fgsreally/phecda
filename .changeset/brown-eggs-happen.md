@@ -5,6 +5,7 @@
 "phecda-vue": major
 "phecda-web": major
 "phecda-zod": major
+"phecda-react": major
 ---
 
 release core v4
