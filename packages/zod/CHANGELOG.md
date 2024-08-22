@@ -1,5 +1,21 @@
 # phecda-zod
 
+## 2.0.0
+
+### Major Changes
+
+- 831c910: release core v4
+
+  1. refactor how meta is set and get
+  2. refactor Phecda target structure
+  3. remove some useless decorators
+
+### Patch Changes
+
+- a0b800e: ZodTo should not exclude '\_value'
+- Updated dependencies [831c910]
+  - phecda-core@4.0.0
+
 ## 1.0.5
 
 ### Patch Changes
