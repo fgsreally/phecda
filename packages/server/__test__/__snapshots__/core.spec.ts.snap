@@ -4,9 +4,9 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
     "controller": "http",
-    "ctxs": Set {
+    "ctxs": [
       "context",
-    },
+    ],
     "define": {},
     "filter": undefined,
     "func": "test",
@@ -170,9 +170,7 @@ exports[`Factory  > decorator in extends case 1`] = `
     "name": "B",
     "params": [
       {
-        "define": {
-          "b": "b",
-        },
+        "define": {},
         "index": 0,
         "key": "",
         "pipe": undefined,
@@ -211,10 +209,7 @@ exports[`Factory  > decorator in extends case 1`] = `
     "name": "C",
     "params": [
       {
-        "define": {
-          "b": "b",
-          "c": "c",
-        },
+        "define": {},
         "index": 0,
         "key": "",
         "pipe": "C",
@@ -223,29 +218,6 @@ exports[`Factory  > decorator in extends case 1`] = `
     ],
     "plugins": [],
     "tag": "C",
-  },
-  {
-    "controller": "http",
-    "ctxs": undefined,
-    "define": {},
-    "filter": undefined,
-    "func": "test",
-    "guards": [
-      "A",
-    ],
-    "http": {
-      "prefix": "",
-    },
-    "interceptors": [],
-    "name": "D",
-    "params": [],
-    "plugins": [],
-    "tag": "D",
-  },
-  {
-    "func": "test",
-    "name": "E",
-    "tag": "E",
   },
 ]
 `;

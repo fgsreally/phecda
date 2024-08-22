@@ -1,126 +1,102 @@
 import { describe, expect, it } from 'vitest'
-import { Clear, Ignore, SHARE_KEY, addDecoToClass, getExposeKey, getOwnExposeKey, getPhecdaFromTarget, getState, setState, setStateKey } from '../src'
+import { Expose, getMergedMeta, getMeta, getMetaParams, getPhecdaFromTarget, setMeta } from '../src'
 
-describe('extends won\'t pollute namespace', () => {
+describe('set meta', () => {
   it('getPhecdaFromTarget', () => {
-    function Test(target: any, key: any) {
-      setStateKey(target, key)
-    }
     class A {
-      @Test
+      @Expose
       a: string
     }
 
     expect(getPhecdaFromTarget(A) === getPhecdaFromTarget(new A())).toBeTruthy()
     expect(getPhecdaFromTarget(A) === getPhecdaFromTarget(A.prototype)).toBeTruthy()
   })
-  it('expose keys', () => {
-    function Test(target: any, key?: any) {
-      setStateKey(target, key)
-    }
 
-    @Test
+  function Test(value: any): any {
+    return (target: any, key?: PropertyKey, index?: number) => {
+      setMeta(target, key, index, { data: value })
+    }
+  }
+
+  const mockData = {
+    a: { a: 1, b: 0, arr: [0, 1] },
+    b: { b: 1, arr: [0, 2] },
+    c: { c: 1 },
+  }
+
+  const expectData = {
+    data: {
+      a: 1,
+      b: 1,
+      c: 1,
+      arr: [1, 0, 2],
+    },
+  }
+
+  it('set meta to method', () => {
     class A {
-      @Test
-      a: string
-    }
-
-    class B extends A {
-      @Test
-      b: string
-    }
-
-    class C extends A {
-      @Test
-      c: string
-    }
-
-    @Ignore
-    class D extends C {
-      @Ignore
-      c: string
-    }
-
-    class E extends D {
-      c: string
-      @Test
-      e: string
-    }
-    expect(getExposeKey(B)).toMatchSnapshot()
-    expect(getOwnExposeKey(B)).toMatchSnapshot()
-
-    expect(getExposeKey(C)).toMatchSnapshot()
-    expect(getOwnExposeKey(C)).toMatchSnapshot()
-
-    expect(getExposeKey(D)).not.toContain(SHARE_KEY)
-    expect(getExposeKey(D)).toMatchSnapshot()
-    expect(getOwnExposeKey(D)).toMatchSnapshot()
-
-    expect(getExposeKey(E)).toContain(SHARE_KEY)
-    expect(getExposeKey(E)).toMatchSnapshot()
-    expect(getOwnExposeKey(E)).toMatchSnapshot()
-  })
-
-  it('setState', () => {
-    function Test(value: any) {
-      return (target: any, key: any) => {
-        setState(target, key, value)
-      }
-    }
-    class A {
-      @Test({ a: 1, b: 0 })
-      x: string
-    }
-
-    class B extends A {
-      @Test({ b: 1 })
-      x: string
-    }
-
-    class C extends A {
-      @Test({ c: 1 })
-      x: string
-    }
-
-    expect(getState(B, 'x')).toMatchSnapshot()
-    expect(getState(C, 'x')).toMatchSnapshot()
-  })
-
-  it('clear', () => {
-    function Test(value: any) {
-      return (target: any, key?: any) => {
-        setState(target, key, value)
+      @Test(mockData.a)
+      x(@Test(mockData.a) name: string) {
+        return name
       }
     }
 
-    @Test({ tag: 'A' })
-
-    class A {
-      @Test({ a: 1, b: 0 })
-      x: string
-    }
-
     class B extends A {
-      @Clear
-      @Test({ b: 1 })
-      x: string
+      @Test(mockData.b)
+      x(@Test(mockData.b) name: string) {
+        return name
+      }
     }
 
-    @Clear
     class C extends B {
-      @Test({ c: 1 })
-      x: string
+      @Test(mockData.c)
+      x(@Test(mockData.c) name: string) {
+        return name
+      }
     }
-    expect(getState(A)).toEqual({ tag: 'A' })
 
-    expect(getState(B, 'x')).toEqual({ b: 1 })
-    expect(getState(C, 'x')).toEqual({ b: 1, c: 1 })
-    addDecoToClass(C, 'x', Clear)
-    expect(getState(C, 'x')).toEqual({ c: 1 })
+    expect(getMetaParams(B, 'x')).toMatchSnapshot()
+    expect(getMeta(B, 'x')).toMatchSnapshot()
+    expect(getMeta(B, 'x', 0)).toMatchSnapshot()
 
-    expect(getState(B)).toEqual({ tag: 'A' })
-    expect(getState(new B())).toEqual({ tag: 'A' })
+    expect(getMetaParams(C, 'x')).toMatchSnapshot()
+    expect(getMeta(C, 'x')).toMatchSnapshot()
+    expect(getMeta(C, 'x', 0)).toMatchSnapshot()
 
-    expect(getState(C)).toEqual({})
+    expect(getMergedMeta(C, 'x')).toEqual(expectData)
+    expect(getMergedMeta(C, 'x', 0)).toEqual(expectData)
+  })
+
+  it('set meta to class', () => {
+    @Test(mockData.a)
+
+    class A {
+      constructor(@Test(mockData.a) protected name: string) {
+
+      }
+    }
+    @Test(mockData.b)
+
+    class B extends A {
+      constructor(@Test(mockData.b) protected name: string) {
+        super(name)
+      }
+    }
+
+    @Test(mockData.c)
+    class C extends B {
+      constructor(@Test(mockData.c) protected name: string) {
+        super(name)
+      }
+    }
+
+    expect(getMetaParams(B)).toMatchSnapshot()
+    expect(getMeta(B)).toMatchSnapshot()
+    expect(getMeta(B, undefined, 0)).toMatchSnapshot()
+    expect(getMetaParams(C)).toMatchSnapshot()
+    expect(getMeta(C)).toMatchSnapshot()
+    expect(getMeta(C, undefined, 0)).toMatchSnapshot()
+    expect(getMergedMeta(C)).toEqual(expectData)
+    expect(getMergedMeta(C, undefined, 0)).toEqual(expectData)
   })
 })

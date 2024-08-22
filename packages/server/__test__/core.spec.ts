@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Clear, Ctx, Factory, Init, Injectable, Tag } from '../src'
+import { Ctx, createPhecda as Factory, Init, Injectable, Tag } from '../src'
 import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
 
@@ -163,19 +163,7 @@ describe('Factory ', () => {
       }
     }
 
-    class D extends A {
-      @Clear
-      test(body: any) {
-        super.test(body)
-      }
-    }
-    @Clear
-
-    class E extends D {
-
-    }
-
-    const { meta } = await Factory([A, B, C, D, E])
+    const { meta } = await Factory([A, B, C])
     const data = meta.map(item => item.data)
     expect(data).toMatchSnapshot()
   })

@@ -1,5 +1,5 @@
 import type { Construct } from 'phecda-core'
-import { getTag, invokeHandler } from 'phecda-core'
+import { getTag, invokeInit } from 'phecda-core'
 import 'reflect-metadata'
 
 export const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
@@ -45,7 +45,7 @@ async function buildNestModule(Module: Construct) {
   else {
     instance = new Module()
   }
-  await invokeHandler('init', instance)
+  await invokeInit(instance)
   moduleMap.set(tag, instance)
   if (__DEV__) {
     const proxy = new Proxy({}, {

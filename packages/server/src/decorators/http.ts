@@ -1,27 +1,20 @@
-import { getState, setPropertyState } from 'phecda-core'
-import { mergeObject } from './helper'
+import { setMeta } from 'phecda-core'
 
 export function Route(route: string, type: string): MethodDecorator {
-  return (target: any, k: PropertyKey) => {
-    setPropertyState(target, k, (state) => {
-      state.http = mergeObject((state.http || getState(target, k)?.http),
-        {
-          route,
-          type,
-        })
+  return (target: any, property: PropertyKey) => {
+    setMeta(target, property, undefined, {
+      http: {
+        route, type,
+      },
     })
   }
 }
 export function Header(headers: Record<string, string>): MethodDecorator {
-  return (target: any, k: PropertyKey) => {
-    setPropertyState(target, k, (state) => {
-      if (!state.http)
-        state.http = mergeObject(getState(target, k)?.http)
-
-      state.http = mergeObject(state.http, {
-        headers: mergeObject(state.http?.headers, headers),
-
-      })
+  return (target: any, property: PropertyKey) => {
+    setMeta(target, property, undefined, {
+      http: {
+        headers,
+      },
     })
   }
 }
@@ -46,9 +39,9 @@ export function Delete(route = '') {
 
 export function Controller(prefix = '') {
   return (target: any) => {
-    setPropertyState(target, undefined, (state) => {
-      state.controller = 'http'
-      state.http = mergeObject(state.http || getState(target)?.http, { prefix })
+    setMeta(target, undefined, undefined, {
+      controller: 'http',
+      http: { prefix },
     })
   }
 }

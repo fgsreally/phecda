@@ -1,64 +1,56 @@
-import { getState, setPropertyState } from 'phecda-core'
+import { setMeta } from 'phecda-core'
 import { BaseParam } from './param'
 export function Guard(...guards: string[]) {
-  return (target: any, k?: PropertyKey) => {
-    setPropertyState(target, k, (state) => {
-      if (!state.guards)
-        state.guards = new Set([...(getState(target, k)?.guards || [])])
-
-      guards.forEach((guard) => {
-        if (state.guards.has(guard))
-          state.guards.delete(guard)
-
-        state.guards.add(guard)
-      })
+  return (target: any, property?: PropertyKey) => {
+    setMeta(target, property, undefined, {
+      guards,
     })
+
+    // setPropertyState(target, property, (state) => {
+    //   if (!state.guards)
+    //     state.guards = new Set([...(getMeta(target, property)?.guards || [])])
+
+    //   guards.forEach((guard) => {
+    //     if (state.guards.has(guard))
+    //       state.guards.delete(guard)
+
+    //     state.guards.add(guard)
+    //   })
+    // })
   }
 }
 
 export function Plugin(...plugins: string[]) {
-  return (target: any, k?: PropertyKey) => {
-    setPropertyState(target, k, (state) => {
-      if (!state.plugins)
-        state.plugins = new Set([...(getState(target, k)?.plugins || [])])
-
-      plugins.forEach((plugin) => {
-        if (state.plugins.has(plugin))
-          state.plugins.delete(plugin)
-
-        state.plugins.add(plugin)
-      })
+  return (target: any, property?: PropertyKey) => {
+    setMeta(target, property, undefined, {
+      plugins,
     })
   }
 }
 
 export function Interceptor(...interceptors: string[]) {
-  return (target: any, k?: PropertyKey) => {
-    setPropertyState(target, k, (state) => {
-      if (!state.interceptors)
-        state.interceptors = new Set([...(getState(target, k)?.interceptors || [])])
-
-      interceptors.forEach((interceptor) => {
-        if (state.interceptors.has(interceptor))
-          state.interceptors.delete(interceptor)
-
-        state.interceptors.add(interceptor)
-      })
+  return (target: any, property?: PropertyKey) => {
+    setMeta(target, property, undefined, {
+      interceptors,
     })
   }
 }
 export function Filter(filter: string) {
-  return (target: any, k?: PropertyKey) => {
-    setPropertyState(target, k, state => state.filter = filter)
+  return (target: any, property?: PropertyKey) => {
+    setMeta(target, property, undefined, {
+      filter,
+    })
   }
 }
 export function Pipe(pipe?: string) {
-  return (target: any, k?: any, index?: any) => {
+  return (target: any, property?: any, index?: any) => {
     if (typeof index === 'number') {
-      BaseParam({ pipe })(target, k, index)
+      BaseParam({ pipe })(target, property, index)
 
       return
     }
-    setPropertyState(target, k, state => state.pipe = pipe)
+    setMeta(target, property, undefined, {
+      pipe,
+    })
   }
 }

@@ -5,7 +5,7 @@ import { Events } from './types'
 @Empty
 export abstract class Base {
   private readonly __UNMOUNT_SYMBOL__: (() => void)[] = []
-  private readonly __PROMISE_SYMBOL__: Promise<void>
+  private readonly __PROMISE_SYMBOL__: Promise<void> // for init
 
   abstract emitter: any
   constructor() {

@@ -1,4 +1,4 @@
-import { init, set, setHandler, setStateKey } from '../core'
+import { init, set, setMeta } from '../core'
 import { getTag, isAsyncFunc } from '../helper'
 import type { Events } from '../types'
 import { getInject } from '../di'
@@ -22,8 +22,7 @@ export function Unique(desc?: string) {
 // async assign value to instance
 export function Assign(cb: (instance?: any) => any) {
   return (model: any) => {
-    setStateKey(model)
-    setHandler(model, undefined, {
+    setMeta(model, undefined, undefined, {
       init: async (instance: any) => {
         const value = await cb(instance)
         if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -36,8 +35,7 @@ export function Assign(cb: (instance?: any) => any) {
 }
 
 export function Global(model: any) {
-  setStateKey(model)
-  setHandler(model, undefined, {
+  setMeta(model, undefined, undefined, {
     init: async (instance: any) => {
       const tag = getTag(instance)
 
@@ -48,77 +46,32 @@ export function Global(model: any) {
   })
 }
 
-export function To(...callbacks: ((arg: any, instance: any, key: string) => any)[]) {
-  return (proto: any, key: PropertyKey) => {
-    setStateKey(proto, key)
-    setHandler(proto, key, {
-      async pipe(instance: any, addError: (msg: string) => void) {
-        for (const cb of callbacks) {
-          try {
-            if (isAsyncFunc(cb))
-              instance[key] = await cb(instance[key], instance, key as string)
-
-            else
-              instance[key] = cb(instance[key], instance, key as string)
-          }
-          catch (e: any) {
-            addError(e.message)
-          }
-        }
-      },
-    })
-  }
-}
-
-export function Rule(cb: ((arg: any,) => boolean | Promise<boolean>), info: string | (() => string)) {
-  return (proto: any, key: PropertyKey) => {
-    setStateKey(proto, key)
-    setHandler(proto, key, {
-      async pipe(instance: any, addError: (msg: string) => void) {
-        let ret: any
-        if (isAsyncFunc(cb))
-          ret = await cb(instance[key])
-
-        else
-          ret = cb(instance[key])
-        if (!ret) {
-          if (typeof info === 'string')
-            addError(info)
-          else
-            addError(info())
-        }
-      },
-    })
-  }
-}
-
 // @todo  when function return a Promise
-export function Err(cb: (e: Error | any, instance: any, key: string) => void, isCatch = false) {
-  return (proto: any, key: PropertyKey) => {
-    setStateKey(proto, key)
-    setHandler(proto, key, {
+export function Err(cb: (e: Error | any, instance: any, property: string) => void, isCatch = false) {
+  return (proto: any, property: PropertyKey) => {
+    setMeta(proto, property, undefined, {
       init: (instance: any) => {
-        if (typeof instance[key] === 'function') {
-          const oldFn = instance[key].bind(instance)
+        if (typeof instance[property] === 'function') {
+          const oldFn = instance[property].bind(instance)
           if (isAsyncFunc(oldFn)) {
-            instance[key] = async (...args: any) => {
+            instance[property] = async (...args: any) => {
               try {
                 await oldFn(...args)
               }
               catch (e) {
-                cb(e, instance, key as string)
+                cb(e, instance, property as string)
                 if (!isCatch)
                   throw e
               }
             }
           }
           else {
-            instance[key] = (...args: any) => {
+            instance[property] = (...args: any) => {
               try {
                 oldFn(...args)
               }
               catch (e) {
-                cb(e, instance, key as string)
+                cb(e, instance, property as string)
                 if (!isCatch)
                   throw e
               }
@@ -131,7 +84,7 @@ export function Err(cb: (e: Error | any, instance: any, key: string) => void, is
 }
 
 export interface StorageParam {
-  key: PropertyKey
+  property: PropertyKey
   instance: any
   tag: string
   toJSON: (str: string) => any
@@ -139,7 +92,7 @@ export interface StorageParam {
 }
 
 export interface WatcherParam {
-  key: string
+  property: string
   instance: any
   eventName: string
   options?: { once?: boolean }
@@ -147,11 +100,10 @@ export interface WatcherParam {
 
 export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
   let cb: Function
-  return (proto: any, key: string) => {
-    setStateKey(proto, key)
-    setHandler(proto, key, {
+  return (proto: any, property: string) => {
+    setMeta(proto, property, undefined, {
       init(instance: any) {
-        return cb = getInject('watcher')?.({ eventName, instance, key, options })
+        return cb = getInject('watcher')?.({ eventName, instance, property, options })
       },
       unmount() {
         return cb?.()
@@ -160,19 +112,18 @@ export function Watcher(eventName: keyof Events, options?: { once?: boolean }) {
   }
 }
 
-export function Effect(cb: (value: any, instance: any, key: string) => void) {
-  return (proto: any, key: string) => {
-    setStateKey(proto, key)
-    setHandler(proto, key, {
+export function Effect(cb: (value: any, instance: any, property: string) => void) {
+  return (proto: any, property: string) => {
+    setMeta(proto, property, undefined, {
       init(instance: any) {
-        instance[`$_${key}`] = instance[key]
-        Object.defineProperty(instance, key, {
+        instance[`$_${property}`] = instance[property]
+        Object.defineProperty(instance, property, {
           get() {
-            return instance[`$_${key}`]
+            return instance[`$_${property}`]
           },
           set(v) {
-            instance[`$_${key}`] = v
-            cb(v, instance, key)
+            instance[`$_${property}`] = v
+            cb(v, instance, property)
             return true
           },
         })
@@ -181,7 +132,7 @@ export function Effect(cb: (value: any, instance: any, key: string) => void) {
   }
 }
 
-export function Storage({ key: storeKey, json, stringify }: {
+export function Storage({ key, json, stringify }: {
   json?: (str: string) => any
   stringify?: (arg: any) => string
   key?: string
@@ -192,31 +143,15 @@ export function Storage({ key: storeKey, json, stringify }: {
   if (!stringify)
     stringify = v => JSON.stringify(v)
 
-  return (proto: any, key?: PropertyKey) => {
-    // @todo
-    // if (typeof proto === 'function')
-    //   proto = proto.prototype
-
-    const tag = storeKey || getTag(proto)
+  return (proto: any, property?: PropertyKey) => {
+    const tag = key || getTag(proto)
 
     init(proto)
 
-    setStateKey(proto, key)
-    setHandler(proto, key, {
+    setMeta(proto, property, undefined, {
       init: (instance: any) => {
-        return getInject('storage')?.({ instance, key, tag, toJSON: json, toString: stringify })
+        return getInject('storage')?.({ instance, property, tag, toJSON: json, toString: stringify })
       },
     })
   }
-}
-
-export function If(value: Boolean, ...decorators: (ClassDecorator[]) | (PropertyDecorator[]) | (ParameterDecorator[])) {
-  if (value) {
-    return (...args: any[]) => {
-      // @ts-expect-error  parameters pass to decorators
-      decorators.forEach(d => d(...args))
-    }
-  }
-
-  return () => {}
 }

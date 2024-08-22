@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 import HyperExpress from 'hyper-express'
 import { bind } from 'phecda-server/hyper-express'
-import { Factory, HTTPGenerator } from 'phecda-server'
+import { Factory, HTTPGenerator, log } from 'phecda-server'
 import { TestController } from './test.controller'
 
 const data = await Factory([TestController], {
@@ -16,5 +15,5 @@ webserver.use('/base', router)
 bind(router, data)
 
 webserver.listen(3008)
-  .then(() => console.log(' started hyper-express'),
+  .then(() => log('started hyper-express'),
   )

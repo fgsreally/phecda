@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import z from 'zod'
-import { transformInstance } from 'phecda-core'
-import { zodToClass } from '../src'
+import { parse, zodToClass } from '../src'
 
-describe('zod in phecda', () => {
-  it('basic validate', () => {
+describe('phecda-zod', () => {
+  it('parse', () => {
     const UserSchema = z.object({
       username: z.string().min(3).max(20), // username 必须为长度在 3 到 20 之间的字符串
       email: z.string().email(),
@@ -13,18 +12,14 @@ describe('zod in phecda', () => {
     })
 
     const UserModel = zodToClass(UserSchema)
-    const instance = new UserModel()
-    instance.username = 'phecda'
-    instance.email = 'phecda@a.com';
-    // exclude
-    (instance as any).xx = 'xx'
-    expect(transformInstance(instance)).toMatchSnapshot()
 
-    instance.isAdmin = true
+    const ret1 = parse(UserModel, { username: 'phecda', email: 'phecda@a.com' })
+    expect(ret1.success).toBeFalsy()
+    // expect().toMatchSnapshot()
+    const ret2 = parse(UserModel, { username: 'phecda', email: 'phecda@a.com', xx: 'xx', isAdmin: true } as any)
 
-    expect(transformInstance(instance).length).toBe(0)
-
-    expect(UserModel.schema).toBeDefined()
-    expect(instance).toMatchSnapshot()
+    expect(ret2.success).toBeTruthy()
+    expect(ret2.data).toMatchSnapshot()
+    expect('xx' in ret2.data).toBe(false)
   })
 })

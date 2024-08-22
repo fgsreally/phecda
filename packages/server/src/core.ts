@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { getExposeKey, getInject, getState, getTag, invokeHandler, isPhecda, setInject } from 'phecda-core'
+import { getInject, getMergedMeta, getMetaKey, getMetaParams, getTag, invokeInit, invokeUnmount, isPhecda, setInject } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter } from './types'
 import type { MetaData } from './meta'
@@ -10,7 +10,7 @@ import { log } from './utils'
 import { IS_HMR, IS_ONLY_GENERATE } from './common'
 import type { Generator } from './generator'
 
-const debug = Debug('phecda-server(Factory)')
+const debug = Debug('phecda-server(createPhecda)')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 export interface Options {
@@ -19,7 +19,7 @@ export interface Options {
   generators?: Generator[]
 }
 
-export async function Factory(models: Construct[], opts: Options = {}) {
+export async function createPhecda(models: Construct[], opts: Options = {}) {
   const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
   const meta: Meta[] = []
   const modelMap = new WeakMap<InstanceType<Construct>, Construct>()
@@ -27,8 +27,8 @@ export async function Factory(models: Construct[], opts: Options = {}) {
   const dependenceGraph = new Map<PropertyKey, Set<PropertyKey>>()
   const { parseModule = (module: any) => module, parseMeta = (meta: any) => meta, generators } = opts
   if (!getInject('watcher')) {
-    setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
-      const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
+    setInject('watcher', ({ eventName, instance, property, options }: WatcherParam) => {
+      const fn = typeof instance[property] === 'function' ? instance[property].bind(instance) : (v: any) => instance[property] = v
 
       if (options?.once)
         (emitter as any).once(eventName, fn)
@@ -50,7 +50,7 @@ export async function Factory(models: Construct[], opts: Options = {}) {
     const module = moduleMap.get(tag)
 
     debug(`unmount module "${String(tag)}"`)
-    await invokeHandler('unmount', module)
+    await invokeUnmount(module)
     debug(`del module "${String(tag)}"`)
 
     moduleMap.delete(tag)
@@ -131,7 +131,7 @@ export async function Factory(models: Construct[], opts: Options = {}) {
     debug(`init module "${String(tag)}"`)
 
     if (!IS_ONLY_GENERATE)
-      await invokeHandler('init', module)
+      await invokeInit(module)
 
     debug(`add module "${String(tag)}"`)
 
@@ -186,55 +186,62 @@ export async function Factory(models: Construct[], opts: Options = {}) {
   }
 }
 
+export const Factory = createPhecda
+
 function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
-  const vars = getExposeKey(instance).filter(item => typeof item === 'string') as string[]
-  const baseState = getState(instance) as MetaData
-  initState(baseState)
+  const propertyKeys = getMetaKey(instance).filter(item => typeof item === 'string') as string[]
+  const baseMeta = getMergedMeta(instance, undefined) as MetaData
 
-  const ctxs = getState(instance).ctxs
-
-  return vars.filter(i => typeof (instance as any)[i] === 'function').map((i) => {
-    const state = getState(instance, i) as any
-
-    const meta = {
-      ...state,
+  const ctxs = baseMeta.ctxs
+  return propertyKeys.filter(i => typeof (instance as any)[i] === 'function').map((i) => {
+    const meta = getMergedMeta(instance, i)
+    const metaData = {
+      ...meta,
       name,
       tag,
       func:
         i,
     } as MetaData
-    if (baseState.controller) {
+    if (baseMeta.controller) {
       if (typeof tag !== 'string')
         log(`can't use Tag with ${typeof tag} on controller "${(instance as any).constructor.name}",instead with "${tag = String(tag)}"`, 'error')
-      initState(state)
-      meta.controller = baseState.controller
-      meta[baseState.controller] = {
-        ...baseState[baseState.controller],
-        ...state[baseState.controller],
+      metaData.controller = baseMeta.controller
+      metaData[baseMeta.controller] = {
+        ...baseMeta[baseMeta.controller],
+        ...meta[baseMeta.controller],
       }
 
-      const params = [] as any[]
-      for (const item of state.params || []) {
-        const newItem = { ...item }
-        if (!newItem.pipe)
-          newItem.pipe = state.pipe || baseState.pipe
-        if (!newItem.define)
-          newItem.define = {}
+      const params = getMetaParams(instance, i).map(item => getMergedMeta(instance, i, item))
+      params.forEach((item, index) => {
+        if (!item.pipe)
+          item.pipe = meta.pipe || baseMeta.pipe
+        if (!item.define)
+          item.define = {}
+        item.index = index
+      })
 
-        params.unshift(newItem)
-        if (item.index === 0)
-          break
+      metaData.ctxs = ctxs
+      metaData.params = params
+      metaData.filter = meta.filter || baseMeta.filter
+      metaData.define = { ...baseMeta.define, ...meta.define }
+
+      for (const item of ['plugins', 'guards', 'interceptors']) {
+        const set = new Set<string>(baseMeta[item])
+        if (meta[item]) {
+          meta[item].forEach((part: string) => {
+            set.delete(part)
+            set.add(part)
+          })
+        }
+
+        metaData[item] = [...set]
       }
 
-      meta.ctxs = ctxs
-      meta.params = params
-      meta.filter = state.filter || baseState.filter
-      meta.define = { ...baseState.define, ...state.define }
-      meta.plugins = [...new Set([...baseState.plugins, ...state.plugins])]
-      meta.guards = [...new Set([...baseState.guards, ...state.guards])]
-      meta.interceptors = [...new Set([...baseState.interceptors, ...state.interceptors])]
+      // metaData.plugins = [...new Set([...baseMeta.plugins, ...meta.plugins])]
+      // metaData.guards = [...new Set([...baseMeta.guards, ...meta.guards])]
+      // metaData.interceptors = [...new Set([...baseMeta.interceptors, ...meta.interceptors])]
     }
-    return new Meta(deepFreeze(meta as unknown as MetaData), getParamTypes(instance, i as string) || [])
+    return new Meta(deepFreeze(metaData as MetaData), getParamTypes(instance, i as string) || [])
   })
 }
 
@@ -257,16 +264,18 @@ function getParamTypes(Model: any, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
-function initState(state: any) {
-  if (!state.define)
-    state.define = {}
+// function initMeta(meta: any) {
+//   if (!meta.define)
+//     meta.define = {}
 
-  if (!state.plugins)
-    state.plugins = new Set()
-  if (!state.guards)
-    state.guards = new Set()
-  if (!state.interceptors)
-    state.interceptors = new Set()
+//   if (!meta.plugins)
+//     meta.plugins = []
+//   if (!meta.guards)
+//     meta.guards = []
+//   if (!meta.interceptors)
+//     meta.interceptors = []
+// }
+
+export function isObject(o: any) {
+  return Object.prototype.toString.call(o) === '[object Object]'
 }
-
-export const createPhecda = Factory

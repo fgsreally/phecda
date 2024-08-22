@@ -1,67 +1,355 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`extends won't pollute namespace > expose keys 1`] = `
+exports[`set meta > set meta to class 1`] = `
 [
-  "b",
-  "a",
-  Symbol(phecda),
+  0,
 ]
 `;
 
-exports[`extends won't pollute namespace > expose keys 2`] = `
+exports[`set meta > set meta to class 2`] = `
 [
-  "b",
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
 ]
 `;
 
-exports[`extends won't pollute namespace > expose keys 3`] = `
+exports[`set meta > set meta to class 3`] = `
 [
-  "c",
-  "a",
-  Symbol(phecda),
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
 ]
 `;
 
-exports[`extends won't pollute namespace > expose keys 4`] = `
+exports[`set meta > set meta to class 4`] = `
 [
-  "c",
+  0,
 ]
 `;
 
-exports[`extends won't pollute namespace > expose keys 5`] = `
+exports[`set meta > set meta to class 5`] = `
 [
-  "a",
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+  {
+    "data": {
+      "c": 1,
+    },
+  },
 ]
 `;
 
-exports[`extends won't pollute namespace > expose keys 6`] = `[]`;
-
-exports[`extends won't pollute namespace > expose keys 7`] = `
+exports[`set meta > set meta to class 6`] = `
 [
-  "e",
-  "c",
-  "a",
-  Symbol(phecda),
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+  {
+    "data": {
+      "c": 1,
+    },
+  },
 ]
 `;
 
-exports[`extends won't pollute namespace > expose keys 8`] = `
+exports[`set meta > set meta to method 1`] = `
 [
-  "e",
+  0,
 ]
 `;
 
-exports[`extends won't pollute namespace > setState 1`] = `
-{
-  "a": 1,
-  "b": 1,
-}
+exports[`set meta > set meta to method 2`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+]
 `;
 
-exports[`extends won't pollute namespace > setState 2`] = `
-{
-  "a": 1,
-  "b": 0,
-  "c": 1,
-}
+exports[`set meta > set meta to method 3`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+]
+`;
+
+exports[`set meta > set meta to method 4`] = `
+[
+  0,
+]
+`;
+
+exports[`set meta > set meta to method 5`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+  {
+    "data": {
+      "c": 1,
+    },
+  },
+]
+`;
+
+exports[`set meta > set meta to method 6`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+  {
+    "data": {
+      "c": 1,
+    },
+  },
+]
+`;
+
+exports[`set meta > set meta to property 1`] = `
+[
+  0,
+]
+`;
+
+exports[`set meta > set meta to property 2`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+]
+`;
+
+exports[`set meta > set meta to property 3`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+]
+`;
+
+exports[`set meta > set meta to property 4`] = `
+[
+  0,
+]
+`;
+
+exports[`set meta > set meta to property 5`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+  {
+    "data": {
+      "c": 1,
+    },
+  },
+]
+`;
+
+exports[`set meta > set meta to property 6`] = `
+[
+  {
+    "data": {
+      "a": 1,
+      "arr": [
+        0,
+        1,
+      ],
+      "b": 0,
+    },
+  },
+  {
+    "data": {
+      "arr": [
+        0,
+        2,
+      ],
+      "b": 1,
+    },
+  },
+  {
+    "data": {
+      "c": 1,
+    },
+  },
+]
 `;

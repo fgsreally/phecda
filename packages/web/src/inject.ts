@@ -7,8 +7,8 @@ export const emitter: PhecdaEmitter = mitt()
 
 export function defaultWebInject() {
   if (!getInject('watcher')) {
-    setInject('watcher', ({ eventName, instance, key, options }: WatcherParam) => {
-      const fn = typeof instance[key] === 'function' ? instance[key].bind(instance) : (v: any) => instance[key] = v
+    setInject('watcher', ({ eventName, instance, property, options }: WatcherParam) => {
+      const fn = typeof instance[property] === 'function' ? instance[property].bind(instance) : (v: any) => instance[property] = v
 
       if (options?.once) {
         const handler = () => {
@@ -26,13 +26,13 @@ export function defaultWebInject() {
   }
 
   if (!getInject('storage')) {
-    setInject('storage', ({ tag, key, instance, toJSON, toString }: StorageParam) => {
-      tag = `phecda:${key ? `${tag}-${key as string}` : tag}`
+    setInject('storage', ({ tag, property, instance, toJSON, toString }: StorageParam) => {
+      tag = `phecda:${property ? `${tag}-${property as string}` : tag}`
       const initstr = localStorage.getItem(tag)
       if (initstr) {
         const data = toJSON(initstr)
-        if (key) {
-          instance[key] = data
+        if (property) {
+          instance[property] = data
         }
         else {
           for (const i in data) {
@@ -41,10 +41,10 @@ export function defaultWebInject() {
           }
         }
       }
-      localStorage.setItem(tag, toString(key ? instance[key] : instance))
+      localStorage.setItem(tag, toString(property ? instance[property] : instance))
 
       globalThis.addEventListener('beforeunload', () => {
-        localStorage.setItem(tag, toString(key ? instance[key] : instance))
+        localStorage.setItem(tag, toString(property ? instance[property] : instance))
       })
     })
   }
