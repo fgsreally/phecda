@@ -4,11 +4,19 @@ import { UnwrapNestedRefs, inject, provide, reactive, toRef } from 'vue'
 import { ReplaceInstanceValues } from './types'
 import { createSharedReactive } from './utils'
 
-function useI<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
+export function hasI(
+  model: Construct,
+) {
+  const tag = getTag(model)
+  const injectKey = `phecda-vue:lib ${tag.toString()}`
+  return !!inject(injectKey)
+}
+
+export function useIR<T extends Construct>(model: T, forceProvide = false): UnwrapNestedRefs<InstanceType<T>> {
   const tag = getTag(model)
   const injectKey = `phecda-vue:lib ${tag.toString()}`
   let existModule = inject(injectKey)
-  if (!existModule) {
+  if (!existModule || forceProvide) {
     const data = {
       // keep class name
       [model.name]: class extends model {
@@ -24,14 +32,10 @@ function useI<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> 
   }
 }
 
-export function useIR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
-  return useI(model)
-}
-
 const weakmap = new WeakMap()
 
-export function useIV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
-  const instance = useI(model)
+export function useIV<T extends Construct>(model: T, forceProvide = false): ReplaceInstanceValues<InstanceType<T>> {
+  const instance = useIR(model, forceProvide)
 
   if (weakmap.has(instance))
     return weakmap.get(instance)
