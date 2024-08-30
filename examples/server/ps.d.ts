@@ -73,6 +73,7 @@ declare global {
   const Rpc: typeof import('phecda-server')['Rpc']
   const RpcBase: typeof import('phecda-server')['RpcBase']
   const SHARE_KEY: typeof import('phecda-server')['SHARE_KEY']
+  const Search: typeof import('phecda-server')['Search']
   const ServerBase: typeof import('phecda-server')['ServerBase']
   const ServiceUnavailableException: typeof import('phecda-server')['ServiceUnavailableException']
   const Storage: typeof import('phecda-server')['Storage']

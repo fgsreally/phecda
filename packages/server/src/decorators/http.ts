@@ -30,6 +30,10 @@ export function Put(route = '') {
   return Route(route, 'put')
 }
 
+export function Search(route = '') {
+  return Route(route, 'search')
+}
+
 export function Patch(route = '') {
   return Route(route, 'patch')
 }

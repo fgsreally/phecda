@@ -3,8 +3,8 @@
 @Tag('TestService')
 export class TestService {
   login(user: User) {
-    // login logic
     console.log(`user ${user.name} login ...`)
+    console.log(user)
   }
 
   @Watcher('test')

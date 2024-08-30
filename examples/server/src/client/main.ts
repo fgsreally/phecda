@@ -14,16 +14,8 @@ const { framework, login } = useC(TestController)
 
 const chain = createChainReq(instance, { $test: TestController }, { batch: true })
 
-async function chainRequest() {
-  const data = await Promise.all([chain.$test.framework(), chain.options({
-  }).$test.login(toClass<User>({ name: 'p', password: '123456' }))])
-
-  console.log('[chain and batch request]:')
-  console.log(data)
-}
-
 async function request() {
-  const { data } = await useRequest(login(toClass<User>({ name: 'p', password: '123456' })))
+  const { data } = await useRequest(login(toClass<User>({ name: 'p1', password: '123456' })))
   console.log('[normal request]:')
   console.log(data)
 }
@@ -34,7 +26,7 @@ async function request() {
 // }
 
 async function parallelRequest() {
-  const { data: [res1, res2] } = await useParallelReq([framework(), login(toClass<User>({ name: 'p', password: '123456' }))])
+  const { data: [res1, res2] } = await useParallelReq([framework(), login(toClass<User>({ name: 'p2', password: '123456' }))])
   console.log('[parallel request]:')
 
   if (isError(res1))
@@ -45,6 +37,15 @@ async function parallelRequest() {
     console.error(res2.message)
   else console.log(res2)
 }
+
+async function chainRequest() {
+  const data = await Promise.all([chain.$test.framework(), chain.options({
+  }).$test.login(toClass<User>({ name: 'p3', password: '123456' }))])
+
+  console.log('[chain and batch request]:')
+  console.log(data)
+}
+
 // testFetch()
 request()
 parallelRequest()
