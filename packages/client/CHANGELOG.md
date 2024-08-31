@@ -1,5 +1,11 @@
 # phecda-client
 
+## 2.1.1
+
+### Patch Changes
+
+- 1bd14a9: fix createReq to support custom request method
+
 ## 2.1.0
 
 ### Minor Changes

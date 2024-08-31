@@ -1,5 +1,11 @@
 # phecda-server
 
+## 6.0.1
+
+### Patch Changes
+
+- 1bd14a9: add Search(route decorator like Get)
+
 ## 6.0.0
 
 ### Major Changes
