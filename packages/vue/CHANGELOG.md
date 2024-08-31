@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 5.1.0
+
+### Minor Changes
+
+- d5ed1d5: support lib mode (experiment)
+
 ## 5.0.0
 
 ### Major Changes
