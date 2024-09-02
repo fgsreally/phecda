@@ -1,5 +1,15 @@
 # phecda-vue
 
+## 5.1.1
+
+### Patch Changes
+
+- 12f3d32: lib mode support
+  1. Init/Unmount
+  2. params inject
+  3. Reuse within the same component
+  4. force provide a new module
+
 ## 5.1.0
 
 ### Minor Changes
