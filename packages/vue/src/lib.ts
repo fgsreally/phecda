@@ -1,5 +1,5 @@
-import { Construct, bindMethod, getTag } from 'phecda-web'
-import { UnwrapNestedRefs, inject, provide, reactive, toRef } from 'vue'
+import { Construct, bindMethod, getParamtypes, getTag, invokeInit, invokeUnmount } from 'phecda-web'
+import { UnwrapNestedRefs, getCurrentInstance, inject, onBeforeUnmount, provide, reactive, toRef } from 'vue'
 
 import { ReplaceInstanceValues } from './types'
 import { createSharedReactive } from './utils'
@@ -14,8 +14,16 @@ export function hasI(
 
 export function useIR<T extends Construct>(model: T, forceProvide = false): UnwrapNestedRefs<InstanceType<T>> {
   const tag = getTag(model)
+  const instance: any = getCurrentInstance()
+
+  if (!instance['phecda-vue'])
+    instance['phecda-vue'] = new WeakMap()
+
+  const modelMap = instance['phecda-vue'] as WeakMap<Construct, any>
+
   const injectKey = `phecda-vue:lib ${tag.toString()}`
-  let existModule = inject(injectKey)
+
+  let existModule = modelMap.get(model) || inject(injectKey)
   if (!existModule || forceProvide) {
     const data = {
       // keep class name
@@ -23,8 +31,12 @@ export function useIR<T extends Construct>(model: T, forceProvide = false): Unwr
 
       },
     }
-    existModule = bindMethod(reactive(new data[model.name]()))
+    const paramtypes = getParamtypes(model) as Construct[] || []
+    existModule = bindMethod(reactive(new data[model.name](...paramtypes.map((param: any) => useIR(param)))))
+    invokeInit(existModule)
     provide(injectKey, existModule)
+    modelMap.set(model, existModule)
+    onBeforeUnmount(() => invokeUnmount(existModule))
     return existModule as any
   }
   else {
