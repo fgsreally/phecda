@@ -14,7 +14,7 @@
 
 简而言之，解决方法只有以下几种：
 
-1. 不用`ps`的控制器，如仍使用`express`去完成`sse`，使用`ws`去完成`websocket`，
+1. 不用`ps`的控制器去暴露服务，自行暴露，
 2. 用`ps`控制器，但使用拦截器/插件去更改默认的逻辑
    > 以上这两种无法复用代码和类型
 3. [自定义框架](./custom.md)
@@ -52,6 +52,8 @@ class WS extends WebSocketServer {
 ```ts
 const ws = new Websocket('localhost:8080')
 ```
+这里使用模块直接暴露，而没有通过控制器并和对应服务端框架结合
+
 
 ## 更改默认逻辑
 

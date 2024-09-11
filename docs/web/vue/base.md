@@ -60,17 +60,19 @@ const { name /** ref('name') */ } = getV(HomeModel, app) // 组件外
 ```
 
 ## 获取全部功能
+
 `useR/useV`是很直接的功能，但可能需要更深层的操作，那需要获取`phecda`实例
 
 ```ts
-const phecda = usePhecda()// 组件内
-const phecda = getPhecda()// 组件外
-const phecda = getPhecda(app)// 组件外，ssr环境中
+const phecda = usePhecda() // 组件内
+const phecda = getPhecda() // 组件外
+const phecda = getPhecda(app) // 组件外，ssr环境中
 ```
+
 具体功能详见[WebPhecda](../api.md)
 
-
 ## 性能优化
+
 情况极少，原理是使用`ShallowReactive`代替`reactive`
 
 可以这样
@@ -79,9 +81,40 @@ const phecda = getPhecda(app)// 组件外，ssr环境中
 import { Shallow } from 'phecda-vue'
 
 @Shallow
-class Model {
+class Model {}
 
+useR(Model) // ShallowReactive
+```
+
+## 库模式
+
+如果觉得`pv`这种写法很舒适，希望在组件库中使用，上述的单例模式就有点束手束脚了
+
+可以这样
+
+```vue
+<script setup lang="ts">
+import { useIR, useIV } from 'phecda-vue'
+class HomeModel {
+  name: string
+
+  changeName(name: string) {
+    this.name = name
+  }
 }
 
-useR(Model)// ShallowReactive
+const { name /** ref('name') */ } = useIV(HomeModel)
+const Home /** reactive(HomeModel) */ = useIR(HomeModel)
+</script>
+```
+
+其使用了`provide/inject`，确保该组件及其子组件使用同一个实例，
+
+如果希望子组件能够使用一个新的实例，而不和父组件用同一个
+
+可以这样
+
+```ts
+const { name } = useIR(HomeModel, true/** 强制创建新实例 */)
+const Home = useIR(HomeModel, true)
 ```
