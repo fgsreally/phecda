@@ -15,5 +15,5 @@ export abstract class PPlugin extends ServerBase {
     })
   }
 
-  abstract use<Plugin = any>(framework: string): Plugin
+  abstract use<Plugin = any>(framework: string): Plugin | undefined
 }
