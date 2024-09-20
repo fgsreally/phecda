@@ -8,6 +8,7 @@ import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
 
 import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { IncomingMessage, ServerResponse } from 'node:http'
 const debug = Debug('phecda-server/hono')
 export interface HonoCtx extends HttpContext {
   type: 'hono'
@@ -55,7 +56,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
 
         try {
           return Promise.all(body.map((item: any, i) => {
-          // eslint-disable-next-line no-async-promise-executor
+            // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
 
@@ -96,6 +97,8 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
                     c.header(name, headers[name])
                 },
                 setResStatus: status => c.status(status as any),
+                getRequest: () => c.req.raw as unknown as IncomingMessage,
+                getResponse: () => c.res as unknown as ServerResponse
               } as HonoCtx
               const context = new Context(contextData)
 
@@ -154,6 +157,8 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
                 c.header(name, headers[name])
             },
             setResStatus: status => c.status(status as any),
+            getRequest: () => c.req.raw as unknown as IncomingMessage,
+            getResponse: () => c.res as unknown as ServerResponse
           } as HonoCtx
 
           const context = new Context(contextData)

@@ -7,6 +7,7 @@ import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
 import { Define } from '../../decorators'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { IncomingMessage, ServerResponse } from 'node:http'
 const debug = Debug('phecda-server/fastify')
 export interface FastifyCtx extends HttpContext {
   type: 'fastify'
@@ -101,11 +102,12 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                   // @ts-expect-error need @fastify/cookie
                   setCookie: (key, value, opts) => res.setCookie(key, value, opts),
                   // @ts-expect-error need @fastify/cookie
-
                   delCookie: key => res.clearCookie(key),
                   redirect: (url, status) => res.redirect(url, status),
                   setResHeaders: headers => res.headers(headers),
                   setResStatus: code => res.status(code),
+                  getRequest: () => req as unknown as IncomingMessage,
+                  getResponse: () => res as unknown as ServerResponse,
                 } as FastifyCtx
                 const context = new Context(contextData)
                 context.run({
@@ -172,7 +174,8 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
               redirect: (url, status) => res.redirect(url, status),
               setResHeaders: headers => res.headers(headers),
               setResStatus: code => res.status(code),
-
+              getRequest: () => req as unknown as IncomingMessage,
+              getResponse: () => res as unknown as ServerResponse,
             } as FastifyCtx
 
             const context = new Context(contextData)

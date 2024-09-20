@@ -95,7 +95,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                   redirect: (url, status) => sendRedirect(event, url, status),
                   setResHeaders: headers => setResponseHeaders(event, headers),
                   setResStatus: code => setResponseStatus(event, code),
-
+                  getRequest: () => event.node.req,
+                  getResponse: () => event.node.res,
                 } as H3Ctx
 
                 const context = new Context(contextData)
@@ -154,7 +155,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               setResHeaders: headers => setResponseHeaders(event, headers),
               setResStatus: code => setResponseStatus(event, code),
               delCookie: key => deleteCookie(event, key),
-
+              getRequest: () => event.node.req,
+              getResponse: () => event.node.res,
             } as H3Ctx
             const context = new Context(contextData)
             setHeaders(event, http.headers || {})

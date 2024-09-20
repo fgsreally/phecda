@@ -7,6 +7,7 @@ import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 import { HMR } from '../../hmr'
+import { IncomingMessage, ServerResponse } from 'node:http'
 
 const debug = Debug('phecda-server/express')
 export interface ExpressCtx extends HttpContext {
@@ -103,6 +104,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 redirect: (url, status) => status ? res.redirect(status, url) : res.redirect(url),
                 setResHeaders: headers => res.set(headers),
                 setResStatus: code => res.status(code),
+                getRequest: () => req as unknown as IncomingMessage,
+                getResponse: () => res as unknown as ServerResponse,
               } as ExpressCtx
               const context = new Context(contextData)
 
@@ -159,6 +162,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             redirect: (url, status) => status ? res.redirect(status, url) : res.redirect(url),
             setResHeaders: headers => res.set(headers),
             setResStatus: code => res.status(code),
+            getRequest: () => req as unknown as IncomingMessage,
+            getResponse: () => res as unknown as ServerResponse,
           } as ExpressCtx
 
           const context = new Context(contextData)
