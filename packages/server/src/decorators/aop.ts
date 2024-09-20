@@ -6,17 +6,6 @@ export function Guard(...guards: string[]) {
       guards,
     })
 
-    // setPropertyState(target, property, (state) => {
-    //   if (!state.guards)
-    //     state.guards = new Set([...(getMeta(target, property)?.guards || [])])
-
-    //   guards.forEach((guard) => {
-    //     if (state.guards.has(guard))
-    //       state.guards.delete(guard)
-
-    //     state.guards.add(guard)
-    //   })
-    // })
   }
 }
 

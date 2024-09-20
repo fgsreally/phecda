@@ -58,7 +58,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
         try {
           return Promise.all(body.map((item: any, i) => {
-          // eslint-disable-next-line no-async-promise-executor
+            // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (resolve) => {
               const { tag, func } = item
               debug(`(parallel)invoke method "${func}" in module "${tag}"`)
@@ -95,6 +95,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 redirect: url => ctx.redirect(url),
                 setResHeaders: headers => ctx.set(headers),
                 setResStatus: status => ctx.status = status,
+                getRequest: () => ctx.req,
+                getResponse: () => ctx.res
               } as KoaCtx
               const context = new Context(contextData)
               context.run({
@@ -148,6 +150,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             redirect: url => ctx.redirect(url),
             setResHeaders: headers => ctx.set(headers),
             setResStatus: status => ctx.status = status,
+            getRequest: () => ctx.req,
+            getResponse: () => ctx.res
 
           } as KoaCtx
           const context = new Context(contextData)

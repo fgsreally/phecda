@@ -96,6 +96,12 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
                 redirect: url => c.redirect(url),
                 setResHeaders: headers => Object.assign(c.set.headers, headers),
                 setResStatus: status => c.set.status = status,
+                getRequest: () => {
+                  throw new Error('elysia can\'t support getRequest')
+                },
+                getResponse: () => {
+                  throw new Error('elysia can\'t support getResponse')
+                },
               } as ElysiaCtx
               const context = new Context(contextData)
 
@@ -134,7 +140,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
 
         Context.usePlugin<Plugin>(plugins, 'elysia').forEach(p => p(funcRouter))
         // @ts-expect-error todo
-        funcRouter[http.type](http.prefix + http.route, async (c) => {
+        funcRouter[http.type](http.prefix + http.route, async (c: ElysiaContext) => {
           debug(`invoke method "${func}" in module "${tag}"`)
           const contextData = {
             type: 'elysia' as const,
@@ -154,6 +160,12 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
             redirect: url => c.redirect(url),
             setResHeaders: headers => Object.assign(c.set.headers, headers),
             setResStatus: status => c.set.status = status,
+            getRequest: () => {
+              throw new Error('elysia can\'t support getRequest')
+            },
+            getResponse: () => {
+              throw new Error('elysia can\'t support getResponse')
+            },
           } as ElysiaCtx
 
           const context = new Context(contextData)

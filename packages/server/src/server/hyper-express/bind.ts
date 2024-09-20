@@ -6,6 +6,7 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { IncomingMessage, ServerResponse } from 'node:http'
 
 const debug = Debug('phecda-server/hyper-express')
 export interface HyperExpressCtx extends HttpContext {
@@ -96,6 +97,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 redirect: url => res.redirect(url),
                 setResHeaders: headers => res.set(headers),
                 setResStatus: code => res.status(code),
+                getRequest: () => req as unknown as IncomingMessage,
+                getResponse: () => res as unknown as ServerResponse,
               } as HyperExpressCtx
               const context = new Context(contextData)
 
@@ -153,6 +156,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             redirect: url => res.redirect(url),
             setResHeaders: headers => res.set(headers),
             setResStatus: code => res.status(code),
+            getRequest: () => req as unknown as IncomingMessage,
+            getResponse: () => res as unknown as ServerResponse,
           } as HyperExpressCtx
 
           const context = new Context(contextData)
