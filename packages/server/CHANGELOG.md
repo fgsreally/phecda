@@ -1,5 +1,11 @@
 # phecda-server
 
+## 6.0.2
+
+### Patch Changes
+
+- ea247f6: add getRequest and getResponse to HttpContext to support express compatible middleware
+
 ## 6.0.1
 
 ### Patch Changes
