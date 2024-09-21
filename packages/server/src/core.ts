@@ -264,18 +264,4 @@ function getParamTypes(Model: any, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
 
-// function initMeta(meta: any) {
-//   if (!meta.define)
-//     meta.define = {}
 
-//   if (!meta.plugins)
-//     meta.plugins = []
-//   if (!meta.guards)
-//     meta.guards = []
-//   if (!meta.interceptors)
-//     meta.interceptors = []
-// }
-
-export function isObject(o: any) {
-  return Object.prototype.toString.call(o) === '[object Object]'
-}
