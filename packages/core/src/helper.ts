@@ -94,3 +94,8 @@ function defaultMerger(prev: any, cur: any) {
   }
   return newMeta
 }
+
+
+export function wait(...instances: InstanceType<Construct>[]) {
+  return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
+}
