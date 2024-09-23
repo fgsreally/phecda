@@ -45,9 +45,6 @@ const data = await Factory([UserController], {
 
 
 
-## 与服务端结合[适配器]
-由于不同的微服务技术架构差异过大，又要保证低侵入，难以保证结构一致
+## 适配器
 
-
-
-具体[详见](https://github.com/fgsreally/phecda/tree/main/examples/server/src/rpc)
+案例[详见](https://github.com/fgsreally/phecda/tree/main/examples/server/src/rpc)

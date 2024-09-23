@@ -4,23 +4,12 @@
 import type { PipeType } from './context'
 
 export const defaultPipe: PipeType = ({ arg }) => {
-  // if (isPhecda(reflect)) {
-  //   const instance = plainToClass(reflect, arg)
-  //   const err = transformInstance(instance)
-  //   if (err.length > 0)
-  //     throw new ValidateException(err[0])
-
-  //   arg = instance
-  // }
-  // else {
-  //   if (arg === undefined && !reflect)
-  //     return undefined
-
+  // if (['query', 'params'].includes(type) && reflect !== String) {
+  //   if ([Object, Array].includes(reflect)) {
+  //     return JSON.parse(arg)
+  //   }
   //   if ([Number, Boolean].includes(reflect)) {
-  //     arg = reflect(arg)
-
-  //     if (reflect === Number && Object.is(arg, NaN))
-  //       throw new ValidateException(`parameter ${Number(index) + 1} should be a number`)
+  //     return reflect(arg)
   //   }
   // }
   return arg

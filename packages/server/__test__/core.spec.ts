@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Ctx, createPhecda as Factory, Init, Injectable, Tag } from '../src'
+import { Ctx, Factory, Init, Injectable, Tag } from '../src'
 import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
 

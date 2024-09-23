@@ -96,7 +96,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 setResHeaders: headers => ctx.set(headers),
                 setResStatus: status => ctx.status = status,
                 getRequest: () => ctx.req,
-                getResponse: () => ctx.res
+                getResponse: () => ctx.res,
               } as KoaCtx
               const context = new Context(contextData)
               context.run({
@@ -151,7 +151,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             setResHeaders: headers => ctx.set(headers),
             setResStatus: status => ctx.status = status,
             getRequest: () => ctx.req,
-            getResponse: () => ctx.res
+            getResponse: () => ctx.res,
 
           } as KoaCtx
           const context = new Context(contextData)

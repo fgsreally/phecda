@@ -39,52 +39,6 @@ export function getPhecdaFromTarget(target: any) {
   return Object.getPrototypeOf(target)// module
 }
 
-// export function setExposeKey(proto: Phecda, property?: PropertyKey) {
-//   if (!property) {
-//     property = SHARE_KEY
-//     proto = proto.prototype
-//   }
-
-//   init(proto)
-
-//   proto[PHECDA_KEY].__EXPOSE_KEY__.add(property)
-// }
-
-// export function setIgnoreKey(proto: Phecda, property?: PropertyKey, index?: number) {
-//   if (!property) {
-//     property = SHARE_KEY
-//     proto = proto.prototype
-//   }
-//   init(proto)
-//   proto[PHECDA_KEY].__IGNORE_KEY__.add(property)
-// }
-
-// export function getOwnExposeKey(target: any) {
-//   const proto: Phecda = getPhecdaFromTarget(target)
-
-//   return [...proto[PHECDA_KEY].__EXPOSE_KEY__].filter(item => !proto[PHECDA_KEY].__IGNORE_KEY__.has(item)) as string[]
-// }
-
-// export function getExposeKey(target: any) {
-//   let proto: Phecda = getPhecdaFromTarget(target)
-
-//   const set = new Set<PropertyKey>()
-//   const origin = proto
-//   while (proto?.[PHECDA_KEY]) {
-//     if (proto.hasOwnProperty(PHECDA_KEY))
-//       [...proto[PHECDA_KEY].__EXPOSE_KEY__].forEach(item => !origin[PHECDA_KEY].__IGNORE_KEY__.has(item) && set.add(item))
-
-//     proto = Object.getPrototypeOf(proto)
-//   }
-//   return [...set]
-// }
-
-// export function getOwnIgnoreKey(target: any) {
-//   const proto: Phecda = getPhecdaFromTarget(target)
-
-//   return [...proto[PHECDA_KEY]?.__IGNORE_KEY__] as string[]
-// }
-
 export function setMeta(proto: Phecda, property: PropertyKey | undefined, index: number | undefined, meta: Record<string, any>) {
   if (!property) {
     property = SHARE_KEY

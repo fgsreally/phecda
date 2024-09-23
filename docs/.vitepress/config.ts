@@ -28,7 +28,6 @@ export default defineConfig({
 
     nav: [
       { text: 'core', link: '/core/intro', activeMatch: '/core/' },
-
       { text: 'server', link: '/server/intro', activeMatch: '/server/' },
       { text: 'web', link: '/web/intro', activeMatch: '/web/' },
 
@@ -41,14 +40,6 @@ export default defineConfig({
         {
           text: '简介',
           link: '/core/intro',
-        },
-        {
-          text: '标准',
-          link: '/core/standard',
-        },
-        {
-          text: '验证与转换',
-          link: '/core/transform',
         },
 
         {
@@ -138,7 +129,7 @@ export default defineConfig({
               link: '/server/aop/plugin',
             },
             {
-              text: 'extension',
+              text: '扩展',
               link: '/server/aop/extension',
             },
 

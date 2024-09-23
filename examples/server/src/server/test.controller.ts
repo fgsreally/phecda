@@ -40,7 +40,6 @@ export class TestController extends HttpBase {
   @Get('/framework')
   async framework() {
     const { type } = this.context
-
     return type
   }
 }

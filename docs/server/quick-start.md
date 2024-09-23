@@ -13,7 +13,7 @@ npm i phecda-server
 npx phecda init
 ```
 
-<!-- 这会创建配置文件`ps.json`和`tsconfig.json`(如果已存在不会覆盖) -->
+这会创建配置文件`ps.json`和`tsconfig.json`(如果已存在不会覆盖)
 ### 代码
 
 创建一个`user.controller.ts`和`user.service.ts`。
@@ -58,9 +58,9 @@ import { bind } from 'phecda-server/express'
 import express from 'express'
 import { UserController } from './user.controller'
 
-const data = await Factory([UserController], {
-  generators: [new HTTPGenerator()],//输出代码用于请求
-})//初始化模块
+const data = await Factory([UserController],//初始化模块
+{generators: [new HTTPGenerator()],//输出代码用于请求
+})
 const app = express()
 const router = express.Router()
 
@@ -88,10 +88,10 @@ npm i phecda-client
 
 以`vite`为例
 ```ts
-import PC from 'phecda-client/vite'
+import Client from 'phecda-client/vite'
 
 export default defineConfig({
-  plugins: [PC()],
+  plugins: [Client()],
 })
 ```
 

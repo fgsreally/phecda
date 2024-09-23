@@ -12,11 +12,8 @@
 declare function Init(proto: any, key: PropertyKey): void
 // 卸载时执行该方法
 declare function Unmount(proto: any, key: PropertyKey): void
-// 方法上绑定数据
-declare function Bind(value: any): (proto: any, k: PropertyKey) => void
-// 忽略
-declare function Ignore(proto: any, key: PropertyKey): void
-// 清除其上所有装饰器的效果
+
+// 清除在其之前的装饰器的效果
 declare function Clear(proto: any, key: PropertyKey): void
 // 暴露
 declare function Expose(proto: any, key: PropertyKey): void
@@ -28,15 +25,11 @@ declare function Isolate(target: any): void
 // 打标记
 declare function Tag(tag: PropertyKey): (module: any) => void
 declare function Unique(desc?: string): (module: any) => void
-// 打标记
-
+// 类似Object.assign
 declare function Assign(cb: (instance?: any) => any): (module: any) => void
 // 绑定到全局
 declare function Global(module: any): void
-// 转换
-declare function To(...callbacks: ((arg: any, instance: any, key: string) => any)[]): (proto: any, key: PropertyKey) => void
-// 验证规则
-declare function Rule(cb: ((arg: any) => boolean | Promise<boolean>), info: string | (() => string)): (proto: any, key: PropertyKey) => void
+
 // 错误处理
 declare function Err(cb: (e: Error | any, instance: any, key: string) => void, isCatch?: boolean): (proto: any, key: PropertyKey) => void
 // 数据修改时副作用
@@ -51,9 +44,9 @@ declare function Watcher(eventName: keyof Events, options?: {
   once?: boolean
 }): (proto: any, key: string) => void
 // 存储
-declare function Storage({ key: storeKey, toJSON, toString }?: {
+declare function Storage({ key, toJSON, toString }?: {
   toJSON?: (str: string) => any
   toString?: (arg: any) => string
   key?: string
-}): (proto: any, key?: PropertyKey) => void
+}): (proto: any, property?: PropertyKey) => void
 ```

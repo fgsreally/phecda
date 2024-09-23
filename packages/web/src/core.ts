@@ -1,15 +1,11 @@
 /* eslint-disable new-cap */
-import { get, getTag, invokeInit, invokeUnmount } from 'phecda-core'
+import { get, getTag, invokeInit, invokeUnmount, wait } from 'phecda-core'
 import type { Construct } from 'phecda-core'
 import 'reflect-metadata'
 import mitt, { Handler, WildcardHandler } from 'mitt'
 import { defaultWebInject } from './inject'
 import { DeepPartial } from './types'
 import { deepMerge } from './utils'
-
-export function wait(...instances: InstanceType<Construct>[]) {
-  return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
-}
 
 export function getParamtypes(Model: Construct) {
   return Reflect.getMetadata('design:paramtypes', Model)
