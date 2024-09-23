@@ -1,5 +1,14 @@
 # phecda-web
 
+## 3.0.1
+
+### Patch Changes
+
+- bffb0a0: move wait from web to core
+- d382585: won't export isObject
+- Updated dependencies [bffb0a0]
+  - phecda-core@4.0.1
+
 ## 3.0.0
 
 ### Major Changes

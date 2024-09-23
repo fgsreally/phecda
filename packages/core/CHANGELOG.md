@@ -1,5 +1,11 @@
 # phecda-core
 
+## 4.0.1
+
+### Patch Changes
+
+- bffb0a0: move wait from web to core
+
 ## 4.0.0
 
 ### Major Changes
