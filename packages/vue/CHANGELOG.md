@@ -1,5 +1,13 @@
 # phecda-vue
 
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies [bffb0a0]
+- Updated dependencies [d382585]
+  - phecda-web@3.0.1
+
 ## 5.1.1
 
 ### Patch Changes
