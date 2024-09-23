@@ -8,7 +8,6 @@ export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | 
   return get(moduleOrInstance.prototype, 'tag') || (moduleOrInstance as M).name
 }
 
-
 /**
  * add decorator to a class by function
  */
@@ -94,7 +93,6 @@ function defaultMerger(prev: any, cur: any) {
   }
   return newMeta
 }
-
 
 export function wait(...instances: InstanceType<Construct>[]) {
   return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))

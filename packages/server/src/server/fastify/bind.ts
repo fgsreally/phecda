@@ -1,3 +1,4 @@
+import { IncomingMessage, ServerResponse } from 'node:http'
 import type { FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { HttpContext, HttpOptions } from '../types'
@@ -7,7 +8,6 @@ import { BadRequestException } from '../../exception'
 import { Context } from '../../context'
 import { Define } from '../../decorators'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
-import { IncomingMessage, ServerResponse } from 'node:http'
 const debug = Debug('phecda-server/fastify')
 export interface FastifyCtx extends HttpContext {
   type: 'fastify'

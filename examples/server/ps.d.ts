@@ -106,6 +106,7 @@ declare global {
   const emitter: typeof import('phecda-server')['emitter']
   const get: typeof import('phecda-server')['get']
   const getInject: typeof import('phecda-server')['getInject']
+  const getLogger: typeof import('phecda-server')['getLogger']
   const getMergedMeta: typeof import('phecda-server')['getMergedMeta']
   const getMeta: typeof import('phecda-server')['getMeta']
   const getMetaKey: typeof import('phecda-server')['getMetaKey']
@@ -127,7 +128,7 @@ declare global {
   const setInject: typeof import('phecda-server')['setInject']
   const setLogger: typeof import('phecda-server')['setLogger']
   const setMeta: typeof import('phecda-server')['setMeta']
-  const use: typeof import('phecda-server')['use']
+  const useS: typeof import('phecda-server')['useS']
   const wait: typeof import('phecda-server')['wait']
   const x: typeof import('./src/server/test.controller')['x']
 }

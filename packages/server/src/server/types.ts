@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders,  IncomingMessage, ServerResponse } from 'node:http'
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'node:http'
 import { BaseContext, DefaultOptions } from '../types'
 
 export interface HttpOptions extends DefaultOptions {
@@ -34,7 +34,7 @@ export interface HttpContext extends BaseContext {
   setResHeaders: (headers: Record<string, string>) => void
   setResStatus: (status: number) => void
   getRequest: () => IncomingMessage
-  getResponse: () => ServerResponse,
+  getResponse: () => ServerResponse
 }
 
 // from cookie-es

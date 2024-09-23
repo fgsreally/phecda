@@ -7,8 +7,6 @@ import { defaultWebInject } from './inject'
 import { DeepPartial } from './types'
 import { deepMerge } from './utils'
 
-
-
 export function getParamtypes(Model: Construct) {
   return Reflect.getMetadata('design:paramtypes', Model)
 }

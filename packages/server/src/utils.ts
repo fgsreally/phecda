@@ -15,10 +15,9 @@ export function getLogger() {
 }
 
 export function log(msg: string, level: LogLevel = 'log') {
-
-  if (internalLogger) {
+  if (internalLogger)
     internalLogger[level](msg)
-  }
+
   const logLevel = {
     debug: -1,
     info: 0,
@@ -36,6 +35,7 @@ export function log(msg: string, level: LogLevel = 'log') {
   const interval = (time && current - time) ? `+${current - time}` : ''
   time = current
 
+  // eslint-disable-next-line no-console
   console[level](`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)} ${pc.gray(interval)}`)
 }
 

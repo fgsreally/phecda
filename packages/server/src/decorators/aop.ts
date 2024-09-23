@@ -5,7 +5,6 @@ export function Guard(...guards: string[]) {
     setMeta(target, property, undefined, {
       guards,
     })
-
   }
 }
 

@@ -37,11 +37,9 @@ export function defaultServerInject() {
       }
     })
   }
-
 }
 
 export const phecdaNamespace = new Map<string, ServerPhecda>()
-
 
 export class ServerPhecda {
   moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
@@ -97,8 +95,8 @@ export class ServerPhecda {
         generateCode()
       })
     }
-
   }
+
   async add(Model: Construct) {
     const tag = getTag(Model)
 
@@ -117,6 +115,7 @@ export class ServerPhecda {
       })
     }
   }
+
   async del(tag: PropertyKey) {
     if (!this.moduleMap.has(tag))
       return
@@ -135,12 +134,14 @@ export class ServerPhecda {
     }
     return module
   }
+
   async destroy() {
     debug('destroy all')
 
     for (const [tag] of this.moduleMap)
       await this.del(tag)
   }
+
   protected async buildDepModule(Model: Construct) {
     const paramtypes = getParamTypes(Model) as Construct[]
     let module: InstanceType<Construct>
@@ -194,16 +195,15 @@ export class ServerPhecda {
   }
 
   has(modelOrTag: Construct | PropertyKey) {
-
     return this.moduleMap.has(typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag)
   }
+
   get<Model extends Construct>(modelOrTag: Model | PropertyKey): InstanceType<Model> {
-    const tag =typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
-    if (!this.has(tag)) throw new Error(`module "${tag.toString()}" doesn't exist`)
+    const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
+    if (!this.has(tag))
+      throw new Error(`module "${tag.toString()}" doesn't exist`)
     return this.moduleMap.get(tag)
   }
-
-
 }
 
 export async function Factory(models: Construct[], opts: Options = {}) {
@@ -217,23 +217,21 @@ export function useS(namespace?: string): ServerPhecda
 export function useS(nsOrModel?: Construct | string, namespace?: string) {
   if (!nsOrModel) {
     namespace = 'default'
-  } else {
-    if (typeof nsOrModel === 'string') {
-      namespace = nsOrModel
-    } else if (!namespace) {
-      namespace = 'default'
-
-    }
   }
-  if (!phecdaNamespace.has(namespace)) throw new Error(`namespace "${namespace}" doesn't exist`)
+  else {
+    if (typeof nsOrModel === 'string')
+      namespace = nsOrModel
+    else if (!namespace)
+      namespace = 'default'
+  }
+  if (!phecdaNamespace.has(namespace))
+    throw new Error(`namespace "${namespace}" doesn't exist`)
   const serverPhecda = phecdaNamespace.get(namespace)!
-  if (nsOrModel && typeof nsOrModel !== 'string') {
+  if (nsOrModel && typeof nsOrModel !== 'string')
     return serverPhecda.get(nsOrModel)
-  } else {
+  else
 
     return serverPhecda
-  }
-
 }
 
 // export async function createPhecda(models: Construct[], opts: Options = {}) {
@@ -403,8 +401,6 @@ export function useS(nsOrModel?: Construct | string, namespace?: string) {
 //   }
 // }
 
-
-
 function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
   const propertyKeys = getMetaKey(instance).filter(item => typeof item === 'string') as string[]
   const baseMeta = getMergedMeta(instance, undefined) as MetaData
@@ -480,5 +476,3 @@ function deepFreeze<T extends Record<string, any>>(object: T): T {
 function getParamTypes(Model: any, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Model, key!)
 }
-
-
