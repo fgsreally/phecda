@@ -106,6 +106,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 setResStatus: code => res.status(code),
                 getRequest: () => req as unknown as IncomingMessage,
                 getResponse: () => res as unknown as ServerResponse,
+
               } as ExpressCtx
               const context = new Context(contextData)
 
@@ -164,6 +165,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             setResStatus: code => res.status(code),
             getRequest: () => req as unknown as IncomingMessage,
             getResponse: () => res as unknown as ServerResponse,
+
           } as ExpressCtx
 
           const context = new Context(contextData)

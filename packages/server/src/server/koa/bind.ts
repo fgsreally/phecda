@@ -97,6 +97,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 setResStatus: status => ctx.status = status,
                 getRequest: () => ctx.req,
                 getResponse: () => ctx.res,
+
               } as KoaCtx
               const context = new Context(contextData)
               context.run({
@@ -142,17 +143,16 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             params: ctx.params,
             body: (ctx.request as any).body,
             headers: ctx.headers,
+
             next,
             getCookie: key => ctx.cookies.get(key),
             setCookie: (key, value, opts) => ctx.cookies.set(key, value, opts),
             delCookie: key => ctx.cookies.set(key, '', { expires: new Date(0) }),
-
             redirect: url => ctx.redirect(url),
             setResHeaders: headers => ctx.set(headers),
             setResStatus: status => ctx.status = status,
             getRequest: () => ctx.req,
             getResponse: () => ctx.res,
-
           } as KoaCtx
           const context = new Context(contextData)
           if (http.headers)

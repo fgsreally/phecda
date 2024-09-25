@@ -99,6 +99,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
                 setResStatus: status => c.status(status as any),
                 getRequest: () => c.req.raw as unknown as IncomingMessage,
                 getResponse: () => c.res as unknown as ServerResponse,
+
               } as HonoCtx
               const context = new Context(contextData)
 
@@ -148,6 +149,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
             params: c.req.param() as any,
             headers: c.req.header(),
             app: router,
+
             getCookie: key => getCookie(c, key),
             delCookie: key => deleteCookie(c, key),
             setCookie: (key, value, opts) => setCookie(c, key, value, opts as any),

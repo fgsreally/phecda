@@ -1,4 +1,3 @@
-import { IncomingMessage, ServerResponse } from 'node:http'
 import type { FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { HttpContext, HttpOptions } from '../types'
@@ -106,8 +105,9 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                   redirect: (url, status) => res.redirect(url, status),
                   setResHeaders: headers => res.headers(headers),
                   setResStatus: code => res.status(code),
-                  getRequest: () => req as unknown as IncomingMessage,
-                  getResponse: () => res as unknown as ServerResponse,
+                  getRequest: () => req.raw,
+                  getResponse: () => res.raw,
+
                 } as FastifyCtx
                 const context = new Context(contextData)
                 context.run({
@@ -170,12 +170,13 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
               // @ts-expect-error need @fastify/cookie
               setCookie: (key, value, opts) => res.setCookie(key, value, opts),
               // @ts-expect-error need @fastify/cookie
-              delCookie: key => res.clearCookie(key, { path: '' }),
+              delCookie: key => res.clearCookie(key, { url: '' }),
               redirect: (url, status) => res.redirect(url, status),
               setResHeaders: headers => res.headers(headers),
               setResStatus: code => res.status(code),
-              getRequest: () => req as unknown as IncomingMessage,
-              getResponse: () => res as unknown as ServerResponse,
+              getRequest: () => req.raw,
+              getResponse: () => res.raw,
+
             } as FastifyCtx
 
             const context = new Context(contextData)

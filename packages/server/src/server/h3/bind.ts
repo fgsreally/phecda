@@ -87,7 +87,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                   func,
                   parallel: true,
                   app: router,
-
                   ...argToReq(params, item.args, getRequestHeaders(event)),
                   getCookie: key => getCookie(event, key),
                   setCookie: (key, value, opts) => setCookie(event, key, value, opts),
@@ -97,6 +96,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                   setResStatus: code => setResponseStatus(event, code),
                   getRequest: () => event.node.req,
                   getResponse: () => event.node.res,
+
                 } as H3Ctx
 
                 const context = new Context(contextData)
@@ -157,6 +157,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               delCookie: key => deleteCookie(event, key),
               getRequest: () => event.node.req,
               getResponse: () => event.node.res,
+
             } as H3Ctx
             const context = new Context(contextData)
             setHeaders(event, http.headers || {})

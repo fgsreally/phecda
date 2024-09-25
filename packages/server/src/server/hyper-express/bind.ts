@@ -88,9 +88,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 moduleMap,
                 tag,
                 func,
-                next,
                 app: router,
                 ...argToReq(params, item.args, req.headers),
+                next,
                 getCookie: key => req.cookies[key],
                 setCookie: (key, value, opts) => res.cookie(key, value, opts?.expires && opts.expires.getTime() - Date.now(), opts || {}),
                 delCookie: key => res.clearCookie(key),
@@ -158,6 +158,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             setResStatus: code => res.status(code),
             getRequest: () => req as unknown as IncomingMessage,
             getResponse: () => res as unknown as ServerResponse,
+
           } as HyperExpressCtx
 
           const context = new Context(contextData)
