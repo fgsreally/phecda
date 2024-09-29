@@ -1,22 +1,34 @@
+<!-- eslint-disable vue/object-curly-newline -->
+<!-- eslint-disable no-trailing-spaces -->
+<!-- eslint-disable vue/comma-dangle -->
+<!-- eslint-disable vue/dot-location -->
+<!-- eslint-disable vue/block-tag-newline -->
 <script setup lang="ts">
-import { usePatch, useV } from 'phecda-vue'
-import TheWelcome from '../components/TheWelcome.vue'
-import { HomeModel } from '@/models/home'
-const { name, fullName, obj, changeName } = useV(HomeModel)
+
+import { getR, getV, usePhecda, useV } from 'phecda-vue'
+import { UserModel } from '@/models/user'
+
+const { name, fullName, obj, createdAt } = useV(UserModel)
+const { patch } = usePhecda()
+
 </script>
 
 <template>
   <main>
-    <div> name:{{ name }}</div>
-    <div>fullName:{{ fullName }}</div>
-    <div> obj.id:{{ obj.id }}</div>
-    <div>obj.isChange:{{ obj.isChange }}</div>
-    <button @click="usePatch(HomeModel, { obj: { isChange: true } })">
-      patch home obj
+    <section>
+      <p>
+        {{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
+      </p>
+      <div>name:{{ name }}</div>
+      <div>fullName:{{ fullName }}</div>
+      <div> obj.id:{{ obj.id }}</div>
+    </section>
+
+    <button @click="patch(UserModel, { obj: { id: Math.floor((Math.random() * 100)) } })">
+      patch user id
     </button>
-    <button @click="changeName">
-      change home name
+    <button @click=" getV(UserModel).changeName('Tom')">
+      change home name to Tom
     </button>
-    <TheWelcome />
   </main>
 </template>

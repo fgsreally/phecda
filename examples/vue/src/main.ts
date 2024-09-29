@@ -2,10 +2,11 @@ import { createApp } from 'vue'
 import { createPhecda } from 'phecda-vue'
 import App from './App.vue'
 import router from './router'
-import './assets/main.css'
+import { UserModel } from './models/user'
 
-const app = createApp(App).use(createPhecda('snap'))
+const app = createApp(App)
 
+app.use(await createPhecda([UserModel]))
 app.use(router)
 
 app.mount('#app')

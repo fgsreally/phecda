@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "useDefineForClassFields": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop":true
+  },
+}

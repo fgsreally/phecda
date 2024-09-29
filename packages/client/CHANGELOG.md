@@ -1,5 +1,169 @@
 # phecda-client
 
+## 2.1.1
+
+### Patch Changes
+
+- 1bd14a9: fix createReq to support custom request method
+
+## 2.1.0
+
+### Minor Changes
+
+- 483c6fa: support workdir in `ps`
+
+  (too much change in `ps` so it has to be a minor release)
+
+## 2.0.4
+
+### Patch Changes
+
+- 920450a: refact phecda-client unplugin to support rpc
+- ae64f33: plugin can handle .rpc.ts
+- a7d9a65: replace compiler with generator to provide better scalability
+  loader can read config from config file, it's more flexible to control loader function
+  it's a big change for both runtime and compile sysmtem
+  refact cli with `cac`; use esm format instead
+  `phecda-client` plugin support generator and config file
+  improve cli, remove `fs-extra`(instead with `unimport`)
+  add schema to config file
+- 082f2af: createChainReq can change the parallel route
+- b9c1bfe: isError(null) should be false
+- 6b5b307: refactor types system
+- c563af1: add Expand/ExpandRecursively types
+  client only export import api
+
+## 2.0.4-beta.5
+
+### Patch Changes
+
+- b9c1bfe: isError(null) should be false
+
+## 2.0.4-beta.4
+
+### Patch Changes
+
+- a7d9a65: replace compiler with generator to provide better scalability
+  loader can read config from config file, it's more flexible to control loader function
+  it's a big change for both runtime and compile sysmtem
+  refact cli with `cac`; use esm format instead
+  `phecda-client` plugin support generator and config file
+  improve cli, remove `fs-extra`(instead with `unimport`)
+  add schema to config file
+
+## 2.0.4-beta.3
+
+### Patch Changes
+
+- 082f2af: createChainReq can change the parallel route
+
+## 2.0.4-beta.2
+
+### Patch Changes
+
+- 920450a: refact phecda-client unplugin to support rpc
+
+## 2.0.4-beta.1
+
+### Patch Changes
+
+- 6b5b307: refactor types system
+- c563af1: add Expand/ExpandRecursively types
+  client only export import api
+
+## 2.0.4-alpha.0
+
+### Patch Changes
+
+- ae64f33: plugin can handle .rpc.ts
+
+## 2.0.3
+
+### Patch Changes
+
+- 6b6036a: add pickFunc to improve types support when using request
+
+## 2.0.2
+
+### Patch Changes
+
+- 12a7881: update error symobol in isError
+
+## 2.0.1
+
+### Patch Changes
+
+- 8d7f7f2: add toClass
+
+## 2.0.0
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+
+### Minor Changes
+
+- da1a0bb: remove series request and refactor parallel request
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+- 20fbfdb: can resolve params correctly
+- 2314083: replace query with axios params
+
+## 2.0.0-alpha.4
+
+### Minor Changes
+
+- da1a0bb: remove series request and refactor parallel request
+
+## 2.0.0-alpha.3
+
+### Patch Changes
+
+- 2314083: replace query with axios params
+
+## 2.0.0-alpha.2
+
+### Major Changes
+
+- a21fb11: server will generate code directly;client only resolve import path
+
+## 1.2.3-alpha.1
+
+### Patch Changes
+
+- 20fbfdb: can resolve params correctly
+
+## 1.2.3-alpha.0
+
+### Patch Changes
+
+- cdbd666: support @Head to input request header
+
+## 1.2.2
+
+### Patch Changes
+
+- a217f88: remove null and undefined in request
+
+## 1.2.1
+
+### Patch Changes
+
+- 02850c2: delete batchStack after chainReq promise finish( or it will cause puzzling problem)
+
+## 1.2.0
+
+### Minor Changes
+
+- c507f78: add createChainRequest
+- 6033ec7: chain req support batch
+
+### Patch Changes
+
+- d6d2146: only createReq when batch is false
+
 ## 1.2.0-alpha.1
 
 ### Patch Changes

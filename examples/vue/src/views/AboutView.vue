@@ -1,23 +1,22 @@
 <script setup lang="ts">
 import { useV } from 'phecda-vue'
 import { AboutModel } from '../models/about'
-import { HomeModel } from '@/models/home'
-const { name } = useV(HomeModel)
-const { change_home_name, emit_update } = useV(AboutModel)
-function emit() {
-  emit_update()
-}
+const { changeUserName, emit_update, createdAt } = useV(AboutModel)
 </script>
 
 <template>
   <div class="about">
-    {{ name }}
     <h1>This is an about page</h1>
-    <button @click="change_home_name">
-      change about name
+    <section>
+      <p>
+        {{ createdAt.hour }} : {{ createdAt.minute }}:{{ createdAt.second }}
+      </p>
+    </section>
+    <button @click="() => changeUserName('jane')">
+      change user name to Jane
     </button>
-    <button @click="emit">
-      emit
+    <button @click="emit_update">
+      emit update event
     </button>
   </div>
 </template>

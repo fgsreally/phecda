@@ -1,7 +1,49 @@
-export const isUndefined = (obj: any): obj is undefined =>
-  typeof obj === 'undefined'
-export const isNil = (obj: any): obj is null | undefined =>
-  isUndefined(obj) || obj === null
+import pc from 'picocolors'
+import { LOG_LEVEL } from './common'
+import { HttpContext } from './http/types'
 
-export const isObject = (fn: any): fn is object =>
-  !isNil(fn) && typeof fn === 'object'
+let time: number
+
+let internalLogger: Record<LogLevel, (msg: string) => void>
+
+type LogLevel = 'error' | 'info' | 'warn' | 'log' | 'debug'
+
+export function setLogger(logger: Record<LogLevel, (msg: string) => void>) {
+  internalLogger = logger
+}
+export function getLogger() {
+  return internalLogger
+}
+
+export function log(msg: string, level: LogLevel = 'log') {
+  if (internalLogger)
+    internalLogger[level](msg)
+
+  const logLevel = {
+    debug: -1,
+    info: 0,
+    log: 1,
+    warn: 2,
+    error: 3,
+  }[level]
+
+  if (logLevel < LOG_LEVEL)
+    return
+
+  const color = ({ debug: 'bgMagenta', error: 'red', info: 'gray', warn: 'yellow', log: 'green' } as const)[level]
+  const date = new Date()
+  const current = Date.now()
+  const interval = (time && current - time) ? `+${current - time}` : ''
+  time = current
+
+  // eslint-disable-next-line no-console
+  console[level](`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)} ${pc.gray(interval)}`)
+}
+
+export function runMiddleware(ctx: HttpContext, middleware: (req: any, res: any, next?: any) => any) {
+  return new Promise((resolve) => {
+    middleware(ctx.getRequest(), ctx.getResponse(), resolve)
+  })
+}
+
+export { Mixin } from 'ts-mixer'

@@ -1,120 +1,120 @@
 # phecda-server
-简而言之，这是一种抽象的接口标准,但：
-1. 像`nestjs`的`trpc`，
-2. 利用`运行时`+`编译时`
-3. 跨技术栈(暂时只有`express`/`rabbitmq`两个，但其他一样可以实现)
-4. 基于依赖注入的`phecda-core`标准，
 
-我认为它在小型项目上能够提供一流的体验与标准，且易于迁移，易于上手，我目前正在多个项目中实践`phecda-server`
+一款易于接入、可复用类型的类`nestjs`服务端框架
 
-## 灵感来源
-先从一个`nestjs`案例开始
-> 这是一个登录的接口，只需要在浏览器端，朝着`/user/login`发请求就行，
+:::tip 
+如果熟悉`nestjs`或者其他依类似框架，并已决心使用这个方案
 
-```ts
-@Controller('/user')
-class User {
-  @Post('/login')
-  login(@Body() name: string, @Query() version: string) { // 仔细看这一行！
-    // ..
-  }
-}
-```
-一件不难看出的事情是：这里其实已经提供了类型，也就是两个参数，类型是字符串，只需要想法设法让这个类型能被前端所利用。
+不用在这里浪费时间，对照后续文档，直接查看[案例](https://github.com/fgsreally/phecda/tree/main/examples/server)即可
 
-另一件很关键的事情是：服务端只是需要两个参数，至于这两个参数来自`body`还是其他地方，通过`Get`还是`Post`,走的路由是什么，服务端自己是知道的！既然服务端是知道的，那么开发者是否可以不用知道？
-
-这给我了一点想法：我可不可以让接口的调用，变成函数的调用，也就是，我只关心入参和返回的值，至于这个参数是挂载到`body`还是`query`，是走什么路由，是`GET`还是`POST`,我不用去管（屏蔽掉`HTTP`这个层面的东西，完全回归到`js`函数这个层级上），
-
-如果可以的话，那么前端中完全可以这么调用:
-
-```ts
-const ret = await login('fgs', '1')// 这样就可以直接复用服务端类型！
-```
-当然这种改动是破坏性的，而我更希望其能够符合`RESTFUL`的标准，方便迁移，让使用者更能接受一点
-
-一个不算坏的方案是：服务端输出一些元数据，包含路由，请求方式等信息，然后前端通过编译时，用这些元数据创造出一些函数方法,从而使得这些方法能够绑定对应的路由、请求方式、挂载位置，然后应用层面上就只需要关心方法这个层级了
-
-> 写法上和`nestjs`基本保持一致，也有守卫/管道/拦截器/过滤器，但能够实现`trpc`类似的类型复用，即` 长得像nestjs的trpc`；因为同时需要服务端运行+前端编译，即`运行时+编译时`；这种屏蔽实现细节，仅暴露函数调用的思路，不仅仅能用于`express`等服务端框架,`rabbitmq`等一样可以,即`跨技术栈`;关于依赖注入，[详见](./nestjs.md)
-
-
-## 快速开始
-
-### 服务端
-以`express`为例
-> 案例尽量和`nestjs`保持一致
-创建一个`user.controller.ts`和`user.service.ts`
-
-```ts
-// in user.service.ts
-import { Tag } from 'phecda-server'
-
-@Tag('user')
-class UserService {
-  login() {
-    return 'user1'
-  }
-}
-```
-```ts
-import { Body, Controller, Post, Query } from 'phecda-server'
-import { UserService, } from './user.service'
-// in user.controller.ts
-@Controller('/user')
-class UserController {
-  constructor(private userService: UserService) {
-
-  }
-
-  @Post('/login')
-  login(@Body('username') name: string, @Query('version') version: string) { // 即`/login?version=xx` 请求体为{username:'xx'}
-    return this.userService.login()
-  }
-}
-```
-入口程序如下
-```ts
-import { UserController } from './user.controller'
-const data = await Factory([UserController])
-data.output()// 输出元数据，最好是js结尾，默认是pmeta.js
-const app = express()
-app.use(express.json())
-bindApp(app, data)// 这里相当于给了app绑定了一堆express中间件
-app.listen(3000)
-```
-
-### 客户端
-当然，这取决于用什么库去实现请求，如果是`axios`，那么安装`phecda-client`
-> 其他的话就要自己实现一个类似`phecda-client`的东西了
-编译方面，以`vite`为例
-```ts
-import PC from 'phecda-client/vite'
-
-export default defineConfig({
-  plugins: [PC({ localPath: './pmeta.js'/** 元数据文件的路径 */, port: ' http://localhost:3699/', })],
-})
-```
-运行时的部分：
-```ts
-import axios from 'axios'
-import { createReq } from 'phecda-client'
-import { UserController } from './user.controller'// 指向controller的路径！这里只是用它的类型，不是真的引入了Controller，
-// 文件名包含controller和route的，都会如此（不是什么文件都行），如要更改配置，请看插件的配置项
-const instance = axios.create({
-  baseURL: 'http://localhost:3699',
-})
-const useRequest = createReq(instance)
-const { login } = useC(UserController)
-
-async function request() {
-  const { data } = await useRequest(login('username', 'version'))
-
-  console.log(data)// user1
-}
-```
-::: warning 提醒
-注意两点，
-1. 由于需要对应类型，所以在参数层面，不支持自定义装饰器，因为自定义装饰器对应的数据，可能是来自于中间件而非客户端，这不符合函数入参的逻辑
-2. 不能接收`module`,也就是`controller`和`service`中的类，的类名或者`Tag`（优先级更高，有就不用管类名）重复，必须保证唯一
+以下的部分主要为抱着调研心态的游客解惑
 
 :::
+
+## intro
+:::warning 我不需要一个玩具
+很多开源的服务端框架有很棒的性能和特性，但实际上，社区里的实践多是一些无关轻重的项目，或许未来会成为主流技术，但当下看起来更像是一个花哨有趣的玩具。
+
+但我真正需要的，是一个能让我无后顾之忧地在现有项目中使用的技术
+:::
+
+
+我希望有一款服务端在个人项目、企业项目...无论在任何时候都能帮上忙
+
+它以**实用**为第一且唯一的目标，而不是为开发者提供想象空间，坦率地说，相较于其他任何框架，这都是一个**乏味**的方案，
+
+
+很多优秀的开源方案会强调的部分，比如体积和压测，`PS`不关心
+
+> 虽然确实依赖少体积小，但这并不是目的，如果有必要的话，我会毫不犹豫膨胀体积
+
+> 性能与使用的框架有关，目前从压测看会比原有的框架并发少 20%（这看上去是个很恐怖的数字，但鉴于`benchmark`的猫腻,实际业务的影响几乎没有），
+我会尽力让性能维持在当前的水平上，但不会花时间做一个提高性能百分之 x 的改动
+
+`PS`更重视维护性、可读性、开发体验、代码量...`一些业务中真正能让开发者受益的东西`
+
+## 类`nestjs`的写法
+基本上沿用了`nestjs`的格式（虽然原理大相径庭），其中:
+1. 以类为核心的写法能提供比较规范的格式和不错的可读性
+2. 利用元数据实现的控制反转能提供很棒的体验，
+3. `aop` 也能帮助注意力集中在业务本身上
+
+以上这些都会保留
+
+但`nestjs`可能导致代码冗余和理解困难的特性，如过于灵活的依赖注入和兼容，这些部分会移除
+
+可以理解为没有 `@module` 的 `nestjs`
+
+> 只是引入了写法
+
+
+## 易于接入
+易于接入和易于移植并不是同一回事
+
+易于移植并不是完全意义的好事，因为真实的项目大部分时候不会无端的移植，
+
+为什么要花时间将一个无比稳定的 `express` 应用用 `hono` 重写一遍？即使这样做很容易
+
+真实的情况是，我可能要接着开发这个 `express` 应用，提供的新接口显然也要是一个`express router`，新模块要能调用旧模块，甚至旧模块要能调用新模块，很多时候只能捏着鼻子接着用 `express` 的思路做
+
+最好的情况是，新模块本质是一个 `express` 的**一部分**，那么一切问题都会引刃而解。 
+
+`ps` 就是这么做的,出于这个特点，`ps` 能支持各种服务端以及微服务
+
+
+>`ps` 能接入绝大部分底层服务端框架，但对于依赖编译工具的高级框架，如 `nextjs/nitro`等则不行
+>
+> 我承认至少一部分框架是需要支持的，（好吧其实就只有 `nextjs`），
+>
+> 但这工作量对我实在是过于残忍，且本人对`nextjs`有极大恶意，故不带算支持
+
+:::info
+这和`nestjs`也不太一样，`nestjs`侧重于使不同框架作为其底层的运行时（由于上层设计过重，`nestjs`很难去“迁就”底层服务框架，结果就是官方无力兼容`express/fastfiy`以外的东西）
+
+而`ps`则更像是对原有框架的加强
+:::
+
+<br>
+
+
+上述两点足够让内部代码较为糟糕的团队心动，
+但如果你是一位技术的狂信徒，可能确实需要一个强而有力的 `feature` 说服自己，那`PS`也提供了一些吸引眼球的特性
+
+> `PS`提供了不少实用且独特的功能，但只有这两个功能称得上绝无仅有
+
+## 代码和类型的复用
+> 包括端到端类型安全
+
+我不太确定其他开发者对类型复用的理解是什么，
+一般来讲，大概是两个步骤
+
+1. 声明类型
+2. 使用特定的请求库，复用这个类型
+
+   可能在此基础上还有一些区别，比如：
+
+如何声明类型的，是通过`zod`等方式隐式推导类型还是通过单独显式声明？
+
+是完全通过类型推导去区分`method/query/body/params`，如`elysia`，还是完全不区分，直接写死标准？（全部使用`POST`请求，并将数据挂到`body`）,如`trpc/tsrpc`
+
+无论是写死标准还是使用特定请求库，都不一定是好事：
+
+你真的确定手头的项目可以完全舍弃`restful`标准吗
+
+且一些方法使用了大量类型体操，这可能导致`ide` 卡顿或对眼睛不友好（可以看一下`elysia`的类型）
+
+`ps`通过服务端生成请求代码，让开发者保留`restful`写法的基础上，可以忽略`请求方式、请求路径、数据位置`，减少代码编写量，并复用隐式推导的类型，减少类型编写的负担，且将易接入性延续至客户端，包装`axios`而非自行制作请求库（和服务端同样，这里用的`phecda-client`只是对`axios`的加强，而非一个死板的封装）
+
+不会影响业务中旧有的任何写法，成本低，过程透明
+
+> 如果业务原有的请求库不是`axios`（真是羡慕...）可以自行包装一个，这很简单，代码一百行以内就能搞定
+
+## 极速的热更新
+
+现在的热更新，多是通过启动一个守护进程，当代码更新时，守护进程杀死原进程并启动一个新进程，并重新建立数据库连接等。
+
+即使使用`swc`等来编译，进程重启的过程仍然漫长
+
+`ps`实现文件级别的热更新（如同`vite`中做的一样），文件更新时替换对应的模块，进程无需重启，再搭配`swc`，可以实现`<0.1s`的热更新
+
+我还是要强调：这是小于零点一秒的热更新！开发体验绝对是极致中的极致了

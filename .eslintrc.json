@@ -1,7 +1,14 @@
 {
   "extends": "@antfu/eslint-config",
+
   "parserOptions": {
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
     // "tsconfigRootDir": "__dirname"
+  },
+  "rules": {
+    "@typescript-eslint/consistent-type-imports": "off",
+    "@typescript-eslint/no-unsafe-declaration-merging": "off"
   }
+
 }

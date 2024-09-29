@@ -1,0 +1,31 @@
+{
+  "name": "phecda-web",
+  "version": "3.0.1",
+  "description": "using proxy, provide phecda function to web app",
+  "author": "fgsreally",
+  "license": "MIT",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/web",
+  "keywords": [
+    "phecda",
+    "web"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "mitt": "^3.0.0",
+    "phecda-core": "workspace:*",
+    "reflect-metadata": "^0.1.13",
+    "ts-mixer": "^6.0.4"
+  },
+  "devDependencies": {
+    "tsup": "^8.1.0"
+  }
+}

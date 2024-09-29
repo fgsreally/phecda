@@ -1,0 +1,6 @@
+export * from 'phecda-core'
+export * from './types'
+export * from './inject'
+export * from './core'
+export * from './base'
+export { Mixin } from 'ts-mixer'

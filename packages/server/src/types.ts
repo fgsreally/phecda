@@ -1,9 +1,6 @@
-import type { Request, Response } from 'express'
-import type { Events } from 'phecda-core'
-import type { Meta } from './meta'
-import type { HttpException } from './exception'
-export type Construct<T = any> = new (...args: any[]) => T
-
+import type { Construct, Events } from 'phecda-core'
+import type { ControllerMeta } from './meta'
+import type { ERROR_SYMBOL } from './common'
 export interface Emitter {
   on<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
   once<N extends keyof Events>(eventName: N, cb: (args: Events[N]) => void): void
@@ -12,67 +9,57 @@ export interface Emitter {
   emit<N extends keyof Events>(eventName: N, param: Events[N]): void
 }
 
-export type RequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
+type AnyFunction = (...args: any) => any
+type ParseInstance<Instance extends Record<string, AnyFunction>> = {
+  [Key in keyof Instance]: ToClientFn<Instance[Key]>
+}
+type PickFuncKeys<Type> = { [Key in keyof Type]: Type[Key] extends (...args: any) => any ? (ReturnType<Type[Key]> extends CustomResponse<any> ? never : Key) : never }[keyof Type]
 
-export type MergeType = <R extends Promise<any>[]> (...args: R) => { [K in keyof R]: Awaited<R[K]> }
-
-export interface ServerMergeCtx {
-  request: Request
-  response: Response
-  meta: Record<string, Meta>
-  isMerge: true
-  tags?: string[]
+export type ToClientMap<ControllerMap extends Record<string, Construct>> = {
+  [Key in keyof ControllerMap]: ToClientInstance<InstanceType<ControllerMap[Key]>>
 }
 
-export interface ServerCtx {
-  request: Request
-  response: Response
-  meta: Meta
+export type ToClientInstance<Instance extends Record<string, any>> = ParseInstance<PickFunc<Instance>>
+
+export type ToClientFn<Func extends AnyFunction> = (...p: Parameters<Func>) => Promise<BaseReturn<ReturnType<Func>>>
+
+export type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
+
+export type OmitFunction<Instance> = Omit<Instance, PickFuncKeys<Instance>>
+
+export interface BaseContext {
+  meta: ControllerMeta
+  moduleMap: Record<string, any>
+  type: string
+  tag: string
+  func: string
+  [key: string]: any
+
 }
+
+export interface DefaultOptions {
+  globalGuards?: string[]
+  globalFilter?: string
+  globalPipe?: string
+  globalAddons?: string[]
+}
+
 export interface BaseError {
-  error: true
+  // as a symbol
+  [ERROR_SYMBOL]: true
   status: number
+  message: string
+  description: string
 }
-export type ServerFilter<E extends HttpException = any> = (err: E | Error, ctx: ServerMergeCtx | ServerCtx) => any
+export type BaseReturn<T> = Awaited<T> extends { toJSON(): infer R } ? R : Awaited<T>
+//   export type RetOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
 
-export class Base {
-  context: ServerMergeCtx | ServerCtx
+export type BaseRequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
+
+const ResponseSymbol: unique symbol = Symbol('response')
+
+export class CustomResponse<Value> {
+  [ResponseSymbol]: Value
 }
 
-export namespace P{
-  export interface Error extends BaseError { message: string; description: string}
-
-  export type ResOrErr<R > = { [K in keyof R]: Awaited<R[K]> | Error }
-
-  export type Res<T> = T
-  export type Guard = ((ctx: ServerCtx, isMerge?: false) => Promise<boolean> | boolean) | ((ctx: ServerMergeCtx, isMerge?: true) => Promise<boolean> | boolean)
-  export type Interceptor = ((ctx: ServerCtx, isMerge?: false) => any) | ((ctx: ServerMergeCtx, isMerge?: true) => any)
-  export interface Handler {
-    error?: (arg: any) => void
-  }
-  export interface Meta {
-    route?: {
-      type: RequestType
-      route: string
-    }
-    // mq?: {
-    //   queue: string
-    //   routeKey: string
-    //   options: amqplib.Options.Consume
-
-    // }
-    define?: any
-    header: Record<string, string>
-    params: { type: string; index: number; key: string; validate?: boolean }[]
-    guards: string[]
-    interceptors: string[]
-    middlewares: string[]
-    method: string
-    name: string
-    tag: string
-  }
-  export interface Pipe {
-    transform(args: { arg: any; validate?: boolean }[], reflect: any[], ctx: ServerCtx | ServerMergeCtx): Promise<any[]>
-  }
-
-}
+export type ExtractResponse<Class extends CustomResponse<any>> = Class extends CustomResponse<infer Value> ? Value : never

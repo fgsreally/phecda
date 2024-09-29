@@ -1,5 +1,427 @@
 # phecda-vue
 
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies [bffb0a0]
+- Updated dependencies [d382585]
+  - phecda-web@3.0.1
+
+## 5.1.1
+
+### Patch Changes
+
+- 12f3d32: lib mode support
+  1. Init/Unmount
+  2. params inject
+  3. Reuse within the same component
+  4. force provide a new module
+
+## 5.1.0
+
+### Minor Changes
+
+- d5ed1d5: support lib mode (experiment)
+
+## 5.0.0
+
+### Major Changes
+
+- 831c910: release core v4
+
+  1. refactor how meta is set and get
+  2. refactor Phecda target structure
+  3. remove some useless decorators
+
+### Patch Changes
+
+- Updated dependencies [831c910]
+  - phecda-web@3.0.0
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies [9a6341e]
+  - phecda-web@2.0.8
+
+## 4.0.7
+
+### Patch Changes
+
+- phecda-web@2.0.7
+
+## 4.0.6
+
+### Patch Changes
+
+- phecda-web@2.0.6
+
+## 4.0.5
+
+### Patch Changes
+
+- f9578f7: add getRaw
+- f9578f7: add param `models` to `createPhecda`
+- Updated dependencies [a55a92f]
+- Updated dependencies [f9578f7]
+  - phecda-web@2.0.5
+
+## 4.0.4
+
+### Patch Changes
+
+- 44d82c3: revert decorator `Shallow` because of `If`
+  - phecda-web@2.0.4
+
+## 4.0.3
+
+### Patch Changes
+
+- 8f2fe66: support vue devtools
+- 8f2fe66: add namespace to support phecda-vue/phecda-react work in the same app
+
+  namespace should be a Map
+
+- Updated dependencies [8f2fe66]
+- Updated dependencies [8f2fe66]
+  - phecda-web@2.0.3
+
+## 4.0.2
+
+### Patch Changes
+
+- b7ab24b: Functions starting with "use" must and can only be used inside the component.
+
+  add `getR/getPhecda/getV` to work outside component
+
+- 34513a7: add vue app to VuePhecda
+- 34513a7: add defaultPhecda to support pure browser environment (not in ssr/nodejs)
+- Updated dependencies [34513a7]
+  - phecda-web@2.0.2
+
+## 4.0.1
+
+### Patch Changes
+
+- 37148d6: update sth to support phecda-react
+
+  refactor `Shallow` in `phecda-vue`
+
+- Updated dependencies [37148d6]
+  - phecda-web@2.0.1
+
+## 4.0.0
+
+### Major Changes
+
+- remove filter in `phecda-vue`
+
+  refactor `useV` in `phecda-vue`, cache is managed by `useV` itself, not Phecda instance
+
+  using `reflect-metadata` and `Proxy`
+
+  refactor to ensure `vue/react/web` structor is similar to `phecda-server`
+
+  only keep simple hook like `useR`
+
+  Add `usePhecda` hook for advanced operations
+
+  Follow the provide/inject (vue) and context(react) pattern to support `ssr`
+
+  `init` handler won't exec in ssr
+
+### Patch Changes
+
+- Updated dependencies
+  - phecda-web@2.0.0
+
+## 3.0.0
+
+### Major Changes
+
+- 0d6d8ad: refactor activeInstance logic to support ssr
+
+### Minor Changes
+
+- cf59f17: split part to web
+
+### Patch Changes
+
+- 5bc160a: add markRaw just for types
+- 120716e: refactor: remove all map;use cache/origin/state instead
+- 743709f: add WatchEffect
+- 6a55ac9: won't load module with tag that has been loaded before
+- 65cc59a: add waitUntilInit
+- fb6633c: add Isolate
+- 09addb4: get function in useV should bind correct target
+- 074a815: model=class and module=instance
+- 43cc4e9: add Shallow to support shallowReactive
+- 048b9ee: remove all components
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [120716e]
+- Updated dependencies [e254263]
+- Updated dependencies [43cc4e9]
+- Updated dependencies [b041748]
+- Updated dependencies [074a815]
+- Updated dependencies [9c83eae]
+  - phecda-web@1.0.1
+
+## 3.0.0-beta.22
+
+### Patch Changes
+
+- phecda-web@1.0.1-beta.14
+
+## 3.0.0-beta.21
+
+### Patch Changes
+
+- 743709f: add WatchEffect
+
+## 3.0.0-beta.20
+
+### Patch Changes
+
+- Updated dependencies [b041748]
+  - phecda-web@1.0.1-beta.13
+
+## 3.0.0-beta.19
+
+### Patch Changes
+
+- phecda-web@1.0.1-beta.12
+
+## 3.0.0-beta.18
+
+### Patch Changes
+
+- 074a815: model=class and module=instance
+- Updated dependencies [074a815]
+  - phecda-web@1.0.1-beta.11
+
+## 3.0.0-beta.17
+
+### Patch Changes
+
+- 09addb4: get function in useV should bind correct target
+
+## 3.0.0-beta.16
+
+### Patch Changes
+
+- phecda-web@1.0.1-beta.10
+
+## 3.0.0-alpha.15
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.9
+
+## 3.0.0-alpha.14
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.8
+
+## 3.0.0-alpha.13
+
+### Patch Changes
+
+- 5bc160a: add markRaw just for types
+- 120716e: refactor: remove all map;use cache/origin/state instead
+- 43cc4e9: add Shallow to support shallowReactive
+- Updated dependencies [120716e]
+- Updated dependencies [e254263]
+- Updated dependencies [43cc4e9]
+  - phecda-web@1.0.1-alpha.7
+
+## 3.0.0-alpha.12
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.6
+
+## 3.0.0-alpha.11
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.5
+
+## 3.0.0-alpha.10
+
+### Patch Changes
+
+- 9c83eae: add warn when using the same tag module
+- Updated dependencies [9c83eae]
+  - phecda-web@1.0.1-alpha.4
+
+## 3.0.0-alpha.9
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.3
+
+## 3.0.0-alpha.8
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.2
+
+## 3.0.0-alpha.7
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.1
+
+## 3.0.0-alpha.6
+
+### Major Changes
+
+- 0d6d8ad: refactor activeInstance logic to support ssr
+
+### Minor Changes
+
+- cf59f17: split part to web
+
+### Patch Changes
+
+- phecda-web@1.0.1-alpha.0
+
+## 2.1.3-alpha.5
+
+### Patch Changes
+
+- fb6633c: add Isolate
+
+## 2.1.3-alpha.4
+
+### Patch Changes
+
+- 65cc59a: add waitUntilInit
+- Updated dependencies [c40fece]
+  - phecda-core@3.0.0-alpha.2
+
+## 2.1.3-alpha.3
+
+### Patch Changes
+
+- 6a55ac9: won't load module with tag that has been loaded before
+
+## 2.1.3-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [fc8db58]
+  - phecda-core@3.0.0-alpha.1
+
+## 2.1.3-alpha.1
+
+### Patch Changes
+
+- Updated dependencies [8f35d74]
+  - phecda-core@2.1.2-alpha.0
+
+## 2.1.3-alpha.0
+
+### Patch Changes
+
+- 048b9ee: remove all components
+
+## 2.1.2
+
+### Patch Changes
+
+- 0d19e23: fix initlize
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies [99b458d]
+  - phecda-core@2.1.1
+
+## 2.1.0
+
+### Minor Changes
+
+- 222465a: not responsible for table/form/other component-lib any more
+
+### Patch Changes
+
+- Updated dependencies [4c4c45a]
+- Updated dependencies [ec66a44]
+- Updated dependencies [de7cf57]
+- Updated dependencies [de7cf57]
+- Updated dependencies [1dd0831]
+  - phecda-core@2.1.0
+
+## 2.0.4-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [ec66a44]
+  - phecda-core@2.1.0-alpha.2
+
+## 2.0.4-alpha.1
+
+### Patch Changes
+
+- Updated dependencies [4c4c45a]
+- Updated dependencies [de7cf57]
+- Updated dependencies [de7cf57]
+  - phecda-core@2.1.0-alpha.1
+
+## 2.0.4-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [1dd0831]
+  - phecda-core@2.0.1-alpha.0
+
+## 2.0.3
+
+### Patch Changes
+
+- 9c73b4d: hard to use createModal sometimes, so add createDialog instead
+- 9c73b4d: props that bind slot tag in modal wrap will inject to the content
+
+## 2.0.2
+
+### Patch Changes
+
+- 1d58f4e: add appContext to createModal/createLayer,to support provide/inject(must with createPhecda)
+
+## 2.0.1
+
+### Patch Changes
+
+- 9615af4: rewrite createFilter
+
+## 2.0.0
+
+### Major Changes
+
+- 78cb57a: refactor namespace structor to avoid namespace population
+
+### Patch Changes
+
+- e23c5fb: errorHandler work even in setter
+- ebae9ea: filter return reactive will cause perf in some cases
+- c507f78: createTable support custom render(with props) and column group (only test arco and element-plus)
+- c507f78: add useRaw
+- bf8d83a: replace computed with toRef
+- Updated dependencies [d6d2146]
+- Updated dependencies [049c138]
+- Updated dependencies [78cb57a]
+- Updated dependencies [a701f34]
+- Updated dependencies [25cf638]
+- Updated dependencies [eec80a6]
+- Updated dependencies [64c2f70]
+- Updated dependencies [8fe5ced]
+  - phecda-core@2.0.0
+
 ## 2.0.0-alpha.9
 
 ### Patch Changes

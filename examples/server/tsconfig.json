@@ -6,10 +6,11 @@
     "emitDecoratorMetadata": true,
     "module": "esnext",
     "lib": ["esnext", "DOM"],
-    "moduleResolution": "Node",
+    "strictPropertyInitialization": false,
+    "moduleResolution": "Bundler",
     "strict": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "esModuleInterop": true,
     "noEmit": true,
     "noUnusedLocals": true,
@@ -17,5 +18,5 @@
     "noImplicitReturns": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "./ps.d.ts"]
 }

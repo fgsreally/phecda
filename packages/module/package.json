@@ -1,6 +1,6 @@
 {
   "name": "phecda-module",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "description": "provide DI and HMR for modules by reflect-metadata and vite",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -26,14 +26,20 @@
       ]
     }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "phecda",
+    "hmr",
+    "web",
+    "vite"
+  ],
+  "author": "fgsreally",
+  "repository": "https://github.com/fgsreally/phecda/tree/main/packages/module",
+  "license": "MIT",
   "dependencies": {
     "phecda-core": "workspace:*",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "tsup": "^6.5.0"
+    "tsup": "^8.1.0"
   }
 }

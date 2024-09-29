@@ -1,98 +1,86 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getExposeKey } from '../src/core'
-import { Assign, Bind, Effect, Expose, Ignore, Pipe, Rule, addDecoToClass, classToValue, getBind, injectProperty, plainToClass, registerAsync, to } from '../src/index'
-describe('validate&transform', () => {
-  class Parent {
-    @Ignore
-    @Rule('phecda', k => `${k} should be phecda`)
-    @Pipe(to((name: string) => `${name}1`)
-      .to(name => `${name}1`)
-      .to(name => `${name}1`))
-    name: string
+import { Assign, Clear, Effect, Err, Expose, If, Init, Isolate, get, getMeta, invokeInit } from '../src'
 
-    @Expose
-    get fullname() {
-      return `${this.name}-core`
+describe('decorators', () => {
+  it('init', async () => {
+    class A {
+      isReady = false
+      @Init
+      async _init() {
+        await Promise.resolve()
+        this.isReady = true
+      }
     }
 
-    changeName() {
-      this.name = 'phecda-changed'
-    }
-  }
-  it('plainToClass', async () => {
-    // false
-    const { err } = await plainToClass(Parent, { name: 'phecda11' })
-    expect(err.length).toBe(1)
+    const i1 = new A()
+    await invokeInit(i1)
 
-    expect(err[0]).toBe('name should be phecda')
+    expect(i1.isReady).toBeTruthy()
+    const i2 = new A()
+    await invokeInit(i2)
 
-    const { data } = await plainToClass(Parent, { name: 'phecda' })
-    expect(data.name).toBe('phecda111')
-    expect(data.fullname).toBe('phecda111-core')
-
-    data.changeName()
-
-    expect(data.name).toBe('phecda-changed')
-    expect(data.fullname).toBe('phecda-changed-core')
+    expect(i2.isReady).toBeTruthy()
   })
 
-  it('classToValue', async () => {
-    const { data } = await plainToClass(Parent, { name: 'phecda' })
-    expect(classToValue(data)).toMatchSnapshot()
-  })
-
-  it('extend', async () => {
-    class Child extends Parent {
-      @Rule((str: string) => str.length < 5, 'name should be short')
-      @Ignore
-      name: string
-    }
-
-    const { err, data } = await plainToClass(Child, { name: 'phecda11', age: '1' }, { transform: true, collectError: true })
-    expect(err.length).toBe(2)
-    expect(err[0]).toBe('name should be short')
-    expect(data.name).toBe('phecda11111')
-    expect(classToValue(data)).toMatchSnapshot()
-  })
-
-  it('use function to add decorator', () => {
+  it('Err', async () => {
+    const fn = vi.fn()
     class Test {
-      name: string
+      @Err(fn, true)
+      invoke() {
+        this.error()
+      }
+
+      @Err(fn)
+      throw() {
+        this.error()
+      }
+
+      error() {
+        throw new Error('invoke error')
+      }
+    }
+    const i = new Test()
+    invokeInit(i)
+
+    i.invoke()
+    expect(fn).toBeCalled()
+
+    expect(i.throw.bind(i)).toThrowError('invoke error')
+  })
+
+  it('If & Isolate', () => {
+    @If(true, Isolate)
+    class Test1 {
+
+    }
+    @If(false, Isolate)
+    class Test2 {
+
     }
 
-    addDecoToClass(Test, 'name', Expose)
-    expect(getExposeKey(new Test() as any)).toMatchSnapshot()
+    expect(get(Test1.prototype, 'isolate')).toBeTruthy()
+    expect(get(Test2.prototype, 'isolate')).toBeFalsy()
   })
+
   it('Assign', async () => {
     @Assign(() => new Promise(resolve => resolve({ key: 'test2' })))
     class Test {
       key = 'test'
     }
     const instance = new Test() as any
-    await registerAsync(instance)
+    await invokeInit(instance)
     expect(instance.key).toBe('test2')
-  })
-
-  it('bind', () => {
-    class Test {
-      @Bind('phecda')
-      key: string
-    }
-    expect(getBind(Test).key).toBe('phecda')
   })
 
   it('Effect', async () => {
     const fn = vi.fn(v => v)
     class Test {
-      @Effect('phecda')
-      key = 10
+      @Effect(fn)
+            key = 10
     }
 
-    injectProperty('effect-phecda', ({ value }: any) => {
-      fn(value)
-    })
     const instance = new Test() as any
-    await registerAsync(instance)
+    await invokeInit(instance)
     expect(instance.key).toBe(10)
     expect(instance.$_key).toBe(10)
 
@@ -100,5 +88,22 @@ describe('validate&transform', () => {
     expect(fn).toHaveBeenCalledTimes(1)
     expect(fn).toHaveReturnedWith(20)
     expect(instance.key).toBe(20)
+  })
+
+  it('Clear', () => {
+    class A {
+      @Expose
+            name: string
+    }
+
+    class B extends A {
+      @Clear
+      @Expose
+            name: string
+    }
+
+    expect(getMeta(A, 'name').length).toBe(1)
+
+    expect(getMeta(B, 'name').length).toBe(0)
   })
 })

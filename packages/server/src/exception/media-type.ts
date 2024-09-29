@@ -1,6 +1,6 @@
-import { HttpException } from './base'
+import { Exception } from './base'
 
-export class UnsupportedMediaTypeException extends HttpException {
+export class UnsupportedMediaTypeException extends Exception {
   constructor(message: string) {
     super(message, 415, 'Unsupported Media Type')
   }
