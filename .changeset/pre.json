@@ -15,5 +15,8 @@
     "phecda-web": "3.0.1",
     "phecda-zod": "2.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "popular-books-act",
+    "popular-mirrors-complain"
+  ]
 }
