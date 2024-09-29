@@ -12,5 +12,5 @@ export * from './utils'
 
 export * from 'phecda-core'
 
-export * from './server/types'
+export * from './http/types'
 export * from './rpc/types'

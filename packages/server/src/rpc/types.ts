@@ -1,7 +1,7 @@
 import { BaseContext, DefaultOptions } from '../types'
 
 export interface RpcServerOptions extends DefaultOptions {
-
+  defaultQueue?: string
 }
 
 export interface RpcClientOptions {

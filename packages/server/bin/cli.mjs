@@ -138,6 +138,9 @@ cli
       }
       if (input === 'e')
         exit()
+
+      if (input === 'c')
+        console.clear()
     })
   })
 

@@ -4,9 +4,22 @@ export class User {
   password: string
 }
 
+@Guard('B')
+
+class Parent extends HttpBase {
+  @Get('/framework')
+  @Guard('A')
+
+  async framework() {
+    const { type } = this.context
+    return type
+  }
+}
+
 @Controller('/base')
+@Guard('D')
 @Define('a', {})
-export class TestController extends HttpBase {
+export class TestController extends Parent {
   static age = 12
   age = 1
 
@@ -20,11 +33,6 @@ export class TestController extends HttpBase {
   }
 
   @Post('/login')
-  // @Filter()
-  // @Interceptor()
-  // @Guard()
-  // @Pipe()
-  // @Plugin()
   login(@Body() user: User) {
     this.service.login(user)
     return user.name + Math.random()
@@ -38,6 +46,11 @@ export class TestController extends HttpBase {
   }
 
   @Get('/framework')
+
+  @Guard('E')
+
+  @Guard('C')
+
   async framework() {
     const { type } = this.context
     return type

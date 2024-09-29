@@ -52,7 +52,7 @@ importers:
   examples/module:
     dependencies:
       phecda-module:
-        specifier: workspace:^2.0.0
+        specifier: workspace:^2.0.1
         version: link:../../packages/module
     devDependencies:
       typescript:
@@ -63,7 +63,7 @@ importers:
         version: 1.4.5(@swc/core@1.6.5)(rollup@4.18.0)
       vite:
         specifier: ^4.4.5
-        version: 4.5.3(@types/node@18.19.39)(terser@5.31.1)
+        version: 4.5.3(@types/node@22.7.4)(terser@5.31.1)
 
   examples/react:
     dependencies:
@@ -94,10 +94,10 @@ importers:
         version: 6.21.0(eslint@8.57.0)(typescript@5.5.2)
       '@vitejs/plugin-react':
         specifier: ^4.2.1
-        version: 4.3.1(vite@5.3.1(@types/node@18.19.39)(terser@5.31.1))
+        version: 4.3.1(vite@5.3.1(@types/node@22.7.4)(terser@5.31.1))
       '@vitejs/plugin-react-swc':
         specifier: ^3.7.0
-        version: 3.7.0(vite@5.3.1(@types/node@18.19.39)(terser@5.31.1))
+        version: 3.7.0(vite@5.3.1(@types/node@22.7.4)(terser@5.31.1))
       eslint:
         specifier: ^8.55.0
         version: 8.57.0
@@ -115,7 +115,7 @@ importers:
         version: 1.4.5(@swc/core@1.6.5)(rollup@4.18.0)
       vite:
         specifier: ^5.0.8
-        version: 5.3.1(@types/node@18.19.39)(terser@5.31.1)
+        version: 5.3.1(@types/node@22.7.4)(terser@5.31.1)
 
   examples/server:
     dependencies:
@@ -156,7 +156,7 @@ importers:
         specifier: ^4.25.1
         version: 4.28.0
       h3:
-        specifier: ^1.9.0
+        specifier: ^1.12.0
         version: 1.12.0
       hono:
         specifier: ^4.3.4
@@ -212,10 +212,10 @@ importers:
         version: 1.10.1
       vite:
         specifier: ^5.1.4
-        version: 5.3.1(@types/node@18.19.39)(terser@5.31.1)
+        version: 5.3.1(@types/node@22.7.4)(terser@5.31.1)
       vite-plugin-node:
         specifier: ^3.0.2
-        version: 3.1.0(@swc/core@1.6.5)(vite@5.3.1(@types/node@18.19.39)(terser@5.31.1))
+        version: 3.1.0(@swc/core@1.6.5)(vite@5.3.1(@types/node@22.7.4)(terser@5.31.1))
 
   examples/vue:
     dependencies:
@@ -331,6 +331,9 @@ importers:
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
+      h3:
+        specifier: ^1.12.0
+        version: 1.12.0
       phecda-core:
         specifier: workspace:*
         version: link:../core
@@ -386,9 +389,6 @@ importers:
       fastify:
         specifier: ^4.25.1
         version: 4.28.0
-      h3:
-        specifier: ^1.11.1
-        version: 1.12.0
       hono:
         specifier: ^4.3.4
         version: 4.4.7
@@ -470,7 +470,7 @@ importers:
   packages/zod:
     dependencies:
       phecda-core:
-        specifier: workspace:4.0.0
+        specifier: workspace:4.0.1
         version: link:../core
       zod:
         specifier: ^3.23.5
@@ -1204,6 +1204,7 @@ packages:
   '@koa/router@12.0.1':
     resolution: {integrity: sha512-ribfPYfHb+Uw3b27Eiw6NPqjhIhTpVFzEWLwyc/1Xp+DCdwRRyIlAUODX+9bPARF6aQtUu1+/PHzdNvRzcs/+Q==}
     engines: {node: '>= 12'}
+    deprecated: Use v12.0.2 or higher to fix the vulnerability issue
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -1591,6 +1592,9 @@ packages:
   '@types/node@18.19.39':
     resolution: {integrity: sha512-nPwTRDKUctxw3di5b4TfT3I0sWDiWoPQCZjXhvdkINntwr8lcoVCKsTgnXeRubKIlfnV+eN/HYk6Jb40tbcEAQ==}
 
+  '@types/node@22.7.4':
+    resolution: {integrity: sha512-y+NPi1rFzDs1NdQHHToqeiX2TIS79SWEAw9GYhkkx8bD0ChpfqC+n2j5OXOCpzfojBEBt6DnEnnG9MY0zk1XLg==}
+
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -1962,6 +1966,11 @@ packages:
 
   acorn@8.12.0:
     resolution: {integrity: sha512-RTvkC4w+KNXrM39/lWCUaG0IbRkWdCv7W/IOW9oU6SawyxulvkQy5HQPVTKxEjczcUvapcrw3cFx/60VN/NRNw==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.12.1:
+    resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -2345,8 +2354,8 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  cookie-es@1.1.0:
-    resolution: {integrity: sha512-L2rLOcK0wzWSfSDA33YR+PUHDG10a8px7rUHKWbGLP4YfbsMed2KFUw5fczvDPbT98DDe3LEzviswl810apTEw==}
+  cookie-es@1.2.2:
+    resolution: {integrity: sha512-+W7VmiVINB+ywl1HGXJXmrqkOhpKrIiVZV6tQuV54ZyQC7MMuBt81Vc336GMLoHBq5hV/F9eXgt5Mnx0Rha5Fg==}
 
   cookie-parser@1.4.6:
     resolution: {integrity: sha512-z3IzaNjdwUC2olLIB5/ITd0/setiaFMLYiZJle7xg5Fe9KWAceil7xszYfHHBtDFYLSgJduS2Ty0P1uJdPDJeA==}
@@ -3962,8 +3971,8 @@ packages:
     resolution: {integrity: sha512-yBYjY9QX2hnRmZHAjG/f13MzmBzxzYgQhFrke06TTyKY5zSTEqkOeukBzIdVA3j3ulu8Qa3MbVFShV7T2RmGtQ==}
     engines: {node: '>= 0.4'}
 
-  ohash@1.1.3:
-    resolution: {integrity: sha512-zuHHiGTYTA1sYJ/wZN+t5HKZaH23i4yI1HMwbuXm24Nid7Dv0KcuRlKoNKS9UNfAVSBlnGLcuQrnOKWOZoEGaw==}
+  ohash@1.1.4:
+    resolution: {integrity: sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==}
 
   on-exit-leak-free@2.1.2:
     resolution: {integrity: sha512-0eJJY6hXLGf1udHwfNftBqH+g73EU4B504nZeKpz1sYRKafAghwxEJunB2O7rDZkL4PGfsMVnTXZ2EjibbqcsA==}
@@ -4977,8 +4986,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06}
     version: 20.43.0
 
-  ufo@1.5.3:
-    resolution: {integrity: sha512-Y7HYmWaFwPUmkoQCUIAYpKqkOf+SbVj/2fJJZ4RJMCfZp0rTGwRbzQD+HghfnhKOjL9E01okqz+ncJskGYfBNw==}
+  ufo@1.5.4:
+    resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
 
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -4992,8 +5001,11 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  unenv@1.9.0:
-    resolution: {integrity: sha512-QKnFNznRxmbOF1hDgzpqrlIf6NC5sbZ2OJ+5Wl3OX8uM+LUJXbj4TXvLJCtwbPTmbMHCLIz6JLKNinNsMShK9g==}
+  undici-types@6.19.8:
+    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+
+  unenv@1.10.0:
+    resolution: {integrity: sha512-wY5bskBQFL9n3Eca5XnhH6KbUo/tfvkwm9OpcdCvLaeA7piBNbavbOKJySEwQ1V0RH6HvNlSAFRTpvTqgKRQXQ==}
 
   unimport@3.7.2:
     resolution: {integrity: sha512-91mxcZTadgXyj3lFWmrGT8GyoRHWuE5fqPOjg5RVtF6vj+OfM5G6WCzXjuYtSgELE5ggB34RY4oiCSEP8I3AHw==}
@@ -6636,6 +6648,11 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
+  '@types/node@22.7.4':
+    dependencies:
+      undici-types: 6.19.8
+    optional: true
+
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/prop-types@15.7.12': {}
@@ -6852,21 +6869,21 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-react-swc@3.7.0(vite@5.3.1(@types/node@18.19.39)(terser@5.31.1))':
+  '@vitejs/plugin-react-swc@3.7.0(vite@5.3.1(@types/node@22.7.4)(terser@5.31.1))':
     dependencies:
       '@swc/core': 1.6.5
-      vite: 5.3.1(@types/node@18.19.39)(terser@5.31.1)
+      vite: 5.3.1(@types/node@22.7.4)(terser@5.31.1)
     transitivePeerDependencies:
       - '@swc/helpers'
 
-  '@vitejs/plugin-react@4.3.1(vite@5.3.1(@types/node@18.19.39)(terser@5.31.1))':
+  '@vitejs/plugin-react@4.3.1(vite@5.3.1(@types/node@22.7.4)(terser@5.31.1))':
     dependencies:
       '@babel/core': 7.24.7
       '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.24.7)
       '@babel/plugin-transform-react-jsx-source': 7.24.7(@babel/core@7.24.7)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.3.1(@types/node@18.19.39)(terser@5.31.1)
+      vite: 5.3.1(@types/node@22.7.4)(terser@5.31.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7132,6 +7149,9 @@ snapshots:
       acorn: 8.12.0
 
   acorn@8.12.0: {}
+
+  acorn@8.12.1:
+    optional: true
 
   agent-base@6.0.2:
     dependencies:
@@ -7565,7 +7585,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  cookie-es@1.1.0: {}
+  cookie-es@1.2.2: {}
 
   cookie-parser@1.4.6:
     dependencies:
@@ -8593,16 +8613,16 @@ snapshots:
 
   h3@1.12.0:
     dependencies:
-      cookie-es: 1.1.0
+      cookie-es: 1.2.2
       crossws: 0.2.4
       defu: 6.1.4
       destr: 2.0.3
       iron-webcrypto: 1.2.1
-      ohash: 1.1.3
+      ohash: 1.1.4
       radix3: 1.1.2
-      ufo: 1.5.3
+      ufo: 1.5.4
       uncrypto: 0.1.3
-      unenv: 1.9.0
+      unenv: 1.10.0
     transitivePeerDependencies:
       - uWebSockets.js
 
@@ -9270,7 +9290,7 @@ snapshots:
       acorn: 8.12.0
       pathe: 1.1.2
       pkg-types: 1.1.1
-      ufo: 1.5.3
+      ufo: 1.5.4
 
   mock-amqplib@1.8.2: {}
 
@@ -9406,7 +9426,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.0.0
 
-  ohash@1.1.3: {}
+  ohash@1.1.4: {}
 
   on-exit-leak-free@2.1.2: {}
 
@@ -10195,7 +10215,7 @@ snapshots:
   terser@5.31.1:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.12.0
+      acorn: 8.12.1
       commander: 2.20.3
       source-map-support: 0.5.21
     optional: true
@@ -10436,7 +10456,7 @@ snapshots:
 
   uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06: {}
 
-  ufo@1.5.3: {}
+  ufo@1.5.4: {}
 
   unbox-primitive@1.0.2:
     dependencies:
@@ -10451,7 +10471,10 @@ snapshots:
 
   undici-types@5.26.5: {}
 
-  unenv@1.9.0:
+  undici-types@6.19.8:
+    optional: true
+
+  unenv@1.10.0:
     dependencies:
       consola: 3.2.3
       defu: 6.1.4
@@ -10594,12 +10617,12 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-node@3.1.0(@swc/core@1.6.5)(vite@5.3.1(@types/node@18.19.39)(terser@5.31.1)):
+  vite-plugin-node@3.1.0(@swc/core@1.6.5)(vite@5.3.1(@types/node@22.7.4)(terser@5.31.1)):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       chalk: 4.1.2
       debug: 4.3.5
-      vite: 5.3.1(@types/node@18.19.39)(terser@5.31.1)
+      vite: 5.3.1(@types/node@22.7.4)(terser@5.31.1)
     optionalDependencies:
       '@swc/core': 1.6.5
     transitivePeerDependencies:
@@ -10646,6 +10669,16 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.31.1
 
+  vite@4.5.3(@types/node@22.7.4)(terser@5.31.1):
+    dependencies:
+      esbuild: 0.18.20
+      postcss: 8.4.38
+      rollup: 3.29.4
+    optionalDependencies:
+      '@types/node': 22.7.4
+      fsevents: 2.3.3
+      terser: 5.31.1
+
   vite@5.3.1(@types/node@18.19.39)(terser@5.31.1):
     dependencies:
       esbuild: 0.21.5
@@ -10653,6 +10686,16 @@ snapshots:
       rollup: 4.18.0
     optionalDependencies:
       '@types/node': 18.19.39
+      fsevents: 2.3.3
+      terser: 5.31.1
+
+  vite@5.3.1(@types/node@22.7.4)(terser@5.31.1):
+    dependencies:
+      esbuild: 0.21.5
+      postcss: 8.4.38
+      rollup: 4.18.0
+    optionalDependencies:
+      '@types/node': 22.7.4
       fsevents: 2.3.3
       terser: 5.31.1
 

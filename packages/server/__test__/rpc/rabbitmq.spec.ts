@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import amqp from 'amqplib'
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Pipe, Queue, Rpc, addFilter, addGuard, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/rabbitmq'
 
 function stop(time = 1000) {
@@ -86,8 +86,6 @@ describe('rabbitmq rpc', () => {
   it('guard', async () => {
     addGuard('g1', (ctx) => {
       expect(ctx.tag).toBe('TestRpc')
-
-      return true
     })
 
     @Rpc()
@@ -116,39 +114,39 @@ describe('rabbitmq rpc', () => {
     expect(await client.test.run(1)).toBe(2)
   })
 
-  it('interceptor', async () => {
-    addInterceptor('i1', (ctx) => {
-      expect(ctx.tag).toBe('TestRpc')
-      return (ret: number) => {
-        expect(ret).toBe(2)
-        return ++ret
-      }
-    })
+  // it('interceptor', async () => {
+  //   addInterceptor('i1', (ctx) => {
+  //     expect(ctx.tag).toBe('TestRpc')
+  //     return (ret: number) => {
+  //       expect(ret).toBe(2)
+  //       return ++ret
+  //     }
+  //   })
 
-    @Rpc()
-    class TestRpc {
-      @Queue()
-      @Interceptor('i1')
-      run(@Arg arg: number) {
-        expect(arg).toBe(1)
-        return ++arg
-      }
-    }
+  //   @Rpc()
+  //   class TestRpc {
+  //     @Queue()
+  //     @Interceptor('i1')
+  //     run(@Arg arg: number) {
+  //       expect(arg).toBe(1)
+  //       return ++arg
+  //     }
+  //   }
 
-    const data = await Factory([TestRpc])
-    const conn = await amqp.connect('amqp://localhost')
+  //   const data = await Factory([TestRpc])
+  //   const conn = await amqp.connect('amqp://localhost')
 
-    const clientCh = await conn.createChannel()
-    const serverCh = await conn.createChannel()
+  //   const clientCh = await conn.createChannel()
+  //   const serverCh = await conn.createChannel()
 
-    await bind(serverCh, data)
+  //   await bind(serverCh, data)
 
-    const client = await createClient(clientCh, {
-      test: Faker as unknown as typeof TestRpc,
-    })
+  //   const client = await createClient(clientCh, {
+  //     test: Faker as unknown as typeof TestRpc,
+  //   })
 
-    expect(await client.test.run(1)).toBe(3)
-  })
+  //   expect(await client.test.run(1)).toBe(3)
+  // })
 
   it('pipe', async () => {
     addPipe('test', async ({ arg }) => {

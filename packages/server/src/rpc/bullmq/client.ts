@@ -6,7 +6,7 @@ import type { ToClientMap } from '../../types'
 import type { RpcClientOptions } from '../types'
 
 import { genClientQueue } from '../helper'
-import { BullmqOptions } from './bind'
+import { BullmqOptions } from './create'
 
 export async function createClient<S extends Record<string, any>>(controllers: S, opts: RpcClientOptions & BullmqOptions = {}) {
   let eventId = 1

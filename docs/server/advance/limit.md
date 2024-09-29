@@ -128,7 +128,7 @@ export class OssController {
   context: HttpContext
 
   @Post('/upload')
-  @Plugin('upload')
+  @Addon('upload')
   @Guard('upload')
   async upload() {
     const { user, files } = this.context// 按理来说，文件是来自客户端，应该作为函数的参数而不是在上下文上，这里是破坏默认模式的

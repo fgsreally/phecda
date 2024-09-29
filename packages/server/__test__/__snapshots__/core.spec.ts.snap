@@ -3,6 +3,7 @@
 exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 [
   {
+    "addons": [],
     "controller": "http",
     "ctxs": [
       "context",
@@ -16,7 +17,6 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
       "route": "/test",
       "type": "get",
     },
-    "interceptors": [],
     "name": "A",
     "params": [
       {
@@ -34,7 +34,6 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "A",
   },
 ]
@@ -43,6 +42,7 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
 exports[`Factory  > In extended case 1`] = `
 [
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -54,7 +54,6 @@ exports[`Factory  > In extended case 1`] = `
       "route": "/testB",
       "type": "get",
     },
-    "interceptors": [],
     "name": "B",
     "params": [
       {
@@ -72,10 +71,10 @@ exports[`Factory  > In extended case 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "B",
   },
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -87,7 +86,6 @@ exports[`Factory  > In extended case 1`] = `
       "route": "/testA",
       "type": "get",
     },
-    "interceptors": [],
     "name": "B",
     "params": [
       {
@@ -105,7 +103,6 @@ exports[`Factory  > In extended case 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "B",
   },
 ]
@@ -114,6 +111,7 @@ exports[`Factory  > In extended case 1`] = `
 exports[`Factory  > decorator in extends case 1`] = `
 [
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -128,7 +126,6 @@ exports[`Factory  > decorator in extends case 1`] = `
       "route": "",
       "type": "post",
     },
-    "interceptors": [],
     "name": "A",
     "params": [
       {
@@ -139,10 +136,10 @@ exports[`Factory  > decorator in extends case 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "A",
   },
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {
@@ -166,7 +163,6 @@ exports[`Factory  > decorator in extends case 1`] = `
       "route": "",
       "type": "post",
     },
-    "interceptors": [],
     "name": "B",
     "params": [
       {
@@ -177,10 +173,10 @@ exports[`Factory  > decorator in extends case 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "B",
   },
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {
@@ -205,7 +201,6 @@ exports[`Factory  > decorator in extends case 1`] = `
       "route": "/test",
       "type": "post",
     },
-    "interceptors": [],
     "name": "C",
     "params": [
       {
@@ -216,7 +211,6 @@ exports[`Factory  > decorator in extends case 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "C",
   },
 ]
@@ -225,6 +219,7 @@ exports[`Factory  > decorator in extends case 1`] = `
 exports[`Factory  > multple class extends the same class 1`] = `
 [
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -236,7 +231,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
       "route": "/testB",
       "type": "get",
     },
-    "interceptors": [],
     "name": "B",
     "params": [
       {
@@ -254,10 +248,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "B",
   },
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -269,7 +263,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
       "route": "/testA",
       "type": "get",
     },
-    "interceptors": [],
     "name": "B",
     "params": [
       {
@@ -287,10 +280,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "B",
   },
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -302,7 +295,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
       "route": "/testC",
       "type": "get",
     },
-    "interceptors": [],
     "name": "C",
     "params": [
       {
@@ -320,10 +312,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "C",
   },
   {
+    "addons": [],
     "controller": "http",
     "ctxs": undefined,
     "define": {},
@@ -335,7 +327,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
       "route": "/testA",
       "type": "get",
     },
-    "interceptors": [],
     "name": "C",
     "params": [
       {
@@ -353,7 +344,6 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "type": "body",
       },
     ],
-    "plugins": [],
     "tag": "C",
   },
 ]

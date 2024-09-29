@@ -26,8 +26,7 @@ export interface ControllerMetaData extends ServiceMetaData {
   guards: string[]
   pipe?: string
   filter?: string
-  interceptors: string[]
-  plugins: string[]
+  addons: string[]
 
 }
 

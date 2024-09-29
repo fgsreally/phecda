@@ -39,9 +39,9 @@ export interface BaseContext {
 
 export interface DefaultOptions {
   globalGuards?: string[]
-  globalInterceptors?: string[]
   globalFilter?: string
   globalPipe?: string
+  globalAddons?: string[]
 }
 
 export interface BaseError {

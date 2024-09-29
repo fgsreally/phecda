@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 @Injectable()
-@Tag('TestService')
+@Tag('test')
 export class TestService {
   login(user: User) {
     console.log(`user ${user.name} login ...`)

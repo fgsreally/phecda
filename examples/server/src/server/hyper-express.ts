@@ -1,4 +1,4 @@
-import HyperExpress from 'hyper-express'
+import { Router, Server } from 'hyper-express'
 import { bind } from 'phecda-server/hyper-express'
 import { Factory, HTTPGenerator, log } from 'phecda-server'
 import { TestController } from './test.controller'
@@ -6,9 +6,9 @@ import { TestController } from './test.controller'
 const data = await Factory([TestController], {
   generators: [new HTTPGenerator()],
 })
-const webserver = new HyperExpress.Server()
+const webserver = new Server()
 
-const router = new HyperExpress.Router()
+const router = new Router()
 
 webserver.use('/base', router)
 

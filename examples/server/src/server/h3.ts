@@ -9,7 +9,6 @@ const data = await Factory([TestController], {
 })
 const app = createApp()
 const router = createRouter()
-
 bind(router, data)
 app.use('/base', useBase('', router.handler))
 

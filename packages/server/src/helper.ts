@@ -7,7 +7,7 @@ import { HMR } from './hmr'
 import { ControllerMeta, Meta } from './meta'
 
 export * from './hmr'
-export * from './server/helper'
+export * from './http/helper'
 export * from './rpc/helper'
 export * from './decorators/helper'
 
@@ -35,36 +35,30 @@ export function createControllerMetaMap(meta: Meta[], filter: (meta: Meta) => bo
   return metaMap
 }
 
-// detect whether plugin/filter/pipe/guard/intercept is injected
-export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
+// detect whether addon/filter/pipe/guard/intercept is injected
+export function detectAopDep(meta: Meta[], { guards, addons }: {
   guards?: string[]
-  interceptors?: string[]
-  plugins?: string[]
+  addons?: string[]
 
-} = {}, controller: string = 'http') {
-  const pluginSet = new Set<string>()
+} = {}, controller = 'http') {
+  const addonSet = new Set<string>()
   const guardSet = new Set<string>()
-  const interceptorSet = new Set<string>()
   const pipeSet = new Set<string>()
   const filterSet = new Set<string>()
   const warningSet = new Set<string>()
 
   function handleMeta() {
-    pluginSet.clear()
+    addonSet.clear()
     guardSet.clear()
-    interceptorSet.clear()
     pipeSet.clear()
     filterSet.clear()
     warningSet.clear()
 
-    plugins?.forEach((item) => {
-      pluginSet.add(item)
+    addons?.forEach((item) => {
+      addonSet.add(item)
     })
     guards?.forEach((item) => {
       guardSet.add(item)
-    })
-    interceptors?.forEach((item) => {
-      interceptorSet.add(item)
     });
 
     (meta as ControllerMeta[]).forEach(({ data }) => {
@@ -77,27 +71,22 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
       if (data.filter)
         filterSet.add(data.filter)
 
-      data.interceptors.forEach(i => interceptorSet.add(i))
       data.guards.forEach(i => guardSet.add(i))
-      data.plugins.forEach(i => pluginSet.add(i))
+      data.addons.forEach(i => addonSet.add(i))
       data.params.forEach((i) => {
         if (i.pipe)
           pipeSet.add(i.pipe)
       })
     })
-    const missPlugins = [...pluginSet].filter(i => !Context.pluginRecord[i])
+    const missAddons = [...addonSet].filter(i => !Context.addonRecord[i])
     const missGuards = [...guardSet].filter(i => !Context.guardRecord[i])
-    const missInterceptors = [...interceptorSet].filter(i => !Context.interceptorRecord[i])
     const missPipes = [...pipeSet].filter(i => !Context.pipeRecord[i])
     const missFilters = [...filterSet].filter(i => !Context.filterRecord[i])
 
-    if (missPlugins.length)
-      log(`${pc.white(`Plugin [${missPlugins.join(',')}]`)} doesn't exist`, 'warn')
+    if (missAddons.length)
+      log(`${pc.white(`Addon [${missAddons.join(',')}]`)} doesn't exist`, 'warn')
     if (missGuards.length)
       log(`${pc.magenta(`Guard [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
-
-    if (missInterceptors.length)
-      log(`${pc.cyan(`Interceptor [${missInterceptors.join(',')}]`)} doesn't exist`, 'warn')
 
     if (missPipes.length)
       log(`${pc.blue(`Pipe [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
@@ -111,9 +100,8 @@ export function detectAopDep(meta: Meta[], { guards, interceptors, plugins }: {
   handleMeta()
   HMR(handleMeta)
   return {
-    pluginSet,
+    addonSet,
     guardSet,
-    interceptorSet,
     pipeSet,
     filterSet,
   }

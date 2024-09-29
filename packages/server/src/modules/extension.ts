@@ -1,13 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { getTag } from 'phecda-core'
 import type { BaseContext, BaseError } from '../types'
-import { Context, addFilter, addGuard, addInterceptor, addPipe, addPlugin } from '../context'
+import { Context, addAddon, addFilter, addGuard, addPipe } from '../context'
 import type { Exception } from '../exception'
 import { ServerBase } from './base'
 
 export interface PExtension<C extends BaseContext = any, E extends Exception = Exception> {
-
-  intercept(ctx: C): Function | Promise<Function> | any
 
   guard(ctx: C): Promise<boolean> | boolean
 
@@ -15,11 +12,14 @@ export interface PExtension<C extends BaseContext = any, E extends Exception = E
 
   filter(error: Error | E, ctx?: C): BaseError
 
-  plugin<Plugin = any>(framework: string): Plugin
+  addon<Addon = any>(framework: string): Addon
 }
 
 export class PExtension extends ServerBase {
   readonly key: PropertyKey
+
+  guardPriority: number
+  addonPriority: number
 
   constructor(tag?: string) {
     super()
@@ -34,22 +34,16 @@ export class PExtension extends ServerBase {
       })
     }
 
-    if (this.plugin) {
-      addPlugin(key, this.plugin.bind(this))
+    if (this.addon) {
+      addAddon(key, this.addon.bind(this), this.addonPriority)
 
       this.onUnmount(() => {
-        delete Context.pluginRecord[key]
+        delete Context.addonRecord[key]
       })
     }
-    if (this.intercept) {
-      addInterceptor(key, this.intercept.bind(this))
 
-      this.onUnmount(() => {
-        delete Context.interceptorRecord[key]
-      })
-    }
     if (this.guard) {
-      addGuard(key, this.guard.bind(this))
+      addGuard(key, this.guard.bind(this), this.guardPriority)
 
       this.onUnmount(() => {
         delete Context.guardRecord[key]

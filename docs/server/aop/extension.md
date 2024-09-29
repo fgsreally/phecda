@@ -7,7 +7,7 @@
 那么可以
 
 ```ts
-import { Filter, Guard, Interceptor, PExtension, Pipe, Plugin } from 'phecda-server'
+import { Filter, Guard, Interceptor, PExtension, Pipe, Addon } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('test')
@@ -31,7 +31,7 @@ class test extends PExtension<ExpressCtx> {
 @Guard('test')
 @Interceptor('test')
 @Filter('test')
-@Plugin('test')
+@Addon('test')
 class TestController {
 
 }

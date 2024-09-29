@@ -1,0 +1,19 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "example-module": "0.0.0",
+    "example-react": "0.0.0",
+    "example-server": "0.0.4",
+    "example-vue": "0.0.0",
+    "phecda-client": "2.1.1",
+    "phecda-core": "4.0.1",
+    "phecda-module": "2.0.1",
+    "phecda-react": "2.0.1",
+    "phecda-server": "6.1.0",
+    "phecda-vue": "5.1.2",
+    "phecda-web": "3.0.1",
+    "phecda-zod": "2.0.1"
+  },
+  "changesets": []
+}

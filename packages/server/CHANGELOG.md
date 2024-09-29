@@ -266,7 +266,7 @@
 - 380bcb0: add data to http ctx
 - 074a815: model=class and module=instance
 - 6b5b307: refactor types system
-- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- 43983af: rename addon to Addon;add query/body/params/headers/index to ctx;remove parallel from ctx
 - 2665dd1: rename PModule with PExtension
 - 3847605: add warn to all aop function
 - 2ddaef9: support hyper-express; add example
@@ -500,7 +500,7 @@
 
 ### Patch Changes
 
-- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- 43983af: rename addon to Addon;add query/body/params/headers/index to ctx;remove parallel from ctx
 - Updated dependencies [37bdc86]
   - phecda-core@3.0.0-alpha.8
 
@@ -711,7 +711,7 @@
 ### Minor Changes
 
 - da1a0bb: remove series request and refactor parallel request
-- ba96778: refactor Middle to Plugin
+- ba96778: refactor Middle to Addon
 - 0b3c856: refactor Factory to support hmr
 - 90b0534: interceptor can provide cache function
 - 33bc4b3: add cli command (in stdin); perf log

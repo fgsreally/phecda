@@ -17,7 +17,7 @@
 
 
 ```ts
-import { Controller, Factory, Get, PPlugin, Plugin } from 'phecda-server'
+import { Controller, Factory, Get, PPlugin, Addon } from 'phecda-server'
 @Tag('Test')
 class Test extends PPlugin {
   constructor() {
@@ -31,7 +31,7 @@ class Test extends PPlugin {
 // in main.ts
 @Controller()
 class TestController {
-  @Plugin('Test')
+  @Addon('Test')
   @Get('')
   get() {
 

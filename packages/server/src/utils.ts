@@ -1,5 +1,6 @@
 import pc from 'picocolors'
 import { LOG_LEVEL } from './common'
+import { HttpContext } from './http/types'
 
 let time: number
 
@@ -37,6 +38,12 @@ export function log(msg: string, level: LogLevel = 'log') {
 
   // eslint-disable-next-line no-console
   console[level](`${pc.magenta('[phecda-server]')} ${pc.gray(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)} ${pc[color](msg)} ${pc.gray(interval)}`)
+}
+
+export function runMiddleware(ctx: HttpContext, middleware: (req: any, res: any, next?: any) => any) {
+  return new Promise((resolve) => {
+    middleware(ctx.getRequest(), ctx.getResponse(), resolve)
+  })
 }
 
 export { Mixin } from 'ts-mixer'

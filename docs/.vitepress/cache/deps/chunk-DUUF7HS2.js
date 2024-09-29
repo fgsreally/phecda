@@ -4442,7 +4442,7 @@ function createAppAPI(render2, hydrate2) {
       },
       use(plugin, ...options) {
         if (installedPlugins.has(plugin)) {
-          warn$1(`Plugin has already been applied to target app.`);
+          warn$1(`Addon has already been applied to target app.`);
         } else if (plugin && isFunction(plugin.install)) {
           installedPlugins.add(plugin);
           plugin.install(app, ...options);

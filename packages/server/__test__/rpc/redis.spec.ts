@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Redis from 'ioredis'
 
-import { Arg, Ctx, Exception, Factory, Filter, Guard, Interceptor, Pipe, Queue, Rpc, addFilter, addGuard, addInterceptor, addPipe } from '../../src'
+import { Arg, Ctx, Exception, Factory, Filter, Guard, Pipe, Queue, Rpc, addFilter, addGuard, addPipe } from '../../src'
 import { bind, createClient } from '../../src/rpc/redis'
 
 function stop(time = 500) {
@@ -89,8 +89,6 @@ describe('redis rpc', () => {
   it('guard', async () => {
     addGuard('g1', (ctx) => {
       expect(ctx.tag).toBe('TestRpc')
-
-      return true
     })
 
     @Rpc()
@@ -114,34 +112,34 @@ describe('redis rpc', () => {
     expect(await client.test.run(1)).toBe(2)
   })
 
-  it('interceptor', async () => {
-    addInterceptor('i1', (ctx) => {
-      expect(ctx.tag).toBe('TestRpc')
-      return (ret: number) => {
-        expect(ret).toBe(2)
-        return ++ret
-      }
-    })
-    @Rpc()
-    class TestRpc {
-      @Queue()
-      @Interceptor('i1')
-      run(@Arg arg: number) {
-        expect(arg).toBe(1)
-        return ++arg
-      }
-    }
+  // it('interceptor', async () => {
+  //   addInterceptor('i1', (ctx) => {
+  //     expect(ctx.tag).toBe('TestRpc')
+  //     return (ret: number) => {
+  //       expect(ret).toBe(2)
+  //       return ++ret
+  //     }
+  //   })
+  //   @Rpc()
+  //   class TestRpc {
+  //     @Queue()
+  //     @Interceptor('i1')
+  //     run(@Arg arg: number) {
+  //       expect(arg).toBe(1)
+  //       return ++arg
+  //     }
+  //   }
 
-    const data = await Factory([TestRpc])
+  //   const data = await Factory([TestRpc])
 
-    bind({ sub, pub }, data)
+  //   bind({ sub, pub }, data)
 
-    const client = await createClient({ pub, sub }, {
-      test: Faker as unknown as typeof TestRpc,
-    })
+  //   const client = await createClient({ pub, sub }, {
+  //     test: Faker as unknown as typeof TestRpc,
+  //   })
 
-    expect(await client.test.run(1)).toBe(3)
-  })
+  //   expect(await client.test.run(1)).toBe(3)
+  // })
 
   it('pipe', async () => {
     addPipe('test', async ({ arg }) => {

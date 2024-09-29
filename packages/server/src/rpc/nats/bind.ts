@@ -17,7 +17,7 @@ export interface NatsCtx extends RpcContext {
 }
 
 export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
-  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
+  const { globalGuards, globalFilter, globalPipe, globalAddons = [], defaultQueue } = opts
   const sc = StringCodec()
   const subscriptionMap: Record<string, Subscription> = {}
   const existQueue = new Set<string>()
@@ -31,9 +31,12 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   })
 
   detectAopDep(meta, {
+    addons: globalAddons,
     guards: globalGuards,
-    interceptors: globalInterceptors,
   }, 'rpc')
+
+  Context.applyAddons(globalAddons, nc, 'nats')
+
   async function subscribeQueues() {
     existQueue.clear()
     for (const [tag, record] of metaMap) {
@@ -46,7 +49,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
           },
         } = meta
         if (rpc) {
-          const queue = rpc.queue || tag
+          const queue = rpc.queue || defaultQueue || tag
           if (existQueue.has(queue))
             continue
           existQueue.add(queue)
@@ -73,7 +76,11 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
 
     if (isEvent)// nats has to have response
       msg.respond('{}')
-
+    const aop = Context.getAop(meta, {
+      globalFilter,
+      globalGuards,
+      globalPipe,
+    })
     const context = new Context<NatsCtx>({
       type: 'nats',
       moduleMap,
@@ -88,7 +95,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       queue: msg._msg.subject.toString(),
     })
 
-    await context.run({ globalGuards, globalInterceptors, globalFilter, globalPipe }, (returnData) => {
+    await context.run(aop, (returnData) => {
       if (!isEvent)
         msg.respond(sc.encode(JSON.stringify({ data: returnData, id })))
     }, (err) => {

@@ -1,18 +1,22 @@
 import Debug from 'debug'
 import { defaultPipe } from './pipe'
-import { ForbiddenException, FrameworkException } from './exception'
 import { defaultFilter } from './filter'
 import type { BaseContext, DefaultOptions } from './types'
-import { IS_HMR, IS_STRICT } from './common'
+import { IS_HMR } from './common'
 import { log } from './utils'
 import type { Exception } from './exception'
 import { resolveDep } from './helper'
-
+import { ControllerMeta } from './meta'
 const debug = Debug('phecda-server(Context)')
 
+export interface AOP {
+  guards: GuardType[]
+  pipe: PipeType[]
+  filter: FilterType
+}
+
 export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any> }
-export type GuardType<C extends BaseContext = any> = ((ctx: C) => Promise<boolean> | boolean)
-export type InterceptorType<C extends BaseContext = any> = (ctx: C) => (any | ((ret: any) => any))
+export type GuardType<C extends BaseContext = any> = (ctx: C, next: () => Promise<any>) => any
 export type PipeType<C extends BaseContext = any> = (arg: PipeArg, ctx: C) => Promise<any>
 export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
 
@@ -28,11 +32,16 @@ export class Context<Data extends BaseContext> {
     default: defaultPipe,
   }
 
-  static guardRecord: Record<PropertyKey, GuardType> = {}
-  static interceptorRecord: Record<PropertyKey, InterceptorType> = {}
+  static guardRecord: Record<PropertyKey, {
+    value: GuardType
+    priority: number
+  }> = {}
 
-  static pluginRecord: Record<PropertyKey, (framework: string) => any> = {}
-  private postInterceptors: Function[]
+  static addonRecord: Record<PropertyKey, {
+    value: (router: any, framework: string) => any
+    priority: number
+
+  }> = {}
 
   constructor(public data: Data) {
     if (IS_HMR)
@@ -40,164 +49,158 @@ export class Context<Data extends BaseContext> {
       data._context = this
   }
 
-  public async run<ReturnData = any, ReturnErr = any>(opts: DefaultOptions, successCb: (data: any) => ReturnData, failCb: (err: any) => ReturnErr) {
+  static getAop(meta: ControllerMeta, opts: DefaultOptions) {
+    const { globalGuards = [], globalFilter = 'default', globalPipe = 'default' } = opts
+    const {
+      data: {
+        guards, filter,
+        params,
+      },
+    } = meta
+
+    return {
+      guards: this.getGuards([...globalGuards, ...guards]),
+      pipe: this.getPipe(params.map(item => item.pipe || globalPipe)),
+      filter: this.getFilter(filter || globalFilter),
+    }
+  }
+
+  public async run<ResponseData = any, ReturnErr = any>({
+    guards, filter, pipe,
+  }: {
+    guards: GuardType[]
+    filter: FilterType
+    pipe: PipeType[]
+  }, successCb: (data: any) => ResponseData, failCb: (err: any) => ReturnErr) {
     const { meta, moduleMap } = this.data
-    const { globalGuards = [], globalFilter, globalInterceptors = [], globalPipe } = opts
     const {
       paramsType,
       data: {
-        guards, interceptors, params,
-        tag, func, ctxs, filter,
-
+        ctxs,
+        tag,
+        params,
+        func,
       },
     } = meta
 
     try {
-      await this.useGuard([...globalGuards, ...guards])
-      const i1 = await this.useInterceptor([...globalInterceptors, ...interceptors])
-      if (i1 !== undefined)
-        return successCb(i1)
+      // let current = 0
+      let res: any
+      const nextHandler = (index: number) => {
+        return async () => {
+          if (index === guards.length) {
+            const instance = moduleMap.get(tag)!
+            if (ctxs) {
+              ctxs.forEach(ctx => instance[ctx] = this.data,
+              )
+            }
+            const args = await Promise.all(
+              params.map((item, i) =>
+                pipe[i]({ arg: resolveDep(this.data[item.type], item.key), reflect: paramsType[item.index], ...item }, this.data),
+              ),
+            )
+            res = await instance[func](...args)
+          }
+          else {
+            let nextPromise: Promise<any> | undefined
+            async function next() {
+              return nextPromise = nextHandler(index + 1)().then((ret) => {
+                if (ret !== undefined) {
+                  debug(`The ${index + 1}th guard rewrite the response value.`)
+                  res = ret
+                }
 
-      const args = await this.usePipe(params.map((param) => {
-        return { arg: resolveDep(this.data[param.type], param.key), reflect: paramsType[param.index], ...param, pipe: param.pipe || globalPipe }
-      }))
-      const instance = moduleMap.get(tag)!
-      if (ctxs) {
-        ctxs.forEach(ctx => instance[ctx] = this.data,
-        )
+                return res
+              })
+            }
+
+            const ret = await guards[index](this.data, next)
+
+            if (ret !== undefined) {
+              res = ret
+            }
+            else {
+              if (!nextPromise)
+                await next()
+
+              else
+                await nextPromise
+            }
+          }
+        }
       }
-      const returnData = await instance[func](...args)
-      const i2 = await this.usePostInterceptor(returnData)
-      if (i2 !== undefined)
-        return successCb(i2)
+      await nextHandler(0)()
 
-      return successCb(returnData)
+      return successCb(res)
     }
     catch (e) {
-      const err = await this.useFilter(e, filter || globalFilter)
+      const err = await filter(e, this.data)
       return failCb(err)
     }
   }
 
-  private usePipe(args: PipeArg[]) {
-    return Promise.all(args.map((item) => {
-      if (item.pipe && !Context.pipeRecord[item.pipe]) {
-        if (IS_STRICT) {
-          throw new FrameworkException(`can't find pipe named '${item.pipe}'`)
-        }
-
-        else {
-          debug(`Can't find pipe named "${item.pipe}" when handling the ${item.index + 1}th argument of the func "${this.data.func}" on module "${this.data.tag}",use default pipe instead`)
-
-          return Context.pipeRecord.default(item, this.data)
-        }
-      }
-
-      return Context.pipeRecord[item.pipe || 'default'](item, this.data)
-    }))
+  static getPipe(pipe: string[]) {
+    return pipe.map((pipe) => {
+      return Context.pipeRecord[pipe] || Context.pipeRecord.default
+    })
   }
 
-  private useFilter(arg: any, filter = 'default') {
-    if (!Context.filterRecord[filter]) {
-      if (IS_STRICT) {
-        throw new FrameworkException(`can't find filter named "${filter}"`)
-      }
-      else {
-        debug(`Can't find filter named "${filter}" when handling func "${this.data.func}" on module "${this.data.tag}",use default filter instead`)
-
-        return Context.filterRecord.default(arg, this.data)
-      }
-    }
-
-    return Context.filterRecord[filter](arg, this.data)
+  static getFilter(filter = 'default') {
+    return Context.filterRecord[filter] || Context.filterRecord.default
   }
 
-  private async useGuard(guards: string[]) {
+  static getGuards(guards: string[]) {
+    const ret: { value: GuardType; priority: number }[] = []
     for (const guard of new Set(guards)) {
-      if (!(guard in Context.guardRecord)) {
-        if (IS_STRICT)
-          throw new FrameworkException(`Can't find guard named "${guard}"`)
-        else debug(`Can't find guard named "${guard}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
-        continue
-      }
-      if (!await Context.guardRecord[guard](this.data))
-        throw new ForbiddenException(`Guard exception--[${guard}]`)
+      if (guard in Context.guardRecord)
+        ret.push(Context.guardRecord[guard])
     }
+
+    return ret.sort((a, b) => b.priority - a.priority).map(item => item.value)
   }
 
-  private async usePostInterceptor(data: any) {
-    for (const cb of this.postInterceptors) {
-      const ret = await cb(data)
-      if (ret !== undefined)
-        return ret
+  static applyAddons(addons: string[], router: any, framework: string) {
+    const ret: {
+      value: (router: any, framework: string) => any
+      priority: number
+    }[] = []
+    for (const a of new Set(addons)) {
+      if (a in Context.addonRecord)
+        ret.push(Context.addonRecord[a])
     }
-  }
 
-  private async useInterceptor(interceptors: string[]) {
-    const cb = []
-    for (const interceptor of new Set(interceptors)) {
-      if (!(interceptor in Context.interceptorRecord)) {
-        if (IS_STRICT)
-          throw new FrameworkException(`can't find interceptor named "${interceptor}"`)
-        else debug(`Can't find interceptor named "${interceptor}" when handling func "${this.data.func}" on module "${this.data.tag}",skip it`)
+    ret.sort((a, b) => b.priority - a.priority).forEach(item => item.value(router, framework))
 
-        continue
-      }
-      const interceptRet = await Context.interceptorRecord[interceptor](this.data)
-      if (interceptRet !== undefined) {
-        if (typeof interceptRet === 'function')
-          cb.push(interceptRet)
-
-        else
-          return interceptRet
-      }
-    }
-    this.postInterceptors = cb
-  }
-
-  static usePlugin<Plugin>(plugins: string[], framework: string) {
-    const ret: Plugin[] = []
-    for (const m of new Set(plugins)) {
-      if (!(m in Context.pluginRecord)) {
-        if (IS_STRICT)
-          throw new FrameworkException(`can't find middleware named '${m}'`)
-
-        continue
-      }
-      const plugin = Context.pluginRecord[m](framework)
-      plugin && ret.push(plugin)
-    }
-    return ret
+    // await Context.addonRecord[a](router, framework)
   }
 }
 
-export function addPlugin<T>(key: PropertyKey, handler: (framework: string) => T) {
-  if (Context.pluginRecord[key] && Context.pluginRecord[key] !== handler)
-    log(`overwrite Plugin "${String(key)}"`, 'warn')
-
-  Context.pluginRecord[key] = handler
-}
-
-export function addPipe<C extends BaseContext>(key: PropertyKey, handler: PipeType<C>) {
-  if (Context.pipeRecord[key] && Context.pipeRecord[key] !== handler)
+export function addPipe<C extends BaseContext>(key: PropertyKey, pipe: PipeType<C>) {
+  if (Context.pipeRecord[key] && Context.pipeRecord[key] !== pipe)
     log(`overwrite Pipe "${String(key)}"`, 'warn')
-  Context.pipeRecord[key] = handler
+  Context.pipeRecord[key] = pipe
 }
 
-export function addFilter<C extends BaseContext>(key: PropertyKey, handler: FilterType<C>) {
-  if (Context.filterRecord[key] && Context.filterRecord[key] !== handler)
+export function addFilter<C extends BaseContext>(key: PropertyKey, filter: FilterType<C>) {
+  if (Context.filterRecord[key] && Context.filterRecord[key] !== filter)
     log(`overwrite Filter "${String(key)}"`, 'warn')
-  Context.filterRecord[key] = handler
+  Context.filterRecord[key] = filter
 }
 
-export function addGuard<C extends BaseContext>(key: PropertyKey, handler: GuardType<C>) {
-  if (Context.guardRecord[key] && Context.guardRecord[key] !== handler)
+export function addGuard<C extends BaseContext>(key: PropertyKey, guard: GuardType<C>, priority = 0) {
+  if (Context.guardRecord[key] && Context.guardRecord[key].value !== guard)
     log(`overwrite Guard "${String(key)}"`, 'warn')
-  Context.guardRecord[key] = handler
-}
 
-export function addInterceptor<C extends BaseContext>(key: PropertyKey, handler: InterceptorType<C>) {
-  if (Context.interceptorRecord[key] && Context.interceptorRecord[key] !== handler)
-    log(`overwrite Interceptor "${String(key)}"`, 'warn')
-  Context.interceptorRecord[key] = handler
+  Context.guardRecord[key] = {
+    value: guard,
+    priority,
+  }
+}
+export function addAddon<T>(key: PropertyKey, addon: (router: any, framework: string) => T, priority = 0) {
+  if (Context.addonRecord[key] && Context.addonRecord[key].value !== addon)
+    log(`overwrite Addon "${String(key)}"`, 'warn')
+  Context.addonRecord[key] = {
+    value: addon,
+    priority,
+  }
 }

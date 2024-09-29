@@ -1,5 +1,5 @@
 import { Base } from 'phecda-core'
-import type { HttpContext } from '../server/types'
+import type { HttpContext } from '../http/types'
 import type { RpcContext } from '../rpc/types'
 import { Ctx } from '../decorators'
 import { emitter } from '../core'
