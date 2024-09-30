@@ -1,12 +1,13 @@
 import Debug from 'debug'
+import pc from 'picocolors'
 import { defaultPipe } from './pipe'
 import { defaultFilter } from './filter'
 import type { BaseContext, DefaultOptions } from './types'
 import { IS_HMR } from './common'
-import { log } from './utils'
 import type { Exception } from './exception'
 import { resolveDep } from './helper'
 import { ControllerMeta } from './meta'
+
 const debug = Debug('phecda-server(Context)')
 
 export interface AOP {
@@ -54,14 +55,25 @@ export class Context<Data extends BaseContext> {
     const {
       data: {
         guards, filter,
-        params,
+        params, tag, func,
       },
     } = meta
 
+    const resolved = {
+      guards: [...globalGuards, ...guards],
+      pipe: params.map(item => item.pipe || globalPipe),
+      filter: filter || globalFilter,
+
+    }
+
+    if (process.env.DEBUG) {
+      const { guards, pipe, filter } = resolved
+      debug(`func "${tag}-${func}" aop: \n${pc.magenta(`Guard ${guards.join('->')}[${guards.filter(g => g in this.guardRecord).join('->')}]`)}\n${pc.blue(`Pipe ${pipe.join('-')}[${pipe.map(p => p in this.pipeRecord ? p : 'default').join('-')}]`)}\n${pc.red(`Filter ${filter}[${filter || 'default'}]`)}`)
+    }
     return {
-      guards: this.getGuards([...globalGuards, ...guards]),
-      pipe: this.getPipe(params.map(item => item.pipe || globalPipe)),
-      filter: this.getFilter(filter || globalFilter),
+      guards: this.getGuards(resolved.guards),
+      pipe: this.getPipe(resolved.pipe),
+      filter: this.getFilter(resolved.filter),
     }
   }
 
@@ -106,7 +118,7 @@ export class Context<Data extends BaseContext> {
             async function next() {
               return nextPromise = nextHandler(index + 1)().then((ret) => {
                 if (ret !== undefined) {
-                  debug(`The ${index + 1}th guard rewrite the response value.`)
+                  debug(`The ${index + 1}th guard on "${tag}-${func}" rewrite the response value.`)
                   res = ret
                 }
 
@@ -177,28 +189,28 @@ export class Context<Data extends BaseContext> {
 
 export function addPipe<C extends BaseContext>(key: PropertyKey, pipe: PipeType<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== pipe)
-    log(`overwrite Pipe "${String(key)}"`, 'warn')
+    debug(`overwrite Pipe "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = pipe
 }
 
 export function addFilter<C extends BaseContext>(key: PropertyKey, filter: FilterType<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== filter)
-    log(`overwrite Filter "${String(key)}"`, 'warn')
+    debug(`overwrite Filter "${String(key)}"`, 'warn')
   Context.filterRecord[key] = filter
 }
 
 export function addGuard<C extends BaseContext>(key: PropertyKey, guard: GuardType<C>, priority = 0) {
   if (Context.guardRecord[key] && Context.guardRecord[key].value !== guard)
-    log(`overwrite Guard "${String(key)}"`, 'warn')
+    debug(`overwrite Guard "${String(key)}"`, 'warn')
 
   Context.guardRecord[key] = {
     value: guard,
     priority,
   }
 }
-export function addAddon<T>(key: PropertyKey, addon: (router: any, framework: string) => T, priority = 0) {
+export function addAddon(key: PropertyKey, addon: (router: any, framework: string) => void, priority = 0) {
   if (Context.addonRecord[key] && Context.addonRecord[key].value !== addon)
-    log(`overwrite Addon "${String(key)}"`, 'warn')
+    debug(`overwrite Addon "${String(key)}"`, 'warn')
   Context.addonRecord[key] = {
     value: addon,
     priority,

@@ -46,6 +46,11 @@ function startChild(file, args) {
         log('only generate code')
         process.exit(0)
       }
+
+      if (code === 5) {
+        log('Does not comply with strict mode', 'error')
+        process.exit(0)
+      }
       if (code >= 2) {
         // for relaunch
         log('relaunch...')

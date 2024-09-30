@@ -8,7 +8,6 @@ async function start() {
     generators: [new HTTPGenerator()],
   })
   const router = express.Router()
-
   const app = express()
   app.use(cookie())
   app.all('*', (_req, res, next) => {
@@ -21,8 +20,8 @@ async function start() {
 
   app.use(express.json())
   bind(router, data, {
-    // globalGuards: ['a'],
-    // globalInterceptors: ['b'],
+    globalGuards: ['a'],
+
   })
   app.use('/base', router)
 
