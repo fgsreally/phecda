@@ -40,7 +40,7 @@ if (isLowVersion)
 
 let config
 
-const workdir = process.env.PS_WORKDIR || process.cwd()
+const workdir = process.cwd()
 
 const configPath = resolvePath(
   workdir,
