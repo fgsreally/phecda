@@ -15,7 +15,7 @@
   "unimport": {
     "dirs": ["./src/server/*"],
     "dirsScanOptions": {
-      "filePatterns": ["*.{service,controller,module,rpc,edge,guard,interceptor,extension,pipe,filter,plugin}.ts"]
+      "filePatterns": ["*.{service,controller,module,rpc,edge,guard,extension,pipe,filter,addon}.ts"]
     }
   },
   "virtualFile": {
