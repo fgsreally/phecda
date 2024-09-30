@@ -16,6 +16,7 @@
     "phecda-zod": "2.0.1"
   },
   "changesets": [
+    "flat-rockets-invent",
     "popular-books-act",
     "popular-mirrors-complain"
   ]
