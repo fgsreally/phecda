@@ -17,5 +17,5 @@ export abstract class PAddon extends ServerBase {
     })
   }
 
-  abstract use<Addon = any>(framework: string): Addon | undefined
+  abstract use(router: any, framework: string): undefined
 }

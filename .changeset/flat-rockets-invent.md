@@ -3,4 +3,4 @@
 ---
 
 runtime won't support x.interceptor.ts and x.plugin.ts(replace by addon)
-fix `PGuard` types
+fix `PGuard/PAddon` types

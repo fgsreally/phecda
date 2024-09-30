@@ -196,7 +196,7 @@ export function addGuard<C extends BaseContext>(key: PropertyKey, guard: GuardTy
     priority,
   }
 }
-export function addAddon<T>(key: PropertyKey, addon: (router: any, framework: string) => T, priority = 0) {
+export function addAddon(key: PropertyKey, addon: (router: any, framework: string) => void, priority = 0) {
   if (Context.addonRecord[key] && Context.addonRecord[key].value !== addon)
     log(`overwrite Addon "${String(key)}"`, 'warn')
   Context.addonRecord[key] = {
