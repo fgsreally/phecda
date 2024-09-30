@@ -10,7 +10,7 @@ import { log } from './utils'
 import { IS_HMR, IS_ONLY_GENERATE } from './common'
 import type { Generator } from './generator'
 
-const debug = Debug('phecda-server(createPhecda)')
+const debug = Debug('phecda-server(Factory)')
 // TODO: support both emitter types and origin emitter type in future
 export const emitter: Emitter = new EventEmitter() as any
 export interface Options {

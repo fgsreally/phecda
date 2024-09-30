@@ -5,6 +5,7 @@ import { log } from './utils'
 import { Context } from './context'
 import { HMR } from './hmr'
 import { ControllerMeta, Meta } from './meta'
+import { IS_STRICT } from './common'
 
 export * from './hmr'
 export * from './http/helper'
@@ -64,7 +65,7 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     (meta as ControllerMeta[]).forEach(({ data }) => {
       if (data.controller !== controller) {
         if (data[controller])
-          warningSet.add(`Module "${data.tag === data.name ? data.name : `${data.name}(${data.tag})`}"  should use ${controller} controller to decorate class or remove ${controller} decorator on method "${data.func}"`)
+          warningSet.add(`Should use ${controller} controller to decorate class "${data.name}" or method "${data.func}"`)
 
         return
       }
@@ -83,18 +84,31 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     const missPipes = [...pipeSet].filter(i => !Context.pipeRecord[i])
     const missFilters = [...filterSet].filter(i => !Context.filterRecord[i])
 
-    if (missAddons.length)
+    function exit() {
+      if (IS_STRICT)
+        process.exit(5)
+    }
+
+    if (missAddons.length) {
       log(`${pc.white(`Addon [${missAddons.join(',')}]`)} doesn't exist`, 'warn')
-    if (missGuards.length)
+      exit()
+    }
+    if (missGuards.length) {
       log(`${pc.magenta(`Guard [${missGuards.join(',')}]`)} doesn't exist`, 'warn')
-
-    if (missPipes.length)
+      exit()
+    }
+    if (missPipes.length) {
       log(`${pc.blue(`Pipe [${missPipes.join(',')}]`)} doesn't exist`, 'warn')
-
-    if (missFilters.length)
+      exit()
+    }
+    if (missFilters.length) {
       log(`${pc.red(`Filter [${missFilters.join(',')}]`)} doesn't exist`, 'warn')
+      exit()
+    }
 
     warningSet.forEach(warn => log(warn, 'warn'))
+    if (warningSet.size)
+      exit()
   }
 
   handleMeta()
