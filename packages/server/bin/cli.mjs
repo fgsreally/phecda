@@ -116,6 +116,7 @@ cli
   .alias('run')
   .action((file, root, options) => {
     if (root)
+      // process.chdir(root)
       process.env.PS_WORKDIR = root
     process.env.PS_CONFIG_FILE = options.config
 
