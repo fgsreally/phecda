@@ -4,7 +4,7 @@ import type { BaseContext } from '../types'
 import { ServerBase } from './base'
 
 export abstract class PGuard<C extends BaseContext = any> extends ServerBase {
-  abstract use(ctx: C): any
+  abstract use(ctx: C, next: () => Promise<any>): any
   readonly key: PropertyKey
   priority = 0
 
