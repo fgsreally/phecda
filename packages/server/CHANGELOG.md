@@ -1,5 +1,14 @@
 # phecda-server
 
+## 7.0.0-alpha.1
+
+### Patch Changes
+
+- a04adfe: runtime won't support x.interceptor.ts and x.plugin.ts(replace by addon)
+  fix `PGuard/PAddon` types
+  add more debug info
+  set `PS_STRICT` true will exit the program(for ci)
+
 ## 7.0.0-alpha.0
 
 ### Major Changes
