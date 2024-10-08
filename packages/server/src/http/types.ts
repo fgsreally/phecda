@@ -27,6 +27,7 @@ export interface HttpContext extends BaseContext {
   params: Record<string, string>
   body: Record<string, any>
   headers: IncomingHttpHeaders
+  category: 'http'
   redirect: (url: string, status?: number) => void
   getCookie(key: string): string | undefined
   setCookie(key: string, value: string, opts?: CookieSerializeOptions): void

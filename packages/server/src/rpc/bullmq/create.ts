@@ -88,6 +88,7 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
     })
     const context = new Context<BullmqCtx>({
       type: 'bullmq',
+      category: 'rpc',
       moduleMap,
       meta,
       tag,

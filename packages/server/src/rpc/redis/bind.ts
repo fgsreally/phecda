@@ -81,6 +81,7 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
       })
       const context = new Context(<RedisCtx>{
         type: 'redis',
+        category: 'rpc',
         moduleMap,
         redis: sub,
         meta,

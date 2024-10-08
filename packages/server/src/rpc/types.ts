@@ -16,4 +16,5 @@ export interface RpcContext extends BaseContext {
   id: string
   queue: string
   isEvent?: boolean
+  category: 'rpc'
 }

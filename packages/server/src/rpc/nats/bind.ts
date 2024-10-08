@@ -13,7 +13,6 @@ const debug = Debug('phecda-server/nats')
 export interface NatsCtx extends RpcContext {
   type: 'nats'
   msg: any
-
 }
 
 export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
@@ -83,6 +82,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
     })
     const context = new Context<NatsCtx>({
       type: 'nats',
+      category: 'rpc',
       moduleMap,
       meta,
       tag,

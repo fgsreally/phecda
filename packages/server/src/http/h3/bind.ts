@@ -86,6 +86,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 })
                 const contextData = {
                   type: 'h3' as const,
+                  category: 'http',
                   index: i,
                   event,
                   meta,
@@ -154,6 +155,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
           const contextData = {
             type: 'h3' as const,
+            category: 'http',
             meta,
             event,
             moduleMap,

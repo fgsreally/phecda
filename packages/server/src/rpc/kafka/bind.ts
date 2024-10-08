@@ -86,6 +86,7 @@ export async function bind({ consumer, producer }: { consumer: Consumer; produce
       })
       const context = new Context<KafkaCtx>({
         type: 'kafka',
+        category: 'rpc',
         moduleMap,
         meta,
         args,

@@ -80,6 +80,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
       })
       const context = new Context<RabbitmqCtx>({
         type: 'rabbitmq',
+        category: 'rpc',
         moduleMap,
         meta,
         tag,

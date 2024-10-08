@@ -87,6 +87,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
 
               const contextData = {
                 type: 'elysia' as const,
+                category: 'http',
                 parallel: true,
                 context: c,
                 index: i,
@@ -159,6 +160,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
           debug(`invoke method "${func}" in module "${tag}"`)
           const contextData = {
             type: 'elysia' as const,
+            category: 'http',
             context: c,
             meta,
             moduleMap,
@@ -169,7 +171,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
             params: c.params,
             headers: c.headers,
             app,
-
             getCookie: key => c.cookie[key].value,
             setCookie: (key, value, opts = {}) => c.cookie[key].set({ ...opts, value }),
             delCookie: key => c.cookie[key].remove(),
