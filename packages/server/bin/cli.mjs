@@ -124,6 +124,7 @@ cli
     startChild(file, options['--'])
     console.log(`${pc.green('->')} press ${pc.green('e')} to exit`)
     console.log(`${pc.green('->')} press ${pc.green('r')} to relaunch`)
+    console.log(`${pc.green('->')} press ${pc.green('c')} to clear terminal`)
 
     process.stdin.on('data', async (data) => {
       const input = data.toString().trim().toLocaleLowerCase()
