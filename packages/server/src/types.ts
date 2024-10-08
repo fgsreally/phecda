@@ -33,6 +33,7 @@ export interface BaseContext {
   type: string
   tag: string
   func: string
+
   [key: string]: any
 
 }

@@ -16,10 +16,10 @@ describe('client ', () => {
       body: {
         name: 'server',
       },
-      name: 'A-test',
       method: 'post' as const,
+      func: 'test',
       url: '/base',
-      tag: 'A-test',
+      tag: 'A',
       args: [],
     }
     expect(toReq(data)).toMatchSnapshot()
