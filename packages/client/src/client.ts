@@ -1,10 +1,7 @@
 import type { Construct, ToClientMap } from 'phecda-server'
 
-import { isError } from './base'
+import { isError } from './helper'
 
-// type ChainRequester<T extends Record<string, any>> = ToClientMap<T> & {
-//     options(config: AxiosRequestConfig): ChainRequester<T>
-// }
 export type RequestArg = {
   method: string
   url: string
@@ -33,14 +30,15 @@ const rawFetch = async ({ url, method, body, headers, query }: RequestArg) => {
 export function createClient<Controllers extends Record<string, Construct>>(controllers: Controllers, options: {
   fetch?: (arg: RequestArg) => Promise<any>
   batch?: boolean
+  parallelRoute?: string
 } = {}): ToClientMap<Controllers> {
   const client: any = {
 
   }
   let batchStack: any[] | null
   let batchPromise: any
-
-  const { batch, fetch = rawFetch } = options
+  let isFinish = true
+  const { batch, fetch = rawFetch, parallelRoute } = options
 
   for (const key in controllers) {
     const proxy = new Proxy(new controllers[key](), {
@@ -59,22 +57,29 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
           }
           else {
             let index: number
+
+            if (!isFinish)
+              await batchPromise
+
             if (!batchStack) {
               index = 0
               batchStack = [requestArg]
               // eslint-disable-next-line no-async-promise-executor
               batchPromise = new Promise(async (resolve) => {
                 await Promise.resolve()
-                const { data } = await fetch({
+                isFinish = false
+                const data = await fetch({
                   body: batchStack,
-                  url: '/',
+                  url: parallelRoute || '/__PHECDA_SERVER__',
                   method: 'post',
                   query: {},
                   params: {},
                   headers: {},
                 })
+                isFinish = true
                 batchStack = []
                 resolve(data)
+                batchPromise = undefined
               })
             }
             else {
