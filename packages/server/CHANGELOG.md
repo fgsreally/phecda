@@ -1,5 +1,12 @@
 # phecda-server
 
+## 7.0.0-alpha.2
+
+### Patch Changes
+
+- 1cc25fb: add category to context
+- 0764435: root in cli will change cwd()
+
 ## 7.0.0-alpha.1
 
 ### Patch Changes

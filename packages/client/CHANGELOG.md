@@ -1,5 +1,12 @@
 # phecda-client
 
+## 3.0.0-alpha.0
+
+### Major Changes
+
+- 3d96e49: add createClient and remove other api
+  support custom fetch
+
 ## 2.1.1
 
 ### Patch Changes

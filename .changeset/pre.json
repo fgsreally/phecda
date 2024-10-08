@@ -16,8 +16,11 @@
     "phecda-zod": "2.0.1"
   },
   "changesets": [
+    "brave-points-tease",
     "flat-rockets-invent",
     "popular-books-act",
-    "popular-mirrors-complain"
+    "popular-mirrors-complain",
+    "unlucky-carrots-play",
+    "wicked-steaks-confess"
   ]
 }
