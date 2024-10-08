@@ -1,19 +1,5 @@
-import type { BaseRequestType } from 'phecda-server'
+import { BaseError } from 'phecda-server'
 
-export function toReq(arg: RequestArgs) {
-  const { body, query, method, url, headers } = arg
-
-  return { headers, method, url, body, query }
-}
-
-export interface RequestArgs {
-  body: Record<string, any>
-  headers: Record<string, string>
-  query: Record<string, string>
-  params: Record<string, string>
-  method: BaseRequestType
-  url: string
-  tag: string
-  func: string
-  args: any[]
+export function isError<T = any>(data: T | BaseError): data is BaseError {
+  return typeof data === 'object' && data !== null && (data as any).__PS_ERROR__
 }

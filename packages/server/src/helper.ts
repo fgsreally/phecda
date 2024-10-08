@@ -65,7 +65,7 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     (meta as ControllerMeta[]).forEach(({ data }) => {
       if (data.controller !== controller) {
         if (data[controller])
-          warningSet.add(`Should use ${controller} controller to decorate class "${data.name}" or method "${data.func}"`)
+          warningSet.add(`Should use ${controller} controller to decorate class "${data.name}"`)
 
         return
       }

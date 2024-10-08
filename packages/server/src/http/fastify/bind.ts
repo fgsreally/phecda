@@ -82,6 +82,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                 })
                 const contextData = {
                   type: 'fastify' as const,
+                  category: 'http',
                   parallel: true,
                   request: req,
                   index: i,
@@ -155,6 +156,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
 
             const contextData = {
               type: 'fastify' as const,
+              category: 'http',
               request: req,
               meta,
               response: res,

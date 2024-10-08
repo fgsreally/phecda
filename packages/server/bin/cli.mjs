@@ -3,7 +3,7 @@ import { fork } from 'child_process'
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 
-import { dirname, join, resolve } from 'path'
+import { dirname, resolve } from 'path'
 import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
@@ -85,11 +85,11 @@ cli
     default: 'tsconfig.json',
   })
   .action(async (root, options) => {
-    if (!root)
-      root = ''
+    if (root)
+      process.chdir(root)
 
-    const tsconfigPath = join(root, options.tsconfig)
-    const psconfigPath = join(root, options.config)
+    const tsconfigPath = options.tsconfig
+    const psconfigPath = options.config
 
     if (!fse.existsSync(tsconfigPath)) {
       log(`create ${tsconfigPath}`)
@@ -116,7 +116,7 @@ cli
   .alias('run')
   .action((file, root, options) => {
     if (root)
-      process.env.PS_WORKDIR = root
+      process.chdir(root)
     process.env.PS_CONFIG_FILE = options.config
 
     log('process start!')
@@ -154,7 +154,7 @@ cli
   .allowUnknownOptions()
   .action((file, root, options) => {
     if (root)
-      process.env.PS_WORKDIR = root
+      process.chdir(root)
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = options.config
     startChild(file, options['--'])

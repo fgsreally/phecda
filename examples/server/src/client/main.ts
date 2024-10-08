@@ -1,52 +1,26 @@
 /* eslint-disable no-console */
-import { createChainReq, createParallelReq, createReq, isError, toClass, useC } from 'phecda-client'
 import axios from 'axios'
-import type { User } from '../server/test.controller'
+import { axiosFetch, createClient } from 'phecda-client'
 import { TestController } from '../server/test.controller'
+
 const instance = axios.create({
   baseURL: '/base',
 })
 
-// const beacon = createBeacon('http://localhost:3699')
-const useRequest = createReq(instance)
-const useParallelReq = createParallelReq(instance)
-const { framework, login } = useC(TestController)
+const client = createClient({ $test: TestController }, { fetch: axiosFetch(instance) })
 
-const chain = createChainReq(instance, { $test: TestController }, { batch: true })
+console.log('[simple request]:')
 
-async function request() {
-  const { data } = await useRequest(login(toClass<User>({ name: 'p1', password: '123456' })))
-  console.log('[normal request]:')
-  console.log(data)
-}
+console.log(await
+client.$test.framework())
 
-// async function testFetch() {
-//   const { data } = await useRequest(query('1', 50))
-//   console.log('data', data)
-// }
+console.log(await
+client.$test.login({ name: 'p1', password: '123456' }))
 
-async function parallelRequest() {
-  const { data: [res1, res2] } = await useParallelReq([framework(), login(toClass<User>({ name: 'p2', password: '123456' }))])
-  console.log('[parallel request]:')
+const parallelClient = createClient({ $test: TestController }, { fetch: axiosFetch(instance), batch: true })
 
-  if (isError(res1))
-    console.error(res1.message)
-  else console.log(res1)
-
-  if (isError(res2))
-    console.error(res2.message)
-  else console.log(res2)
-}
-
-async function chainRequest() {
-  const data = await Promise.all([chain.$test.framework(), chain.options({
-  }).$test.login(toClass<User>({ name: 'p3', password: '123456' }))])
-
-  console.log('[chain and batch request]:')
-  console.log(data)
-}
-
-// testFetch()
-request()
-parallelRequest()
-chainRequest()
+parallelClient.$test.login({ name: 'p1', password: '123456' }).then(console.log)
+await Promise.resolve()
+const data = await Promise.all([parallelClient.$test.framework(), parallelClient.$test.login({ name: 'p3', password: '123456' })])
+console.log('[batch request]:')
+console.log(data)

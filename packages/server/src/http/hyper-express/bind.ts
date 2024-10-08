@@ -81,6 +81,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               })
               const contextData = {
                 type: 'hyper-express' as const,
+                category: 'http',
                 parallel: true,
                 request: req,
                 index: i,
@@ -147,6 +148,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
 
           const contextData = {
             type: 'hyper-express' as const,
+            category: 'http',
             request: req,
             meta,
             response: res,

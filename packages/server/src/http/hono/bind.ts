@@ -85,6 +85,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
               const contextData = {
                 type: 'hono' as const,
                 parallel: true,
+                category: 'http',
                 context: c,
                 index: i,
                 meta,
@@ -154,6 +155,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
 
           const contextData = {
             type: 'hono' as const,
+            category: 'http',
             context: c,
             meta,
             moduleMap,
