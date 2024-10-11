@@ -357,7 +357,7 @@ export function isModuleFileUrl(url) {
       'addon',
       'filter',
       'pipe',
-      'edge',
+      'solo',
     ].includes(midName)
   )
     return true
