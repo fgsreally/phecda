@@ -1,5 +1,5 @@
 {
-  "$schema": "node_modules/phecda-server/bin/schema.json",
+  "$schema": "node_modules/phecda-server/assets/schema.json",
   "resolve": [
     {
       "source": "controller",
@@ -15,7 +15,7 @@
   "unimport": {
     "dirs": ["./src/server/*"],
     "dirsScanOptions": {
-      "filePatterns": ["*.{service,controller,module,rpc,edge,guard,extension,pipe,filter,addon}.ts"]
+      "filePatterns": ["*.{service,controller,module,rpc,solo,guard,extension,pipe,filter,addon}.ts"]
     }
   },
   "virtualFile": {
