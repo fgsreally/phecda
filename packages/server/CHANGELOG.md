@@ -1,5 +1,11 @@
 # phecda-server
 
+## 7.0.0-alpha.3
+
+### Patch Changes
+
+- 38ef154: rename x.edge.ts (lead to confusion that it can use in cloudflare) to x.solo.ts
+
 ## 7.0.0-alpha.2
 
 ### Patch Changes
