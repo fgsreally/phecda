@@ -1,14 +1,14 @@
 {
   "name": "phecda-client",
   "version": "2.1.1",
-  "description": "client that use axios/type safe/connect to phecda-server",
+  "description": "client that connect http framework in phecda-server",
   "author": "fgsreally",
   "license": "MIT",
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/client",
   "keywords": [
     "phecda",
     "axios",
-    "types-share",
+    "type-safe",
     "phecda-server"
   ],
   "exports": {
