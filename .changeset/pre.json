@@ -15,5 +15,13 @@
     "phecda-web": "3.0.1",
     "phecda-zod": "2.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "brave-points-tease",
+    "famous-donuts-end",
+    "flat-rockets-invent",
+    "popular-books-act",
+    "popular-mirrors-complain",
+    "unlucky-carrots-play",
+    "wicked-steaks-confess"
+  ]
 }

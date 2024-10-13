@@ -1,5 +1,43 @@
 # phecda-server
 
+## 7.0.0-alpha.3
+
+### Patch Changes
+
+- 38ef154: rename x.edge.ts (lead to confusion that it can use in cloudflare) to x.solo.ts
+
+## 7.0.0-alpha.2
+
+### Patch Changes
+
+- 1cc25fb: add category to context
+- 0764435: root in cli will change cwd()
+
+## 7.0.0-alpha.1
+
+### Patch Changes
+
+- a04adfe: runtime won't support x.interceptor.ts and x.plugin.ts(replace by addon)
+  fix `PGuard/PAddon` types
+  add more debug info
+  set `PS_STRICT` true will exit the program(for ci)
+
+## 7.0.0-alpha.0
+
+### Major Changes
+
+- 042e349: 1. remove `interceptor`, refactor `guard`, current `guard` can replace old guard and interceptor.
+
+  2. rename `plugin` to `addon`(because of vscode types), make it behave consistently across different frameworks( work on `router`,only for http)
+
+  3. priority decide the `guard/addon` order
+
+  4. Each function with an HTTP decorator corresponds to a `router`, and the implementation varies across different frameworks.
+
+### Patch Changes
+
+- f7e70ff: fix getRequest/getResponse(it will get req.raw now) in fastify
+
 ## 6.1.0
 
 ### Minor Changes
