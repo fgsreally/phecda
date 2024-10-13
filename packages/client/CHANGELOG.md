@@ -1,5 +1,13 @@
 # phecda-client
 
+## 2.1.2-alpha.0
+
+### Patch Changes
+
+- e761625: unplugin won't work/throw error when there is not ps.json(config file)
+
+  server will restart when add/change config file(only in vite)
+
 ## 3.0.0-alpha.0
 
 ### Major Changes
