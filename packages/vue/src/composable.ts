@@ -1,4 +1,4 @@
-import { Construct, type Events, bindMethod, emitter, getDefaultPhecda, getTag } from 'phecda-web'
+import { Construct, type Events, bindMethod, emitter, get, getDefaultPhecda, getTag } from 'phecda-web'
 import { UnwrapNestedRefs, getCurrentInstance, hasInjectionContext, inject, onUnmounted, toRaw, toRef } from 'vue'
 import type { ReplaceInstanceValues } from './types'
 import { createSharedReactive } from './utils'
@@ -64,11 +64,9 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
 
 // 还原模块
 
-export function useR<Model extends Construct>(model: Model, { keepAlive }: {
-  keepAlive?: boolean
-} = {}): UnwrapNestedRefs<InstanceType<Model>> {
+export function useR<Model extends Construct>(model: Model): UnwrapNestedRefs<InstanceType<Model>> {
   const phecda = usePhecda()
-  if (keepAlive === false && phecda.has(model))
+  if (phecda.has(model) && get(model.prototype, 'keepAlive') === false)
     onUnmounted(() => phecda.unmount(model))
 
   setMetaToComponent(model)
@@ -79,13 +77,11 @@ export function getR<Model extends Construct>(model: Model, phecda?: VuePhecda):
   return getPhecda(phecda).init(model) as any
 }
 
-export function useV<Model extends Construct>(model: Model, { keepAlive }: {
-  keepAlive?: boolean
-} = {}): ReplaceInstanceValues<InstanceType<Model>> {
+export function useV<Model extends Construct>(model: Model): ReplaceInstanceValues<InstanceType<Model>> {
   setMetaToComponent(model)
   const phecda = usePhecda()
 
-  if (keepAlive === false && phecda.has(model))
+  if (phecda.has(model) && get(model.prototype, 'keepAlive') === false)
     onUnmounted(() => phecda.unmount(model))
 
   const instance = phecda.init(model)
