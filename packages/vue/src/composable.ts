@@ -1,5 +1,5 @@
 import { Construct, type Events, bindMethod, emitter, getDefaultPhecda, getTag } from 'phecda-web'
-import { UnwrapNestedRefs, getCurrentInstance, hasInjectionContext, inject, onBeforeUnmount, toRaw, toRef } from 'vue'
+import { UnwrapNestedRefs, getCurrentInstance, hasInjectionContext, inject, onUnmounted, toRaw, toRef } from 'vue'
 import type { ReplaceInstanceValues } from './types'
 import { createSharedReactive } from './utils'
 import { VuePhecda, phecdaSymbol } from './core'
@@ -7,12 +7,12 @@ import { USE_DEVTOOLS } from './devtools'
 
 const cacheMap = new WeakMap()
 
-export function useRaw<T extends Construct>(model: T) {
-  return toRaw(useR(model)) as unknown as InstanceType<T>
+export function useRaw<Model extends Construct>(model: Model) {
+  return toRaw(useR(model)) as unknown as InstanceType<Model>
 }
 
-export function getRaw<T extends Construct>(model: T) {
-  return toRaw(getR(model)) as unknown as InstanceType<T>
+export function getRaw<Model extends Construct>(model: Model) {
+  return toRaw(getR(model)) as unknown as InstanceType<Model>
 }
 
 export function usePhecda() {
@@ -51,7 +51,7 @@ export function getPhecda(phecda?: VuePhecda) {
 }
 
 export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: Events[Key]) => void) {
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     emitter.off(eventName, cb)
   })
   emitter.on(eventName, cb)
@@ -64,19 +64,31 @@ export function useEvent<Key extends keyof Events>(eventName: Key, cb: (event: E
 
 // 还原模块
 
-export function useR<T extends Construct>(model: T): UnwrapNestedRefs<InstanceType<T>> {
+export function useR<Model extends Construct>(model: Model, { keepAlive }: {
+  keepAlive?: boolean
+} = {}): UnwrapNestedRefs<InstanceType<Model>> {
+  const phecda = usePhecda()
+  if (keepAlive === false && phecda.has(model))
+    onUnmounted(() => phecda.unmount(model))
+
   setMetaToComponent(model)
-  return usePhecda().init(model) as any
+  return phecda.init(model) as any
 }
 
-export function getR<T extends Construct>(model: T, phecda?: VuePhecda): UnwrapNestedRefs<InstanceType<T>> {
+export function getR<Model extends Construct>(model: Model, phecda?: VuePhecda): UnwrapNestedRefs<InstanceType<Model>> {
   return getPhecda(phecda).init(model) as any
 }
 
-export function useV<T extends Construct>(model: T): ReplaceInstanceValues<InstanceType<T>> {
+export function useV<Model extends Construct>(model: Model, { keepAlive }: {
+  keepAlive?: boolean
+} = {}): ReplaceInstanceValues<InstanceType<Model>> {
   setMetaToComponent(model)
+  const phecda = usePhecda()
 
-  const instance = usePhecda().init(model)
+  if (keepAlive === false && phecda.has(model))
+    onUnmounted(() => phecda.unmount(model))
+
+  const instance = phecda.init(model)
 
   if (cacheMap.has(instance))
     return cacheMap.get(instance)
@@ -111,7 +123,7 @@ export function useV<T extends Construct>(model: T): ReplaceInstanceValues<Insta
   return proxy
 }
 
-export function getV<T extends Construct>(model: T, phecda?: VuePhecda): ReplaceInstanceValues<InstanceType<T>> {
+export function getV<Model extends Construct>(model: Model, phecda?: VuePhecda): ReplaceInstanceValues<InstanceType<Model>> {
   const instance = getPhecda(phecda).init(model)
 
   if (cacheMap.has(instance))
