@@ -185,6 +185,17 @@ export class WebPhecda {
     return this.modelMap.get(state[tag])
   }
 
+  // replace<Model extends Construct>(model: Model) {
+  //   const { state, modelMap } = this
+  //   const tag = getTag(model)
+  //   if (tag in state) {
+  //     modelMap.delete(state[tag])
+  //     delete state[tag]
+  //   }
+  //   console.log(this.init(model), tag)
+  //   return this.init(model)
+  // }
+
   reset<Model extends Construct>(model: Model) {
     const { state } = this
     const tag = getTag(model)

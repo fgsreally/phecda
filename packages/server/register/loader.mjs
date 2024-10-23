@@ -2,6 +2,7 @@ import { fileURLToPath, pathToFileURL } from 'url'
 import { writeFile } from 'fs/promises'
 import {
   basename,
+  dirname,
   extname,
   isAbsolute,
   relative,
@@ -14,14 +15,28 @@ import { log } from '../dist/index.mjs'
 import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
 let port
+let tsconfig = {
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.NodeNext,
+}
 
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
 // this part is important or not?
 const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
-const tsconfig = {
-  module: ts.ModuleKind.ESNext,
-  moduleResolution: ts.ModuleResolutionKind.NodeNext,
+
+const tsconfigPath = resolvePath(process.cwd(), 'tsconfig.json')
+const tsRet = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
+
+if (!tsRet.error) {
+  const { error, options } = ts.parseJsonConfigFileContent(
+    tsRet.config,
+    ts.sys,
+    dirname(tsconfigPath),
+  )
+  if (!error)
+    tsconfig = options
 }
+
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
   x => x,
@@ -56,6 +71,8 @@ export async function initialize(data) {
   config = require(configPath)
   if (!config.virtualFile)
     config.virtualFile = {}
+  if (!config.paths)
+    config.paths = {}
 
   if (!process.env.PS_HMR_BAN) {
     chokidar.watch(configPath, { persistent: true }).on('change', () => {

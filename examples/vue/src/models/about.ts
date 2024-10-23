@@ -8,6 +8,7 @@ export class AboutModel extends WebBase {
     super()
   }
 
+  count = 1
   createdAt = {
     hour: new Date().getHours(),
 
