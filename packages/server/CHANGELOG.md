@@ -1,5 +1,17 @@
 # phecda-server
 
+## 7.0.0-alpha.4
+
+### Minor Changes
+
+- cd4d9b7: loader can read tsconfig.json and resolve path alias,just like tsconfig-path does
+
+### Patch Changes
+
+- 6deb2da: loader won't resolve virtual file as entry(only work for `unplugin-phecda-server`)
+- Updated dependencies [c1b7d65]
+  - phecda-core@4.1.0-alpha.0
+
 ## 7.0.0-alpha.3
 
 ### Patch Changes
