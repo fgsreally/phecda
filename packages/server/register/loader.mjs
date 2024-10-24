@@ -9,6 +9,7 @@ import {
   resolve as resolvePath,
 } from 'path'
 import { createRequire } from 'module'
+import { existsSync } from 'fs'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import { log } from '../dist/index.mjs'
@@ -144,13 +145,20 @@ export const resolve = async (specifier, context, nextResolve) => {
   }
   // entrypoint
   if (!context.parentURL) {
-    entryUrl = specifier
-    return {
-      format: EXTENSIONS.some(ext => specifier.endsWith(ext))
-        ? 'ts'
-        : undefined,
-      url: specifier,
-      shortCircuit: true,
+    if (/^file:\/\/\//.test(specifier) && existsSync(fileURLToPath(specifier))) {
+      entryUrl = specifier
+
+      return {
+        format: EXTENSIONS.some(ext => specifier.endsWith(ext))
+          ? 'ts'
+          : undefined,
+        url: specifier,
+        shortCircuit: true,
+      }
+    }
+    else {
+      // won't resolve virtual file as entry in vite
+      return nextResolve(specifier)
     }
   }
   // url import
