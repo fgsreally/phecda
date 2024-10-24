@@ -5,6 +5,10 @@ export function Shallow(model: any) {
   set(model.prototype, 'shallow', true)
 }
 
+export function KeepAlive(isKeepAlive = true) {
+  return (model: any) => set(model.prototype, 'keepAlive', isKeepAlive)
+}
+
 export function WatchEffect(option?: WatchOptions) {
   return (proto: any, key: string) => {
     let stopHandler: WatchStopHandle

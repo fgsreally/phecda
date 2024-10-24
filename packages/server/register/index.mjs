@@ -1,6 +1,7 @@
 import { register } from 'node:module'
 import { MessageChannel } from 'node:worker_threads'
 import { log } from '../dist/index.mjs'
+
 const { port1, port2 } = new MessageChannel()
 
 register('./loader.mjs', {

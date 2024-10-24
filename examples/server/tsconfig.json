@@ -13,6 +13,12 @@
     "isolatedModules": false,
     "esModuleInterop": true,
     "noEmit": true,
+    "paths": {
+
+      "@/*": [
+        "./src/server/*"
+      ]
+    },
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

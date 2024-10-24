@@ -97,3 +97,20 @@ function defaultMerger(prev: any, cur: any) {
 export function wait(...instances: InstanceType<Construct>[]) {
   return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
 }
+
+export function objectToClass<Obj extends Record<string, any>>(obj: Obj): new () => Obj {
+  return class {
+    constructor() {
+      Object.assign(this, obj)
+    }
+  } as any
+}
+
+export function functionToClass<Func extends (...args: any) => object>(fn: Func): new (...args: Parameters<Func>) => ReturnType<Func> {
+  return class {
+    prototype: object
+    constructor(...args: any) {
+      Object.setPrototypeOf(this, fn(...args))
+    }
+  } as any
+}
