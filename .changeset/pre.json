@@ -16,12 +16,16 @@
     "phecda-zod": "2.0.1"
   },
   "changesets": [
+    "angry-dingos-repair",
     "brave-points-tease",
     "famous-donuts-end",
     "flat-rockets-invent",
     "four-cups-pull",
     "popular-books-act",
     "popular-mirrors-complain",
+    "seven-maps-retire",
+    "smooth-badgers-end",
+    "smooth-kings-admire",
     "unlucky-carrots-play",
     "wicked-steaks-confess"
   ]

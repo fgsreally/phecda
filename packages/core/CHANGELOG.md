@@ -1,5 +1,11 @@
 # phecda-core
 
+## 4.1.0-alpha.0
+
+### Minor Changes
+
+- c1b7d65: add objectToClass/functionToClass
+
 ## 4.0.1
 
 ### Patch Changes
