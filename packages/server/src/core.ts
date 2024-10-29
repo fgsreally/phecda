@@ -142,6 +142,31 @@ export class ServerPhecda {
       await this.del(tag)
   }
 
+  createProxyModule(tag: PropertyKey) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this
+    return new Proxy({}, {
+      get(_target, prop) {
+        const module = that.moduleMap.get(tag)
+        return Reflect.get(module, prop, module)
+      },
+      set(_target, prop, newValue) {
+        const module = that.moduleMap.get(tag)
+
+        return Reflect.set(module, prop, newValue, module)
+      },
+      has(_target, prop) {
+        return Reflect.has(that.moduleMap.get(tag), prop)
+      },
+      getPrototypeOf() {
+        return Reflect.getPrototypeOf(that.moduleMap.get(tag))
+      },
+      getOwnPropertyDescriptor(_target, prop) {
+        return Reflect.getOwnPropertyDescriptor(that.moduleMap.get(tag), prop)
+      },
+    })
+  }
+
   protected async buildDepModule(Model: Construct) {
     const paramtypes = getParamTypes(Model) as Construct[]
     let module: InstanceType<Construct>
@@ -149,9 +174,10 @@ export class ServerPhecda {
 
     if (this.moduleMap.has(tag)) {
       module = this.moduleMap.get(tag)
-      if (!module)
-        throw new Error(`exist Circular-Dependency or Multiple modules with the same name/tag [tag] ${String(tag)}--[module] ${Model}`)
-
+      if (!module) {
+        log(`Exist Circular-Dependency or Multiple modules with the same tag [tag] ${String(tag)}--[module] ${Model}`, 'warn')
+        return { module: this.createProxyModule(tag), tag }
+      }
       if (this.modelMap.get(module) !== Model && !this.modelSet.has(Model)) {
         this.modelSet.add(Model)// a module will only warn once
 
