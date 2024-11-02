@@ -1,5 +1,7 @@
 export {}
 declare global {
+  const A1Model: typeof import('./src/server/a.service')['A1Model']
+  const A2Model: typeof import('./src/server/a2.service')['A2Model']
   const Addon: typeof import('phecda-server')['Addon']
   const Arg: typeof import('phecda-server')['Arg']
   const Assign: typeof import('phecda-server')['Assign']
@@ -38,6 +40,7 @@ declare global {
   const HttpBase: typeof import('phecda-server')['HttpBase']
   const IS_HMR: typeof import('phecda-server')['IS_HMR']
   const IS_ONLY_GENERATE: typeof import('phecda-server')['IS_ONLY_GENERATE']
+  const IS_READY: typeof import('phecda-server')['IS_READY']
   const IS_STRICT: typeof import('phecda-server')['IS_STRICT']
   const If: typeof import('phecda-server')['If']
   const Init: typeof import('phecda-server')['Init']

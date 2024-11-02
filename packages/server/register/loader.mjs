@@ -314,7 +314,8 @@ export const load = async (url, context, nextLoad) => {
 
     const code
       = typeof source === 'string' ? source : Buffer.from(source).toString()
-    const compiled = await compile(code, url)
+    const compiled = (await compile(code, url)).replace(/_ts_metadata\(\"design:paramtypes\"\,/g, '_ts_metadata("design:paramtypes",()=>')// handle cycle
+
     if (unimportRet) {
       const { injectImports } = unimportRet
       return {
