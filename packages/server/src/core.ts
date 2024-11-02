@@ -175,7 +175,7 @@ export class ServerPhecda {
     if (this.moduleMap.has(tag)) {
       module = this.moduleMap.get(tag)
       if (!module) {
-        log(`Exist Circular-Dependency or Multiple modules with the same tag [tag] ${String(tag)}--[module] ${Model}`, 'warn')
+        log(`Exist Circular-Dependency or Multiple modules with the same tag [${String(tag)}]`, 'warn')
         return { module: this.createProxyModule(tag), tag }
       }
       if (this.modelMap.get(module) !== Model && !this.modelSet.has(Model)) {
@@ -333,5 +333,9 @@ function deepFreeze<T extends Record<string, any>>(object: T): T {
   return object
 }
 function getParamTypes(Model: any, key?: string | symbol) {
-  return Reflect.getMetadata('design:paramtypes', Model, key!)
+  const paramTypes = Reflect.getMetadata('design:paramtypes', Model, key!)
+  if (typeof paramTypes === 'function')// work with loader to handle Circular-Dependency
+    return paramTypes()
+
+  else return paramTypes
 }
