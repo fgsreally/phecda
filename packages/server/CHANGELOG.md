@@ -1,5 +1,15 @@
 # phecda-server
 
+## 7.0.0-alpha.5
+
+### Minor Changes
+
+- 6af713f: add createProxyModule to support Circular-Dependency(BUT it still can't work in nodejs)
+
+### Patch Changes
+
+- 4e5d443: danger change in custom loader to handle circular-dependence
+
 ## 7.0.0-alpha.4
 
 ### Minor Changes
