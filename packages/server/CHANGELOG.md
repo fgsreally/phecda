@@ -1,5 +1,11 @@
 # phecda-server
 
+## 7.0.0-alpha.6
+
+### Patch Changes
+
+- bb33731: refactor logger(it more like nestjs ConsoleLogger）
+
 ## 7.0.0-alpha.5
 
 ### Minor Changes
