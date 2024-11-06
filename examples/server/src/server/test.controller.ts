@@ -30,6 +30,12 @@ export class TestController extends Parent {
 
   @Init
   init() {
+    try {
+      throw new Error('wanla')
+    }
+    catch (e) {
+      this.log(e)
+    }
     // initlize
   }
 
