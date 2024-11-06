@@ -1,7 +1,5 @@
 export {}
 declare global {
-  const A1Model: typeof import('./src/server/a.service')['A1Model']
-  const A2Model: typeof import('./src/server/a2.service')['A2Model']
   const Addon: typeof import('phecda-server')['Addon']
   const Arg: typeof import('phecda-server')['Arg']
   const Assign: typeof import('phecda-server')['Assign']

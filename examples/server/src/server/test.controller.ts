@@ -25,6 +25,7 @@ export class TestController extends Parent {
 
   constructor(private service: TestService) {
     super()
+    this.log('这看上去非常好')
   }
 
   @Init
