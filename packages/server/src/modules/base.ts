@@ -8,7 +8,7 @@ import { emitter } from '../core'
 export class ServerBase extends Base {
   emitter = emitter
 
-  log(msg: string, level: LogLevel) {
+  log(msg: unknown, level: LogLevel = 'log') {
     log(msg, level, this.tag)
   }
 }

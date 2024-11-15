@@ -5,7 +5,29 @@ import { HttpContext } from './http/types'
 export type LogLevel = 'error' | 'info' | 'warn' | 'log' | 'debug'
 
 export interface Logger {
-  log(msg: string, level: LogLevel, ctx?: string): void
+  log(msg: unknown, level: LogLevel, ctx?: string): void
+}
+
+const isObject = (fn: any): fn is object =>
+  fn !== null && typeof fn === 'object'
+
+const isPlainObject = (fn: any): fn is object => {
+  if (!isObject(fn))
+    return false
+
+  const proto = Object.getPrototypeOf(fn)
+  if (proto === null)
+    return true
+
+  const ctor
+    = Object.prototype.hasOwnProperty.call(proto, 'constructor')
+    && proto.constructor
+  return (
+    typeof ctor === 'function'
+    && ctor instanceof ctor
+    && Function.prototype.toString.call(ctor)
+    === Function.prototype.toString.call(Object)
+  )
 }
 
 class InternalLogger {
@@ -51,10 +73,32 @@ class InternalLogger {
     return true
   }
 
-  log(msg: string, level: LogLevel, ctx?: string) {
+  stringifyMessage(message: unknown, logLevel: LogLevel): string {
+    if (typeof message === 'function') {
+      const messageAsStr = Function.prototype.toString.call(message)
+      const isClass = messageAsStr.startsWith('class ')
+      if (isClass) {
+        // If the message is a class, we will display the class name.
+        return this.stringifyMessage(message.name, logLevel)
+      }
+      // If the message is a non-class function, call it and re-resolve its value.
+      return this.stringifyMessage(message(), logLevel)
+    }
+
+    return (isPlainObject(message) || Array.isArray(message))
+      ? `${this.colorize('Object:', logLevel)}\n${JSON.stringify(
+        message,
+        (key, value) =>
+          typeof value === 'bigint' ? value.toString() : value,
+        2,
+      )}\n`
+      : this.colorize(message as string, logLevel)
+  }
+
+  log(msg: unknown, level: LogLevel, ctx?: string) {
     if (!this.isAllowLog(level))
       return
-    msg = this.colorize(msg, level)
+    msg = this.stringifyMessage(msg, level)
     const pidMsg = this.colorize(`[phecda-server] ${process.pid}`, level)
     const ctxMsg = ctx ? this.colorize(pc.bold(`[${ctx}] `), level) : ''
     const timeDiff = this.diffTimestamp()
@@ -72,7 +116,7 @@ export function getLogger() {
   return _logger
 }
 
-export function log(msg: string, level: LogLevel = 'log', ctx?: any) {
+export function log(msg: unknown, level: LogLevel = 'log', ctx?: any) {
   _logger.log(msg, level, ctx)
 }
 
