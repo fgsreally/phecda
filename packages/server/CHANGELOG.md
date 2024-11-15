@@ -1,5 +1,11 @@
 # phecda-server
 
+## 7.0.0-alpha.7
+
+### Patch Changes
+
+- f5114a3: not only log string
+
 ## 7.0.0-alpha.6
 
 ### Patch Changes
