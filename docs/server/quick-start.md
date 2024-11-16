@@ -9,11 +9,17 @@ npm i phecda-server
 ```
 ### 初始化
 
+> `PS`自带了命令行工具用于初始化/启动程序，
+> 
+> 但如果要使用`vite/ts-node/esno`等来运行，可忽略这一步
+
 ```shell
 npx phecda init
 ```
 
 这会创建配置文件`ps.json`和`tsconfig.json`(如果已存在不会覆盖)
+
+
 ### 代码
 
 创建一个`user.controller.ts`和`user.service.ts`。

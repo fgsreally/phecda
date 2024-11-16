@@ -33,7 +33,7 @@ declare function invoke(instance: Phecda, event: string): Promise<any[]>
 declare function invokeInit(instance: any): Promise<PromiseSettledResult<any>[]>
 // invoke(instance,'unmount')
 declare function invokeUnmount(instance: any): Promise<PromiseSettledResult<any>[]>
-// 注入与获取（用于实现PC未实现的装饰器）
+// 注入与获取（用于实现phecda-core未实现的装饰器）
 declare function setInject(key: string, value: any): Record<string, any>
 declare function getInject(key: string): any
 ```
@@ -62,7 +62,7 @@ declare function Pipeline(
   ...decos: ((...args: any) => void)[]
 ): (...args: any) => void
 
-// 获得模块的tag
+// 获得模块的tag,有Tag修饰时，即返回Tag的值，否则返回类名
 declare function getTag<M extends Construct | AbConstruct>(
   moduleOrInstance: M | InstanceType<M>
 ): PropertyKey

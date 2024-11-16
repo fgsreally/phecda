@@ -45,7 +45,7 @@ class User {
 这给我了一点想法,前端中完全可以这么调用:
 
 ```ts
-const isLogin = await login('phecda-server users', 'password') // 这样就可以直接复用服务端类型！
+const isLogin = await login('username', 'password') // 这样就可以直接复用服务端类型！
 ```
 
 一个不算坏的方案是：

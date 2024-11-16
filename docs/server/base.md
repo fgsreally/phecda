@@ -61,8 +61,8 @@ data.meta // 元数据数组
 
 2. **服务模块**，主要是给控制器提供服务，对应着`service`（类名为`XXService`）
 3. **基础模块**，主要是提供一些基础能力给其他模块使用，对应着`module`（类名为`XXModule`）
-4. **`AOP`模块**， 提供`aop`功能（类名为`XXPipe/XXGuard/XXFilter/XXPlugin/XXInterceptor、XXExtension`）
-5. **边缘模块**，不被其他模块调用的模块，主要用于定时器、事件总线（类名为`XXEdge`）
+4. **`AOP`模块**， 提供`aop`功能（类名为`XXPipe/XXGuard/XXFilter/XXAddon/XXExtension`）
+5. **独立模块**，不被其他模块调用的模块，主要用于定时器、事件总线（类名为`XXSolo`）
 
 实例化时，只需要直接引入`1/4/5`，`2/3`会被间接引入
 如
@@ -272,11 +272,12 @@ const ret = await request.user.login('username', 'password') // 请求数据
 
 很明显，这是个重定向性质的行为，[快速开始](./quick-start.md)里通过`vite`插件，
 
-但通过命令`phecda <entry file>` 也可以实现，
+### 服务端调用
 
-> 这里之所以说调用方而不是前端或者客户端，因为也可以是服务端不同程序之间的调用
->
-> 通过命令行的方法就是用于这种情况
+通过命令`phecda <entry file>` 
+
+> 服务端不同程序之间的调用
+
 
 具体的重定向配置，[详见](./advance/command.md)
 
