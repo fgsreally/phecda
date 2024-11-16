@@ -16,7 +16,7 @@ class Parent extends HttpBase {
   }
 }
 
-@Controller('/base')
+@Controller('base')
 @Guard('D')
 @Define('a', {})
 export class TestController extends Parent {
@@ -52,7 +52,7 @@ export class TestController extends Parent {
     return true
   }
 
-  @Get('/framework')
+  @Get('framework')
 
   @Guard('E')
 

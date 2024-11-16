@@ -1,3 +1,4 @@
+import { joinUrl } from 'src/helper'
 import type { ControllerMetaData, MetaData } from '../meta'
 import { Generator } from './utils'
 
@@ -23,7 +24,7 @@ export class HTTPGenerator extends Generator {
     } = args
     if (!http?.type)
       return
-    const url = http.prefix + http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
+    const url = joinUrl(http.prefix, http.route).replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][func] = `

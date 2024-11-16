@@ -9,7 +9,7 @@ import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
 
 import { HMR } from '../../hmr'
-import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { createControllerMetaMap, detectAopDep,joinUrl } from '../../helper'
 
 const debug = Debug('phecda-server/koa')
 export interface KoaCtx extends HttpContext {
@@ -142,7 +142,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         }
         const subRouter = new Router()
         Context.applyAddons(addons, subRouter, 'koa')
-        router[http.type](http.prefix + http.route, async (ctx, next) => {
+        router[http.type](joinUrl(http.prefix , http.route), async (ctx, next) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {

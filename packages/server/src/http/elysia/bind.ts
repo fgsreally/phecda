@@ -8,7 +8,7 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
 import { Define } from '../../decorators'
-import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 const debug = Debug('phecda-server/elysia')
 export interface ElysiaCtx extends HttpContext {
   type: 'elysia'
@@ -156,7 +156,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
         }
         Context.applyAddons(addons, subApp, 'elysia')
         // @ts-expect-error todo
-        subApp[http.type](http.prefix + http.route, async (c: ElysiaContext) => {
+        subApp[http.type](joinUrl(http.prefix, http.route), async (c: ElysiaContext) => {
           debug(`invoke method "${func}" in module "${tag}"`)
           const contextData = {
             type: 'elysia' as const,

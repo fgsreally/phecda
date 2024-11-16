@@ -6,7 +6,7 @@ import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
-import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { createControllerMetaMap, detectAopDep,joinUrl } from '../../helper'
 
 const debug = Debug('phecda-server/hyper-express')
 export interface HyperExpressCtx extends HttpContext {
@@ -143,7 +143,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         }
         const subRouter = new Router()
         Context.applyAddons(addons, subRouter, 'hyper-express')
-        subRouter[http.type](http.prefix + http.route, async (req, res, next) => {
+        subRouter[http.type](joinUrl(http.prefix , http.route), async (req, res, next) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {

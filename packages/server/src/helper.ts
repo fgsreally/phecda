@@ -120,3 +120,9 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     filterSet,
   }
 }
+
+export function joinUrl(base: string, ...paths: string[]) {
+  // 确保路径以斜杠开头，并且用斜杠连接每个部分
+  const joinedPath = [base, ...paths].map(path => path.replace(/^\/+|\/+$/g, '')).join('/')
+  return `/${joinedPath}` // 确保结果以斜杠开头
+}

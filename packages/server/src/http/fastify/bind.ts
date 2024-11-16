@@ -6,7 +6,7 @@ import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
 import { Define } from '../../decorators'
-import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { createControllerMetaMap, detectAopDep,joinUrl } from '../../helper'
 const debug = Debug('phecda-server/fastify')
 export interface FastifyCtx extends HttpContext {
   type: 'fastify'
@@ -151,7 +151,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
             })
           }
 
-          fastify[http.type](http.prefix + http.route, define?.fastify || {}, async (req, res) => {
+          fastify[http.type](joinUrl(http.prefix , http.route), define?.fastify || {}, async (req, res) => {
             debug(`invoke method "${func}" in module "${tag}"`)
 
             const contextData = {
