@@ -1,6 +1,6 @@
 import { getTag } from 'phecda-core'
 import { Context, addPipe } from '../context'
-import type {  BaseCtx } from '../types'
+import type { BaseCtx } from '../types'
 import { ServerBase } from './base'
 export abstract class PPipe<Ctx extends BaseCtx = any> extends ServerBase {
   readonly key: PropertyKey

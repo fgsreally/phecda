@@ -1,4 +1,4 @@
-import { joinUrl } from 'src/helper'
+import { joinUrl } from '../helper'
 import type { ControllerMetaData, MetaData } from '../meta'
 import { Generator } from './utils'
 

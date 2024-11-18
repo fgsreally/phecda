@@ -1,5 +1,5 @@
 import { getTag } from 'phecda-core'
-import type {  BaseCtx, BaseError } from '../types'
+import type { BaseCtx, BaseError } from '../types'
 import { Context, addAddon, addFilter, addGuard, addPipe } from '../context'
 import type { Exception } from '../exception'
 import { ServerBase } from './base'
