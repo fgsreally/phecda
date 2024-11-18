@@ -7,7 +7,7 @@ import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_HMR, IS_ONLY_GENERATE } from './common'
+import { IS_DEV, IS_ONLY_GENERATE } from './common'
 import type { Generator } from './generator'
 
 const debug = Debug('phecda-server(Factory)')
@@ -64,7 +64,7 @@ export class ServerPhecda {
       await this.buildDepModule(model)
 
     const generateCode = async () => {
-      if (IS_HMR) {
+      if (IS_DEV) {
         return Promise.all(this.generators.map((generator) => {
           debug(`generate "${generator.name}" code to ${generator.path}`)
 
@@ -78,7 +78,7 @@ export class ServerPhecda {
         process.exit(4)// only output code/work for ci
     })
 
-    if (IS_HMR) { // for hmr
+    if (IS_DEV) { // for hmr
       if (!globalThis.__PS_HMR__)
         globalThis.__PS_HMR__ = []
 

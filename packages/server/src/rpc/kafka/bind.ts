@@ -2,12 +2,12 @@ import type { Consumer, Producer } from 'kafkajs'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context } from '../../context'
-import type { RpcContext, RpcServerOptions } from '../types'
+import type { RpcCtx, RpcServerOptions } from '../types'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/kafka')
 
-export interface KafkaCtx extends RpcContext {
+export interface KafkaCtx extends RpcCtx {
   type: 'kafka'
   topic: string
   partition: number

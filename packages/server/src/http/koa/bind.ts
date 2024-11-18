@@ -2,17 +2,17 @@ import Router from '@koa/router'
 import type { RouterParamContext } from '@koa/router'
 import type { DefaultContext, DefaultState } from 'koa'
 import Debug from 'debug'
-import type { HttpContext, HttpOptions } from '../types'
+import type { HttpCtx, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
 
 import { HMR } from '../../hmr'
-import { createControllerMetaMap, detectAopDep,joinUrl } from '../../helper'
+import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 
 const debug = Debug('phecda-server/koa')
-export interface KoaCtx extends HttpContext {
+export interface KoaCtx extends HttpCtx {
   type: 'koa'
   ctx: DefaultContext & RouterParamContext<DefaultState, DefaultContext>
   next: Function
@@ -142,7 +142,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         }
         const subRouter = new Router()
         Context.applyAddons(addons, subRouter, 'koa')
-        router[http.type](joinUrl(http.prefix , http.route), async (ctx, next) => {
+        router[http.type](joinUrl(http.prefix, http.route), async (ctx, next) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {

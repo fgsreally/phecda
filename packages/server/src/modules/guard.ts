@@ -1,10 +1,10 @@
 import { getTag } from 'phecda-core'
 import { Context, addGuard } from '../context'
-import type { BaseContext } from '../types'
+import type { BaseCtx } from '../types'
 import { ServerBase } from './base'
 
-export abstract class PGuard<C extends BaseContext = any> extends ServerBase {
-  abstract use(ctx: C, next: () => Promise<any>): any
+export abstract class PGuard<Ctx extends BaseCtx = any> extends ServerBase {
+  abstract use(ctx: Ctx, next: () => Promise<any>): any
   readonly key: PropertyKey
   priority = 0
 

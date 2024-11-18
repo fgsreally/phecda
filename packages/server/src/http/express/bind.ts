@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import type { Request, RequestHandler, Response } from 'express'
 import { Router } from 'express'
 import Debug from 'debug'
-import type { HttpContext, HttpOptions } from '../types'
+import type { HttpCtx, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -11,7 +11,7 @@ import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/express')
-export interface ExpressCtx extends HttpContext {
+export interface ExpressCtx extends HttpCtx {
   type: 'express'
   request: Request
   response: Response

@@ -125,7 +125,7 @@ export class UploadExt extends PExtension<ExpressCtx> {
 export class OssController {
   constructor(protected oss: OSSModule) {}
   @Ctx
-  context: HttpContext
+  context: HttpContextData
 
   @Post('/upload')
   @Addon('upload')

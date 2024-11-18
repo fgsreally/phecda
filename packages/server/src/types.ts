@@ -27,7 +27,7 @@ export type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
 
 export type OmitFunction<Instance> = Omit<Instance, PickFuncKeys<Instance>>
 
-export interface BaseContext {
+export interface BaseCtx {
   meta: ControllerMeta
   moduleMap: Record<string, any>
   type: string

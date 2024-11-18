@@ -1,6 +1,6 @@
 import pc from 'picocolors'
 import { LOG_LEVEL } from './common'
-import { HttpContext } from './http/types'
+import { HttpCtx } from './http/types'
 
 export type LogLevel = 'error' | 'info' | 'warn' | 'log' | 'debug'
 
@@ -120,7 +120,7 @@ export function log(msg: unknown, level: LogLevel = 'log', ctx?: any) {
   _logger.log(msg, level, ctx)
 }
 
-export function runMiddleware(ctx: HttpContext, middleware: (req: any, res: any, next?: any) => any) {
+export function runMiddleware(ctx: HttpCtx, middleware: (req: any, res: any, next?: any) => any) {
   return new Promise((resolve) => {
     middleware(ctx.getRequest(), ctx.getResponse(), resolve)
   })

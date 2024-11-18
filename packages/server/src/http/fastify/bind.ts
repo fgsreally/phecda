@@ -1,14 +1,14 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
-import type { HttpContext, HttpOptions } from '../types'
+import type { HttpCtx, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
 import { Define } from '../../decorators'
-import { createControllerMetaMap, detectAopDep,joinUrl } from '../../helper'
+import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 const debug = Debug('phecda-server/fastify')
-export interface FastifyCtx extends HttpContext {
+export interface FastifyCtx extends HttpCtx {
   type: 'fastify'
   request: FastifyRequest
   response: FastifyReply
@@ -83,6 +83,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                 const contextData = {
                   type: 'fastify' as const,
                   category: 'http',
+
                   parallel: true,
                   request: req,
                   index: i,
@@ -151,7 +152,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
             })
           }
 
-          fastify[http.type](joinUrl(http.prefix , http.route), define?.fastify || {}, async (req, res) => {
+          fastify[http.type](joinUrl(http.prefix, http.route), define?.fastify || {}, async (req, res) => {
             debug(`invoke method "${func}" in module "${tag}"`)
 
             const contextData = {

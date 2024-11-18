@@ -3,13 +3,13 @@ import Debug from 'debug'
 import { Hono, Context as HonoContext, MiddlewareHandler } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { BadRequestException } from 'src/exception'
-import type { HttpContext, HttpOptions } from '../types'
+import type { HttpCtx, HttpOptions } from '../types'
 import type { Factory } from '../../core'
 import { AOP, Context } from '../../context'
 
 import { argToReq, createControllerMetaMap, detectAopDep } from '../../helper'
 const debug = Debug('phecda-server/hono')
-export interface HonoCtx extends HttpContext {
+export interface HonoCtx extends HttpCtx {
   type: 'hono'
   context: HonoContext
   app: Hono

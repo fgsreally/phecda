@@ -2,7 +2,7 @@ import Debug from 'debug'
 import type { Context as ElysiaContext, InputSchema, LocalHook, RouteSchema, SingletonBase } from 'elysia'
 import { Elysia as App } from 'elysia'
 import type { BaseMacro } from 'elysia/dist/types'
-import type { HttpContext, HttpOptions } from '../types'
+import type { HttpCtx, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
@@ -10,7 +10,7 @@ import { AOP, Context } from '../../context'
 import { Define } from '../../decorators'
 import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 const debug = Debug('phecda-server/elysia')
-export interface ElysiaCtx extends HttpContext {
+export interface ElysiaCtx extends HttpCtx {
   type: 'elysia'
   app: App
   context: ElysiaContext

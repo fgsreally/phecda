@@ -1,12 +1,14 @@
 import Debug from 'debug'
 import pc from 'picocolors'
+import { getTag } from 'phecda-core'
 import { defaultPipe } from './pipe'
 import { defaultFilter } from './filter'
-import type { BaseContext, DefaultOptions } from './types'
-import { IS_HMR } from './common'
-import type { Exception } from './exception'
+import type { BaseCtx, DefaultOptions } from './types'
+import { IS_DEV } from './common'
+import { type Exception, FrameworkException } from './exception'
 import { resolveDep } from './helper'
 import { ControllerMeta } from './meta'
+import { log } from './utils'
 
 const debug = Debug('phecda-server(Context)')
 
@@ -17,11 +19,11 @@ export interface AOP {
 }
 
 export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any> }
-export type GuardType<C extends BaseContext = any> = (ctx: C, next: () => Promise<any>) => any
-export type PipeType<C extends BaseContext = any> = (arg: PipeArg, ctx: C) => Promise<any>
-export type FilterType<C extends BaseContext = any, E extends Exception = any> = (err: E | Error, ctx?: C) => Error | any
+export type GuardType<Ctx extends BaseCtx = any> = (ctx: Ctx, next: () => Promise<any>) => any
+export type PipeType<Ctx extends BaseCtx = any> = (arg: PipeArg, ctx: Ctx) => Promise<any>
+export type FilterType<Ctx extends BaseCtx = any, E extends Exception = any> = (err: E | Error, ctx?: Ctx) => Error | any
 
-export class Context<Data extends BaseContext> {
+export class Context<Ctx extends BaseCtx> {
   method: string
   params: string[]
 
@@ -44,10 +46,51 @@ export class Context<Data extends BaseContext> {
 
   }> = {}
 
-  constructor(public data: Data) {
-    if (IS_HMR)
+  ctx: Ctx
+
+  protected canGetCtx = true
+
+  constructor(public data: Ctx) {
+    if (IS_DEV)
       // @ts-expect-error work for debug
       data._context = this
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this
+    // this.ctx = {
+    //   get(key, defaultValue) {
+    //     if (!that.canGetCtx)// only detect in dev
+    //       throw new FrameworkException('ctx must be obtained within the same request cycle in controller')
+
+    //     if (!(key in data)) {
+    //       if (defaultValue !== undefined)
+    //         return defaultValue
+    //       else
+    //         throw new FrameworkException(`"${key as string}" doesn't exist on ctx`)
+    //     }
+
+    //     return data[key]
+    //   },
+    //   set(key, value) {
+    //     data[key] = value
+    //   },
+    // }
+
+    this.ctx = new Proxy(data, {
+      get(target, p) {
+        if (IS_DEV && !that.canGetCtx)// only detect in dev
+          throw new FrameworkException('ctx must be obtained within the same request cycle in controller')
+
+        if (!(p in target))
+          log(`attribute "${p as string}" does not exist on ctx, which might be due to a missing AOP role (such as a guard).`, 'warn', data.tag)
+
+        return target[p as any]
+      },
+      set(target: any, p, newValue) {
+        target[p] = newValue
+        return true
+      },
+    })
   }
 
   static getAop(meta: ControllerMeta, opts: DefaultOptions) {
@@ -103,15 +146,22 @@ export class Context<Data extends BaseContext> {
           if (index === guards.length) {
             const instance = moduleMap.get(tag)!
             if (ctxs) {
-              ctxs.forEach(ctx => instance[ctx] = this.data,
+              ctxs.forEach(ctx => instance[ctx] = this.ctx,
               )
             }
             const args = await Promise.all(
               params.map((item, i) =>
-                pipe[i]({ arg: resolveDep(this.data[item.type], item.key), reflect: paramsType[item.index], ...item }, this.data),
+                pipe[i]({ arg: resolveDep(this.data[item.type], item.key), reflect: paramsType[item.index], ...item }, this.ctx),
               ),
             )
+
+            if (IS_DEV) {
+              Promise.resolve().then(() => {
+                this.canGetCtx = false
+              })
+            }
             res = await instance[func](...args)
+            this.canGetCtx = true
           }
           else {
             let nextPromise: Promise<any> | undefined
@@ -126,7 +176,7 @@ export class Context<Data extends BaseContext> {
               })
             }
 
-            const ret = await guards[index](this.data, next)
+            const ret = await guards[index](this.ctx, next)
 
             if (ret !== undefined) {
               res = ret
@@ -146,7 +196,7 @@ export class Context<Data extends BaseContext> {
       return successCb(res)
     }
     catch (e) {
-      const err = await filter(e, this.data)
+      const err = await filter(e, this.ctx)
       return failCb(err)
     }
   }
@@ -187,19 +237,19 @@ export class Context<Data extends BaseContext> {
   }
 }
 
-export function addPipe<C extends BaseContext>(key: PropertyKey, pipe: PipeType<C>) {
+export function addPipe<C extends BaseCtx>(key: PropertyKey, pipe: PipeType<C>) {
   if (Context.pipeRecord[key] && Context.pipeRecord[key] !== pipe)
     debug(`overwrite Pipe "${String(key)}"`, 'warn')
   Context.pipeRecord[key] = pipe
 }
 
-export function addFilter<C extends BaseContext>(key: PropertyKey, filter: FilterType<C>) {
+export function addFilter<C extends BaseCtx>(key: PropertyKey, filter: FilterType<C>) {
   if (Context.filterRecord[key] && Context.filterRecord[key] !== filter)
     debug(`overwrite Filter "${String(key)}"`, 'warn')
   Context.filterRecord[key] = filter
 }
 
-export function addGuard<C extends BaseContext>(key: PropertyKey, guard: GuardType<C>, priority = 0) {
+export function addGuard<C extends BaseCtx>(key: PropertyKey, guard: GuardType<C>, priority = 0) {
   if (Context.guardRecord[key] && Context.guardRecord[key].value !== guard)
     debug(`overwrite Guard "${String(key)}"`, 'warn')
 
