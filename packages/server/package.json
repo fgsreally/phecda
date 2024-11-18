@@ -129,7 +129,8 @@
     }
   },
   "bin": {
-    "phecda": "bin/cli.mjs"
+    "phecda": "bin/cli.mjs",
+    "phecda-server": "bin/cli.mjs"
   },
   "files": [
     "dist",

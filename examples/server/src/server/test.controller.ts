@@ -47,7 +47,7 @@ export class TestController extends HttpBase {
   @Guard('C')
 
   async framework() {
-    return this.context.user
+    return this.context.type
   }
 }
 // hmr works

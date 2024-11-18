@@ -1,6 +1,5 @@
 import Debug from 'debug'
 import pc from 'picocolors'
-import { getTag } from 'phecda-core'
 import { defaultPipe } from './pipe'
 import { defaultFilter } from './filter'
 import type { BaseCtx, DefaultOptions } from './types'
@@ -57,24 +56,6 @@ export class Context<Ctx extends BaseCtx> {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this
-    // this.ctx = {
-    //   get(key, defaultValue) {
-    //     if (!that.canGetCtx)// only detect in dev
-    //       throw new FrameworkException('ctx must be obtained within the same request cycle in controller')
-
-    //     if (!(key in data)) {
-    //       if (defaultValue !== undefined)
-    //         return defaultValue
-    //       else
-    //         throw new FrameworkException(`"${key as string}" doesn't exist on ctx`)
-    //     }
-
-    //     return data[key]
-    //   },
-    //   set(key, value) {
-    //     data[key] = value
-    //   },
-    // }
 
     this.ctx = new Proxy(data, {
       get(target, p) {
