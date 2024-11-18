@@ -111,10 +111,7 @@ export default defineConfig({
               text: '守卫',
               link: '/server/aop/guard',
             },
-            {
-              text: '拦截器',
-              link: '/server/aop/interceptor',
-            },
+
             {
               text: '管道',
               link: '/server/aop/pipe',
@@ -126,7 +123,7 @@ export default defineConfig({
             },
             {
               text: '插件',
-              link: '/server/aop/plugin',
+              link: '/server/aop/addon',
             },
             {
               text: '扩展',

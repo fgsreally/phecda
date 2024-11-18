@@ -36,7 +36,7 @@ declare global {
   const Head: typeof import('phecda-server')['Head']
   const Header: typeof import('phecda-server')['Header']
   const HttpBase: typeof import('phecda-server')['HttpBase']
-  const IS_HMR: typeof import('phecda-server')['IS_HMR']
+  const IS_DEV: typeof import('phecda-server')['IS_DEV']
   const IS_ONLY_GENERATE: typeof import('phecda-server')['IS_ONLY_GENERATE']
   const IS_READY: typeof import('phecda-server')['IS_READY']
   const IS_STRICT: typeof import('phecda-server')['IS_STRICT']

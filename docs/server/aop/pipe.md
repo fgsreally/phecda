@@ -29,30 +29,7 @@ Factory([Validate, TestController])
 ```
 
 ## 默认管道
-没有设置管道时，默认使用`default`管道,即`phecda-core`提供的验证能力
-
-> 和`class-validator`很像
-
-```ts
-import { Body, Controller, Post, To } from 'phecda-server'
-
-class BodyData {
-  // 当请求体中的 age 为 17，就会报错，为 19 的话，body.age 就会得到 20
-  @To((param: any) => {
-    if (age < 18)
-      throw new Error('too young')
-    return age + 1
-  })
-  age: number
-}
-
-@Controller('/test')
-class TestController {
-  @Post()
-  test4(@Body() body: BodyDatas) {}
-}
-```
-
+没有设置管道时，默认使用`default`管道,即什么都不做
 
 如果你不怎么欣赏这个效果，可以设置一个`default`管道，从而顶替掉内置的管道
 

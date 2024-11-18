@@ -120,3 +120,8 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     filterSet,
   }
 }
+
+export function joinUrl(base: string, ...paths: string[]) {
+  const joinedPath = [base, ...paths].filter(p => p).map(path => path.replace(/(^\/)/g, '')).join('/')
+  return `/${joinedPath}`
+}

@@ -1,16 +1,16 @@
 import { getTag } from 'phecda-core'
-import type { BaseContext, BaseError } from '../types'
+import type { BaseCtx, BaseError } from '../types'
 import { Context, addAddon, addFilter, addGuard, addPipe } from '../context'
 import type { Exception } from '../exception'
 import { ServerBase } from './base'
 
-export interface PExtension<C extends BaseContext = any, E extends Exception = Exception> {
+export interface PExtension<Ctx extends BaseCtx = any, E extends Exception = Exception> {
 
-  guard(ctx: C): Promise<boolean> | boolean
+  guard(ctx: Ctx): Promise<boolean> | boolean
 
-  pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C): any
+  pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: Ctx): any
 
-  filter(error: Error | E, ctx?: C): BaseError
+  filter(error: Error | E, ctx?: Ctx): BaseError
 
   addon<Addon = any>(framework: string): Addon
 }

@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest'
 import request from 'supertest'
-import type { HttpContext, HttpOptions } from '../../src'
+import type { HttpCtx, HttpOptions } from '../../src'
 import { ERROR_SYMBOL, ForbiddenException, addFilter, addGuard, addPipe } from '../../src'
 
 export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOptions) => Promise<App>, _framework: string) {
@@ -53,7 +53,7 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
   it('guard', async () => {
     const Guardfn = vi.fn((str: string) => str)
 
-    addGuard('g1', async ({ params, index }: HttpContext) => {
+    addGuard('g1', async ({ params, index }: HttpCtx) => {
       Guardfn('g1')
 
       if (index === undefined && params.test !== 'test')
@@ -98,7 +98,7 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
   })
 
   it('ctx', async () => {
-    addGuard('g', async (ctx: HttpContext) => {
+    addGuard('g', async (ctx: HttpCtx) => {
       expect({ body: ctx.body, query: ctx.query, params: ctx.params }).toMatchSnapshot()
     })
 

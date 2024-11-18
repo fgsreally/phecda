@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { Addon, Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpContext, Param, Pipe, Post, Query, addPipe } from '../../src'
+import { Addon, Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpCtx, Param, Pipe, Post, Query, addPipe } from '../../src'
 class Info {
   name: string
 }
@@ -15,7 +15,7 @@ addPipe('default', ({ arg, reflect }) => {
 @Controller('')
 export class Test {
   @Ctx
-  ctx: HttpContext
+  ctx: HttpCtx
 
   @Get('/get')
   get() {

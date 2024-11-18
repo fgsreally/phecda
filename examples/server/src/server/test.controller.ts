@@ -4,22 +4,10 @@ export class User {
   password: string
 }
 
-@Guard('B')
-
-class Parent extends HttpBase {
-  @Get('/framework')
-  @Guard('A')
-
-  async framework() {
-    const { type } = this.context
-    return type
-  }
-}
-
-@Controller('/base')
+@Controller('base')
 @Guard('D')
 @Define('a', {})
-export class TestController extends Parent {
+export class TestController extends HttpBase {
   static age = 12
   age = 1
 
@@ -52,15 +40,14 @@ export class TestController extends Parent {
     return true
   }
 
-  @Get('/framework')
+  @Get('framework')
 
   @Guard('E')
 
   @Guard('C')
 
   async framework() {
-    const { type } = this.context
-    return type
+    return this.context.type
   }
 }
 // hmr works

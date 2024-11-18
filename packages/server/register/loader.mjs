@@ -12,7 +12,7 @@ import { createRequire } from 'module'
 import { existsSync } from 'fs'
 import ts from 'typescript'
 import chokidar from 'chokidar'
-import { log } from '../dist/index.mjs'
+import { IS_DEV, log } from '../dist/index.mjs'
 import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
 let port
@@ -279,7 +279,7 @@ export const load = async (url, context, nextLoad) => {
     //   }),
     // )
 
-    if (!process.env.PS_HMR_BAN) {
+    if (IS_DEV && !process.env.PS_HMR_BAN) {
       chokidar.watch(fileURLToPath(url), { persistent: true }).on(
         'change',
         debounce(() => {

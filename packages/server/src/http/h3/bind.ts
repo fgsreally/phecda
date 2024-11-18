@@ -6,12 +6,12 @@ import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
-import type { HttpContext, HttpOptions } from '../types'
-import { createControllerMetaMap, detectAopDep } from '../../helper'
+import type { HttpCtx, HttpOptions } from '../types'
+import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 
 const debug = Debug('phecda-server/h3')
 
-export interface H3Ctx extends HttpContext {
+export interface H3Ctx extends HttpCtx {
   type: 'h3'
   event: H3Event
   app: Router
@@ -150,7 +150,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         const subRouter = createRouter()
 
         Context.applyAddons(addons, subRouter, 'h3')
-        subRouter[http.type](http.prefix + http.route, defineEventHandler(async (event) => {
+        subRouter[http.type](joinUrl(http.prefix, http.route), defineEventHandler(async (event) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {
@@ -192,7 +192,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           })
         }))
 
-        router.use(http.prefix + http.route, useBase('', subRouter.handler))
+        router.use(joinUrl(http.prefix, http.route), useBase('', subRouter.handler))
       }
     }
   }

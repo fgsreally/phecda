@@ -3,14 +3,14 @@ import { Queue, Worker } from 'bullmq'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context } from '../../context'
-import type { RpcContext, RpcServerOptions } from '../types'
+import type { RpcCtx, RpcServerOptions } from '../types'
 import { HMR } from '../../hmr'
 
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/bullmq')
 
-export interface BullmqCtx extends RpcContext {
+export interface BullmqCtx extends RpcCtx {
   type: 'bullmq'
 }
 

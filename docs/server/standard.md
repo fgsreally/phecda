@@ -11,8 +11,8 @@
 1. `*.controller.ts` <--> `XXController`
 2. `*.service.ts` <--> `XXService`
 3. `*.rpc.ts` <--> `XXRpc`
-4. `*.guard/interceptor/pipe/filter/extension/plugin.ts` <--> `XXPipe/XXGuard/XXFilter/XXPlugin/XXInterceptor/XXExtension`
+4. `*.guard/pipe/filter/extension/addon.ts` <--> `XXPipe/XXGuard/XXFilter/XXAddon/XXExtension`
 5. `*.module.ts` <--> `XXModule`
-6. `*.edge.ts` <--> `XXEdge`
+6. `*.solo.ts` <--> `XXSolo`
 
 

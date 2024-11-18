@@ -15,7 +15,7 @@
 简而言之，解决方法只有以下几种：
 
 1. 不用`ps`的控制器去暴露服务，自行暴露，
-2. 用`ps`控制器，但使用拦截器/插件去更改默认的逻辑
+2. 用`ps`控制器，但使用守卫去更改默认的逻辑
    > 以上这两种无法复用代码和类型
 3. [自定义框架](./custom.md)
 
@@ -111,7 +111,7 @@ export class UploadExt extends PExtension<ExpressCtx> {
   }
 
   static config: multer.Options = { storage: multer.memoryStorage() }
-  plugin(req: any, res: any, next: any) {
+  addon(req: any, res: any, next: any) {
     return multer(UploadExt.config).array('files')(req, res, next)
   }
 
@@ -125,7 +125,7 @@ export class UploadExt extends PExtension<ExpressCtx> {
 export class OssController {
   constructor(protected oss: OSSModule) {}
   @Ctx
-  context: HttpContext
+  context: HttpContextData
 
   @Post('/upload')
   @Addon('upload')

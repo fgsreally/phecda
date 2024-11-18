@@ -1,14 +1,9 @@
 # 插件
+> 目前只用于`http`
 
-对应的服务端框架的扩展能力，为一个函数，根据不同服务端框架，返回不同的东西
+操作服务端框架提供的路由
 
-1. 在 `express` 中返回`express`中间件,
-2. `koa`返回`koa`中间件，
-3. `fastify` 中返回 `register` 的插件
-4. `h3`返回`onRequest`，为`defineRequestMiddleware`的参数
-5. `rpc`中忽略
-
-:::danger
+:::warning
 
  这个角色显然是完全无法跨框架的
 
@@ -17,14 +12,17 @@
 
 
 ```ts
-import { Controller, Factory, Get, PPlugin, Addon } from 'phecda-server'
+import { Controller, Factory, Get, PAddon } from 'phecda-server'
 @Tag('Test')
-class Test extends PPlugin {
+class Test extends PAddon {
   constructor() {
     super('Test')// 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
   }
 
-  use() {
+  use(router, framework) {
+    if (framework === 'express')
+      router.use(/** middleware */)
+
     // ...
   }
 }
@@ -45,7 +43,7 @@ Factory([Test, TestController])
 专用路由[详见](../advance/parallel-route.md)
 ```ts
 bind(app, data, {
-  parallelPlugins: ['Test'],
+  parallelAddons: ['Test'],
 })
 ```
 > 尽量不要这么用
@@ -53,7 +51,7 @@ bind(app, data, {
 ## 全局插件
 ```ts
 bind(app, data, {
-  globalPlugins: ['Test'],
+  globalAddons: ['Test'],
 })
 ```
 

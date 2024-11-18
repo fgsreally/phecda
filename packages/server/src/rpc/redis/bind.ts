@@ -2,13 +2,13 @@ import type Redis from 'ioredis'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context } from '../../context'
-import type { RpcContext, RpcServerOptions } from '../types'
+import type { RpcCtx, RpcServerOptions } from '../types'
 import { HMR } from '../../hmr'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/redis')
 
-export interface RedisCtx extends RpcContext {
+export interface RedisCtx extends RpcCtx {
   type: 'redis'
   redis: Redis
   msg: string

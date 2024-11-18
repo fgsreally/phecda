@@ -1,8 +1,8 @@
 import { getTag } from 'phecda-core'
 import { Context, addPipe } from '../context'
-import type { BaseContext } from '../types'
+import type { BaseCtx } from '../types'
 import { ServerBase } from './base'
-export abstract class PPipe<C extends BaseContext = any> extends ServerBase {
+export abstract class PPipe<Ctx extends BaseCtx = any> extends ServerBase {
   readonly key: PropertyKey
 
   constructor(tag?: string) {
@@ -15,5 +15,5 @@ export abstract class PPipe<C extends BaseContext = any> extends ServerBase {
     })
   }
 
-  abstract use(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: C): any
+  abstract use(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: Ctx): any
 }

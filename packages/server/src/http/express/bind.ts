@@ -2,16 +2,16 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import type { Request, RequestHandler, Response } from 'express'
 import { Router } from 'express'
 import Debug from 'debug'
-import type { HttpContext, HttpOptions } from '../types'
+import type { HttpCtx, HttpOptions } from '../types'
 import { argToReq } from '../helper'
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
-import { createControllerMetaMap, detectAopDep } from '../../helper'
+import { createControllerMetaMap, detectAopDep, joinUrl } from '../../helper'
 import { HMR } from '../../hmr'
 
 const debug = Debug('phecda-server/express')
-export interface ExpressCtx extends HttpContext {
+export interface ExpressCtx extends HttpCtx {
   type: 'express'
   request: Request
   response: Response
@@ -158,7 +158,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         const subRouter = Router()
         Context.applyAddons(addons, subRouter, 'express')
 
-        subRouter[http.type](http.prefix + http.route, async (req, res, next) => {
+        subRouter[http.type](joinUrl(http.prefix, http.route), async (req, res, next) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
           const contextData = {

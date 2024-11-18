@@ -93,7 +93,7 @@
 
 ### Patch Changes
 
-- ea247f6: add getRequest and getResponse to HttpContext to support express compatible middleware
+- ea247f6: add getRequest and getResponse to HttpContextData to support express compatible middleware
 
 ## 6.0.1
 
@@ -144,7 +144,7 @@
 
 ### Minor Changes
 
-- f477841: add methods(`redirect/getCookie/setCookie/delCookie/setResHeaders/setResStatus`) to `HttpContext`
+- f477841: add methods(`redirect/getCookie/setCookie/delCookie/setResHeaders/setResStatus`) to `HttpContextData`
 
   add `HttpBase/RpcBase`
 

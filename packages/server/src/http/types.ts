@@ -1,5 +1,5 @@
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'node:http'
-import { BaseContext, DefaultOptions } from '../types'
+import { BaseCtx, DefaultOptions } from '../types'
 
 export interface HttpOptions extends DefaultOptions {
 
@@ -20,7 +20,7 @@ export interface HttpOptions extends DefaultOptions {
 
 }
 
-export interface HttpContext extends BaseContext {
+export interface HttpCtx extends BaseCtx {
   parallel?: true
   index?: number
   query: Record<string, any>

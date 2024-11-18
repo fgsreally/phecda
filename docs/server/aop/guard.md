@@ -1,18 +1,8 @@
 # 守卫
 
- 如果插件为类似中间件的东西，那么运行在[插件](./plugin.md)之后，
- 
- 主要用于鉴权，
+> 在以前的版本中，是有和`nestjs`一样的守卫和拦截器的，但个人认为不好用, so...
 
-具体参数详见类型提示
-
-:::warning
-
-`aop`是一些特殊的模块，会在`http`以及微服务中起效
-
-建议使用[Extension](./extension.md)
-
-:::
+类似于中间件
 
 
 ```ts
@@ -25,7 +15,13 @@ class Auth extends PGuard<ExpressCtx> {
     super('Auth') // 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
   }
 
-  use(ctx: ExpressCtx) {
+  priority = 0// 越大越优先
+
+  use(ctx: ExpressCtx, next: NextFunction) {
+
+    const ret = await next()
+
+    return ret // 可以改写返回值，可以为空，可以不调用next（后两者不会修改响应逻辑）
     // ...
   }
 }

@@ -2,12 +2,12 @@
 
 > 优先使用
 
-如果需要一个模块，又提供守卫，又提供拦截器...提供多个`aop`的功能
+如果需要一个模块，又提供守卫，又提供管道...提供多个`aop`的功能
 
 那么可以
 
 ```ts
-import { Filter, Guard, Interceptor, PExtension, Pipe, Addon } from 'phecda-server'
+import { Addon, Filter, Guard, PExtension, Pipe } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('test')
@@ -20,16 +20,13 @@ class test extends PExtension<ExpressCtx> {
 
   guard(ctx: ExpressCtx) {}
 
-  plugin(...args: any) {}
-
-  intercept(ctx: ExpressCtx) {}
+  addon(...args: any) {}
 
   filter(error: Error | Exception, ctx: ExpressCtx) {}
 }
 // in main.ts
 
 @Guard('test')
-@Interceptor('test')
 @Filter('test')
 @Addon('test')
 class TestController {
