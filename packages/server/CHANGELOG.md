@@ -1,5 +1,13 @@
 # phecda-server
 
+## 7.0.0-alpha.8
+
+### Patch Changes
+
+- baec0e9: add bin "phecda-server" and support prod option in run command
+- 5862243: can auto resolve route url without slash
+- 711b33e: can do set/get action safely on ctx
+
 ## 7.0.0-alpha.7
 
 ### Patch Changes
