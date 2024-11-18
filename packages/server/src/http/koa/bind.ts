@@ -143,7 +143,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         const subRouter = new Router()
         Context.applyAddons(addons, subRouter, 'koa')
 
-        console.log('join', http.prefix, 'route', http.route, joinUrl(http.prefix, http.route))
         router[http.type](joinUrl(http.prefix, http.route), async (ctx, next) => {
           debug(`invoke method "${func}" in module "${tag}"`)
 
