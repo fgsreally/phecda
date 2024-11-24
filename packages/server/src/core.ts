@@ -1,14 +1,15 @@
 import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
-import { getInject, getMergedMeta, getMetaKey, getMetaParams, getTag, invokeInit, invokeUnmount, isPhecda, setInject } from 'phecda-core'
+import { getInject, getMergedMeta, getMetaKey, getMetaParams, getTag, invokeInit, invokeUnmount, setInject } from 'phecda-core'
 import Debug from 'debug'
 import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_DEV, IS_ONLY_GENERATE } from './common'
+import { IS_ONLY_GENERATE } from './common'
 import type { Generator } from './generator'
+import { HMR } from './hmr'
 
 const debug = Debug('phecda-server(Factory)')
 // TODO: support both emitter types and origin emitter type in future
@@ -63,83 +64,74 @@ export class ServerPhecda {
     for (const model of models)
       await this.buildDepModule(model)
 
-    const generateCode = async () => {
-      if (IS_DEV) {
-        return Promise.all(this.generators.map((generator) => {
-          debug(`generate "${generator.name}" code to ${generator.path}`)
-
-          return generator.output(this.meta)
-        }))
-      }
-    }
-
-    generateCode().then(() => {
+    this.hmr()
+    this.generateCode().then(() => {
       if (IS_ONLY_GENERATE)
         process.exit(4)// only output code/work for ci
     })
-
-    if (IS_DEV) { // for hmr
-      if (!globalThis.__PS_HMR__)
-        globalThis.__PS_HMR__ = []
-
-      globalThis.__PS_HMR__?.push(async (files: string[]) => {
-        debug('reload files ')
-
-        for (const file of files) {
-          const models = await import(file)
-          for (const i in models) {
-            if (isPhecda(models[i]))
-              await this.add(models[i])
-          }
-        }
-        generateCode()
-      })
-    }
   }
 
-  async add(Model: Construct) {
-    const tag = getTag(Model)
+  generateCode = async () => {
+    return Promise.all(this.generators.map((generator) => {
+      debug(`generate "${generator.name}" code to ${generator.path}`)
 
-    const oldInstance = await this.del(tag)
-    const { module: newModule } = await this.buildDepModule(Model)
-
-    if (oldInstance && this.dependenceGraph.has(tag)) {
-      debug(`replace module "${String(tag)}"`);
-
-      [...this.dependenceGraph.get(tag)!].forEach((tag) => {
-        const module = this.moduleMap.get(tag)
-        for (const key in module) {
-          if (module[key] === oldInstance)
-            module[key] = newModule
-        }
-      })
-    }
+      return generator.output(this.meta)
+    }))
   }
 
-  async del(tag: PropertyKey) {
-    if (!this.moduleMap.has(tag))
-      return
+  hmr() {
+    HMR(async (oldModels, newModels) => {
+      debug('reload models ')
 
-    const module = this.moduleMap.get(tag)
+      await this.replace(oldModels, newModels)
 
-    debug(`unmount module "${String(tag)}"`)
-    await invokeUnmount(module)
-    debug(`del module "${String(tag)}"`)
-
-    this.moduleMap.delete(tag)
-    this.modelMap.delete(module)
-    for (let i = this.meta.length - 1; i >= 0; i--) {
-      if (this.meta[i].data.tag === tag)
-        this.meta.splice(i, 1)
-    }
-    return module
+      this.generateCode()
+    })
   }
+  // async add(Model: Construct) {
+  //   const tag = getTag(Model)
+
+  //   const oldInstance = await this.del(tag)
+  //   const { module: newModule } = await this.buildDepModule(Model)
+
+  //   if (oldInstance && this.dependenceGraph.has(tag)) {
+  //     debug(`replace module "${String(tag)}"`);
+
+  //     [...this.dependenceGraph.get(tag)!].forEach((tag) => {
+  //       const module = this.moduleMap.get(tag)
+  //       for (const key in module) {
+  //         if (module[key] === oldInstance)
+  //           module[key] = newModule
+  //       }
+  //     })
+  //   }
+  // }
+
+  // async del(modelOrTag: Construct | PropertyKey) {
+  //   const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
+
+  //   if (!this.moduleMap.has(tag))
+  //     return
+
+  //   const module = this.moduleMap.get(tag)
+
+  //   debug(`unmount module "${String(tag)}"`)
+  //   await invokeUnmount(module)
+  //   debug(`del module "${String(tag)}"`)
+
+  //   this.moduleMap.delete(tag)
+  //   this.modelMap.delete(module)
+  //   for (let i = this.meta.length - 1; i >= 0; i--) {
+  //     if (this.meta[i].data.tag === tag)
+  //       this.meta.splice(i, 1)
+  //   }
+  //   return module
+  // }
 
   async destroy() {
     debug('destroy all')
 
-    for (const [tag] of this.moduleMap)
-      await this.del(tag)
+    this.replace(Object.values(this.modelMap), [])
   }
 
   createProxyModule(tag: PropertyKey) {
@@ -157,6 +149,9 @@ export class ServerPhecda {
       },
       has(_target, prop) {
         return Reflect.has(that.moduleMap.get(tag), prop)
+      },
+      ownKeys() {
+        return Reflect.ownKeys(that.moduleMap.get(tag))
       },
       getPrototypeOf() {
         return Reflect.getPrototypeOf(that.moduleMap.get(tag))
@@ -218,6 +213,50 @@ export class ServerPhecda {
     this.moduleMap.set(tag, module)
     this.modelMap.set(module, Model)
     return { module, tag }
+  }
+
+  async replace(oldModels: Construct[], newModels: Construct[]) {
+    const oldModules = (await Promise.all(oldModels.map(async (model) => {
+      const tag = getTag(model)
+      if (!this.has(tag))
+        return
+      const module = this.moduleMap.get(tag)
+
+      debug(`unmount module "${String(tag)}"`)
+      await invokeUnmount(module)
+      debug(`del module "${String(tag)}"`)
+
+      this.moduleMap.delete(tag)
+      this.modelMap.delete(module)
+      for (let i = this.meta.length - 1; i >= 0; i--) {
+        if (this.meta[i].data.tag === tag)
+          this.meta.splice(i, 1)
+      }
+      return module
+    }))).filter(item => item)
+
+    for (const model of newModels) {
+      debug(`mount module: ${model.name}`)
+      await this.buildDepModule(model)
+    }
+
+    debug('replace old modules')
+
+    for (const module of oldModules) {
+      const tag = getTag(module)
+      if (this.dependenceGraph.has(tag)) {
+        [...this.dependenceGraph.get(tag)!].forEach((depTag) => {
+          const depModule = this.moduleMap.get(depTag)
+
+          if (depModule) {
+            for (const key in depModule) {
+              if (depModule[key] === module)
+                depModule[key] = this.moduleMap.get(tag)
+            }
+          }
+        })
+      }
+    }
   }
 
   has(modelOrTag: Construct | PropertyKey) {

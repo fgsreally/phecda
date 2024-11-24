@@ -3,7 +3,7 @@ import type { Request, RequestHandler, Response } from 'express'
 import { Router } from 'express'
 import Debug from 'debug'
 import type { HttpCtx, HttpOptions } from '../types'
-import { argToReq } from '../helper'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -79,14 +79,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-              const {
-
-                data: {
-                  params,
-
-                },
-              } = meta
-
               const aop = Context.getAop(meta, {
                 globalFilter,
                 globalGuards,
@@ -101,11 +93,10 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 meta,
                 response: res,
                 moduleMap,
-                tag,
-                func,
+
                 next,
                 app: router,
-                ...argToReq(params, item.args, req.headers),
+                ...item,
                 getCookie: key => req.cookies[key],
                 setCookie: (key, value, opts) => res.cookie(key, value, opts || {}),
                 delCookie: key => res.cookie(key, '', { expires: new Date(0) }),

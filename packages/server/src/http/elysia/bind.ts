@@ -3,7 +3,7 @@ import type { Context as ElysiaContext, InputSchema, LocalHook, RouteSchema, Sin
 import { Elysia as App } from 'elysia'
 import type { BaseMacro } from 'elysia/dist/types'
 import type { HttpCtx, HttpOptions } from '../types'
-import { argToReq } from '../helper'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -71,14 +71,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-              const {
-
-                data: {
-                  params,
-
-                },
-              } = meta
-
               const aop = Context.getAop(meta, {
                 globalGuards,
                 globalFilter,
@@ -93,10 +85,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
                 index: i,
                 meta,
                 moduleMap,
-                tag,
-                func,
                 app,
-                ...argToReq(params, item.args, c.headers),
+                ...item,
                 getCookie: key => c.cookie[key].value,
                 setCookie: (key, value, opts = {}) => c.cookie[key].set({ ...opts, value }),
                 delCookie: key => c.cookie[key].remove(),

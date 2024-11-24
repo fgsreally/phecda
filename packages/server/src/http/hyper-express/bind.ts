@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import { MiddlewareHandler, Request, Response, Router } from 'hyper-express'
 import Debug from 'debug'
 import type { HttpCtx, HttpOptions } from '../types'
-import { argToReq } from '../helper'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -68,12 +68,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-              const {
-
-                data: {
-                  params,
-                },
-              } = meta
               const aop = Context.getAop(meta, {
                 globalFilter,
                 globalGuards,
@@ -88,10 +82,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 meta,
                 response: res,
                 moduleMap,
-                tag,
-                func,
+
                 app: router,
-                ...argToReq(params, item.args, req.headers),
+                ...item,
                 next,
                 getCookie: key => req.cookies[key],
                 setCookie: (key, value, opts) => res.cookie(key, value, opts?.expires && opts.expires.getTime() - Date.now(), opts || {}),

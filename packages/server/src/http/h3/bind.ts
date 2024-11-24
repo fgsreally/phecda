@@ -2,7 +2,7 @@ import type { IncomingHttpHeaders } from 'node:http'
 import { createRouter, defineEventHandler, deleteCookie, eventHandler, getCookie, getQuery, getRequestHeaders, getRouterParams, readBody, sendRedirect, setCookie, setHeaders, setResponseHeaders, setResponseStatus, useBase } from 'h3'
 import type { H3Event, Router, _RequestMiddleware } from 'h3'
 import Debug from 'debug'
-import { argToReq } from '../helper'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -73,12 +73,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 if (!meta)
                   return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-                const {
-                  data: {
-                    params,
-                  },
-                } = meta
-
                 const aop = Context.getAop(meta, {
                   globalFilter,
                   globalGuards,
@@ -91,11 +85,10 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                   event,
                   meta,
                   moduleMap,
-                  tag,
-                  func,
+
                   parallel: true,
                   app: router,
-                  ...argToReq(params, item.args, getRequestHeaders(event)),
+                  ...item,
                   getCookie: key => getCookie(event, key),
                   setCookie: (key, value, opts) => setCookie(event, key, value, opts),
                   delCookie: key => deleteCookie(event, key),
