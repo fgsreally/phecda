@@ -1,5 +1,13 @@
 # phecda-server
 
+## 7.0.0-alpha.9
+
+### Patch Changes
+
+- 5a5c047: refactor hmr system to avoid case that module has different tag during writing code;
+  replace `del/add` with `replace` in `ServerPhecda`
+  fix parallel route bug;
+
 ## 7.0.0-alpha.8
 
 ### Patch Changes
