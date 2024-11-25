@@ -75,7 +75,7 @@ export async function initialize(data) {
   if (!config.paths)
     config.paths = {}
 
-  if (!process.env.PS_HMR_BAN) {
+  if (IS_DEV) {
     chokidar.watch(configPath, { persistent: true }).on('change', () => {
       port.postMessage(
         JSON.stringify({
@@ -254,32 +254,17 @@ export const load = async (url, context, nextLoad) => {
     && !isLowVersion
   ) {
     watchFiles.add(url)
-    // watch(
-    //   fileURLToPath(url),
-    //   debounce((type) => {
-    //     if (type === 'change') {
-    //       try {
-    //         const files = [...findTopScope(url, Date.now())].reverse()
 
-    //         port.postMessage(
-    //           JSON.stringify({
-    //             type: 'change',
-    //             files,
-    //           }),
-    //         )
-    //       }
-    //       catch (e) {
-    //         port.postMessage(
-    //           JSON.stringify({
-    //             type: 'relaunch',
-    //           }),
-    //         )
-    //       }
-    //     }
-    //   }),
-    // )
+    if (IS_DEV) {
+      if (isModuleFileUrl(url)) {
+        port.postMessage(
+          JSON.stringify({
+            type: 'init',
+            files: [fileURLToPath(url)],
+          }),
+        )
+      }
 
-    if (IS_DEV && !process.env.PS_HMR_BAN) {
       chokidar.watch(fileURLToPath(url), { persistent: true }).on(
         'change',
         debounce(() => {

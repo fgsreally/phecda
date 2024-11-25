@@ -15,12 +15,19 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
       {
         tag: 'Test',
         func: 'post',
-        args: ['phecda', 'server', '1'],
+        params: {
+          test: 'phecda',
+        },
+        body: {
+          name: 'server',
+        },
+        query: {
+          id: '1',
+        },
       }, {
         tag: 'Test',
         func: 'get',
 
-        args: [],
       },
 
     ])

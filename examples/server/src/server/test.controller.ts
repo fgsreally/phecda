@@ -1,3 +1,4 @@
+import { log } from './utils'
 export class User {
   name: string
 
@@ -8,22 +9,15 @@ export class User {
 @Guard('D')
 @Define('a', {})
 export class TestController extends HttpBase {
-  static age = 12
   age = 1
 
   constructor(private service: TestService) {
     super()
-    this.log('这看上去非常好')
   }
 
   @Init
   init() {
-    try {
-      throw new Error('wanla')
-    }
-    catch (e) {
-      this.log(e)
-    }
+
     // initlize
   }
 
@@ -47,6 +41,8 @@ export class TestController extends HttpBase {
   @Guard('C')
 
   async framework() {
+    log('framework')
+    this.service.test()
     return this.context.type
   }
 }

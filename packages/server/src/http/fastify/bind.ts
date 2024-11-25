@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyRegisterOptions, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify'
 import Debug from 'debug'
 import type { HttpCtx, HttpOptions } from '../types'
-import { argToReq } from '../helper'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -70,11 +70,6 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                 if (!meta)
                   return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-                const {
-                  data: {
-                    params,
-                  },
-                } = meta
                 const aop = Context.getAop(meta, {
                   globalFilter,
                   globalGuards,
@@ -90,10 +85,9 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
                   meta,
                   response: res,
                   moduleMap,
-                  tag,
-                  func,
+
                   app: fastify,
-                  ...argToReq(params, item.args, req.headers),
+                  ...item,
                   // @ts-expect-error need @fastify/cookie
                   getCookie: key => req.cookies[key],
                   // @ts-expect-error need @fastify/cookie

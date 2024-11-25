@@ -3,7 +3,7 @@ import type { RouterParamContext } from '@koa/router'
 import type { DefaultContext, DefaultState } from 'koa'
 import Debug from 'debug'
 import type { HttpCtx, HttpOptions } from '../types'
-import { argToReq } from '../helper'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -72,12 +72,6 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-              const {
-                data: {
-                  params,
-
-                },
-              } = meta
               const aop = Context.getAop(meta, {
                 globalGuards, globalFilter, globalPipe,
               })
@@ -91,9 +85,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 parallel: true,
                 next,
                 app: router,
-                ...argToReq(params, item.args, ctx.headers),
-                tag,
-                func,
+                ...item,
                 getCookie: key => ctx.cookies.get(key),
                 setCookie: (key, value, opts) => ctx.cookies.set(key, value, opts),
                 delCookie: key => ctx.cookies.set(key, '', { expires: new Date(0) }),

@@ -1,7 +1,7 @@
 import { register } from 'node:module'
 import { MessageChannel } from 'node:worker_threads'
-import { log } from '../dist/index.mjs'
-
+import { isPhecda, log } from '../dist/index.mjs'
+import { RELAUNCH, RELOAD } from '../dist/helper.mjs'
 const { port1, port2 } = new MessageChannel()
 
 register('./loader.mjs', {
@@ -12,18 +12,27 @@ register('./loader.mjs', {
 
 let isRunning = true
 
+const fileModelMap = new Map()
+
 port1.on('message', async (data) => {
   const { type, files } = JSON.parse(data)
 
-  if (!isRunning || !globalThis.__PS_HMR__ || type === 'relaunch')
-    return process.exit(2)// file change -> relaunch
+  if (!isRunning || type === 'relaunch')
+    return RELAUNCH()// file change -> relaunch
 
-  if (type === 'change') {
-    log('reload module...')
-
-    for (const cb of globalThis.__PS_HMR__) await cb(files)
-
-    log('reload done')
+  if (type === 'change' || type === 'init') {
+    if (!files.length)
+      return
+    const oldModels = []
+    const newModels = []
+    for (const file of files) {
+      oldModels.push(...fileModelMap.get(file) || [])
+      const models = Object.values(await import(file)).filter(isPhecda)
+      fileModelMap.set(file, models)
+      newModels.push(...models)
+    }
+    if (type === 'change')
+      return RELOAD(oldModels, newModels)
   }
 })
 

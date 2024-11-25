@@ -7,7 +7,7 @@ import type { HttpCtx, HttpOptions } from '../types'
 import type { Factory } from '../../core'
 import { AOP, Context } from '../../context'
 
-import { argToReq, createControllerMetaMap, detectAopDep } from '../../helper'
+import { createControllerMetaMap, detectAopDep } from '../../helper'
 const debug = Debug('phecda-server/hono')
 export interface HonoCtx extends HttpCtx {
   type: 'hono'
@@ -69,14 +69,6 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
               if (!meta)
                 return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
 
-              const {
-
-                data: {
-                  params,
-
-                },
-              } = meta
-
               const aop = Context.getAop(meta, {
                 globalFilter,
                 globalGuards,
@@ -90,10 +82,9 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
                 index: i,
                 meta,
                 moduleMap,
-                tag,
-                func,
+
                 app: router,
-                ...argToReq(params, item.args, c.req.header()),
+                ...item,
                 getCookie: key => getCookie(c, key),
                 delCookie: key => deleteCookie(c, key),
                 setCookie: (key, value, opts) => setCookie(c, key, value, opts as any),
