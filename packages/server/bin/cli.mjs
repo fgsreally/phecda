@@ -7,7 +7,14 @@ import { dirname, resolve } from 'path'
 import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
-import { log } from '../dist/index.mjs'
+import { log as psLog } from '../dist/index.mjs'
+
+const log = (...args) => {
+  if (process.env.PS_BAN_CLI_LOG)
+    return
+
+  psLog(...args)
+}
 
 const cli = cac('phecda').option('-c,--config <config>', 'config file', {
   default: 'ps.json',
@@ -42,20 +49,12 @@ function startChild(file, args) {
 
   closePromise = new Promise((resolve) => {
     child.once('exit', (code) => {
-      if (code === 4) {
-        log('only generate code')
-        process.exit(0)
-      }
-
-      if (code === 5) {
-        log('Does not comply with strict mode', 'error')
-        process.exit(0)
-      }
-      if (code >= 2) {
-        // for relaunch
-        log('relaunch...')
+      if (code === 4171)
         startChild(file, args)
-      }
+
+      if (code === 4172)
+        return process.exit()
+
       child = undefined
 
       resolve()
@@ -113,7 +112,6 @@ cli
   .command('<file> [root]', 'run file')
   .alias('run')
   .allowUnknownOptions()
-  .alias('run')
   .option('-p,--prod [prod]', 'prod mode', {
     default: false,
   })

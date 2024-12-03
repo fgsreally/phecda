@@ -7,9 +7,10 @@
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/server",
   "keywords": [
     "server",
+    "http",
     "IOC",
     "rpc",
-    "types-share"
+    "types-safe"
   ],
   "exports": {
     ".": {
@@ -148,11 +149,11 @@
     "chokidar": "^3.5.3",
     "debug": "^4.3.4",
     "fs-extra": "^11.2.0",
-    "h3": "^1.12.0",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "ts-mixer": "^6.0.4"
+    "ts-mixer": "^6.0.4",
+    "unconfig": "^0.6.0"
   },
   "devDependencies": {
     "@koa/router": "^12.0.1",
@@ -169,6 +170,7 @@
     "elysia": "^1.0.17",
     "express": "^4.18.2",
     "fastify": "^4.25.1",
+    "h3": "^1.12.0",
     "hono": "^4.3.4",
     "hyper-express": "^6.15.2",
     "ioredis": "^5.3.2",

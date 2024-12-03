@@ -7,7 +7,7 @@ import type { Emitter } from './types'
 import type { MetaData } from './meta'
 import { Meta } from './meta'
 import { log } from './utils'
-import { IS_ONLY_GENERATE } from './common'
+import { IS_ONLY_GENERATE, PS_EXIT_CODE } from './common'
 import type { Generator } from './generator'
 import { HMR } from './hmr'
 
@@ -66,8 +66,10 @@ export class ServerPhecda {
 
     this.hmr()
     this.generateCode().then(() => {
-      if (IS_ONLY_GENERATE)
-        process.exit(4)// only output code/work for ci
+      if (IS_ONLY_GENERATE) {
+        log('Only generate code')
+        process.exit(PS_EXIT_CODE.EXIT)// only output code/work for ci
+      }
     })
   }
 

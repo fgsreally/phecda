@@ -1,5 +1,6 @@
 import { basename } from 'path'
 import { transform } from '@swc-node/core'
+import psExports from './export.mjs'
 const injectInlineSourceMap = ({ code, map }) => {
   if (map) {
     const base64Map = Buffer.from(map, 'utf8').toString('base64')
@@ -26,18 +27,21 @@ export async function compile(sourcecode, filename) {
 
 export async function genUnImportRet(opts) {
   try {
-    const psExports = Object.keys(await import('../dist/index.mjs'))
     const { createUnimport } = await import('unimport')
     return createUnimport({
       ...opts,
-      imports: psExports
-        .map((k) => {
-          return { name: k, from: 'phecda-server' }
-        })
-        .concat(opts.imports || []),
+
+      presets: [
+        {
+          from: 'phecda-server',
+          imports: psExports,
+        },
+      ]
+        .concat(opts.presets || []),
     })
   }
   catch (e) {
+    console.error(e)
     return false
   }
 }

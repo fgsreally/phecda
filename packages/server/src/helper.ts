@@ -5,7 +5,7 @@ import { log } from './utils'
 import { Context } from './context'
 import { HMR } from './hmr'
 import { ControllerMeta, Meta } from './meta'
-import { IS_STRICT } from './common'
+import { IS_PURE, IS_STRICT } from './common'
 
 export * from './hmr'
 export * from './http/helper'
@@ -42,12 +42,14 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
   addons?: string[]
 
 } = {}, controller = 'http') {
+  if (IS_PURE)
+    return
+
   const addonSet = new Set<string>()
   const guardSet = new Set<string>()
   const pipeSet = new Set<string>()
   const filterSet = new Set<string>()
   const warningSet = new Set<string>()
-
   function handleMeta() {
     addonSet.clear()
     guardSet.clear()
@@ -63,6 +65,14 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     });
 
     (meta as ControllerMeta[]).forEach(({ data }) => {
+      if (!data.controller)
+        return
+
+      if (typeof data.tag !== 'string')
+        warningSet.add(`Tag of controller "${data.name}" should be a string`)
+
+      // @todo func of meta on controller should be string
+
       if (data.controller !== controller) {
         if (data[controller])
           warningSet.add(`Should use ${controller} controller to decorate class "${data.name}"`)
@@ -85,8 +95,10 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     const missFilters = [...filterSet].filter(i => !Context.filterRecord[i])
 
     function exit() {
-      if (IS_STRICT)
-        process.exit(5)
+      if (IS_STRICT) {
+        log('Does not meet strict mode requirements', 'error')
+        process.exit(1)
+      }
     }
 
     if (missAddons.length) {
