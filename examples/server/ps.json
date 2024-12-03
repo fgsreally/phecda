@@ -20,7 +20,7 @@
     }
   },
   "virtualFile": {
-    "virtual:xx": "console.log(1)"
+    "src/a.ts": "console.log(1)"
   },
   "moduleFile": []
 

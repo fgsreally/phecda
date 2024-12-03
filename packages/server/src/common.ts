@@ -8,6 +8,6 @@ export const IS_PURE = !!process.env.PS_PURE// pure mode, will skip detectAopDep
 export const LOG_LEVEL = Number(process.env.PS_LOG_LEVEL || 0)// internal logger
 
 export enum PS_EXIT_CODE {
-  RELAUNCH = 2,
-  CODE = 4,
+  RELAUNCH = 4171,
+  EXIT = 4172,
 }

@@ -8,26 +8,42 @@ import {
   relative,
   resolve as resolvePath,
 } from 'path'
-import { createRequire } from 'module'
 import { existsSync } from 'fs'
 import ts from 'typescript'
 import chokidar from 'chokidar'
-import { IS_DEV, log } from '../dist/index.mjs'
+import Debug from 'debug'
+import { loadConfig } from 'unconfig'
 import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
+const debug = Debug('phecda-server/loader')
+
+const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
+const IS_DEV = process.env.NODE_ENV === 'development'
 let port
+let config
+const workdir = process.cwd()
+const configPath = resolvePath(
+  workdir,
+  process.env.PS_CONFIG_FILE || 'ps.json',
+)
+
+// unimport
+let unimportRet
+const dtsPath = 'ps.d.ts'
+
+// graph
+let entryUrl
+const watchFiles = new Set()
+const filesRecord = new Map()
+const moduleGraph = {}
+// ts
 let tsconfig = {
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.NodeNext,
 }
-
-const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
-// this part is important or not?
 const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
-
 const tsconfigPath = resolvePath(process.cwd(), 'tsconfig.json')
 const tsRet = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
-
 if (!tsRet.error) {
   const { error, options } = ts.parseJsonConfigFileContent(
     tsRet.config,
@@ -37,7 +53,6 @@ if (!tsRet.error) {
   if (!error)
     tsconfig = options
 }
-
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
   x => x,
@@ -48,28 +63,25 @@ const host = {
   readFile: ts.sys.readFile,
 }
 
-let unimportRet
-const dtsPath = 'ps.d.ts'
-
 if (isLowVersion)
   await initialize()
 
-let config
-
-const workdir = process.cwd()
-
-const configPath = resolvePath(
-  workdir,
-  process.env.PS_CONFIG_FILE || 'ps.json',
-)
-
-const require = createRequire(import.meta.url)
 export async function initialize(data) {
   if (data)
     port = data.port
-  log('read config...')
 
-  config = require(configPath)
+  debug('read config...')
+
+  const unconfigRet = await loadConfig({
+    sources: [
+      {
+        files: configPath,
+        extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
+      },
+    ],
+    merge: false,
+  })
+  config = unconfigRet.config
   if (!config.virtualFile)
     config.virtualFile = {}
   if (!config.paths)
@@ -89,7 +101,7 @@ export async function initialize(data) {
     return
   unimportRet = await genUnImportRet(config.unimport)
   if (unimportRet) {
-    log('auto import...')
+    debug('auto import...')
     await unimportRet.init()
 
     writeFile(
@@ -111,12 +123,6 @@ export async function initialize(data) {
     )
   }
 }
-
-const watchFiles = new Set()
-const filesRecord = new Map()
-const moduleGraph = {}
-
-let entryUrl
 
 function addUrlToGraph(url, parent) {
   if (!(url in moduleGraph))

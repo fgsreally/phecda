@@ -95,8 +95,10 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
     const missFilters = [...filterSet].filter(i => !Context.filterRecord[i])
 
     function exit() {
-      if (IS_STRICT)
-        process.exit(5)
+      if (IS_STRICT) {
+        log('Does not meet strict mode requirements', 'error')
+        process.exit(1)
+      }
     }
 
     if (missAddons.length) {

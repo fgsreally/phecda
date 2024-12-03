@@ -99,7 +99,7 @@ class InternalLogger {
     if (!this.isAllowLog(level))
       return
     msg = this.stringifyMessage(msg, level)
-    const pidMsg = this.colorize(`[phecda-server] ${process.pid}`, level)
+    const pidMsg = this.colorize(`[${process.env.PS_APP_NAME || 'phecda-server'}] ${process.pid}`, level)
     const ctxMsg = ctx ? this.colorize(pc.bold(`[${ctx}] `), level) : ''
     const timeDiff = this.diffTimestamp()
     const levelMsg = this.colorize(level.toUpperCase().padStart(7, ' '), level)
