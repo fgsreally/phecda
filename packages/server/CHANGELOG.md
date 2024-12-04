@@ -1,5 +1,13 @@
 # phecda-server
 
+## 7.0.0-alpha.10
+
+### Patch Changes
+
+- ddc89e1: refactor register/loader/bin
+  logger can set app name by env `PS_APP_NAME`
+  can set dtsPath by env `PS_DTS_PATH`, fix `resolvePath` in `generateTypeDeclarations`
+
 ## 7.0.0-alpha.9
 
 ### Patch Changes
