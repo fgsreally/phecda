@@ -9,12 +9,13 @@ import {
   resolve as resolvePath,
 } from 'path'
 import { existsSync } from 'fs'
+import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import Debug from 'debug'
-import { loadConfig } from 'unconfig'
 import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
+const require = createRequire(import.meta.url)
 const debug = Debug('phecda-server/loader')
 
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
@@ -72,16 +73,17 @@ export async function initialize(data) {
 
   debug('read config...')
 
-  const unconfigRet = await loadConfig({
-    sources: [
-      {
-        files: configPath,
-        extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
-      },
-    ],
-    merge: false,
-  })
-  config = unconfigRet.config
+  config = require(configPath)
+  // const unconfigRet = await loadConfig({
+  //   sources: [
+  //     {
+  //       files: configPath,
+  //       extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
+  //     },
+  //   ],
+  //   merge: false,
+  // })
+  // config = unconfigRet.config
   if (!config.virtualFile)
     config.virtualFile = {}
   if (!config.paths)
