@@ -29,7 +29,7 @@ const configPath = resolvePath(
 
 // unimport
 let unimportRet
-const dtsPath = 'ps.d.ts'
+const dtsPath = process.env.PS_DTS_PATH || 'ps.d.ts'
 
 // graph
 let entryUrl
@@ -104,14 +104,15 @@ export async function initialize(data) {
     debug('auto import...')
     await unimportRet.init()
 
+    const unimportDtsPath = resolvePath(workdir, dtsPath)
     writeFile(
-      resolvePath(workdir, config.unimport.dtsPath || dtsPath),
+      unimportDtsPath,
       handleClassTypes(
         await unimportRet.generateTypeDeclarations({
           resolvePath: (i) => {
             if (i.from.startsWith('.') || isAbsolute(i.from)) {
               const related = slash(
-                relative(workdir, i.from).replace(/\.ts(x)?$/, ''),
+                relative(dirname(unimportDtsPath), i.from).replace(/\.ts(x)?$/, ''),
               )
 
               return !related.startsWith('.') ? `./${related}` : related

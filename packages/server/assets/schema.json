@@ -47,7 +47,7 @@
     },
     "unimport": {
       "type": "object",
-      "description": "Includes the arguments passed to unimport and 'dtsPath' that specifies the location for generating type files."
+      "description": "Includes the arguments passed to unimport"
     }
   },
 
