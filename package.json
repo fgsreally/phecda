@@ -30,7 +30,7 @@
     "jsdom": "^21.1.1",
     "tsup": "^8.1.0",
     "turbo": "^1.8.2",
-    "typescript": "^4.9.4",
+    "typescript": "^5.7.2",
     "unplugin-swc-esm": "^1.0.2",
     "vitest": "^1.4.0"
   }

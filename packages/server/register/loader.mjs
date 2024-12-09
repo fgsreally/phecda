@@ -3,7 +3,6 @@ import { writeFile } from 'fs/promises'
 import {
   basename,
   dirname,
-  extname,
   isAbsolute,
   relative,
   resolve as resolvePath,
@@ -172,14 +171,15 @@ export const resolve = async (specifier, context, nextResolve) => {
   }
   // url import
   // it seems useless
-  if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
-    const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
-    return {
-      format: 'ts',
-      url,
-      shortCircuit: true,
-    }
-  }
+  // if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
+  //   const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
+  //   return {
+  //     format: 'ts',
+  //     url,
+  //     shortCircuit: true,
+  //   }
+  // }
+
 
   // hmr import
   if (
@@ -203,7 +203,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     moduleResolutionCache,
   )
 
-  // import between loacl projects
+  // import among files in local project
   if (
     resolvedModule
     && !resolvedModule.resolvedFileName.includes('/node_modules/')
@@ -236,6 +236,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     }
   }
 
+
   const resolveRet = await nextResolve(specifier)
 
   // ts resolve fail in some cases
@@ -247,6 +248,9 @@ export const resolve = async (specifier, context, nextResolve) => {
 // @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
+
+
+
   if (config.virtualFile[url]) {
     return {
       format: 'module',
@@ -254,6 +258,14 @@ export const load = async (url, context, nextLoad) => {
       shortCircuit: true,
     }
   }
+
+  let mode
+  if (context.importAttributes.ps) {
+    mode = context.importAttributes.ps
+    delete context.importAttributes.ps
+  }
+
+
 
   url = url.split('?')[0]
   if (
@@ -264,7 +276,7 @@ export const load = async (url, context, nextLoad) => {
   ) {
     watchFiles.add(url)
 
-    if (IS_DEV) {
+    if (IS_DEV && mode !== 'not-hmr') {
       if (isModuleFileUrl(url)) {
         port.postMessage(
           JSON.stringify({
@@ -308,10 +320,14 @@ export const load = async (url, context, nextLoad) => {
 
     const code
       = typeof source === 'string' ? source : Buffer.from(source).toString()
+
     const compiled = (await compile(code, url)).replace(/_ts_metadata\(\"design:paramtypes\"\,/g, '_ts_metadata("design:paramtypes",()=>')// handle cycle
 
     if (unimportRet) {
+
+
       const { injectImports } = unimportRet
+
       return {
         format: 'module',
         source: (
