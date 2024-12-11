@@ -88,7 +88,7 @@ cli
       process.chdir(root)
 
     const tsconfigPath = options.tsconfig
-    const psconfigPath = options.config
+    const psconfigPath = process.env.PS_CONFIG_FILE || options.config
 
     if (!fse.existsSync(tsconfigPath)) {
       log(`create ${tsconfigPath}`)
@@ -124,7 +124,7 @@ cli
     else
       process.env.NODE_ENV = 'development'
 
-    process.env.PS_CONFIG_FILE = options.config
+    process.env.PS_CONFIG_FILE = process.env.PS_CONFIG_FILE || options.config
 
     log('process start!')
 
@@ -164,7 +164,7 @@ cli
     if (root)
       process.chdir(root)
     process.env.PS_GENERATE = 'true'
-    process.env.PS_CONFIG_FILE = options.config
+    process.env.PS_CONFIG_FILE = process.env.PS_CONFIG_FILE || options.config
     startChild(file, options['--'])
   })
 

@@ -1,4 +1,4 @@
-import { log } from './utils'
+import { log } from './utils' with { ps: 'not-hmr'}
 export class User {
   name: string
 
@@ -17,7 +17,14 @@ export class TestController extends HttpBase {
 
   @Init
   init() {
-
+    setTimeout(async () => {
+      const { log } = await import('./utils', {
+        with: {
+          ps: 'not-hmr',
+        },
+      })
+      log('start!')
+    }, 1000)
     // initlize
   }
 

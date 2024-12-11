@@ -3,18 +3,18 @@ import { writeFile } from 'fs/promises'
 import {
   basename,
   dirname,
-  extname,
   isAbsolute,
   relative,
   resolve as resolvePath,
 } from 'path'
 import { existsSync } from 'fs'
+import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
 import Debug from 'debug'
-import { loadConfig } from 'unconfig'
 import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
+const require = createRequire(import.meta.url)
 const debug = Debug('phecda-server/loader')
 
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
@@ -72,16 +72,17 @@ export async function initialize(data) {
 
   debug('read config...')
 
-  const unconfigRet = await loadConfig({
-    sources: [
-      {
-        files: configPath,
-        extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
-      },
-    ],
-    merge: false,
-  })
-  config = unconfigRet.config
+  config = require(configPath)
+  // const unconfigRet = await loadConfig({
+  //   sources: [
+  //     {
+  //       files: configPath,
+  //       extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
+  //     },
+  //   ],
+  //   merge: false,
+  // })
+  // config = unconfigRet.config
   if (!config.virtualFile)
     config.virtualFile = {}
   if (!config.paths)
@@ -170,14 +171,15 @@ export const resolve = async (specifier, context, nextResolve) => {
   }
   // url import
   // it seems useless
-  if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
-    const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
-    return {
-      format: 'ts',
-      url,
-      shortCircuit: true,
-    }
-  }
+  // if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
+  //   const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
+  //   return {
+  //     format: 'ts',
+  //     url,
+  //     shortCircuit: true,
+  //   }
+  // }
+
 
   // hmr import
   if (
@@ -201,7 +203,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     moduleResolutionCache,
   )
 
-  // import between loacl projects
+  // import among files in local project
   if (
     resolvedModule
     && !resolvedModule.resolvedFileName.includes('/node_modules/')
@@ -234,6 +236,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     }
   }
 
+
   const resolveRet = await nextResolve(specifier)
 
   // ts resolve fail in some cases
@@ -245,6 +248,9 @@ export const resolve = async (specifier, context, nextResolve) => {
 // @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
+
+
+
   if (config.virtualFile[url]) {
     return {
       format: 'module',
@@ -252,6 +258,14 @@ export const load = async (url, context, nextLoad) => {
       shortCircuit: true,
     }
   }
+
+  let mode
+  if (context.importAttributes.ps) {
+    mode = context.importAttributes.ps
+    delete context.importAttributes.ps
+  }
+
+
 
   url = url.split('?')[0]
   if (
@@ -262,7 +276,7 @@ export const load = async (url, context, nextLoad) => {
   ) {
     watchFiles.add(url)
 
-    if (IS_DEV) {
+    if (IS_DEV && mode !== 'not-hmr') {
       if (isModuleFileUrl(url)) {
         port.postMessage(
           JSON.stringify({
@@ -306,10 +320,14 @@ export const load = async (url, context, nextLoad) => {
 
     const code
       = typeof source === 'string' ? source : Buffer.from(source).toString()
+
     const compiled = (await compile(code, url)).replace(/_ts_metadata\(\"design:paramtypes\"\,/g, '_ts_metadata("design:paramtypes",()=>')// handle cycle
 
     if (unimportRet) {
+
+
       const { injectImports } = unimportRet
+
       return {
         format: 'module',
         source: (

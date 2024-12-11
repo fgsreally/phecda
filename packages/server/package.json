@@ -152,8 +152,7 @@
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "ts-mixer": "^6.0.4",
-    "unconfig": "^0.6.0"
+    "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
     "@koa/router": "^12.0.1",
@@ -182,7 +181,7 @@
     "nats": "^2.22.0",
     "supertest": "^6.3.3",
     "tsup": "^8.1.0",
-    "typescript": "^5.4.5",
+    "typescript": "^5.7.2",
     "unimport": "^3.7.1"
   }
 }

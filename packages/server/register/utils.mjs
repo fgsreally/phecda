@@ -20,6 +20,32 @@ export async function compile(sourcecode, filename) {
     emitDecoratorMetadata: true,
     experimentalDecorators: true,
     esModuleInterop: false,
+    swc: {
+
+      jsc: {
+        parser: {
+          syntax: "typescript",
+          importAttributes: true,
+          decorators: true,
+          tsx: false,
+          dynamicImport: true,
+          strictPropertyInitialization: false
+        },
+        experimental: {
+          keepImportAssertions: true
+        },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true
+        }
+        // parser: {
+        //   importAttributes: true
+        // },
+        // experimental: {
+        //   keepImportAssertions: true
+        // }
+      }
+    }
   })
 
   return injectInlineSourceMap({ code, map })
