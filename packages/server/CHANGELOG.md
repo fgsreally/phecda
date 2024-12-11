@@ -1,5 +1,63 @@
 # phecda-server
 
+## 7.0.0-alpha.10
+
+### Patch Changes
+
+- ddc89e1: refactor register/loader/bin
+  logger can set app name by env `PS_APP_NAME`
+  can set dtsPath by env `PS_DTS_PATH`, fix `resolvePath` in `generateTypeDeclarations`
+
+## 7.0.0-alpha.9
+
+### Patch Changes
+
+- 5a5c047: refactor hmr system to avoid case that module has different tag during writing code;
+  replace `del/add` with `replace` in `ServerPhecda`
+  fix parallel route bug;
+
+## 7.0.0-alpha.8
+
+### Patch Changes
+
+- baec0e9: add bin "phecda-server" and support prod option in run command
+- 5862243: can auto resolve route url without slash
+- 711b33e: can do set/get action safely on ctx
+
+## 7.0.0-alpha.7
+
+### Patch Changes
+
+- f5114a3: not only log string
+
+## 7.0.0-alpha.6
+
+### Patch Changes
+
+- bb33731: refactor logger(it more like nestjs ConsoleLogger）
+
+## 7.0.0-alpha.5
+
+### Minor Changes
+
+- 6af713f: add createProxyModule to support Circular-Dependency(BUT it still can't work in nodejs)
+
+### Patch Changes
+
+- 4e5d443: danger change in custom loader to handle circular-dependence
+
+## 7.0.0-alpha.4
+
+### Minor Changes
+
+- cd4d9b7: loader can read tsconfig.json and resolve path alias,just like tsconfig-path does
+
+### Patch Changes
+
+- 6deb2da: loader won't resolve virtual file as entry(only work for `unplugin-phecda-server`)
+- Updated dependencies [c1b7d65]
+  - phecda-core@4.1.0-alpha.0
+
 ## 7.0.0-alpha.3
 
 ### Patch Changes
