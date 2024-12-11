@@ -1,5 +1,14 @@
 # phecda-server
 
+## 7.0.0-alpha.11
+
+### Patch Changes
+
+- c7bfc1f: loader support `importAttributes` (both `assert` and `with`) by swc
+  if `importAttributes.ps` is `not-hmr`, the file will not emit hmr
+- ec340b6: cli support env `PS_CONFIG_FILE`
+  `unconfig` is not essential, so remove it.
+
 ## 7.0.0-alpha.10
 
 ### Patch Changes
