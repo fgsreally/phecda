@@ -146,9 +146,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
             globalPipe,
           })
         }
-        Context.applyAddons(addons, subApp, 'elysia')
-        // @ts-expect-error todo
-        subApp[http.type](joinUrl(http.prefix, http.route), async (c: ElysiaContext) => {
+        Context.applyAddons(addons, subApp, 'elysia');
+        (subApp as any)[http.type](joinUrl(http.prefix, http.route), async (c: ElysiaContext) => {
           debug(`invoke method "${func}" in module "${tag}"`)
           const contextData = {
             type: 'elysia' as const,
