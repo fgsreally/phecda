@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createClient } from 'phecda-server/rabbitmq'
+import { RabbitmqAdaptor, createClient } from 'phecda-client/rpc'
 import amqp from 'amqplib'
 import { TestRpc } from '../test.rpc'
 
@@ -7,9 +7,9 @@ export async function start() {
   const conn = await amqp.connect('amqp://localhost:5672')
 
   const ch = await conn.createChannel()
-  const client = await createClient(ch, {
+  const client = await createClient({
     test: TestRpc,
-  })
+  }, RabbitmqAdaptor(ch))
   const ret = await client.test.run('xx')
   console.log(`return with ${ret}`)
 

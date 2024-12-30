@@ -9,7 +9,6 @@ import { IS_PURE, IS_STRICT } from './common'
 
 export * from './hmr'
 export * from './http/helper'
-export * from './rpc/helper'
 export * from './decorators/helper'
 
 export function createControllerMetaMap(meta: Meta[], filter: (meta: Meta) => boolean | void) {

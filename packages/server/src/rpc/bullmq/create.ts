@@ -73,7 +73,6 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
 
     const {
       data: {
-
         rpc: { isEvent } = {},
       },
     } = meta

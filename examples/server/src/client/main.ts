@@ -1,26 +1,118 @@
-/* eslint-disable no-console */
 import axios from 'axios'
-import { axiosFetch, createClient } from 'phecda-client'
+import { createAlova } from 'alova'
+import adapterFetch from 'alova/fetch'
+import { alovaAdaptor, axiosAdaptor, createClient } from 'phecda-client/http'
 import { TestController } from '../server/test.controller'
 
-const instance = axios.create({
-  baseURL: '/base',
-})
+// 辅助函数：将结果显示到界面
+function appendResult(containerId: string, title: string, result: any, isError = false) {
+  const container = document.getElementById(containerId)
+  if (!container)
+    return
 
-const client = createClient({ $test: TestController }, { fetch: axiosFetch(instance) })
+  const div = document.createElement('div')
+  div.className = `result-item${isError ? ' error' : ''}`
+  div.innerHTML = `
+    <strong>${title}</strong>
+    <pre>${JSON.stringify(result, null, 2)}</pre>
+  `
+  container.appendChild(div)
+}
 
-console.log('[simple request]:')
+// Axios 示例
+async function runAxiosDemo() {
+  try {
+    const instance = axios.create({
+      baseURL: '/base',
+    })
 
-console.log(await
-client.$test.framework())
+    const client = createClient({ $test: TestController }, axiosAdaptor(instance))
 
-console.log(await
-client.$test.login({ name: 'p1', password: '123456' }))
+    appendResult('axios-results', '1️⃣ 调用 framework 接口:',
+      await client.$test.framework())
 
-const parallelClient = createClient({ $test: TestController }, { fetch: axiosFetch(instance), batch: true })
+    appendResult('axios-results', '2️⃣ 调用 login 接口:',
+      await client.$test.login({ name: 'p1', password: '123456' }))
 
-parallelClient.$test.login({ name: 'p1', password: '123456' }).then(console.log)
-await Promise.resolve()
-const data = await Promise.all([parallelClient.$test.framework(), parallelClient.$test.login({ name: 'p3', password: '123456' })])
-console.log('[batch request]:')
-console.log(data)
+    const parallelClient = createClient(
+      { $test: TestController },
+      axiosAdaptor(instance),
+      { batch: true },
+    )
+
+    appendResult('axios-results', '3️⃣ 单个批量请求:',
+      await parallelClient.$test.login({ name: 'p1', password: '123456' }))
+
+    const [batchFramework, batchLogin] = await Promise.all([
+      parallelClient.$test.framework(),
+      parallelClient.$test.login({ name: 'p3', password: '123456' }),
+    ])
+
+    appendResult('axios-results', '4️⃣ 多个并行批量请求:', {
+      framework: batchFramework,
+      login: batchLogin,
+    })
+  }
+  catch (error) {
+    appendResult('axios-results', '❌ 错误:', error, true)
+  }
+}
+
+// Alova 示例
+async function runAlovaDemo() {
+  try {
+    const alovaInstance = createAlova({
+      requestAdapter: adapterFetch(),
+      baseURL: '/base',
+      responded: (response) => {
+        if (response.headers.get('Content-Type')?.includes('application/json'))
+
+          return response.json()
+
+        else
+
+          return response.text()
+      },
+    })
+
+    const client = createClient(
+      { $test: TestController },
+      alovaAdaptor(alovaInstance),
+    )
+
+    appendResult('alova-results', '1️⃣ 调用 framework 接口:',
+      await client.$test.framework())
+
+    appendResult('alova-results', '2️⃣ 调用 login 接口:',
+      await client.$test.login({ name: 'p1', password: '123456' }))
+
+    const parallelClient = createClient(
+      { $test: TestController },
+      alovaAdaptor(alovaInstance),
+      { batch: true },
+    )
+
+    appendResult('alova-results', '3️⃣ 单个批量请求:',
+      await parallelClient.$test.login({ name: 'p1', password: '123456' }))
+
+    const [batchFramework, batchLogin] = await Promise.all([
+      parallelClient.$test.framework(),
+      parallelClient.$test.login({ name: 'p3', password: '123456' }),
+    ])
+
+    appendResult('alova-results', '4️⃣ 多个并行批量请求:', {
+      framework: batchFramework,
+      login: batchLogin,
+    })
+  }
+  catch (error) {
+    console.error(error)
+    appendResult('alova-results', '❌ 错误:', error, true)
+  }
+}
+
+// 运行演示
+Promise.all([
+  runAxiosDemo(),
+  runAlovaDemo(),
+]).catch(error => appendResult('app', '❌ 程序执行失败:', error, true))

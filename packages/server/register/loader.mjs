@@ -180,7 +180,6 @@ export const resolve = async (specifier, context, nextResolve) => {
   //   }
   // }
 
-
   // hmr import
   if (
     context.parentURL.includes('/node_modules/phecda-server')
@@ -236,7 +235,6 @@ export const resolve = async (specifier, context, nextResolve) => {
     }
   }
 
-
   const resolveRet = await nextResolve(specifier)
 
   // ts resolve fail in some cases
@@ -248,9 +246,6 @@ export const resolve = async (specifier, context, nextResolve) => {
 // @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
-
-
-
   if (config.virtualFile[url]) {
     return {
       format: 'module',
@@ -264,8 +259,6 @@ export const load = async (url, context, nextLoad) => {
     mode = context.importAttributes.ps
     delete context.importAttributes.ps
   }
-
-
 
   url = url.split('?')[0]
   if (
@@ -324,8 +317,6 @@ export const load = async (url, context, nextLoad) => {
     const compiled = (await compile(code, url)).replace(/_ts_metadata\(\"design:paramtypes\"\,/g, '_ts_metadata("design:paramtypes",()=>')// handle cycle
 
     if (unimportRet) {
-
-
       const { injectImports } = unimportRet
 
       return {

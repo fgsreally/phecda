@@ -3,8 +3,11 @@ import type { SuperAgentTest, Test } from 'supertest'
 import { type Construct, getTag } from 'phecda-core'
 import { Factory } from './core'
 
-import type { PickFunc } from './types'
 import type { ControllerMeta } from './meta'
+import { CustomResponse } from './types'
+
+type PickFuncKeys<Type> = { [Key in keyof Type]: Type[Key] extends (...args: any) => any ? (ReturnType<Type[Key]> extends CustomResponse<any> ? never : Key) : never }[keyof Type]
+export type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
 export async function TestFactory<T extends Construct[]>(...Modules: T) {
   const { moduleMap, modelMap } = await Factory(Modules)
 
