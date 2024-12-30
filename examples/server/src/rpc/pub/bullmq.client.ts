@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
-import { createClient } from 'phecda-server/bullmq'
+import { BullmqAdaptor, createClient } from 'phecda-client/rpc'
 import { TestRpc } from '../test.rpc'
 
 export async function start() {
   const client = await createClient({
     test: TestRpc,
-  }, {
+  }, BullmqAdaptor({
     workerOpts: {
       connection: { port: 6379 },
     },
     queueOpts: {
       connection: { port: 6379 },
     },
-  })
+  }))
   const ret = await client.test.run('xx')
   console.log(`return with ${ret}`)
 

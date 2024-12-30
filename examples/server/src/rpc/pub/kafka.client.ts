@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createClient } from 'phecda-server/kafka'
+import { KafkaAdaptor, createClient } from 'phecda-client/rpc'
 import { Kafka } from 'kafkajs'
 import { TestRpc } from '../test.rpc'
 export async function start() {
@@ -14,9 +14,9 @@ export async function start() {
   await producer.connect()
   await consumer.connect()
 
-  const client = await createClient(producer, consumer, {
+  const client = await createClient({
     test: TestRpc,
-  })
+  }, KafkaAdaptor({ producer, consumer }))
   const ret = await client.test.run('xx')
   console.log(`return with ${ret}`)
 
