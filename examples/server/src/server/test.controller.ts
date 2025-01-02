@@ -19,9 +19,9 @@ export class TestController extends HttpBase {
   init() {
     setTimeout(async () => {
       const { log } = await import('./utils', {
-        with: {
-          ps: 'not-hmr',
-        },
+        // with: {
+        //   ps: 'not-hmr',
+        // },
       })
       log('start!')
     }, 1000)

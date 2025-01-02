@@ -36,7 +36,7 @@ if (nodeVersion < 18.19) {
 }
 
 function startChild(file, args) {
-  child = fork(file, {
+  child = globalThis.PS_CREATE_CHILD?.() || fork(file, {
     env: { ...process.env },
     stdio: 'inherit',
     execArgv: [

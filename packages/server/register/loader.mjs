@@ -7,7 +7,6 @@ import {
   relative,
   resolve as resolvePath,
 } from 'path'
-import { existsSync } from 'fs'
 import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
@@ -32,7 +31,6 @@ let unimportRet
 const dtsPath = process.env.PS_DTS_PATH || 'ps.d.ts'
 
 // graph
-let entryUrl
 const watchFiles = new Set()
 const filesRecord = new Map()
 const moduleGraph = {}
@@ -151,45 +149,11 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
+  if (isAbsolute(specifier))
+    specifier = pathToFileURL(specifier).href
   // entrypoint
-  if (!context.parentURL) {
-    if (/^file:\/\/\//.test(specifier) && existsSync(fileURLToPath(specifier))) {
-      entryUrl = specifier
-
-      return {
-        format: EXTENSIONS.some(ext => specifier.endsWith(ext))
-          ? 'ts'
-          : undefined,
-        url: specifier,
-        shortCircuit: true,
-      }
-    }
-    else {
-      // won't resolve virtual file as entry in vite
-      return nextResolve(specifier)
-    }
-  }
-  // url import
-  // it seems useless
-  // if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
-  //   const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
-  //   return {
-  //     format: 'ts',
-  //     url,
-  //     shortCircuit: true,
-  //   }
-  // }
-
-  // hmr import
-  if (
-    context.parentURL.includes('/node_modules/phecda-server')
-    && isAbsolute(specifier)
-  ) {
-    specifier = relative(fileURLToPath(entryUrl), specifier)
-      .replace(/\.ts$/, '')
-      .slice(1)
-    context.parentURL = entryUrl
-  }
+  if (!context.parentURL)
+    return nextResolve(specifier)
 
   // import/require from external library
   if (context.parentURL.includes('/node_modules/'))
