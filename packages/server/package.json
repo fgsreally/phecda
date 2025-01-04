@@ -74,6 +74,10 @@
       "require": "./dist/rpc/nats/index.js",
       "import": "./dist/rpc/nats/index.mjs"
     },
+    "./electron": {
+      "require": "./dist/rpc/electron/index.js",
+      "import": "./dist/rpc/electron/index.mjs"
+    },
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
@@ -166,6 +170,7 @@
     "@types/supertest": "^2.0.12",
     "amqplib": "^0.10.3",
     "bullmq": "^5.7.1",
+    "electron": "^33.2.1",
     "elysia": "^1.0.17",
     "express": "^4.18.2",
     "fastify": "^4.25.1",

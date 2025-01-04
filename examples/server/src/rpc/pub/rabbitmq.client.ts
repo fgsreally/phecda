@@ -7,7 +7,7 @@ export async function start() {
   const conn = await amqp.connect('amqp://localhost:5672')
 
   const ch = await conn.createChannel()
-  const client = await createClient({
+  const client = createClient({
     test: TestRpc,
   }, RabbitmqAdaptor(ch))
   const ret = await client.test.run('xx')

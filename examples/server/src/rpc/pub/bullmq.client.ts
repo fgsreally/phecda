@@ -3,7 +3,7 @@ import { BullmqAdaptor, createClient } from 'phecda-client/rpc'
 import { TestRpc } from '../test.rpc'
 
 export async function start() {
-  const client = await createClient({
+  const client = createClient({
     test: TestRpc,
   }, BullmqAdaptor({
     workerOpts: {

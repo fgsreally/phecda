@@ -6,7 +6,7 @@ import { TestRpc } from '../test.rpc'
 export async function start() {
   const nc = await connect({ port: 4222 })
 
-  const client = await createClient({
+  const client = createClient({
     test: TestRpc,
   }, NatsAdaptor(nc))
   const ret = await client.test.run('xx')

@@ -135,9 +135,12 @@ function addUrlToGraph(url, parent) {
 function getFileMid(file) {
   const filename = basename(file)
   const ret = filename.split('.')
-  if (ret.length === 3)
-    return ret[1]
-  else return ''
+  if (!['js', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts'].includes(ret.pop()))
+    return ''
+  if (!ret[0])// .dockerfile
+    return ''
+
+  return ret[1]
 }
 
 export const resolve = async (specifier, context, nextResolve) => {

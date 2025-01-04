@@ -123,7 +123,7 @@ describe('redis rpc', () => {
 
   //   bind({ sub, pub }, data)
 
-  //   const client = await createClient({ pub, sub }, {
+  //   const client = createClient({ pub, sub }, {
   //     test: Faker as unknown as typeof TestRpc,
   //   })
 

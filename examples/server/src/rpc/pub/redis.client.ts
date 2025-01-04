@@ -5,7 +5,7 @@ import { TestRpc } from '../test.rpc'
 export async function start() {
   const pub = new Redis()
   const sub = new Redis()
-  const client = await createClient({ test: TestRpc }, RedisAdaptor({ pub, sub }))
+  const client = createClient({ test: TestRpc }, RedisAdaptor({ pub, sub }))
   const ret = await client.test.run('xx')
   console.log(`return with ${ret}`)
 

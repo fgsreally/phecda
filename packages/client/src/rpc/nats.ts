@@ -1,18 +1,28 @@
-import type { NatsConnection } from 'nats'
+import type { Codec, NatsConnection } from 'nats'
 import { RpcAdapter } from './client'
 export function NatsAdaptor(nc: NatsConnection): RpcAdapter {
-  return async ({ receive }) => {
-    const { StringCodec } = await import('nats')
-    const sc = StringCodec()
+  return ({ receive }) => {
+    let sc: Codec<string>
 
     return {
+      async init() {
+        const { StringCodec } = await import('nats')
+        sc = StringCodec()
+      },
       send: ({ data, queue, reject }) => {
         const request = nc.request(queue, sc.encode(JSON.stringify(data)))
         request.catch(reject)
         request
           .then((msg) => {
-            receive(msg.json())
+            const { data, error } = msg.json() as any
+            if (error)
+              reject(data)
+
+            else
+              receive(data)
           })
+
+        return true
       },
     }
   }

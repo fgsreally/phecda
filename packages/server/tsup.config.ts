@@ -17,6 +17,7 @@ export const tsup: Options = {
     'src/rpc/bullmq/index.ts',
     'src/rpc/nats/index.ts',
     'src/rpc/redis/index.ts',
+    'src/rpc/electron/index.ts',
 
   ],
   format: ['cjs', 'esm'],

@@ -25,7 +25,7 @@ describe('rpc client', async () => {
     }
   }
 
-  const client = await createClient({
+  const client = createClient({
     test: TestRpc,
   }, mockAdapter)
 

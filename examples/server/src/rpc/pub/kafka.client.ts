@@ -14,7 +14,7 @@ export async function start() {
   await producer.connect()
   await consumer.connect()
 
-  const client = await createClient({
+  const client = createClient({
     test: TestRpc,
   }, KafkaAdaptor({ producer, consumer }))
   const ret = await client.test.run('xx')

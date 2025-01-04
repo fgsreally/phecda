@@ -1,0 +1,21 @@
+{
+  "name": "example-electron",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "index.js",
+  "scripts": {
+  },
+  "dependencies": {
+    "electron": "^33.2.1",
+    "phecda-client": "workspace:^",
+    "phecda-server": "workspace:^"
+  },
+  "devDependencies": {
+    "unimport": "^3.7.1",
+    "vite": "^6.0.6"
+  }
+}

@@ -7,18 +7,21 @@ export function BullmqAdaptor(bullmqOptions?: {
   workerOpts?: WorkerOptions
   queueOpts?: QueueOptions
 }): RpcAdapter {
-  return async ({ clientQueue, receive }) => {
-    const { Queue, Worker } = await import('bullmq')
-
+  return ({ clientQueue, receive }) => {
     const queueMap: Record<string, Queue> = {}
-
-    new Worker(clientQueue, async (job) => {
-      receive(job.data)
-    }, bullmqOptions?.workerOpts)
+    let BullQueue: typeof Queue
     return {
+      async init() {
+        const { Queue, Worker } = await import('bullmq')
+        BullQueue = Queue
+
+        new Worker(clientQueue, async (job) => {
+          receive(job.data)
+        }, bullmqOptions?.workerOpts)
+      },
       send: ({ queue, data }) => {
         if (!(queue in queueMap))
-          queueMap[queue] = new Queue(queue, bullmqOptions?.queueOpts)
+          queueMap[queue] = new BullQueue(queue, bullmqOptions?.queueOpts)
 
         queueMap[queue].add(`${data.tag}-${data.func}`, data)
       },
