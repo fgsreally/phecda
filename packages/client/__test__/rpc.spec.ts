@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { RpcAdapter, createClient } from '../src/rpc'
 
 describe('rpc client', async () => {
-  const mockAdapter: RpcAdapter = async ({
+  const mockAdapter: RpcAdapter = ({
     receive,
   }) => {
     return {

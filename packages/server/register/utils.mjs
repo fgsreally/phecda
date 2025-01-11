@@ -24,28 +24,28 @@ export async function compile(sourcecode, filename) {
 
       jsc: {
         parser: {
-          syntax: "typescript",
+          syntax: 'typescript',
           importAttributes: true,
           decorators: true,
           tsx: false,
           dynamicImport: true,
-          strictPropertyInitialization: false
+          strictPropertyInitialization: false,
         },
         experimental: {
-          keepImportAssertions: true
+          keepImportAssertions: true,
         },
         transform: {
           legacyDecorator: true,
-          decoratorMetadata: true
-        }
+          decoratorMetadata: true,
+        },
         // parser: {
         //   importAttributes: true
         // },
         // experimental: {
         //   keepImportAssertions: true
         // }
-      }
-    }
+      },
+    },
   })
 
   return injectInlineSourceMap({ code, map })

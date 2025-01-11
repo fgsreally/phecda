@@ -5,7 +5,10 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "esnext",
-    "lib": ["esnext", "DOM"],
+    "lib": [
+      "esnext",
+      "DOM"
+    ],
     "strictPropertyInitialization": false,
     "moduleResolution": "Bundler",
     "strict": true,
@@ -14,7 +17,6 @@
     "esModuleInterop": true,
     "noEmit": true,
     "paths": {
-
       "@/*": [
         "./src/server/*"
       ]
@@ -24,5 +26,8 @@
     "noImplicitReturns": true,
     "skipLibCheck": true
   },
-  "include": ["src", "./ps.d.ts"]
+  "include": [
+    "src",
+    "ps.d.ts"
+  ]
 }

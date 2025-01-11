@@ -3,7 +3,6 @@ import { TestRpc } from '../electron/test.rpc'
 
 // 辅助函数：将结果显示到界面
 function appendResult(containerId: string, title: string, result: any, isError = false) {
-  console.log(result)
   const container = document.getElementById(containerId)
   if (!container)
     return

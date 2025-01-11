@@ -1,9 +1,6 @@
 #! /usr/bin/env node
 import { fork } from 'child_process'
 import { createRequire } from 'module'
-import { fileURLToPath } from 'url'
-
-import { dirname, resolve } from 'path'
 import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
@@ -19,8 +16,6 @@ const log = (...args) => {
 const cli = cac('phecda').option('-c,--config <config>', 'config file', {
   default: 'ps.json',
 })
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const require = createRequire(import.meta.url)
 let child
@@ -87,22 +82,80 @@ cli
     if (root)
       process.chdir(root)
 
+    let hasUnimport
+
+    try {
+      await import('unimport')
+      hasUnimport = true
+    }
+
+    catch (e) {
+      hasUnimport = false
+    }
+
     const tsconfigPath = options.tsconfig
     const psconfigPath = process.env.PS_CONFIG_FILE || options.config
 
     if (!fse.existsSync(tsconfigPath)) {
       log(`create ${tsconfigPath}`)
 
-      await fse.copyFile(
-        resolve(__dirname, '../assets/tsconfig.json'),
+      await fse.outputJSON(
         tsconfigPath,
+        {
+          compilerOptions: {
+            target: 'esnext',
+            useDefineForClassFields: false,
+            experimentalDecorators: true,
+            emitDecoratorMetadata: true,
+            module: 'esnext',
+            lib: ['esnext', 'DOM'],
+            strictPropertyInitialization: false,
+            moduleResolution: 'Node',
+            strict: true,
+            resolveJsonModule: true,
+            esModuleInterop: true,
+            noEmit: true,
+            noUnusedLocals: true,
+            noUnusedParameters: true,
+            noImplicitReturns: true,
+            skipLibCheck: true,
+          },
+          include: ['.', hasUnimport ? (process.env.PS_DTS_PATH || 'ps.d.ts') : undefined],
+        },
+
       )
     }
 
     if (!fse.existsSync(psconfigPath)) {
       log(`create ${psconfigPath}`)
 
-      await fse.copyFile(resolve(__dirname, '../assets/ps.json'), psconfigPath)
+      await fse.outputJSON(psconfigPath, {
+        $schema: './node_modules/phecda-server/assets/schema.json',
+        resolve: [
+          {
+            source: 'controller',
+            importer: 'http',
+            path: '.ps/http.js',
+          },
+          {
+            source: 'rpc',
+            importer: 'client',
+            path: '.ps/rpc.js',
+          },
+        ],
+        unimport: hasUnimport && {
+          dirs: [
+            '.',
+          ],
+          dirsScanOptions: {
+            filePatterns: [
+              '*.{service,controller,module,rpc,solo,guard,extension,pipe,filter,addon}.ts',
+            ],
+          },
+        },
+        virtualFile: {},
+        moduleFile: [],
+      })
     }
 
     log('init finish')

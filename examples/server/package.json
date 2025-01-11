@@ -47,7 +47,9 @@
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "nats": "^2.22.0",
+
     "phecda-client": "workspace:^",
+    "phecda-core": "workspace:^",
     "phecda-server": "workspace:^",
     "rabbitmq": "^0.0.2",
     "unimport": "^3.7.1"
