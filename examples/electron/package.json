@@ -8,6 +8,8 @@
   "keywords": [],
   "main": "index.js",
   "scripts": {
+    "dev": "vite",
+    "electron": "cross-env NODE_ENV=development npx electron ./index.js"
   },
   "dependencies": {
     "electron": "^33.2.1",

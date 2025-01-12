@@ -1,0 +1,21 @@
+{
+  "name": "example-ws",
+  "type": "module",
+  "version": "0.0.4",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "ws": "phecda src/ws/index.ts"
+  },
+  "dependencies": {
+    "phecda-client": "workspace:^",
+    "phecda-server": "workspace:^",
+    "unimport": "^3.7.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.2",
+    "vite": "^5.1.4"
+  }
+}

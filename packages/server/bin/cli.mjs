@@ -110,7 +110,7 @@ cli
             module: 'esnext',
             lib: ['esnext', 'DOM'],
             strictPropertyInitialization: false,
-            moduleResolution: 'Node',
+            moduleResolution: 'bundler',
             strict: true,
             resolveJsonModule: true,
             esModuleInterop: true,

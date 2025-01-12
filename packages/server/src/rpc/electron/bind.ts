@@ -31,7 +31,7 @@ export function bind(IPC: Electron.IpcMain, { moduleMap, meta }: Awaited<ReturnT
   IPC.on('phecda-server:send', callback)
 
   async function callback(event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent, data: any) {
-    const { func, id, tag, _ps, args } = data
+    const { func, id, tag, _ps, args } = data || {}
     debug(`invoke method "${func}" in module "${tag}"`)
 
     if (_ps !== 1)

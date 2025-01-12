@@ -152,8 +152,9 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
-  if (isAbsolute(specifier))
-    specifier = pathToFileURL(specifier).href
+  // if (isAbsolute(specifier))
+  //   specifier = pathToFileURL(specifier).href
+
   // entrypoint
   if (!context.parentURL)
     return nextResolve(specifier)
@@ -228,6 +229,7 @@ export const load = async (url, context, nextLoad) => {
   }
 
   url = url.split('?')[0]
+
   if (
     !url.includes('/node_modules/')
     && url.startsWith('file://')

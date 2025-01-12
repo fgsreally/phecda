@@ -78,6 +78,10 @@
       "require": "./dist/rpc/electron/index.js",
       "import": "./dist/rpc/electron/index.mjs"
     },
+    "./ws": {
+      "require": "./dist/rpc/ws/index.js",
+      "import": "./dist/rpc/ws/index.mjs"
+    },
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
@@ -168,6 +172,7 @@
     "@types/koa": "^2.13.12",
     "@types/koa__router": "^12.0.4",
     "@types/supertest": "^2.0.12",
+    "@types/ws": "^8.5.13",
     "amqplib": "^0.10.3",
     "bullmq": "^5.7.1",
     "electron": "^33.2.1",
@@ -187,6 +192,7 @@
     "supertest": "^6.3.3",
     "tsup": "^8.1.0",
     "typescript": "^5.7.2",
-    "unimport": "^3.7.1"
+    "unimport": "^3.7.1",
+    "ws": "^8.18.0"
   }
 }
