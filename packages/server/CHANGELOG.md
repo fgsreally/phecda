@@ -1,5 +1,20 @@
 # phecda-server
 
+## 7.0.0-alpha.13
+
+### Major Changes
+
+- 98a92ba: 1. fix `getFileMid` in loader (support file name like `a.controller.dev.ts`) 2. support work with `electron`(as a kind of rpc),but queue won't work in electron 3. `createClient` should always be sync 4. add `eventemitter3`/`nanoid` to `phecda-client` 5. rpc adaptor can interrupt default logic
+
+### Minor Changes
+
+- 6f6a48a: 1. support `ws` (deprecate [phecda-ws](https://github.com/fgsreally/phecda-ws)) 2. fix resolve hook in loader(for hmr)
+
+### Patch Changes
+
+- 70c915a: cli support other way to create child process;fix loader resolve hook
+- b1a6652: improve cli init command(more intelligent)
+
 ## 7.0.0-alpha.12
 
 ### Major Changes

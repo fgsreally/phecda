@@ -13,7 +13,11 @@
     "phecda-server": "6.1.0",
     "phecda-vue": "5.1.2",
     "phecda-web": "3.0.1",
-    "phecda-zod": "2.0.1"
+    "phecda-zod": "2.0.1",
+    "example-electron": "1.0.0",
+    "example-http": "0.0.4",
+    "example-rpc": "0.0.4",
+    "example-ws": "0.0.4"
   },
   "changesets": [
     "angry-dingos-repair",
@@ -21,12 +25,14 @@
     "big-ways-peel",
     "brave-points-tease",
     "cool-spoons-develop",
+    "empty-panthers-explode",
     "famous-donuts-end",
     "fifty-berries-behave",
     "flat-rockets-invent",
     "four-cups-pull",
     "gentle-rivers-report",
     "gorgeous-carrots-draw",
+    "hot-lions-thank",
     "loud-camels-hear",
     "popular-books-act",
     "popular-mirrors-complain",
@@ -38,7 +44,9 @@
     "smooth-kings-admire",
     "strange-onions-fly",
     "tidy-rivers-change",
+    "tough-maps-compare",
     "unlucky-carrots-play",
-    "wicked-steaks-confess"
+    "wicked-steaks-confess",
+    "wise-dolls-remember"
   ]
 }
