@@ -46,8 +46,17 @@
       "description": "Virtual module, just like in Vite."
     },
     "unimport": {
-      "type": "object",
-      "description": "Includes the arguments passed to unimport"
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Includes the arguments passed to unimport"
+        },
+        {
+          "type": "boolean",
+          "enum": [false],
+          "description": "Disable unimport"
+        }
+      ]
     }
   },
 

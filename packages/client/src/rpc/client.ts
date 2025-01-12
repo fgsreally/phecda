@@ -1,34 +1,44 @@
 /* eslint-disable prefer-promise-reject-errors */
-import EventEmitter from 'events'
+import EventEmitter from 'eventemitter3'
+import { nanoid } from 'nanoid'
 import { RpcRequest } from '../utils'
 import type { RpcClientMap } from '../types'
-import { type RpcClientOptions, genClientQueue } from './utils'
+export interface RpcClientOptions {
+  // add to clientQueue
+  genClientQueue?: (key?: string) => string
+  timeout?: number
+  max?: number
+}
 
 export type RpcAdapter = (arg: {
   clientQueue: string
   receive: (data: any) => void
-}) => Promise<{
+}) => {
   send: (arg: {
     queue: string
     data: any
-
+    isEvent: boolean
     resolve: (value: any) => void
     reject: (reason?: any) => void
-  }) => void
-}>
+  }) => void | true
+  init?: () => Promise<void> | void
+}
 
-export async function createClient<Controllers extends Record<string, any>>(controllers: Controllers, adapter: RpcAdapter, opts?: RpcClientOptions) {
+export function createClient<Controllers extends Record<string, any>>(controllers: Controllers, adapter: RpcAdapter, opts?: RpcClientOptions) {
+  const { genClientQueue = nanoid } = opts || {}
   const ret = {} as RpcClientMap<Controllers>
   let eventId = 1
   let eventCount = 0
   const emitter = new EventEmitter()
-  const clientQueue = genClientQueue(opts?.key)
-  const { send } = await adapter({
+  const clientQueue = genClientQueue()
+  const { send, init } = adapter({
     clientQueue,
     receive: (data) => {
       emitter.emit(data.id, data.data, data.error)
     },
   })
+
+  let initPromise = init?.()
 
   for (const i in controllers) {
     ret[i] = new Proxy(new controllers[i](), {
@@ -39,14 +49,20 @@ export async function createClient<Controllers extends Record<string, any>>(cont
         let { tag, queue, isEvent } = target[p]()
 
         return (...args: any) => {
-          return RpcRequest(() => {
+          return RpcRequest(async () => {
             if (!queue)
               queue = tag
+
+            if (initPromise) {
+              await initPromise
+              initPromise = undefined
+            }
 
             const id = `${eventId++}`
 
             return new Promise((resolve, reject) => {
-              send({
+              const isIntercept = send({
+                isEvent,
                 queue,
                 data: {
                   _ps: 1,
@@ -59,6 +75,9 @@ export async function createClient<Controllers extends Record<string, any>>(cont
                 resolve,
                 reject,
               })
+              if (isIntercept)
+
+                return
 
               if (isEvent)
                 return resolve(null)

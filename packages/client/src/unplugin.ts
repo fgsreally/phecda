@@ -27,7 +27,6 @@ export default createUnplugin((options: {
   const workdir = dirname(psconfigPath)
   const config: any = existsSync(psconfigPath) ? require(psconfigPath) : {}
   let command: string
-
   return {
     name: 'phecda-client',
     enforce: 'pre',
@@ -89,6 +88,7 @@ export default createUnplugin((options: {
           }
           else {
             const resolver = config.resolve.find((item: any) => item.source === sourceMid)
+
             if (resolver)
               return resolve(workdir, resolver.path)
           }

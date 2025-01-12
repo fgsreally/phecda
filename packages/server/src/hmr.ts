@@ -11,7 +11,6 @@ export function HMR(cb: (oldModels: Construct[], newModels: Construct[]) => any)
 
 export async function RELOAD(oldModels: Construct[], newModels: Construct[]) {
   log('reload module...')
-
   for (const cb of globalThis.__PS_HMR__) await cb(oldModels, newModels)
 
   log('reload done')
