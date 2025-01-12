@@ -1,6 +1,6 @@
 {
   "name": "phecda-client",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.2",
   "description": "client that connect http framework in phecda-server",
   "author": "fgsreally",
   "license": "MIT",
