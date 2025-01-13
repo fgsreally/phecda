@@ -51,6 +51,7 @@ if (!tsRet.error) {
   if (!error)
     tsconfig = options
 }
+
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
   x => x,
