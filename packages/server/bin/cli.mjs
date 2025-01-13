@@ -109,6 +109,9 @@ cli
             emitDecoratorMetadata: true,
             module: 'esnext',
             lib: ['esnext', 'DOM'],
+            paths: {
+
+            },
             strictPropertyInitialization: false,
             moduleResolution: 'bundler',
             strict: true,

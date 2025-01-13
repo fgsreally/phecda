@@ -51,6 +51,7 @@ if (!tsRet.error) {
   if (!error)
     tsconfig = options
 }
+
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
   x => x,
@@ -160,8 +161,9 @@ export const resolve = async (specifier, context, nextResolve) => {
     return nextResolve(specifier)
 
   // import/require from external library
-  if (context.parentURL.includes('/node_modules/'))
+  if (context.parentURL.includes('/node_modules/') && !context.parentURL.includes('phecda-server/register/index.mjs'))
     return nextResolve(specifier)
+
   const { resolvedModule } = ts.resolveModuleName(
     specifier,
     fileURLToPath(context.parentURL),
