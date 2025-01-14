@@ -153,16 +153,14 @@ export const resolve = async (specifier, context, nextResolve) => {
       shortCircuit: true,
     }
   }
-  // if (isAbsolute(specifier))
-  //   specifier = pathToFileURL(specifier).href
 
   // entrypoint
   if (!context.parentURL)
     return nextResolve(specifier)
 
-  // import/require from external library
-  if (context.parentURL.includes('/node_modules/') && !context.parentURL.includes('phecda-server/register/index.mjs'))
-    return nextResolve(specifier)
+  // @todo skip resolve to improve performance
+  // if (context.parentURL.includes('/node_modules/') && specifier.includes('/node_modules/'))
+  //   return nextResolve(specifier)
 
   const { resolvedModule } = ts.resolveModuleName(
     specifier,
@@ -208,8 +206,10 @@ export const resolve = async (specifier, context, nextResolve) => {
   const resolveRet = await nextResolve(specifier)
 
   // ts resolve fail in some cases
-  if (resolveRet.url && isAbsolute(resolveRet.url))
-    resolveRet.url = pathToFileURL(resolveRet.url).href
+  if (resolveRet.url && isAbsolute(resolveRet.url)) {
+    const [path, query] = resolveRet.url.split('?')
+    resolveRet.url = pathToFileURL(path).href + (query ? `?${query}` : '')
+  }
 
   return resolveRet
 }
