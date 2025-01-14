@@ -1,5 +1,11 @@
 # phecda-server
 
+## 7.0.0-alpha.14
+
+### Patch Changes
+
+- 1855700: files imported by register are still considered as source files,it will fix resolve hook in loader
+
 ## 7.0.0-alpha.13
 
 ### Major Changes
