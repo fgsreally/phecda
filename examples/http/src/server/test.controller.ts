@@ -52,6 +52,10 @@ export class TestController extends HttpBase {
     this.service.test()
     return this.context.type
   }
+
+  customResponse() {
+    return new CustomResponse()
+  }
 }
 // hmr works
 
