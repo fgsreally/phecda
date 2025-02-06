@@ -1,4 +1,4 @@
-import type { Construct, CustomResponse } from 'phecda-server'
+export type Construct<T = any> = new (...args: any[]) => T
 
 export type Expand<T> = T extends (...args: infer A) => infer R
   ? (...args: Expand<A>) => Expand<R>
@@ -26,7 +26,7 @@ export type BaseReturn<T> = Awaited<T> extends { toJSON(): infer R } ? R : Await
 export type HttpClientFn<Func extends AnyFunction> = (...p: Parameters<Func>) => Promise<BaseReturn<ReturnType<Func>>> & { send: () => void; abort: () => void }
 export type RpcClientFn<Func extends AnyFunction> = (...p: Parameters<Func>) => Promise<BaseReturn<ReturnType<Func>>> & { send: () => void }
 
-type PickFuncKeys<Type> = { [Key in keyof Type]: Type[Key] extends (...args: any) => any ? (ReturnType<Type[Key]> extends CustomResponse<any> ? never : Key) : never }[keyof Type]
+type PickFuncKeys<Type> = { [Key in keyof Type]: Type[Key] extends (...args: any) => any ? (ReturnType<Type[Key]> extends { _ps_response: any } ? never : Key) : never }[keyof Type]
 type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
 type ParseHttpInstance<Instance extends Record<string, AnyFunction>> = {
   [Key in keyof Instance]: HttpClientFn<Instance[Key]>

@@ -347,9 +347,6 @@ importers:
       nats:
         specifier: ^2.22.0
         version: 2.27.0
-      phecda-server:
-        specifier: workspace:*
-        version: link:../server
       tsup:
         specifier: ^8.1.0
         version: 8.1.0(@swc/core@1.6.5)(postcss@8.5.1)(typescript@5.7.2)
@@ -5408,8 +5405,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06:
-    resolution: {tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06}
+  uWebSockets.js@git+https://git@github.com:uNetworking/uWebSockets.js.git#1977b5039938ad863d42fc4958d48c17e5a1fa06:
+    resolution: {commit: 1977b5039938ad863d42fc4958d48c17e5a1fa06, repo: git@github.com:uNetworking/uWebSockets.js.git, type: git}
     version: 20.43.0
 
   ufo@1.5.4:
@@ -7133,7 +7130,7 @@ snapshots:
 
   '@types/ioredis-mock@8.2.5':
     dependencies:
-      '@types/node': 22.10.6
+      '@types/node': 18.19.39
       ioredis: 5.4.2
     transitivePeerDependencies:
       - supports-color
@@ -7205,6 +7202,7 @@ snapshots:
   '@types/node@22.10.6':
     dependencies:
       undici-types: 6.20.0
+    optional: true
 
   '@types/normalize-package-data@2.4.4': {}
 
@@ -9390,7 +9388,7 @@ snapshots:
       range-parser: 1.2.1
       type-is: 1.6.18
       typed-emitter: 2.1.0
-      uWebSockets.js: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06
+      uWebSockets.js: git+https://git@github.com:uNetworking/uWebSockets.js.git#1977b5039938ad863d42fc4958d48c17e5a1fa06
 
   iconv-lite@0.4.24:
     dependencies:
@@ -11201,7 +11199,7 @@ snapshots:
 
   typescript@5.7.2: {}
 
-  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/1977b5039938ad863d42fc4958d48c17e5a1fa06: {}
+  uWebSockets.js@git+https://git@github.com:uNetworking/uWebSockets.js.git#1977b5039938ad863d42fc4958d48c17e5a1fa06: {}
 
   ufo@1.5.4: {}
 
@@ -11220,7 +11218,8 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  undici-types@6.20.0: {}
+  undici-types@6.20.0:
+    optional: true
 
   unenv@1.10.0:
     dependencies:

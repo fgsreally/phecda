@@ -1,5 +1,4 @@
-import type { Construct } from 'phecda-server'
-import type { HttpClientMap } from '../types'
+import type { Construct, HttpClientMap } from '../types'
 import { isError } from '../helper'
 import { HttpRequest } from '../utils'
 

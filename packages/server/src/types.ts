@@ -38,10 +38,8 @@ export interface BaseError {
 
 export type BaseRequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
 
-const ResponseSymbol: unique symbol = Symbol('response')
-
 export class CustomResponse<Value> {
-  [ResponseSymbol]: Value
+  _ps_response: Value
 }
 
 export type ExtractResponse<Class extends CustomResponse<any>> = Class extends CustomResponse<infer Value> ? Value : never
