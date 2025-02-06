@@ -1,5 +1,18 @@
 # phecda-server
 
+## 7.0.0-alpha.15
+
+### Patch Changes
+
+- 51b6757: fix resolve hook in loader
+  1. `pathToFileURL` won't handle query correctly,
+  2. No longer skips typescript resolving (node_modules) for now
+- 4b81529: refactor `CustomResponse`
+
+  `client` no longer depends on `server` in any way
+
+  ensure frontend project only need to install `phecda-client` package(without `phecda-server`)
+
 ## 7.0.0-alpha.14
 
 ### Patch Changes

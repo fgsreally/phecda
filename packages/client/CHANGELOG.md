@@ -1,5 +1,15 @@
 # phecda-client
 
+## 3.0.0-alpha.3
+
+### Patch Changes
+
+- 4b81529: refactor `CustomResponse`
+
+  `client` no longer depends on `server` in any way
+
+  ensure frontend project only need to install `phecda-client` package(without `phecda-server`)
+
 ## 3.0.0-alpha.2
 
 ### Major Changes
