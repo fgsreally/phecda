@@ -3,7 +3,7 @@
 import type { Queue, QueueOptions, WorkerOptions } from 'bullmq'
 import { RpcAdapter } from './client'
 
-export function BullmqAdaptor(bullmqOptions?: {
+export function adaptor(bullmqOptions?: {
   workerOpts?: WorkerOptions
   queueOpts?: QueueOptions
 }): RpcAdapter {

@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
 import { HttpAdaptor, RequestArg } from './client'
-export function axiosAdaptor(instance?: AxiosInstance): HttpAdaptor {
+export function adaptor(instance?: AxiosInstance): HttpAdaptor {
   return () => {
     let controller: AbortController
 

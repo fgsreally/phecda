@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
-import { RedisAdaptor, createClient } from 'phecda-client/rpc'
+import { createClient } from 'phecda-client/rpc'
+import { adaptor } from 'phecda-client/redis'
+
 import Redis from 'ioredis'
 import { TestRpc } from '../test.rpc'
 export async function start() {
   const pub = new Redis()
   const sub = new Redis()
-  const client = createClient({ test: TestRpc }, RedisAdaptor({ pub, sub }))
+  const client = createClient({ test: TestRpc }, adaptor({ pub, sub }))
   const ret = await client.test.run('xx')
   console.log(`return with ${ret}`)
 

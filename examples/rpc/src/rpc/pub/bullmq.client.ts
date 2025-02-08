@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { BullmqAdaptor, createClient } from 'phecda-client/rpc'
+import { createClient } from 'phecda-client/rpc'
+import { BullmqAdaptor } from 'phecda-client/bullmq'
 import { TestRpc } from '../test.rpc'
 
 export async function start() {

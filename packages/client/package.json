@@ -14,31 +14,74 @@
   "exports": {
     ".": {
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
     },
     "./unplugin": {
       "require": "./dist/unplugin.js",
-      "import": "./dist/unplugin.mjs"
+      "import": "./dist/unplugin.mjs",
+      "types": "./dist/unplugin.d.ts"
     },
     "./http": {
       "require": "./dist/http/index.js",
-      "import": "./dist/http/index.mjs"
+      "import": "./dist/http/index.mjs",
+      "types": "./dist/http/index.d.ts"
     },
     "./rpc": {
       "require": "./dist/rpc/index.js",
-      "import": "./dist/rpc/index.mjs"
+      "import": "./dist/rpc/index.mjs",
+      "types": "./dist/rpc/index.d.ts"
+    },
+    "./axios": {
+      "require": "./dist/http/axios.js",
+      "import": "./dist/http/axios.mjs",
+      "types": "./dist/http/axios.d.ts"
+    },
+    "./alova": {
+      "require": "./dist/http/alova.js",
+      "import": "./dist/http/alova.mjs",
+      "types": "./dist/http/alova.d.ts"
+    },
+    "./bullmq": {
+      "require": "./dist/rpc/bullmq.js",
+      "import": "./dist/rpc/bullmq.mjs",
+      "types": "./dist/rpc/bullmq.d.ts"
+    },
+    "./electron": {
+      "require": "./dist/rpc/electron.js",
+      "import": "./dist/rpc/electron.mjs",
+      "types": "./dist/rpc/electron.d.ts"
+    },
+    "./kafka": {
+      "require": "./dist/rpc/kafka.js",
+      "import": "./dist/rpc/kafka.mjs",
+      "types": "./dist/rpc/kafka.d.ts"
+    },
+    "./nats": {
+      "require": "./dist/rpc/nats.js",
+      "import": "./dist/rpc/nats.mjs",
+      "types": "./dist/rpc/nats.d.ts"
+    },
+    "./rabbitmq": {
+      "require": "./dist/rpc/rabbitmq.js",
+      "import": "./dist/rpc/rabbitmq.mjs",
+      "types": "./dist/rpc/rabbitmq.d.ts"
+    },
+    "./redis": {
+      "require": "./dist/rpc/redis.js",
+      "import": "./dist/rpc/redis.mjs",
+      "types": "./dist/rpc/redis.d.ts"
+    },
+    "./ws": {
+      "require": "./dist/rpc/ws.js",
+      "import": "./dist/rpc/ws.mjs",
+      "types": "./dist/rpc/ws.d.ts"
     }
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "unplugin": [
-        "dist/unplugin.d.ts"
-      ]
-    }
-  },
+
   "files": [
     "dist"
   ],
