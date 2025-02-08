@@ -2,9 +2,9 @@ import axios from 'axios'
 import { createAlova } from 'alova'
 import adapterFetch from 'alova/fetch'
 import { createClient } from 'phecda-client/http'
-import { TestController } from '../server/test.controller'
 import { adaptor as axiosAdaptor } from 'phecda-client/axios'
 import { adaptor as alovaAdaptor } from 'phecda-client/alova'
+import { TestController } from '../server/test.controller'
 // 辅助函数：将结果显示到界面
 function appendResult(containerId: string, title: string, result: any, isError = false) {
   const container = document.getElementById(containerId)

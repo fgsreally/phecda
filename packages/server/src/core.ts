@@ -208,6 +208,7 @@ export class ServerPhecda {
     debug(`init module "${String(tag)}"`)
 
     if (!IS_ONLY_GENERATE)// ??
+
       await invokeInit(module)
 
     debug(`add module "${String(tag)}"`)

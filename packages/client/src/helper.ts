@@ -1,4 +1,3 @@
-
 export interface BaseError {
   __PS_ERROR__: true
   status: number

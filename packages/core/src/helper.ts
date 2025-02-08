@@ -31,6 +31,13 @@ export function invoke(instance: any, key: string, ...params: any) {
   return Promise.allSettled(metaKeys.map((k) => {
     return getMeta(instance, k)
   }).flat().filter((item: any) => typeof item[key] === 'function').map((item: any) => item[key](instance, ...params)))
+    .then((res) => {
+      res.filter(item => item.status === 'rejected').forEach((item) => {
+        console.error(item.reason)
+      })
+
+      return res
+    })
 }
 
 export function invokeInit(instance: any) {

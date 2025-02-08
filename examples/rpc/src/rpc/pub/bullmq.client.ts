@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import { createClient } from 'phecda-client/rpc'
-import { BullmqAdaptor } from 'phecda-client/bullmq'
+import { adaptor } from 'phecda-client/bullmq'
 import { TestRpc } from '../test.rpc'
 
 export async function start() {
   const client = createClient({
     test: TestRpc,
-  }, BullmqAdaptor({
+  }, adaptor({
     workerOpts: {
       connection: { port: 6379 },
     },
