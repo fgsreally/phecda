@@ -25,6 +25,7 @@ export class TestController extends HttpBase {
       })
       log('start!')
     }, 1000)
+    throw new Error('test')
     // initlize
   }
 

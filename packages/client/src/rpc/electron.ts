@@ -1,6 +1,6 @@
 import { RpcAdapter } from './client'
 
-export function ElectronAdaptor(exposed: string, opts: { channel?: string } = {}): RpcAdapter {
+export function adaptor(exposed: string, opts: { channel?: string } = {}): RpcAdapter {
   const { channel = 'phecda-client' } = opts
   return () => {
     return {

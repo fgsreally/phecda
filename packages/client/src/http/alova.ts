@@ -1,7 +1,7 @@
 import type { Alova, Method } from 'alova'
 
 import { HttpAdaptor, RequestArg } from './client'
-export function alovaAdaptor(instance: Alova<any>): HttpAdaptor {
+export function adaptor(instance: Alova<any>): HttpAdaptor {
   return () => {
     let m: Method
     return {

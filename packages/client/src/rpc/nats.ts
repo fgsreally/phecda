@@ -1,6 +1,6 @@
 import type { Codec, NatsConnection } from 'nats'
 import { RpcAdapter } from './client'
-export function NatsAdaptor(nc: NatsConnection): RpcAdapter {
+export function adaptor(nc: NatsConnection): RpcAdapter {
   return ({ receive }) => {
     let sc: Codec<string>
 

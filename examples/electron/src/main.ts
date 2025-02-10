@@ -1,6 +1,6 @@
-import { ElectronAdaptor, createClient } from 'phecda-client/rpc'
+import { createClient } from 'phecda-client/rpc'
+import { adaptor } from 'phecda-client/electron'
 import { TestRpc } from '../electron/test.rpc'
-
 // 辅助函数：将结果显示到界面
 function appendResult(containerId: string, title: string, result: any, isError = false) {
   const container = document.getElementById(containerId)
@@ -21,7 +21,7 @@ async function runDemo() {
   try {
     const client = createClient(
       { $test: TestRpc },
-      ElectronAdaptor('electronAPI'),
+      adaptor('electronAPI'),
 
     )
 

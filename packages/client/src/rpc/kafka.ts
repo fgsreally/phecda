@@ -3,7 +3,7 @@ import { RpcAdapter } from './client'
 
 // @experiment
 
-export function KafkaAdaptor({ producer, consumer }: { producer: Producer; consumer: Consumer }): RpcAdapter {
+export function adaptor({ producer, consumer }: { producer: Producer; consumer: Consumer }): RpcAdapter {
   return ({ clientQueue, receive }) => {
     return {
       async init() {

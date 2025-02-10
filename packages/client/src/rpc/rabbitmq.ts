@@ -2,7 +2,7 @@ import type amqplib from 'amqplib'
 
 import { RpcAdapter } from './client'
 
-export function RabbitmqAdaptor(ch: amqplib.Channel): RpcAdapter {
+export function adaptor(ch: amqplib.Channel): RpcAdapter {
   return ({ clientQueue, receive }) => {
     return {
       async init() {

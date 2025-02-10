@@ -1,6 +1,6 @@
 import { RpcAdapter } from './client'
 
-export function WsAdaptor(ws: WebSocket): RpcAdapter {
+export function adaptor(ws: WebSocket): RpcAdapter {
   return ({ receive }) => {
     return {
       init() {

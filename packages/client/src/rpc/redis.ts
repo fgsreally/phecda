@@ -2,7 +2,7 @@ import type Redis from 'ioredis'
 
 import { RpcAdapter } from './client'
 
-export function RedisAdaptor({ pub, sub }: { pub: Redis; sub: Redis }): RpcAdapter {
+export function adaptor({ pub, sub }: { pub: Redis; sub: Redis }): RpcAdapter {
   return ({ clientQueue, receive }) => {
     return {
       async init() {
