@@ -1,5 +1,11 @@
 # phecda-core
 
+## 4.1.0-alpha.1
+
+### Patch Changes
+
+- dd27622: If an error occurs during `invoke`, output the error message
+
 ## 4.1.0-alpha.0
 
 ### Minor Changes
