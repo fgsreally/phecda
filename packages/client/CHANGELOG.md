@@ -1,5 +1,12 @@
 # phecda-client
 
+## 3.0.0-alpha.4
+
+### Patch Changes
+
+- b351985: remove BaseError from server
+  change pkg export for bundler
+
 ## 3.0.0-alpha.3
 
 ### Patch Changes
