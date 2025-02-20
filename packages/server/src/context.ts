@@ -4,7 +4,7 @@ import { defaultPipe } from './pipe'
 import { defaultFilter } from './filter'
 import type { BaseCtx, DefaultOptions } from './types'
 import { IS_DEV } from './common'
-import { type Exception, FrameworkException } from './exception'
+import { type Exception } from './exception'
 import { resolveDep } from './helper'
 import { ControllerMeta } from './meta'
 import { log } from './utils'
@@ -47,20 +47,19 @@ export class Context<Ctx extends BaseCtx> {
 
   ctx: Ctx
 
-  protected canGetCtx = true
+  // protected canGetCtx = true
 
   constructor(public data: Ctx) {
     if (IS_DEV)
       // @ts-expect-error work for debug
       data._context = this
 
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that = this
+    // const that = this
 
     this.ctx = new Proxy(data, {
       get(target, p) {
-        if (IS_DEV && !that.canGetCtx)// only detect in dev
-          throw new FrameworkException('ctx must be obtained within the same request cycle in controller')
+        // if (IS_DEV && !that.canGetCtx)// only detect in dev
+        //   throw new FrameworkException('ctx must be obtained within the same request cycle in controller')
 
         if (!(p in target))
           log(`attribute "${p as string}" does not exist on ctx, which might be due to a missing AOP role (such as a guard).`, 'warn', data.tag)
@@ -136,13 +135,13 @@ export class Context<Ctx extends BaseCtx> {
               ),
             )
 
-            if (IS_DEV) {
-              Promise.resolve().then(() => {
-                this.canGetCtx = false
-              })
-            }
+            // if (IS_DEV) {
+            //   Promise.resolve().then(() => {
+            //     this.canGetCtx = false
+            //   })
+            // }
             res = await instance[func](...args)
-            this.canGetCtx = true
+            // this.canGetCtx = true
           }
           else {
             let nextPromise: Promise<any> | undefined

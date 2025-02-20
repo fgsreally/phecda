@@ -105,3 +105,12 @@ declare global {
   const wait: typeof import('phecda-server')['wait']
   const x: typeof import('./src/server/test.controller')['x']
 }
+// for type re-export
+declare global {
+  // @ts-ignore
+  export type { User, TestController } from './src/server/test.controller'
+  import('./src/server/test.controller')
+  // @ts-ignore
+  export type { TestService } from './src/server/test.service'
+  import('./src/server/test.service')
+}

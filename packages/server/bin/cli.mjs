@@ -15,6 +15,8 @@ const log = (...args) => {
 
 const cli = cac('phecda').option('-c,--config <config>', 'config file', {
   default: 'ps.json',
+}).option('-n,--node-args <node-args>', 'args that will be passed to nodejs', {
+  default: '',
 })
 
 const require = createRequire(import.meta.url)
@@ -35,10 +37,10 @@ function startChild(file, args) {
     env: { ...process.env },
     stdio: 'inherit',
     execArgv: [
+      ...args,
       nodeVersion < 18.19
         ? '--loader=phecda-server/register/loader.mjs'
         : '--import=phecda-server/register',
-      ...args,
     ],
   })
 
@@ -74,7 +76,7 @@ process.on('SIGINT', () => {
 
 cli
   .command('init [root]', 'init config file')
-  .allowUnknownOptions()
+  // .allowUnknownOptions()
   .option('-t,--tsconfig <tsconfig>', 'init tsconfig file', {
     default: 'tsconfig.json',
   })
@@ -156,7 +158,6 @@ cli
             ],
           },
         },
-        virtualFile: {},
         moduleFile: [],
       })
     }
@@ -167,11 +168,13 @@ cli
 cli
   .command('<file> [root]', 'run file')
   .alias('run')
-  .allowUnknownOptions()
-  .option('-p,--prod [prod]', 'prod mode', {
+  // .allowUnknownOptions()
+  .option('-p,--prod', 'prod mode', {
     default: false,
   })
   .action((file, root, options) => {
+    const nodeArgs = options.nodeArgs.split(' ').filter(Boolean)
+
     if (root)
       process.chdir(root)
 
@@ -184,7 +187,7 @@ cli
 
     log('process start!')
 
-    startChild(file, options['--'])
+    startChild(file, nodeArgs)
     console.log(`${pc.green('->')} press ${pc.green('e')} to exit`)
     console.log(`${pc.green('->')} press ${pc.green('r')} to relaunch`)
     console.log(`${pc.green('->')} press ${pc.green('c')} to clear terminal`)
@@ -197,12 +200,12 @@ cli
           if (closePromise)
             await closePromise
           log('relaunch...')
-          startChild(file, options['--'])
+          startChild(file, nodeArgs)
         }
         else {
           log('relaunch...')
 
-          startChild(file, options['--'])
+          startChild(file, nodeArgs)
         }
       }
       if (input === 'e')
@@ -215,13 +218,15 @@ cli
 
 cli
   .command('generate <file> [root]', 'generate code(mainly for ci)')
-  .allowUnknownOptions()
+  // .allowUnknownOptions()
   .action((file, root, options) => {
+    const nodeArgs = options.nodeArgs.split(' ').filter(Boolean)
+
     if (root)
       process.chdir(root)
     process.env.PS_GENERATE = 'true'
     process.env.PS_CONFIG_FILE = process.env.PS_CONFIG_FILE || options.config
-    startChild(file, options['--'])
+    startChild(file, nodeArgs)
   })
 
 cli.help()

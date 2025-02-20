@@ -27,7 +27,7 @@ const configPath = resolvePath(
 )
 
 // unimport
-let unimportRet
+let unimportRet, customLoad, customResolve
 const dtsPath = process.env.PS_DTS_PATH || 'ps.d.ts'
 
 // graph
@@ -72,21 +72,21 @@ export async function initialize(data) {
   debug('read config...')
 
   config = require(configPath)
-  // const unconfigRet = await loadConfig({
-  //   sources: [
-  //     {
-  //       files: configPath,
-  //       extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
-  //     },
-  //   ],
-  //   merge: false,
-  // })
-  // config = unconfigRet.config
-  if (!config.virtualFile)
-    config.virtualFile = {}
+
   if (!config.paths)
     config.paths = {}
 
+  const loaderPath = process.env.PS_LOADER_PATH
+
+  if (loaderPath) {
+    const loader = await import(loaderPath.startsWith('.') ? resolvePath(workdir, loaderPath) : loaderPath)
+
+    if (typeof loader.load === 'function')
+      customLoad = loader.load
+
+    if (typeof loader.resolve === 'function')
+      customResolve = loader.resolve
+  }
   if (IS_DEV) {
     chokidar.watch(configPath, { persistent: true }).on('change', () => {
       port.postMessage(
@@ -99,6 +99,7 @@ export async function initialize(data) {
 
   if (!config.unimport)
     return
+
   unimportRet = await genUnImportRet(config.unimport)
   if (unimportRet) {
     debug('auto import...')
@@ -145,12 +146,14 @@ function getFileMid(file) {
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
-  // virtual file
-  if (config.virtualFile[specifier]) {
-    return {
-      format: 'ts',
-      url: specifier,
-      shortCircuit: true,
+  if (customResolve) {
+    const url = await customResolve(specifier, context)
+    if (url) {
+      return {
+        format: 'ts',
+        url,
+        shortCircuit: true,
+      }
     }
   }
 
@@ -216,14 +219,6 @@ export const resolve = async (specifier, context, nextResolve) => {
 // @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
-  if (config.virtualFile[url]) {
-    return {
-      format: 'module',
-      source: config.virtualFile[url],
-      shortCircuit: true,
-    }
-  }
-
   let mode
   if (context.importAttributes.ps) {
     mode = context.importAttributes.ps
@@ -272,6 +267,17 @@ export const load = async (url, context, nextLoad) => {
           }
         }),
       )
+    }
+  }
+  // after hmr
+  if (customLoad) {
+    const source = await customLoad(url, context)
+    if (source) {
+      return {
+        format: 'module',
+        source,
+        shortCircuit: true,
+      }
     }
   }
   // resolveModuleName failed

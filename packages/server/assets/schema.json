@@ -38,13 +38,7 @@
       },
       "description": "Including the module's file middle name, such as controller mapping to xx.controller.ts"
     },
-    "virtualFile": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "description": "Virtual module, just like in Vite."
-    },
+
     "unimport": {
       "oneOf": [
         {

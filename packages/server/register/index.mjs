@@ -16,8 +16,8 @@ const fileModelMap = new Map()
 
 port1.on('message', async (data) => {
   const { type, files } = JSON.parse(data)
-  if (!isRunning || type === 'relaunch')
-    return RELAUNCH()// file change -> relaunch
+  if ((!isRunning && type !== 'init') || type === 'relaunch')
+    return RELAUNCH()
 
   if (type === 'change' || type === 'init') {
     if (!files.length)
