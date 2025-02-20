@@ -2,10 +2,8 @@ import { bind } from 'phecda-server/express'
 import { Factory, HTTPGenerator, log } from 'phecda-server'
 import express from 'express'
 import cookie from 'cookie-parser'
-import A from './a.yaml'
 import { TestController } from '@/test.controller'
 
-console.log(A, 'A')
 async function start() {
   const data = await Factory([TestController], {
     generators: [new HTTPGenerator()],
