@@ -72,16 +72,7 @@ export async function initialize(data) {
   debug('read config...')
 
   config = require(configPath)
-  // const unconfigRet = await loadConfig({
-  //   sources: [
-  //     {
-  //       files: configPath,
-  //       extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs', 'json', ''],
-  //     },
-  //   ],
-  //   merge: false,
-  // })
-  // config = unconfigRet.config
+
   if (!config.virtualFile)
     config.virtualFile = {}
   if (!config.paths)
@@ -99,6 +90,7 @@ export async function initialize(data) {
 
   if (!config.unimport)
     return
+
   unimportRet = await genUnImportRet(config.unimport)
   if (unimportRet) {
     debug('auto import...')

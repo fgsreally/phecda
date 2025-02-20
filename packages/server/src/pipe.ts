@@ -4,6 +4,7 @@
 import type { PipeType } from './context'
 
 export const defaultPipe: PipeType = ({ arg }) => {
+
   // if (['query', 'params'].includes(type) && reflect !== String) {
   //   if ([Object, Array].includes(reflect)) {
   //     return JSON.parse(arg)
