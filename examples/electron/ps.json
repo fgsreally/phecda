@@ -18,7 +18,6 @@
       "filePatterns": ["*.{service,controller,module,rpc,solo,guard,extension,pipe,filter,addon}.ts"]
     }
   },
-  "virtualFile": {},
   "moduleFile": []
 
 }
