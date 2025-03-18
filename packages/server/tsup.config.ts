@@ -19,6 +19,7 @@ export const tsup: Options = {
     'src/rpc/redis/index.ts',
     'src/rpc/electron/index.ts',
     'src/rpc/ws/index.ts',
+    'src/rpc/web-ext/index.ts',
 
   ],
   format: ['cjs', 'esm'],

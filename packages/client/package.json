@@ -13,75 +13,79 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.mjs"
     },
     "./unplugin": {
+      "types": "./dist/unplugin.d.ts",
       "require": "./dist/unplugin.js",
-      "import": "./dist/unplugin.mjs",
-      "types": "./dist/unplugin.d.ts"
+      "import": "./dist/unplugin.mjs"
     },
     "./http": {
+      "types": "./dist/http/index.d.ts",
       "require": "./dist/http/index.js",
-      "import": "./dist/http/index.mjs",
-      "types": "./dist/http/index.d.ts"
+      "import": "./dist/http/index.mjs"
     },
     "./rpc": {
+      "types": "./dist/rpc/index.d.ts",
       "require": "./dist/rpc/index.js",
-      "import": "./dist/rpc/index.mjs",
-      "types": "./dist/rpc/index.d.ts"
+      "import": "./dist/rpc/index.mjs"
     },
     "./axios": {
+      "types": "./dist/http/axios.d.ts",
       "require": "./dist/http/axios.js",
-      "import": "./dist/http/axios.mjs",
-      "types": "./dist/http/axios.d.ts"
+      "import": "./dist/http/axios.mjs"
     },
     "./alova": {
+      "types": "./dist/http/alova.d.ts",
       "require": "./dist/http/alova.js",
-      "import": "./dist/http/alova.mjs",
-      "types": "./dist/http/alova.d.ts"
+      "import": "./dist/http/alova.mjs"
     },
     "./bullmq": {
+      "types": "./dist/rpc/bullmq.d.ts",
       "require": "./dist/rpc/bullmq.js",
-      "import": "./dist/rpc/bullmq.mjs",
-      "types": "./dist/rpc/bullmq.d.ts"
+      "import": "./dist/rpc/bullmq.mjs"
     },
     "./electron": {
+      "types": "./dist/rpc/electron.d.ts",
       "require": "./dist/rpc/electron.js",
-      "import": "./dist/rpc/electron.mjs",
-      "types": "./dist/rpc/electron.d.ts"
+      "import": "./dist/rpc/electron.mjs"
     },
     "./kafka": {
+      "types": "./dist/rpc/kafka.d.ts",
       "require": "./dist/rpc/kafka.js",
-      "import": "./dist/rpc/kafka.mjs",
-      "types": "./dist/rpc/kafka.d.ts"
+      "import": "./dist/rpc/kafka.mjs"
     },
     "./nats": {
+      "types": "./dist/rpc/nats.d.ts",
       "require": "./dist/rpc/nats.js",
-      "import": "./dist/rpc/nats.mjs",
-      "types": "./dist/rpc/nats.d.ts"
+      "import": "./dist/rpc/nats.mjs"
     },
     "./rabbitmq": {
+      "types": "./dist/rpc/rabbitmq.d.ts",
       "require": "./dist/rpc/rabbitmq.js",
-      "import": "./dist/rpc/rabbitmq.mjs",
-      "types": "./dist/rpc/rabbitmq.d.ts"
+      "import": "./dist/rpc/rabbitmq.mjs"
     },
     "./redis": {
+      "types": "./dist/rpc/redis.d.ts",
       "require": "./dist/rpc/redis.js",
-      "import": "./dist/rpc/redis.mjs",
-      "types": "./dist/rpc/redis.d.ts"
+      "import": "./dist/rpc/redis.mjs"
     },
     "./ws": {
+      "types": "./dist/rpc/ws.d.ts",
       "require": "./dist/rpc/ws.js",
-      "import": "./dist/rpc/ws.mjs",
-      "types": "./dist/rpc/ws.d.ts"
+      "import": "./dist/rpc/ws.mjs"
+    },
+    "./web-ext": {
+      "types": "./dist/rpc/web-ext.d.ts",
+      "require": "./dist/rpc/web-ext.js",
+      "import": "./dist/rpc/web-ext.mjs"
     }
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-
   "files": [
     "dist"
   ],
@@ -90,6 +94,7 @@
     "build": "tsup"
   },
   "dependencies": {
+    "@types/chrome": "^0.0.309",
     "eventemitter3": "^5.0.1",
     "nanoid": "^5.0.9",
     "unplugin": "^2.1.2"
