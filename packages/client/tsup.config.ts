@@ -14,6 +14,8 @@ export const tsup: Options = {
     'src/rpc/rabbitmq.ts',
     'src/rpc/redis.ts',
     'src/rpc/ws.ts',
+    'src/rpc/web-ext.ts',
+
   ],
   format: ['cjs', 'esm'],
   dts: true,
