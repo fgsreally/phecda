@@ -1,5 +1,11 @@
 # phecda-core
 
+## 4.1.0-alpha.2
+
+### Minor Changes
+
+- 4d5cc84: add omit
+
 ## 4.1.0-alpha.1
 
 ### Patch Changes
