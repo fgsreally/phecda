@@ -1,5 +1,6 @@
 import { CLEAR_KEY, get, getMeta, getMetaKey } from './core'
 import type { AbConstruct, Construct } from './types'
+import { Clear } from './decorators'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
@@ -120,4 +121,22 @@ export function functionToClass<Func extends (...args: any) => object>(fn: Func)
       Object.setPrototypeOf(this, fn(...args))
     }
   } as any
+}
+
+export function omit<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
+  const newClass = class extends classFn {
+    constructor(...args: any) {
+      super(...args)
+      properties.forEach((k: any) => {
+        delete this[k]
+      })
+    }
+  } as any
+
+  getMetaKey(classFn).forEach((k) => {
+    if (properties.includes(k as any))
+      addDecoToClass(newClass, k, Clear)
+  })
+
+  return newClass
 }
