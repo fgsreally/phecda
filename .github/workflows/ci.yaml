@@ -16,7 +16,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: 9
           run_install: |
             - recursive: true
               args: [--no-frozen-lockfile]
@@ -35,7 +35,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 8
+          version: 9
           run_install: |
             - recursive: true
               args: [--no-frozen-lockfile]
