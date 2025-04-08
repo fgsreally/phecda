@@ -1,5 +1,5 @@
 import fse from 'fs-extra'
-import type { Meta, MetaData } from '../meta'
+import type { Meta } from '../meta'
 export abstract class Generator {
   private _path: string
   constructor(
@@ -15,9 +15,9 @@ export abstract class Generator {
     return this._path || `.ps/${this.name.toLowerCase()}.js`
   }
 
-  abstract generateCode(meta: MetaData[]): string
+  abstract generateCode(meta: Meta[]): string
 
   async output(meta: Meta[]) {
-    await fse.outputFile(this.path, this.generateCode(meta.map(item => item.data)))
+    await fse.outputFile(this.path, this.generateCode(meta))
   }
 }
