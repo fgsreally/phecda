@@ -1,6 +1,6 @@
 import { CLEAR_KEY, get, getMeta, getMetaKey } from './core'
 import type { AbConstruct, Construct } from './types'
-import { Clear } from './decorators'
+import { Clear, Optional } from './decorators'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
@@ -139,4 +139,49 @@ export function omit<Class extends Construct, Key extends keyof InstanceType<Cla
   })
 
   return newClass
+}
+
+export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Partial<Pick<InstanceType<Class>, Key>> & Omit<InstanceType<Class>, Key>> {
+  const newClass = class extends classFn {
+
+  } as any
+
+  getMetaKey(classFn).forEach((k) => {
+    if (properties.includes(k as any))
+      addDecoToClass(newClass, k, Optional)
+  })
+
+  return newClass
+}
+
+// @todo
+// export function pick<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
+//   const newClass = class {
+//     constructor(...args: any) {
+//       // eslint-disable-next-line new-cap
+//       const instance = new classFn(...args)
+
+//       properties.forEach((k: any) => {
+//         (this as any)[k] = instance[k]
+//       })
+//     }
+//   } as any
+
+//   getMetaKey(classFn).forEach((k) => {
+//     if (properties.includes(k as any) || k === SHARE_KEY) {
+
+//       setMeta(newClass, k, undefined, {
+//         [CLEAR_KEY]: true,
+//       })
+
+//     }
+//   })
+
+//   return newClass
+// }
+
+// just type trick
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function override<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
+  return classFn as any
 }
