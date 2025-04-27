@@ -2,4 +2,4 @@
 "phecda-server": minor
 ---
 
-refactor generateCode on Generator
+change `generateCode` parameters on Generator

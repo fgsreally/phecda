@@ -39,7 +39,6 @@ export class RPCGenerator extends Generator {
     //   if (i.controller === 'rpc')
     //     this.addMethod(i as ControllerMetaData)
     // }
-
     meta.forEach(({ data }) => {
       if (data.controller === 'rpc')
         this.addMethod(data as ControllerMetaData)

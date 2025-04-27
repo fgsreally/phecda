@@ -5,8 +5,22 @@ export function adaptor(instance?: AxiosInstance): HttpAdaptor {
     let controller: AbortController
 
     return {
-      send: async ({ url, method, body, query, headers }: RequestArg) => {
+      send: async ({ url, method, body, query, headers, file, files }: RequestArg) => {
         const { default: axios } = await import('axios')
+
+        if (file) {
+          const formData = new FormData()
+          formData.append('file', file)
+          body = formData
+        }
+
+        if (files) {
+          const formData = new FormData()
+          files.forEach((file: any) => {
+            formData.append('files', file)
+          })
+          body = formData
+        }
 
         controller = new AbortController()
         const { signal } = controller
