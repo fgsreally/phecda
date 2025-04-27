@@ -11,7 +11,7 @@ describe(' generater', () => {
       }
     }
     const { meta } = await Factory([A])
-    const code = new HTTPGenerator('').generateCode(meta.map(item => item.data))
+    const code = new HTTPGenerator('').generateCode(meta)
     expect(code).toMatchSnapshot()
   })
 
@@ -24,7 +24,7 @@ describe(' generater', () => {
       }
     }
     const { meta } = await Factory([A])
-    const code = new RPCGenerator('').generateCode(meta.map(item => item.data))
+    const code = new RPCGenerator('').generateCode(meta)
     expect(code).toMatchSnapshot()
   })
 })

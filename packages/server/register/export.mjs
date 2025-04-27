@@ -27,4 +27,4 @@ export default ['Addon', 'Arg', 'Assign', 'BadGatewayException', 'BadRequestExce
   'setInject',
   'setLogger',
   'setMeta',
-  'useS', 'wait']
+  'useS', 'wait', 'OneFile', 'ManyFiles']

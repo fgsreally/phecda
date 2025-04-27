@@ -1,5 +1,5 @@
 import { joinUrl } from '../helper'
-import type { ControllerMetaData, MetaData } from '../meta'
+import type { ControllerMetaData, Meta } from '../meta'
 import { Generator } from './utils'
 
 export class HTTPGenerator extends Generator {
@@ -37,11 +37,11 @@ return ret
     `
   }
 
-  generateCode(meta: MetaData[]): string {
-    for (const i of meta) {
-      if (i.controller === 'http')
-        this.addMethod(i as ControllerMetaData)
-    }
+  generateCode(meta: Meta[]): string {
+    meta.forEach(({ data }) => {
+      if (data.controller === 'http')
+        this.addMethod(data as ControllerMetaData)
+    })
     return this.getContent()
   }
 }

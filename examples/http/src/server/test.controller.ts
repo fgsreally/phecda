@@ -1,4 +1,5 @@
 import { log } from './utils' with { ps: 'not-hmr'}
+
 export class User {
   name: string
 
@@ -43,11 +44,8 @@ export class TestController extends HttpBase {
   }
 
   @Get('framework')
-
   @Guard('E')
-
   @Guard('C')
-
   async framework() {
     log('framework')
     this.service.test()
@@ -57,7 +55,48 @@ export class TestController extends HttpBase {
   customResponse() {
     return new CustomResponse()
   }
+
+  // @Post('upload/:id')
+  // @Guard('file')
+  // async uploadFile(@Param('id') id: string, @OneFile() file: File) {
+  //   const uploadDir = resolve(process.cwd(), 'uploads')
+
+  //   // 确保上传目录存在
+  //   try {
+  //     await fs.access(uploadDir)
+  //   }
+  //   catch {
+  //     await fs.mkdir(uploadDir, { recursive: true })
+  //   }
+
+  //   // 写入文件
+  //   const filePath = resolve(uploadDir, file.name)
+  //   await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()))
+
+  //   return { id, path: filePath }
+  // }
+
+  // @Post('uploadFiles/:id')
+  // @Guard('files')
+  // async uploadFiles(@Param('id') id: string, @ManyFiles() files: File[]) {
+  //   const uploadDir = resolve(process.cwd(), 'uploads')
+
+  //   // 确保上传目录存在
+  //   try {
+  //     await fs.access(uploadDir)
+  //   }
+  //   catch {
+  //     await fs.mkdir(uploadDir, { recursive: true })
+  //   }
+
+  //   // 写入文件
+
+  //   files.forEach(async (file) => {
+  //     const filePath = resolve(uploadDir, file.name)
+  //     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()))
+  //   })
+
+  //   return { id }
+  // }
 }
 // hmr works
-
-export const x = 1

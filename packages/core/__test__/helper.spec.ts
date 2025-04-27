@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Empty, Expose, Tag, addDecoToClass, getMergedMeta, getMetaKey, getTag, isPhecda, omit, setMeta } from '../src'
+import { Empty, Expose, Required, Tag, addDecoToClass, getMergedMeta, getMetaKey, getTag, isPhecda, omit, partial, setMeta } from '../src'
 
 describe('helper', () => {
   it('isPhecda', async () => {
@@ -64,5 +64,19 @@ describe('helper', () => {
     expect(getMergedMeta(B, 'setName', 0).data === getMergedMeta(A, 'setName', 0).data).toBeTruthy()
     expect(getMergedMeta(B, 'name').data).toBeUndefined()
     expect((new B() as any).name).toBeUndefined()
+  })
+
+  it('Partial', () => {
+    class A {
+      @Required
+      name = 'A'
+    }
+
+    //
+
+    const B = partial(A, 'name')
+
+    expect(getMergedMeta(A, 'name').required).toBeTruthy()
+    expect(getMergedMeta(B, 'name').required).toBeFalsy()
   })
 })

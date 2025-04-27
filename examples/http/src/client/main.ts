@@ -35,6 +35,12 @@ async function runAxiosDemo() {
     appendResult('axios-results', '2️⃣ 调用 login 接口:',
       await client.$test.login({ name: 'p1', password: '123456' }))
 
+    // appendResult('axios-results', '3️⃣ 调用 upload 接口:',
+    //   await client.$test.uploadFile('1', new File(['test'], 'test.txt', { type: 'text/plain' })))
+
+    // appendResult('axios-results', '4️⃣ 调用 uploadFiles 接口:',
+    //   await client.$test.uploadFiles('1', [new File(['test1'], 'test1.txt', { type: 'text/plain' }), new File(['test2'], 'test2.txt', { type: 'text/plain' })]))
+
     const parallelClient = createClient(
       { $test: TestController },
       axiosAdaptor(instance),
@@ -86,6 +92,12 @@ async function runAlovaDemo() {
 
     appendResult('alova-results', '2️⃣ 调用 login 接口:',
       await client.$test.login({ name: 'p1', password: '123456' }))
+
+    // appendResult('alova-results', '3️⃣ 调用 upload 接口:',
+    //   await client.$test.uploadFile('2', new File(['test'], 'a_test.txt', { type: 'text/plain' })))
+
+    // appendResult('alova-results', '4️⃣ 调用 uploadFiles 接口:',
+    //   await client.$test.uploadFiles('2', [new File(['test1'], 'a_test1.txt', { type: 'text/plain' }), new File(['test2'], 'a_test2.txt', { type: 'text/plain' })]))
 
     const parallelClient = createClient(
       { $test: TestController },
