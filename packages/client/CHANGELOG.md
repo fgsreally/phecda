@@ -1,5 +1,11 @@
 # phecda-client
 
+## 3.0.0-alpha.5
+
+### Minor Changes
+
+- 05ddbe1: add OneFile and ManyFiles to server,support form-data in client
+
 ## 3.0.0-alpha.4
 
 ### Patch Changes

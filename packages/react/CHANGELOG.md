@@ -1,5 +1,11 @@
 # phecda-react
 
+## 2.0.2-alpha.3
+
+### Patch Changes
+
+- phecda-web@3.0.2-alpha.3
+
 ## 2.0.2-alpha.2
 
 ### Patch Changes
