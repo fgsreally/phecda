@@ -1,5 +1,12 @@
 # phecda-core
 
+## 4.1.0-alpha.3
+
+### Minor Changes
+
+- d8fdd4e: move rule decorator(only inject meta to class) from megrez-schema to phecda-core
+  add `partial`
+
 ## 4.1.0-alpha.2
 
 ### Minor Changes

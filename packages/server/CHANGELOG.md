@@ -1,5 +1,17 @@
 # phecda-server
 
+## 7.0.0-alpha.19
+
+### Minor Changes
+
+- 05ddbe1: add OneFile and ManyFiles to server,support form-data in client
+- f9796c6: change `generateCode` parameters on Generator
+
+### Patch Changes
+
+- Updated dependencies [d8fdd4e]
+  - phecda-core@4.1.0-alpha.3
+
 ## 7.0.0-alpha.18
 
 ### Patch Changes
