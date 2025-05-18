@@ -4,7 +4,7 @@
 不要太在意，用一下就知道了
 :::
 
-## phecda init
+## phecda-server init
 初始化`tsconfig.json`和`ps.json`，后者会被运行时读取，
 一个例子：
 ```json5
@@ -30,21 +30,17 @@
 }
 ```
 
-## phecda generate [file]
+## phecda-server generate [file]
 启动程序，使生成器生成代码，然后退出
 用于`ci/cd`
 
 
 
-## phecda [file]
+## phecda-server [file]
 启动程序，这是最常用的
 
 
 
-### 环境变量 
-1. `PS_STRICT` 如果设置，那么使用了未设置的守卫、拦截器等，会直接报错
-2. `PS_LOG_LEVEL`  `info/log/warning/error` 对应0到3，只有高于`PS_LOG_LEVEL`的信息才会被输出
-3. `NODE_ENV`为非`development`时，禁止热更新
 
 
 ### 交互命令

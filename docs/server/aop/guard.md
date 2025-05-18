@@ -19,10 +19,11 @@ class Auth extends PGuard<ExpressCtx> {
 
   use(ctx: ExpressCtx, next: NextFunction) {
 
-    const ret = await next()
-
-    return ret // 可以改写返回值，可以为空，可以不调用next（后两者不会修改响应逻辑）
-    // ...
+    const ret = await next()//将后续中间件处理后的值
+    //return 该中间件处理后的值，让前面的中间件处理
+    //和express中间件一样，一个接一个执行，如果你没有手动next，那么会在执行完后自动next
+    // 但如果在next之前返回了不为undefined的值，那么后面的守卫就不会执行了，直接返回给前端
+   
   }
 }
 
@@ -34,7 +35,12 @@ class TestController {
 }
 Factory([Auth, TestController])
 ```
+:::tip
 
+如果`Guard`放在方法上，就只对该接口起效
+
+如果放在类上，就是对该类的所有接口都起效，后续的`aop`模块同理
+:::
 ## 全局守卫
 ```ts
 bind(app, data, {

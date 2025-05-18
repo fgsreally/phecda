@@ -1,6 +1,6 @@
 # 打包
 
-如果需要打包，可以使用`unplugin-phecda-server`（目前只测试过`vite`）
+如果需要打包，可以使用[unplugin-phecda-server](https://github.com/fgsreally/unplugin-phecda-server)（目前只测试过`vite`）
 
 我不太推崇这个行为，
 
@@ -13,7 +13,6 @@
 
 假设控制器类名原本为`TestController`，打包可能类名会变成`TestController2`,这会导致开发生产有较大区别
 
-两种解决方法：
-
-1. 对所有控制器使用`Tag`，强制命名
-2. 导出所有控制器，从而防止类名更改（不一定可行）
+:::tip 解决方法
+对所有控制器使用`Tag`，强制命名
+:::

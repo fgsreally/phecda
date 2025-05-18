@@ -41,4 +41,15 @@ class HttpBase extends ServerBase {
    context: Ctx
 }
 
+
+//使用案例
+@Controller('/user')
+class UserController extends HttpBase {
+
+  @Get('/')
+  async info() {
+   const {user}= this.context
+  }
+}
+
 ```

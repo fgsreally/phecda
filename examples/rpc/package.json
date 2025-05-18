@@ -25,7 +25,7 @@
     "rabbitmq": "^0.0.2"
   },
   "devDependencies": {
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.3",
     "unimport": "^3.7.1"
   }
 }

@@ -2,7 +2,9 @@
 
 提供与`http`体验一致的微服务
 
-目前支持`rabbitmq`/`redis`/`kafka`/`nats`/`bullmq`
+> 只能实现`一次输入-一次输出`这个模式
+
+目前支持`rabbitmq`/`redis`/`kafka`/`nats`/`bullmq`/`websocket`/`electron`
 
 ## 创建控制器
 
@@ -45,6 +47,9 @@ const data = await Factory([UserController], {
 
 
 
-## 适配器
+## 案例
+[electron](https://github.com/fgsreally/phecda/tree/main/examples/electron)
 
-案例[详见](https://github.com/fgsreally/phecda/tree/main/examples/server/src/rpc)
+[websocket](https://github.com/fgsreally/phecda/tree/main/examples/ws)
+
+[其他rpc](https://github.com/fgsreally/phecda/tree/main/examples/rpc)

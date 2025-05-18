@@ -6,18 +6,17 @@
   "exports": {
     "./client": {
       "import": "./.ps/http.js",
-      "types": "./src/module/controller.ts"
+      "types": "./src/modules/controller.d.ts"
     }
   },
   "scripts": {
-    "dev": "vite",
-    "express": "phecda src/express.ts",
-    "koa": "phecda src/koa.ts",
-    "h3": "phecda src/h3.ts",
-    "fastify": "phecda src/fastify.ts",
-    "hyper-express": "phecda src/hyper-express.ts",
-    "hono": "phecda src/hono.ts",
-    "elysia": "phecda src/elysia.ts",
+    "express": "phecda-serversrc/express.ts",
+    "koa": "phecda-serversrc/koa.ts",
+    "h3": "phecda-serversrc/h3.ts",
+    "fastify": "phecda-serversrc/fastify.ts",
+    "hyper-express": "phecda-serversrc/hyper-express.ts",
+    "hono": "phecda-serversrc/hono.ts",
+    "elysia": "phecda-serversrc/elysia.ts",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -46,8 +45,8 @@
     "@types/koa": "^2.13.12",
     "@types/koa__router": "^12.0.4",
     "@types/multer": "^1.4.12",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.3",
     "unimport": "^3.7.1",
-    "vite": "^6.0.7"
+    "vite": "^6.3.5"
   }
 }
