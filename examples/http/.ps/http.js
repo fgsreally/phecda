@@ -26,26 +26,4 @@ const ret={tag:"TestController",func:"framework",body:{},headers:{},query:{},par
 return ret
     }
     
-    uploadFile(...args){
-const ret={tag:"TestController",func:"uploadFile",body:{},headers:{},query:{},params:{},method:"post",url:"/base/upload/{{id}}"}
-
-ret.params['id']=args[0]
-ret.url=ret.url.replace('{{id}}',args[0])
-ret.file=args[1]
-
-
-return ret
-    }
-    
-    uploadFiles(...args){
-const ret={tag:"TestController",func:"uploadFiles",body:{},headers:{},query:{},params:{},method:"post",url:"/base/uploadFiles/{{id}}"}
-
-ret.params['id']=args[0]
-ret.url=ret.url.replace('{{id}}',args[0])
-ret.files=args[1]
-
-
-return ret
-    }
-    
             }

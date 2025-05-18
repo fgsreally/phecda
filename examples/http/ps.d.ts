@@ -67,10 +67,6 @@ declare global {
   const ServiceUnavailableException: typeof import('phecda-server')['ServiceUnavailableException']
   const Storage: typeof import('phecda-server')['Storage']
   const Tag: typeof import('phecda-server')['Tag']
-  const TestController: typeof import('./src/server/test.controller')['TestController']
-  type TestController = InstanceType<typeof import('./src/server/test.controller')['TestController']>
-  const TestService: typeof import('./src/server/test.service')['TestService']
-  type TestService = InstanceType<typeof import('./src/server/test.service')['TestService']>
   const TimeoutException: typeof import('phecda-server')['TimeoutException']
   const TimerException: typeof import('phecda-server')['TimerException']
   const UnauthorizedException: typeof import('phecda-server')['UnauthorizedException']
@@ -78,7 +74,6 @@ declare global {
   const Unique: typeof import('phecda-server')['Unique']
   const Unmount: typeof import('phecda-server')['Unmount']
   const UnsupportedMediaTypeException: typeof import('phecda-server')['UnsupportedMediaTypeException']
-  const User: typeof import('./src/server/test.controller')['User']
   const ValidateException: typeof import('phecda-server')['ValidateException']
   const Watcher: typeof import('phecda-server')['Watcher']
   const WorkerException: typeof import('phecda-server')['WorkerException']
@@ -105,14 +100,4 @@ declare global {
   const setMeta: typeof import('phecda-server')['setMeta']
   const useS: typeof import('phecda-server')['useS']
   const wait: typeof import('phecda-server')['wait']
-  const x: typeof import('./src/server/test.controller')['x']
-}
-// for type re-export
-declare global {
-  // @ts-ignore
-  export type { User, TestController } from './src/server/test.controller'
-  import('./src/server/test.controller')
-  // @ts-ignore
-  export type { TestService } from './src/server/test.service'
-  import('./src/server/test.service')
 }
