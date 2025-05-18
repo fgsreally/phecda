@@ -140,7 +140,7 @@ export default defineConfig({
           ],
         },
         {
-          text: "功能",
+          text: '功能',
           items: [
             {
               text: '依赖注入',
@@ -186,6 +186,10 @@ export default defineConfig({
               link: '/server/advance/hmr',
             },
             {
+              text: 'OpenAPI/Swagger',
+              link: '/server/advance/openapi',
+            },
+            {
               text: '自定义功能',
               link: '/server/advance/custom',
             },
@@ -202,10 +206,10 @@ export default defineConfig({
               text: '微服务',
               link: '/server/rpc/rpc',
             },
-          ]
+          ],
         },
         {
-          text: "构建",
+          text: '构建',
           items: [
             {
               text: '库模块',
@@ -218,12 +222,12 @@ export default defineConfig({
             {
               text: '打包',
               link: '/server/build/bundle',
-            }
+            },
 
           ],
         },
         {
-          text: "运行时",
+          text: '运行时',
           items: [
             {
               text: '命令行',
@@ -250,16 +254,13 @@ export default defineConfig({
               text: '一些问题',
               link: '/server/must-know/problem',
             },
-          ]
+          ],
         },
-
-
 
         {
           text: '其他',
           collapsed: true,
           items: [
-
 
             {
               text: 'bun/deno',
@@ -269,8 +270,6 @@ export default defineConfig({
               text: '类型杂技',
               link: '/server/other/types',
             },
-
-
 
           ],
         },

@@ -90,45 +90,6 @@ export class ServerPhecda {
       this.generateCode()
     })
   }
-  // async add(Model: Construct) {
-  //   const tag = getTag(Model)
-
-  //   const oldInstance = await this.del(tag)
-  //   const { module: newModule } = await this.buildDepModule(Model)
-
-  //   if (oldInstance && this.dependenceGraph.has(tag)) {
-  //     debug(`replace module "${String(tag)}"`);
-
-  //     [...this.dependenceGraph.get(tag)!].forEach((tag) => {
-  //       const module = this.moduleMap.get(tag)
-  //       for (const key in module) {
-  //         if (module[key] === oldInstance)
-  //           module[key] = newModule
-  //       }
-  //     })
-  //   }
-  // }
-
-  // async del(modelOrTag: Construct | PropertyKey) {
-  //   const tag = typeof modelOrTag === 'function' ? getTag(modelOrTag) : modelOrTag
-
-  //   if (!this.moduleMap.has(tag))
-  //     return
-
-  //   const module = this.moduleMap.get(tag)
-
-  //   debug(`unmount module "${String(tag)}"`)
-  //   await invokeUnmount(module)
-  //   debug(`del module "${String(tag)}"`)
-
-  //   this.moduleMap.delete(tag)
-  //   this.modelMap.delete(module)
-  //   for (let i = this.meta.length - 1; i >= 0; i--) {
-  //     if (this.meta[i].data.tag === tag)
-  //       this.meta.splice(i, 1)
-  //   }
-  //   return module
-  // }
 
   async destroy() {
     debug('destroy all')
@@ -271,6 +232,10 @@ export class ServerPhecda {
     if (!this.has(tag))
       throw new Error(`module "${tag.toString()}" doesn't exist`)
     return this.moduleMap.get(tag)
+  }
+
+  getModel(tag: PropertyKey) {
+    return this.modelMap.get(this.get(tag))
   }
 }
 

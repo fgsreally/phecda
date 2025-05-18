@@ -15,9 +15,7 @@
   "exports": {
     ".": {
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "node": "./dist/index.js"
-    },
+      "import": "./dist/index.mjs"    },
     "./helper": {
       "require": "./dist/helper.js",
       "import": "./dist/helper.mjs"
