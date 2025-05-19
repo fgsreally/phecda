@@ -18,6 +18,5 @@
     "axios": "^1.7.9",
     "phecda-client": "workspace:*",
     "example-http": "workspace:*"
-
   }
 }

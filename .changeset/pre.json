@@ -17,7 +17,8 @@
     "example-electron": "1.0.0",
     "example-http": "0.0.4",
     "example-rpc": "0.0.4",
-    "example-ws": "0.0.4"
+    "example-ws": "0.0.4",
+    "example-client": "1.0.0"
   },
   "changesets": [
     "angry-dingos-repair",
@@ -25,6 +26,7 @@
     "big-ways-peel",
     "brave-points-tease",
     "calm-carpets-fetch",
+    "chatty-dolls-speak",
     "cold-horses-play",
     "cool-spoons-develop",
     "cuddly-ways-dress",
