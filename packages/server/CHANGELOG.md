@@ -1,5 +1,11 @@
 # phecda-server
 
+## 7.0.0-alpha.20
+
+### Minor Changes
+
+- e79d167: add `ApiDoc/OpenAPIGenerator` to support openapi
+
 ## 7.0.0-alpha.19
 
 ### Minor Changes
