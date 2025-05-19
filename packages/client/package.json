@@ -1,36 +1,91 @@
 {
   "name": "phecda-client",
-  "version": "2.1.1",
-  "description": "client that use axios/type safe/connect to phecda-server",
+  "version": "3.0.0-alpha.4",
+  "description": "client that connect http framework in phecda-server",
   "author": "fgsreally",
   "license": "MIT",
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/client",
   "keywords": [
     "phecda",
     "axios",
-    "types-share",
+    "type-safe",
     "phecda-server"
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
       "import": "./dist/index.mjs"
     },
     "./unplugin": {
+      "types": "./dist/unplugin.d.ts",
       "require": "./dist/unplugin.js",
       "import": "./dist/unplugin.mjs"
+    },
+    "./http": {
+      "types": "./dist/http/index.d.ts",
+      "require": "./dist/http/index.js",
+      "import": "./dist/http/index.mjs"
+    },
+    "./rpc": {
+      "types": "./dist/rpc/index.d.ts",
+      "require": "./dist/rpc/index.js",
+      "import": "./dist/rpc/index.mjs"
+    },
+    "./axios": {
+      "types": "./dist/http/axios.d.ts",
+      "require": "./dist/http/axios.js",
+      "import": "./dist/http/axios.mjs"
+    },
+    "./alova": {
+      "types": "./dist/http/alova.d.ts",
+      "require": "./dist/http/alova.js",
+      "import": "./dist/http/alova.mjs"
+    },
+    "./bullmq": {
+      "types": "./dist/rpc/bullmq.d.ts",
+      "require": "./dist/rpc/bullmq.js",
+      "import": "./dist/rpc/bullmq.mjs"
+    },
+    "./electron": {
+      "types": "./dist/rpc/electron.d.ts",
+      "require": "./dist/rpc/electron.js",
+      "import": "./dist/rpc/electron.mjs"
+    },
+    "./kafka": {
+      "types": "./dist/rpc/kafka.d.ts",
+      "require": "./dist/rpc/kafka.js",
+      "import": "./dist/rpc/kafka.mjs"
+    },
+    "./nats": {
+      "types": "./dist/rpc/nats.d.ts",
+      "require": "./dist/rpc/nats.js",
+      "import": "./dist/rpc/nats.mjs"
+    },
+    "./rabbitmq": {
+      "types": "./dist/rpc/rabbitmq.d.ts",
+      "require": "./dist/rpc/rabbitmq.js",
+      "import": "./dist/rpc/rabbitmq.mjs"
+    },
+    "./redis": {
+      "types": "./dist/rpc/redis.d.ts",
+      "require": "./dist/rpc/redis.js",
+      "import": "./dist/rpc/redis.mjs"
+    },
+    "./ws": {
+      "types": "./dist/rpc/ws.d.ts",
+      "require": "./dist/rpc/ws.js",
+      "import": "./dist/rpc/ws.mjs"
+    },
+    "./web-ext": {
+      "types": "./dist/rpc/web-ext.d.ts",
+      "require": "./dist/rpc/web-ext.js",
+      "import": "./dist/rpc/web-ext.mjs"
     }
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "unplugin": [
-        "dist/unplugin.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist"
   ],
@@ -39,11 +94,20 @@
     "build": "tsup"
   },
   "dependencies": {
-    "axios": "^1.3.5",
-    "unplugin": "^1.3.1"
+    "@types/chrome": "^0.0.309",
+    "eventemitter3": "^5.0.1",
+    "nanoid": "^5.0.9",
+    "unplugin": "^2.1.2"
   },
   "devDependencies": {
-    "phecda-server": "workspace:*",
+    "@types/amqplib": "^0.10.1",
+    "alova": "^3.2.7",
+    "amqplib": "^0.10.3",
+    "axios": "^1.3.5",
+    "bullmq": "^5.7.1",
+    "ioredis": "^5.3.2",
+    "kafkajs": "^2.2.4",
+    "nats": "^2.22.0",
     "tsup": "^8.1.0"
   }
 }

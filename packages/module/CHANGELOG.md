@@ -1,5 +1,26 @@
 # phecda-module
 
+## 2.0.2-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [4d5cc84]
+  - phecda-core@4.1.0-alpha.2
+
+## 2.0.2-alpha.1
+
+### Patch Changes
+
+- Updated dependencies [dd27622]
+  - phecda-core@4.1.0-alpha.1
+
+## 2.0.2-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [c1b7d65]
+  - phecda-core@4.1.0-alpha.0
+
 ## 2.0.1
 
 ### Patch Changes

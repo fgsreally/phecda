@@ -1,18 +1,23 @@
 import { Base } from 'phecda-core'
-import type { HttpContext } from '../server/types'
-import type { RpcContext } from '../rpc/types'
+import { type LogLevel, log } from '../../src/utils'
+import type { HttpCtx } from '../http/types'
+import type { RpcCtx } from '../rpc/types'
 import { Ctx } from '../decorators'
 import { emitter } from '../core'
 
 export class ServerBase extends Base {
   emitter = emitter
+
+  log(msg: unknown, level: LogLevel = 'log') {
+    log(msg, level, this.tag)
+  }
 }
 
-export class HttpBase extends ServerBase {
+export class HttpBase<Ctx extends HttpCtx = HttpCtx> extends ServerBase {
   @Ctx
-  context: HttpContext
+  context: Ctx
 }
-export class RpcBase extends ServerBase {
+export class RpcBase<Ctx extends RpcCtx = RpcCtx> extends ServerBase {
   @Ctx
-  context: RpcContext
+  context: Ctx
 }

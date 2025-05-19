@@ -3,20 +3,20 @@ import type { ConsumeMessage } from 'amqplib'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context } from '../../context'
-import type { RpcContext, RpcServerOptions } from '../types'
+import type { RpcCtx, RpcServerOptions } from '../types'
 import { HMR } from '../../hmr'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/rabbitmq')
 
-export interface RabbitmqCtx extends RpcContext {
+export interface RabbitmqCtx extends RpcCtx {
   type: 'rabbitmq'
   ch: amqplib.Channel
   msg: amqplib.ConsumeMessage
 }
 
 export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
-  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
+  const { globalGuards, globalFilter, globalPipe, globalAddons = [], defaultQueue } = opts
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
     const { controller, rpc, func, tag } = meta.data
@@ -28,10 +28,11 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
 
   detectAopDep(meta, {
     guards: globalGuards,
-    interceptors: globalInterceptors,
+    addons: globalAddons,
   }, 'rpc')
   const existQueue = new Set<string>()
 
+  Context.applyAddons(globalAddons, ch, 'rabbitmq')
   async function subscribeQueues() {
     existQueue.clear()
     for (const [tag, record] of metaMap) {
@@ -43,7 +44,7 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
           },
         } = meta
         if (rpc) {
-          const queue = rpc.queue || tag
+          const queue = rpc.queue || defaultQueue || tag
           if (existQueue.has(queue))
             continue
           existQueue.add(queue)
@@ -72,9 +73,14 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
       const {
         data: { rpc: { isEvent } = {} },
       } = meta
-
+      const aop = Context.getAop(meta, {
+        globalFilter,
+        globalGuards,
+        globalPipe,
+      })
       const context = new Context<RabbitmqCtx>({
         type: 'rabbitmq',
+        category: 'rpc',
         moduleMap,
         meta,
         tag,
@@ -86,12 +92,11 @@ export async function bind(ch: amqplib.Channel, { moduleMap, meta }: Awaited<Ret
         isEvent,
         queue: msg.fields.routingKey,
       })
-      await context.run({ globalGuards, globalInterceptors, globalFilter, globalPipe }, (returnData) => {
+      await context.run(aop, (returnData) => {
         if (!isEvent)
           send(clientQueue, { data: returnData, id })
       }, (err) => {
         if (!isEvent)
-
           send(clientQueue, { data: err, id, error: true })
       })
     }

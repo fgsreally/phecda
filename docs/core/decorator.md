@@ -1,8 +1,8 @@
 # 核心装饰器
 分为两种，
 
-一种是本身已完成的
-一种是未完成的，需要后续去实现
+一种是`phecda-core`已实现的
+一种是未实现的，需要其他包去实现
 
 ## 完成的
 
@@ -19,15 +19,14 @@ declare function Clear(proto: any, key: PropertyKey): void
 declare function Expose(proto: any, key: PropertyKey): void
 // 转化成`Phecda`类，但除此之外不干任何事
 declare function Empty(module: any): void
-// 带功能的
-// 意味着该class的实例不是单例的
+// 意味着该class的实例不是单例的，每次都会创建一个新的实例
 declare function Isolate(target: any): void
-// 打标记
+// 打上唯一标识
 declare function Tag(tag: PropertyKey): (module: any) => void
 declare function Unique(desc?: string): (module: any) => void
 // 类似Object.assign
 declare function Assign(cb: (instance?: any) => any): (module: any) => void
-// 绑定到全局
+// 绑定到全局 globalThis.__PHECDA__[tag] (tag 是 getTag 的返回值)
 declare function Global(module: any): void
 
 // 错误处理

@@ -2,13 +2,13 @@ import type Redis from 'ioredis'
 import Debug from 'debug'
 import type { Factory } from '../../core'
 import { Context } from '../../context'
-import type { RpcContext, RpcServerOptions } from '../types'
+import type { RpcCtx, RpcServerOptions } from '../types'
 import { HMR } from '../../hmr'
 import { createControllerMetaMap, detectAopDep } from '../../helper'
 
 const debug = Debug('phecda-server/redis')
 
-export interface RedisCtx extends RpcContext {
+export interface RedisCtx extends RpcCtx {
   type: 'redis'
   redis: Redis
   msg: string
@@ -17,7 +17,7 @@ export interface RedisCtx extends RpcContext {
 }
 
 export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
-  const { globalGuards, globalInterceptors, globalFilter, globalPipe } = opts
+  const { globalGuards, globalFilter, globalPipe, globalAddons = [], defaultQueue } = opts
   const metaMap = createControllerMetaMap(meta, (meta) => {
     const { controller, rpc, func, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
@@ -28,11 +28,12 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
 
   detectAopDep(meta, {
     guards: globalGuards,
-    interceptors: globalInterceptors,
+    addons: globalAddons,
   }, 'rpc')
 
   const existQueue = new Set<string>()
 
+  Context.applyAddons(globalAddons, { pub, sub }, 'redis')
   async function subscribeQueues() {
     existQueue.clear()
 
@@ -45,7 +46,7 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
           },
         } = meta
         if (rpc) {
-          const queue = rpc.queue || tag
+          const queue = rpc.queue || defaultQueue || tag
 
           if (existQueue.has(queue))
             continue
@@ -73,8 +74,14 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
         data: { rpc: { isEvent } = {} },
       } = meta
 
+      const aop = Context.getAop(meta, {
+        globalFilter,
+        globalGuards,
+        globalPipe,
+      })
       const context = new Context(<RedisCtx>{
         type: 'redis',
+        category: 'rpc',
         moduleMap,
         redis: sub,
         meta,
@@ -88,9 +95,7 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
         queue: channel,
 
       })
-      await context.run({
-        globalGuards, globalInterceptors, globalFilter, globalPipe,
-      }, (returnData) => {
+      await context.run(aop, (returnData) => {
         if (!isEvent)
           pub.publish(clientQueue, JSON.stringify({ data: returnData, id }))
       }, (err) => {

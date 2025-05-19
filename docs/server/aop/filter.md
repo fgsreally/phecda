@@ -4,7 +4,7 @@
 
 
 ```ts
-import { Controller, PFilter } from 'phecda-server'
+import { Controller, PFilter,type BaseError } from 'phecda-server'
 import type { ExpressCtx } from 'phecda-server/express'
 
 @Tag('Log')
@@ -13,9 +13,9 @@ class Log extends PFilter<ExpressCtx> {
     super('Log')// 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
   }
 
-  // eslint-disable-next-line n/handle-callback-err
-  use(err: Error | Exception, ctx: ExpressCtx) {
+  use(err: Error | Exception, ctx: ExpressCtx): BaseError {
     // ...
+    // return 返回给前端的错误数据体
   }
 }
 // in main.ts
@@ -39,7 +39,7 @@ import { BadRequestException, Filter } from 'phecda-server'
 class TestController {
   @Post()
   test4(@Query() name: number) {
-    throw new BadRequestException('error!!')
+    throw new BadRequestException('error!!')//更多的错误种类可以查看源码exception文件夹，也可以自行定义
   }
 }
 ```
@@ -51,6 +51,6 @@ class TestController {
   "message": "error!!",
   "description": "Bad Request",
   "status": 400,
-  "PS_ERROR": true
+  "__PS_ERROR__": true
 }
 ```

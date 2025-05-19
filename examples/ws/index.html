@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phecda Client WS Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .demo-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-title {
+      font-size: 1.5em;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .result-item {
+      background: #f8f9fa;
+      border-left: 4px solid #007bff;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .error {
+      border-left-color: #dc3545;
+      color: #dc3545;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Phecda Client WS Demo</h1>
+  <div id="app">
+    <div id="ws-demo" class="demo-section">
+      <h2 class="demo-title">🚀 WS Demo</h2>
+      <div id="ws-results"></div>
+    </div>
+
+  </div>
+  <script type="module" src="/src/client/main.ts"></script>
+</body>
+
+</html>

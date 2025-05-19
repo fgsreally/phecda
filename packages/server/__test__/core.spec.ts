@@ -1,8 +1,8 @@
+import { isProxy } from 'node:util/types'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { Ctx, Factory, Init, Injectable, Tag } from '../src'
 import { Body, Controller, Define, Get, Guard, Header, Pipe, Post, Query } from '../src/decorators'
 import type { Meta } from '../src/meta'
-
 describe('Factory ', () => {
   it('Factory will create instance and collect metadata', async () => {
     @Controller('/base')
@@ -97,7 +97,7 @@ describe('Factory ', () => {
   it('Factory will handle init events correctly', async () => {
     const fn = vi.fn((str: string) => str)
 
-    function wait(timeout = 1000) {
+    function wait(timeout = 50) {
       return new Promise<void>((resolve) => {
         setTimeout(resolve, timeout)
       })
@@ -166,5 +166,37 @@ describe('Factory ', () => {
     const { meta } = await Factory([A, B, C])
     const data = meta.map(item => item.data)
     expect(data).toMatchSnapshot()
+  })
+
+  it('cicular dependence', async () => {
+    @Tag('B')
+    class MockB {
+
+    }
+    @Injectable()
+    class A {
+      constructor(
+        protected dep: MockB,
+      ) { }
+    }
+    @Injectable()
+
+    class B {
+      constructor(
+        protected dep: A,
+
+      ) { }
+    }
+
+    const { moduleMap } = await Factory([B])
+    const a = moduleMap.get('A')
+    const b = moduleMap.get('B')
+    expect(isProxy(a.dep)).toBe(true)
+
+    a.dep.test = 1
+
+    expect(b.test).toBe(1)
+    b.test = 2
+    expect(a.dep.test).toBe(2)
   })
 })

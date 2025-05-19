@@ -1,5 +1,6 @@
 import { CLEAR_KEY, get, getMeta, getMetaKey } from './core'
 import type { AbConstruct, Construct } from './types'
+import { Clear, Optional } from './decorators'
 
 export function getTag<M extends Construct | AbConstruct>(moduleOrInstance: M | InstanceType<M>): PropertyKey {
   if (typeof moduleOrInstance === 'object')
@@ -31,6 +32,13 @@ export function invoke(instance: any, key: string, ...params: any) {
   return Promise.allSettled(metaKeys.map((k) => {
     return getMeta(instance, k)
   }).flat().filter((item: any) => typeof item[key] === 'function').map((item: any) => item[key](instance, ...params)))
+    .then((res) => {
+      res.filter(item => item.status === 'rejected').forEach((item) => {
+        console.error(item.reason)
+      })
+
+      return res
+    })
 }
 
 export function invokeInit(instance: any) {
@@ -96,4 +104,84 @@ function defaultMerger(prev: any, cur: any) {
 
 export function wait(...instances: InstanceType<Construct>[]) {
   return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
+}
+
+export function objectToClass<Obj extends Record<string, any>>(obj: Obj): new () => Obj {
+  return class {
+    constructor() {
+      Object.assign(this, obj)
+    }
+  } as any
+}
+
+export function functionToClass<Func extends (...args: any) => object>(fn: Func): new (...args: Parameters<Func>) => ReturnType<Func> {
+  return class {
+    prototype: object
+    constructor(...args: any) {
+      Object.setPrototypeOf(this, fn(...args))
+    }
+  } as any
+}
+
+export function omit<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
+  const newClass = class extends classFn {
+    constructor(...args: any) {
+      super(...args)
+      properties.forEach((k: any) => {
+        delete this[k]
+      })
+    }
+  } as any
+
+  getMetaKey(classFn).forEach((k) => {
+    if (properties.includes(k as any))
+      addDecoToClass(newClass, k, Clear)
+  })
+
+  return newClass
+}
+
+export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Partial<Pick<InstanceType<Class>, Key>> & Omit<InstanceType<Class>, Key>> {
+  const newClass = class extends classFn {
+
+  } as any
+
+  getMetaKey(classFn).forEach((k) => {
+    if (properties.includes(k as any))
+      addDecoToClass(newClass, k, Optional)
+  })
+
+  return newClass
+}
+
+// @todo
+// export function pick<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
+//   const newClass = class {
+//     constructor(...args: any) {
+//       // eslint-disable-next-line new-cap
+//       const instance = new classFn(...args)
+
+//       properties.forEach((k: any) => {
+//         (this as any)[k] = instance[k]
+//       })
+//     }
+//   } as any
+
+//   getMetaKey(classFn).forEach((k) => {
+//     if (properties.includes(k as any) || k === SHARE_KEY) {
+
+//       setMeta(newClass, k, undefined, {
+//         [CLEAR_KEY]: true,
+//       })
+
+//     }
+//   })
+
+//   return newClass
+// }
+
+// just type trick
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function override<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
+  return classFn as any
 }

@@ -7,7 +7,7 @@
 
 `phecda-server`会开放一条路由，用于合并请求,和`trpc`类似
 
-这个功能存在[局限](./limit.md#只支持-json-格式的上传返回)
+同样存在[限制](../must-know/limit.md#只支持-json-格式的上传返回)
 
 
 
@@ -24,10 +24,13 @@ bind(app, data, {
 ## 调用方
 
 ```ts
-const chain = createChainReq(
-  instance,
-  { test: UserController },
-  { batch: true }
+const chain = createClient(
+  { user: UserController },
+  adaptor,
+  {
+    batch:true,
+    parallelRoute: '/__PHECDA_SERVER__'
+  }
 )
 ```
 

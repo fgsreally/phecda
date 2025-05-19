@@ -1,19 +1,23 @@
 #! /usr/bin/env node
 import { fork } from 'child_process'
 import { createRequire } from 'module'
-import { fileURLToPath } from 'url'
-
-import { dirname, join, resolve } from 'path'
 import pc from 'picocolors'
 import cac from 'cac'
 import fse from 'fs-extra'
-import { log } from '../dist/index.mjs'
+import { log as psLog } from '../dist/index.mjs'
+
+const log = (...args) => {
+  if (process.env.PS_BAN_CLI_LOG)
+    return
+
+  psLog(...args)
+}
 
 const cli = cac('phecda').option('-c,--config <config>', 'config file', {
   default: 'ps.json',
+}).option('-n,--node-args <node-args>', 'args that will be passed to nodejs', {
+  default: '',
 })
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const require = createRequire(import.meta.url)
 let child
@@ -29,28 +33,25 @@ if (nodeVersion < 18.19) {
 }
 
 function startChild(file, args) {
-  child = fork(file, {
-    env: { NODE_ENV: 'development', ...process.env },
+  child = globalThis.PS_CREATE_CHILD?.() || fork(file, {
+    env: { ...process.env },
     stdio: 'inherit',
     execArgv: [
+      ...args,
       nodeVersion < 18.19
         ? '--loader=phecda-server/register/loader.mjs'
         : '--import=phecda-server/register',
-      ...args,
     ],
   })
 
   closePromise = new Promise((resolve) => {
     child.once('exit', (code) => {
-      if (code === 4) {
-        log('only generate code')
-        process.exit(0)
-      }
-      if (code >= 2) {
-        // for relaunch
-        log('relaunch...')
+      if (code === 4171)
         startChild(file, args)
-      }
+
+      if (code === 4172)
+        return process.exit()
+
       child = undefined
 
       resolve()
@@ -75,30 +76,90 @@ process.on('SIGINT', () => {
 
 cli
   .command('init [root]', 'init config file')
-  .allowUnknownOptions()
+  // .allowUnknownOptions()
   .option('-t,--tsconfig <tsconfig>', 'init tsconfig file', {
     default: 'tsconfig.json',
   })
   .action(async (root, options) => {
-    if (!root)
-      root = ''
+    if (root)
+      process.chdir(root)
 
-    const tsconfigPath = join(root, options.tsconfig)
-    const psconfigPath = join(root, options.config)
+    let hasUnimport
+
+    try {
+      await import('unimport')
+      hasUnimport = true
+    }
+
+    catch (e) {
+      hasUnimport = false
+    }
+
+    const tsconfigPath = options.tsconfig
+    const psconfigPath = process.env.PS_CONFIG_FILE || options.config
 
     if (!fse.existsSync(tsconfigPath)) {
       log(`create ${tsconfigPath}`)
 
-      await fse.copyFile(
-        resolve(__dirname, '../assets/tsconfig.json'),
+      await fse.outputJSON(
         tsconfigPath,
+        {
+          compilerOptions: {
+            target: 'esnext',
+            useDefineForClassFields: false,
+            experimentalDecorators: true,
+            emitDecoratorMetadata: true,
+            module: 'esnext',
+            lib: ['esnext', 'DOM'],
+            paths: {
+
+            },
+            strictPropertyInitialization: false,
+            moduleResolution: 'bundler',
+            strict: true,
+            resolveJsonModule: true,
+            esModuleInterop: true,
+            noEmit: true,
+            noUnusedLocals: true,
+            noUnusedParameters: true,
+            noImplicitReturns: true,
+            skipLibCheck: true,
+          },
+          include: ['.', hasUnimport ? (process.env.PS_DTS_PATH || 'ps.d.ts') : undefined],
+        },
+
       )
     }
 
     if (!fse.existsSync(psconfigPath)) {
       log(`create ${psconfigPath}`)
 
-      await fse.copyFile(resolve(__dirname, '../assets/ps.json'), psconfigPath)
+      await fse.outputJSON(psconfigPath, {
+        $schema: './node_modules/phecda-server/assets/schema.json',
+        resolve: [
+          {
+            source: 'controller',
+            importer: 'http',
+            path: '.ps/http.js',
+          },
+          {
+            source: 'rpc',
+            importer: 'client',
+            path: '.ps/rpc.js',
+          },
+        ],
+        unimport: hasUnimport && {
+          dirs: [
+            '.',
+          ],
+          dirsScanOptions: {
+            filePatterns: [
+              '*.{service,controller,module,rpc,solo,guard,extension,pipe,filter,addon}.ts',
+            ],
+          },
+        },
+        moduleFile: [],
+      })
     }
 
     log('init finish')
@@ -107,18 +168,29 @@ cli
 cli
   .command('<file> [root]', 'run file')
   .alias('run')
-  .allowUnknownOptions()
-  .alias('run')
+  // .allowUnknownOptions()
+  .option('-p,--prod', 'prod mode', {
+    default: false,
+  })
   .action((file, root, options) => {
+    const nodeArgs = options.nodeArgs.split(' ').filter(Boolean)
+
     if (root)
-      process.env.PS_WORKDIR = root
-    process.env.PS_CONFIG_FILE = options.config
+      process.chdir(root)
+
+    if (options.prod)
+      process.env.NODE_ENV = 'production'
+    else
+      process.env.NODE_ENV = 'development'
+
+    process.env.PS_CONFIG_FILE = process.env.PS_CONFIG_FILE || options.config
 
     log('process start!')
 
-    startChild(file, options['--'])
+    startChild(file, nodeArgs)
     console.log(`${pc.green('->')} press ${pc.green('e')} to exit`)
     console.log(`${pc.green('->')} press ${pc.green('r')} to relaunch`)
+    console.log(`${pc.green('->')} press ${pc.green('c')} to clear terminal`)
 
     process.stdin.on('data', async (data) => {
       const input = data.toString().trim().toLocaleLowerCase()
@@ -128,28 +200,33 @@ cli
           if (closePromise)
             await closePromise
           log('relaunch...')
-          startChild(file, options['--'])
+          startChild(file, nodeArgs)
         }
         else {
           log('relaunch...')
 
-          startChild(file, options['--'])
+          startChild(file, nodeArgs)
         }
       }
       if (input === 'e')
         exit()
+
+      if (input === 'c')
+        console.clear()
     })
   })
 
 cli
   .command('generate <file> [root]', 'generate code(mainly for ci)')
-  .allowUnknownOptions()
+  // .allowUnknownOptions()
   .action((file, root, options) => {
+    const nodeArgs = options.nodeArgs.split(' ').filter(Boolean)
+
     if (root)
-      process.env.PS_WORKDIR = root
+      process.chdir(root)
     process.env.PS_GENERATE = 'true'
-    process.env.PS_CONFIG_FILE = options.config
-    startChild(file, options['--'])
+    process.env.PS_CONFIG_FILE = process.env.PS_CONFIG_FILE || options.config
+    startChild(file, nodeArgs)
   })
 
 cli.help()

@@ -3,11 +3,12 @@
 
   "parserOptions": {
     "emitDecoratorMetadata": true,
-    "experimentalDecorators":true
+    "experimentalDecorators": true
     // "tsconfigRootDir": "__dirname"
   },
   "rules": {
-    "@typescript-eslint/consistent-type-imports": "off"
+    "@typescript-eslint/consistent-type-imports": "off",
+    "@typescript-eslint/no-unsafe-declaration-merging": "off"
   }
 
 }

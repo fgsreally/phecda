@@ -1,0 +1,31 @@
+{
+  "name": "example-rpc",
+  "type": "module",
+  "version": "0.0.4",
+  "private": true,
+  "scripts": {
+    "redis": "phecda src/rpc/sub/redis.ts",
+    "rabbitmq": "phecda src/rpc/sub/rabbitmq.ts",
+    "bullmq": "phecda src/rpc/sub/bullmq.ts",
+    "nats": "phecda src/rpc/sub/nats.ts",
+    "kafka": "phecda src/rpc/sub/kafka.ts",
+    "client:kafka": " phecda src/rpc/pub/kafka.client.ts",
+    "client:redis": " phecda src/rpc/pub/redis.client.ts",
+    "client:rabbitmq": " phecda src/rpc/pub/rabbitmq.client.ts",
+    "client:bullmq": " phecda src/rpc/pub/bullmq.client.ts",
+    "client:nats": " phecda src/rpc/pub/nats.client.ts"
+  },
+  "dependencies": {
+    "bullmq": "^5.7.1",
+    "ioredis": "^5.3.2",
+    "kafkajs": "^2.2.4",
+    "nats": "^2.22.0",
+    "phecda-client": "workspace:^",
+    "phecda-server": "workspace:^",
+    "rabbitmq": "^0.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "unimport": "^3.7.1"
+  }
+}

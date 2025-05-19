@@ -65,6 +65,7 @@ declare class WebPhecda {// 不直接使用，根据不同的框架继承出不�
   // ssr
   serialize(): string
   load(str: string): void
+  // event-emitter
   emit<Key extends keyof InternalEvents>(type: Key, event?: InternalEvents[Key]): void
   on<Key extends keyof InternalEvents>(type: Key, handler: Handler<InternalEvents[Key]>): void
   on(type: '*', handler: WildcardHandler<InternalEvents>): void

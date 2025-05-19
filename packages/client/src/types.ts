@@ -1,4 +1,4 @@
-import type { OmitFunction } from 'phecda-server'
+export type Construct<T = any> = new (...args: any[]) => T
 
 export type Expand<T> = T extends (...args: infer A) => infer R
   ? (...args: Expand<A>) => Expand<R>
@@ -14,18 +14,32 @@ export type ExpandRecursively<T> = T extends (...args: infer A) => infer R
       : never
     : T
 
+export type OmitFunction<Instance> = Omit<Instance, PickFuncKeys<Instance>>
+
 export function toClass<T>(data: OmitFunction<T>) {
   return data as T
 }
 
-// export type ExcludeNever<T> = { [K in keyof T as T[K] extends never ? never : K]: T[K] }
-// export type PickJsonData<T> = ExcludeNever<T extends object | any[]
-//   ? {
-//       [K in keyof T]: T[K] extends ((...args: any[]) => any) | Symbol | undefined ? never : PickJsonData<T[K]>;
-//     }
-//   : T>
+type AnyFunction = (...args: any) => any
 
-// // exclude function/symbol/undefined in response obj,to make better type intelligence
-// export type AsyncReturnToJson<T> = ExcludeNever<{
-//   [Key in keyof T]: T[Key] extends (...args: any) => any ? (...args: Parameters<T[Key]>) => Promise<PickJsonData<Awaited<ReturnType<T[Key]>>>> : never
-// }>
+export type BaseReturn<T> = Awaited<T> extends { toJSON(): infer R } ? R : Awaited<T>
+export type HttpClientFn<Func extends AnyFunction> = (...p: Parameters<Func>) => Promise<BaseReturn<ReturnType<Func>>> & { send: () => void; abort: () => void }
+export type RpcClientFn<Func extends AnyFunction> = (...p: Parameters<Func>) => Promise<BaseReturn<ReturnType<Func>>> & { send: () => void }
+
+type PickFuncKeys<Type> = { [Key in keyof Type]: Type[Key] extends (...args: any) => any ? (ReturnType<Type[Key]> extends { _ps_response: any } ? never : Key) : never }[keyof Type]
+type PickFunc<Instance> = Pick<Instance, PickFuncKeys<Instance>>
+type ParseHttpInstance<Instance extends Record<string, AnyFunction>> = {
+  [Key in keyof Instance]: HttpClientFn<Instance[Key]>
+}
+
+export type HttpClientMap<ControllerMap extends Record<string, Construct>> = {
+  [Key in keyof ControllerMap]: ParseHttpInstance<PickFunc<InstanceType<ControllerMap[Key]>>>
+}
+
+type ParseRpcInstance<Instance extends Record<string, AnyFunction>> = {
+  [Key in keyof Instance]: RpcClientFn<Instance[Key]>
+}
+
+export type RpcClientMap<ControllerMap extends Record<string, Construct>> = {
+  [Key in keyof ControllerMap]: ParseRpcInstance<PickFunc<InstanceType<ControllerMap[Key]>>>
+}

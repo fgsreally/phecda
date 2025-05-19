@@ -6,7 +6,7 @@
 // @Isolate 如果设置了，那么就不再是单例，每次useR都会产生新的实例，用于弹窗等功能
 class Home {
    name: string
-   constructor(protected about: About/** 依赖注入 */) {
+   constructor(protected about: About/** 如果使用了ts元数据 依赖注入 */) {
      this.about = getR(About)// 如果没使用ts元数据，需要写这一行，或者在方法中用到了再getR
    }
  

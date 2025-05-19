@@ -38,16 +38,19 @@
       },
       "description": "Including the module's file middle name, such as controller mapping to xx.controller.ts"
     },
-    "virtualFile": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "description": "Virtual module, just like in Vite."
-    },
+
     "unimport": {
-      "type": "object",
-      "description": "Includes the arguments passed to unimport and 'dtsPath' that specifies the location for generating type files."
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Includes the arguments passed to unimport"
+        },
+        {
+          "type": "boolean",
+          "enum": [false],
+          "description": "Disable unimport"
+        }
+      ]
     }
   },
 

@@ -2,7 +2,7 @@ import { fileURLToPath, pathToFileURL } from 'url'
 import { writeFile } from 'fs/promises'
 import {
   basename,
-  extname,
+  dirname,
   isAbsolute,
   relative,
   resolve as resolvePath,
@@ -10,18 +10,48 @@ import {
 import { createRequire } from 'module'
 import ts from 'typescript'
 import chokidar from 'chokidar'
-import { log } from '../dist/index.mjs'
+import Debug from 'debug'
 import { compile, genUnImportRet, handleClassTypes, slash } from './utils.mjs'
 
-let port
+const require = createRequire(import.meta.url)
+const debug = Debug('phecda-server/loader')
 
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
-// this part is important or not?
-const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
-const tsconfig = {
+const IS_DEV = process.env.NODE_ENV === 'development'
+let port
+let config
+const workdir = process.cwd()
+const configPath = resolvePath(
+  workdir,
+  process.env.PS_CONFIG_FILE || 'ps.json',
+)
+
+// unimport
+let unimportRet, customLoad, customResolve
+const dtsPath = process.env.PS_DTS_PATH || 'ps.d.ts'
+
+// graph
+const watchFiles = new Set()
+const filesRecord = new Map()
+const moduleGraph = {}
+// ts
+let tsconfig = {
   module: ts.ModuleKind.ESNext,
   moduleResolution: ts.ModuleResolutionKind.NodeNext,
 }
+const EXTENSIONS = [ts.Extension.Ts, ts.Extension.Tsx, ts.Extension.Mts]
+const tsconfigPath = resolvePath(process.cwd(), 'tsconfig.json')
+const tsRet = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
+if (!tsRet.error) {
+  const { error, options } = ts.parseJsonConfigFileContent(
+    tsRet.config,
+    ts.sys,
+    dirname(tsconfigPath),
+  )
+  if (!error)
+    tsconfig = options
+}
+
 const moduleResolutionCache = ts.createModuleResolutionCache(
   ts.sys.getCurrentDirectory(),
   x => x,
@@ -32,32 +62,32 @@ const host = {
   readFile: ts.sys.readFile,
 }
 
-let unimportRet
-const dtsPath = 'ps.d.ts'
-
 if (isLowVersion)
   await initialize()
 
-let config
-
-const workdir = process.env.PS_WORKDIR || process.cwd()
-
-const configPath = resolvePath(
-  workdir,
-  process.env.PS_CONFIG_FILE || 'ps.json',
-)
-
-const require = createRequire(import.meta.url)
 export async function initialize(data) {
   if (data)
     port = data.port
-  log('read config...')
+
+  debug('read config...')
 
   config = require(configPath)
-  if (!config.virtualFile)
-    config.virtualFile = {}
 
-  if (!process.env.PS_HMR_BAN) {
+  if (!config.paths)
+    config.paths = {}
+
+  const loaderPath = process.env.PS_LOADER_PATH
+
+  if (loaderPath) {
+    const loader = await import(loaderPath.startsWith('.') ? resolvePath(workdir, loaderPath) : loaderPath)
+
+    if (typeof loader.load === 'function')
+      customLoad = loader.load
+
+    if (typeof loader.resolve === 'function')
+      customResolve = loader.resolve
+  }
+  if (IS_DEV) {
     chokidar.watch(configPath, { persistent: true }).on('change', () => {
       port.postMessage(
         JSON.stringify({
@@ -69,19 +99,21 @@ export async function initialize(data) {
 
   if (!config.unimport)
     return
+
   unimportRet = await genUnImportRet(config.unimport)
   if (unimportRet) {
-    log('auto import...')
+    debug('auto import...')
     await unimportRet.init()
 
+    const unimportDtsPath = resolvePath(workdir, dtsPath)
     writeFile(
-      resolvePath(workdir, config.unimport.dtsPath || dtsPath),
+      unimportDtsPath,
       handleClassTypes(
         await unimportRet.generateTypeDeclarations({
           resolvePath: (i) => {
             if (i.from.startsWith('.') || isAbsolute(i.from)) {
               const related = slash(
-                relative(workdir, i.from).replace(/\.ts(x)?$/, ''),
+                relative(dirname(unimportDtsPath), i.from).replace(/\.ts(x)?$/, ''),
               )
 
               return !related.startsWith('.') ? `./${related}` : related
@@ -94,12 +126,6 @@ export async function initialize(data) {
   }
 }
 
-const watchFiles = new Set()
-const filesRecord = new Map()
-const moduleGraph = {}
-
-let entryUrl
-
 function addUrlToGraph(url, parent) {
   if (!(url in moduleGraph))
     moduleGraph[url] = new Set()
@@ -111,56 +137,34 @@ function addUrlToGraph(url, parent) {
 function getFileMid(file) {
   const filename = basename(file)
   const ret = filename.split('.')
-  if (ret.length === 3)
-    return ret[1]
-  else return ''
+  if (!['js', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts'].includes(ret.pop()))
+    return ''
+  if (!ret[0])// .dockerfile
+    return ''
+
+  return ret[1]
 }
 
 export const resolve = async (specifier, context, nextResolve) => {
-  // virtual file
-  if (config.virtualFile[specifier]) {
-    return {
-      format: 'ts',
-      url: specifier,
-      shortCircuit: true,
+  if (customResolve) {
+    const url = await customResolve(specifier, context)
+    if (url) {
+      return {
+        format: 'ts',
+        url,
+        shortCircuit: true,
+      }
     }
   }
+
   // entrypoint
-  if (!context.parentURL) {
-    entryUrl = specifier
-    return {
-      format: EXTENSIONS.some(ext => specifier.endsWith(ext))
-        ? 'ts'
-        : undefined,
-      url: specifier,
-      shortCircuit: true,
-    }
-  }
-  // url import
-  // it seems useless
-  if (/^file:\/\/\//.test(specifier) && extname(specifier) === '.ts') {
-    const url = addUrlToGraph(specifier, context.parentURL.split('?')[0])
-    return {
-      format: 'ts',
-      url,
-      shortCircuit: true,
-    }
-  }
-
-  // hmr import
-  if (
-    context.parentURL.includes('/node_modules/phecda-server')
-    && isAbsolute(specifier)
-  ) {
-    specifier = relative(fileURLToPath(entryUrl), specifier)
-      .replace(/\.ts$/, '')
-      .slice(1)
-    context.parentURL = entryUrl
-  }
-
-  // import/require from external library
-  if (context.parentURL.includes('/node_modules/'))
+  if (!context.parentURL)
     return nextResolve(specifier)
+
+  // @todo skip resolve to improve performance
+  // if (context.parentURL.includes('/node_modules/') && specifier.includes('/node_modules/'))
+  //   return nextResolve(specifier)
+
   const { resolvedModule } = ts.resolveModuleName(
     specifier,
     fileURLToPath(context.parentURL),
@@ -169,7 +173,7 @@ export const resolve = async (specifier, context, nextResolve) => {
     moduleResolutionCache,
   )
 
-  // import between loacl projects
+  // import among files in local project
   if (
     resolvedModule
     && !resolvedModule.resolvedFileName.includes('/node_modules/')
@@ -205,23 +209,24 @@ export const resolve = async (specifier, context, nextResolve) => {
   const resolveRet = await nextResolve(specifier)
 
   // ts resolve fail in some cases
-  if (resolveRet.url && isAbsolute(resolveRet.url))
-    resolveRet.url = pathToFileURL(resolveRet.url).href
+  if (resolveRet.url && isAbsolute(resolveRet.url)) {
+    const [path, query] = resolveRet.url.split('?')
+    resolveRet.url = pathToFileURL(path).href + (query ? `?${query}` : '')
+  }
 
   return resolveRet
 }
 // @todo the first params may be url or path, need to distinguish
 
 export const load = async (url, context, nextLoad) => {
-  if (config.virtualFile[url]) {
-    return {
-      format: 'module',
-      source: config.virtualFile[url],
-      shortCircuit: true,
-    }
+  let mode
+  if (context.importAttributes.ps) {
+    mode = context.importAttributes.ps
+    delete context.importAttributes.ps
   }
 
   url = url.split('?')[0]
+
   if (
     !url.includes('/node_modules/')
     && url.startsWith('file://')
@@ -229,32 +234,17 @@ export const load = async (url, context, nextLoad) => {
     && !isLowVersion
   ) {
     watchFiles.add(url)
-    // watch(
-    //   fileURLToPath(url),
-    //   debounce((type) => {
-    //     if (type === 'change') {
-    //       try {
-    //         const files = [...findTopScope(url, Date.now())].reverse()
 
-    //         port.postMessage(
-    //           JSON.stringify({
-    //             type: 'change',
-    //             files,
-    //           }),
-    //         )
-    //       }
-    //       catch (e) {
-    //         port.postMessage(
-    //           JSON.stringify({
-    //             type: 'relaunch',
-    //           }),
-    //         )
-    //       }
-    //     }
-    //   }),
-    // )
+    if (IS_DEV && mode !== 'not-hmr') {
+      if (isModuleFileUrl(url)) {
+        port.postMessage(
+          JSON.stringify({
+            type: 'init',
+            files: [fileURLToPath(url)],
+          }),
+        )
+      }
 
-    if (!process.env.PS_HMR_BAN) {
       chokidar.watch(fileURLToPath(url), { persistent: true }).on(
         'change',
         debounce(() => {
@@ -279,6 +269,17 @@ export const load = async (url, context, nextLoad) => {
       )
     }
   }
+  // after hmr
+  if (customLoad) {
+    const source = await customLoad(url, context)
+    if (source) {
+      return {
+        format: 'module',
+        source,
+        shortCircuit: true,
+      }
+    }
+  }
   // resolveModuleName failed
   // I don't know why it failed
   if (!context.format && url.endsWith('.ts'))
@@ -289,9 +290,12 @@ export const load = async (url, context, nextLoad) => {
 
     const code
       = typeof source === 'string' ? source : Buffer.from(source).toString()
-    const compiled = await compile(code, url)
+
+    const compiled = (await compile(code, url)).replace(/_ts_metadata\(\"design:paramtypes\"\,/g, '_ts_metadata("design:paramtypes",()=>')// handle cycle
+
     if (unimportRet) {
       const { injectImports } = unimportRet
+
       return {
         format: 'module',
         source: (
@@ -354,11 +358,10 @@ export function isModuleFileUrl(url) {
       'extension',
       'ext',
       'guard',
-      'interceptor',
-      'plugin',
+      'addon',
       'filter',
       'pipe',
-      'edge',
+      'solo',
     ].includes(midName)
   )
     return true

@@ -37,3 +37,17 @@ export function Arg(target: any, k: string, index: number) {
     type: 'args', key: `${index}`,
   })(target, k, index)
 }
+
+export function OneFile(key = '') {
+  return BaseParam({
+    type: 'file',
+    key,
+  })
+}
+
+export function ManyFiles(key = '') {
+  return BaseParam({
+    type: 'files',
+    key,
+  })
+}

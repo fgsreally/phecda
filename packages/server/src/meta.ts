@@ -15,7 +15,6 @@ export interface ControllerMetaData extends ServiceMetaData {
     prefix: string
     route: string
     headers?: Record<string, string>
-
   }
   rpc?: {
     queue?: string
@@ -26,8 +25,7 @@ export interface ControllerMetaData extends ServiceMetaData {
   guards: string[]
   pipe?: string
   filter?: string
-  interceptors: string[]
-  plugins: string[]
+  addons: string[]
 
 }
 

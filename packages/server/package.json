@@ -1,22 +1,21 @@
 {
   "name": "phecda-server",
-  "version": "6.1.0",
+  "version": "7.0.0-alpha.18",
   "description": "server framework that provide IOC/type-reuse/http&rpc-adaptor",
   "author": "fgsreally",
   "license": "MIT",
   "repository": "https://github.com/fgsreally/phecda/tree/main/packages/server",
   "keywords": [
     "server",
+    "http",
     "IOC",
     "rpc",
-    "types-share"
+    "types-safe"
   ],
   "exports": {
     ".": {
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "node": "./dist/index.js"
-    },
+      "import": "./dist/index.mjs"    },
     "./helper": {
       "require": "./dist/helper.js",
       "import": "./dist/helper.mjs"
@@ -26,32 +25,32 @@
       "import": "./dist/test.mjs"
     },
     "./h3": {
-      "require": "./dist/server/h3/index.js",
-      "import": "./dist/server/h3/index.mjs"
+      "require": "./dist/http/h3/index.js",
+      "import": "./dist/http/h3/index.mjs"
     },
     "./express": {
-      "require": "./dist/server/express/index.js",
-      "import": "./dist/server/express/index.mjs"
+      "require": "./dist/http/express/index.js",
+      "import": "./dist/http/express/index.mjs"
     },
     "./koa": {
-      "require": "./dist/server/koa/index.js",
-      "import": "./dist/server/koa/index.mjs"
+      "require": "./dist/http/koa/index.js",
+      "import": "./dist/http/koa/index.mjs"
     },
     "./fastify": {
-      "require": "./dist/server/fastify/index.js",
-      "import": "./dist/server/fastify/index.mjs"
+      "require": "./dist/http/fastify/index.js",
+      "import": "./dist/http/fastify/index.mjs"
     },
     "./hyper-express": {
-      "require": "./dist/server/hyper-express/index.js",
-      "import": "./dist/server/hyper-express/index.mjs"
+      "require": "./dist/http/hyper-express/index.js",
+      "import": "./dist/http/hyper-express/index.mjs"
     },
     "./hono": {
-      "require": "./dist/server/hono/index.js",
-      "import": "./dist/server/hono/index.mjs"
+      "require": "./dist/http/hono/index.js",
+      "import": "./dist/http/hono/index.mjs"
     },
     "./elysia": {
-      "require": "./dist/server/elysia/index.js",
-      "import": "./dist/server/elysia/index.mjs"
+      "require": "./dist/http/elysia/index.js",
+      "import": "./dist/http/elysia/index.mjs"
     },
     "./redis": {
       "require": "./dist/rpc/redis/index.js",
@@ -73,6 +72,18 @@
       "require": "./dist/rpc/nats/index.js",
       "import": "./dist/rpc/nats/index.mjs"
     },
+    "./electron": {
+      "require": "./dist/rpc/electron/index.js",
+      "import": "./dist/rpc/electron/index.mjs"
+    },
+    "./ws": {
+      "require": "./dist/rpc/ws/index.js",
+      "import": "./dist/rpc/ws/index.mjs"
+    },
+    "./web-ext": {
+      "require": "./dist/rpc/web-ext/index.js",
+      "import": "./dist/rpc/web-ext/index.mjs"
+    },
     "./register": "./register/index.mjs",
     "./*": "./*"
   },
@@ -91,25 +102,25 @@
         "dist/helper.d.ts"
       ],
       "h3": [
-        "dist/server/h3/index.d.ts"
+        "dist/http/h3/index.d.ts"
       ],
       "express": [
-        "dist/server/express/index.d.ts"
+        "dist/http/express/index.d.ts"
       ],
       "koa": [
-        "dist/server/koa/index.d.ts"
+        "dist/http/koa/index.d.ts"
       ],
       "fastify": [
-        "dist/server/fastify/index.d.ts"
+        "dist/http/fastify/index.d.ts"
       ],
       "hyper-express": [
-        "dist/server/hyper-express/index.d.ts"
+        "dist/http/hyper-express/index.d.ts"
       ],
       "hono": [
-        "dist/server/hono/index.d.ts"
+        "dist/http/hono/index.d.ts"
       ],
       "elysia": [
-        "dist/server/elysia/index.d.ts"
+        "dist/http/elysia/index.d.ts"
       ],
       "redis": [
         "dist/rpc/redis/index.d.ts"
@@ -129,7 +140,8 @@
     }
   },
   "bin": {
-    "phecda": "bin/cli.mjs"
+    "phecda": "bin/cli.mjs",
+    "phecda-server": "bin/cli.mjs"
   },
   "files": [
     "dist",
@@ -156,18 +168,21 @@
     "@koa/router": "^12.0.1",
     "@nucleoidjs/kafkajs-mock": "^0.0.1",
     "@types/amqplib": "^0.10.1",
+    "@types/chrome": "^0.0.309",
     "@types/debug": "^4.1.12",
     "@types/express": "^4.17.17",
     "@types/fs-extra": "^11.0.4",
     "@types/koa": "^2.13.12",
     "@types/koa__router": "^12.0.4",
     "@types/supertest": "^2.0.12",
+    "@types/ws": "^8.5.13",
     "amqplib": "^0.10.3",
     "bullmq": "^5.7.1",
+    "electron": "^33.2.1",
     "elysia": "^1.0.17",
     "express": "^4.18.2",
     "fastify": "^4.25.1",
-    "h3": "^1.11.1",
+    "h3": "^1.12.0",
     "hono": "^4.3.4",
     "hyper-express": "^6.15.2",
     "ioredis": "^5.3.2",
@@ -179,7 +194,8 @@
     "nats": "^2.22.0",
     "supertest": "^6.3.3",
     "tsup": "^8.1.0",
-    "typescript": "^5.4.5",
-    "unimport": "^3.7.1"
+    "typescript": "^5.8.3",
+    "unimport": "^3.7.1",
+    "ws": "^8.18.0"
   }
 }

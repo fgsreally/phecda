@@ -8,21 +8,14 @@ export function Guard(...guards: string[]) {
   }
 }
 
-export function Plugin(...plugins: string[]) {
+export function Addon(...addons: string[]) {
   return (target: any, property?: PropertyKey) => {
     setMeta(target, property, undefined, {
-      plugins,
+      addons,
     })
   }
 }
 
-export function Interceptor(...interceptors: string[]) {
-  return (target: any, property?: PropertyKey) => {
-    setMeta(target, property, undefined, {
-      interceptors,
-    })
-  }
-}
 export function Filter(filter: string) {
   return (target: any, property?: PropertyKey) => {
     setMeta(target, property, undefined, {

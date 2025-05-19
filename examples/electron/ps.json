@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/phecda-server/assets/schema.json",
+  "resolve": [
+    {
+      "source": "controller",
+      "importer": "http",
+      "path": ".ps/http.js"
+    },
+    {
+      "source": "rpc",
+      "importer": "client",
+      "path": ".ps/rpc.js"
+    }
+  ],
+  "unimport": {
+    "dirs": ["."],
+    "dirsScanOptions": {
+      "filePatterns": ["*.{service,controller,module,rpc,solo,guard,extension,pipe,filter,addon}.ts"]
+    }
+  },
+  "moduleFile": []
+
+}

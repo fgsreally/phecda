@@ -1,4 +1,5 @@
-import type { ControllerMetaData, MetaData } from '../meta'
+import { joinUrl } from '../helper'
+import type { ControllerMetaData, Meta } from '../meta'
 import { Generator } from './utils'
 
 export class HTTPGenerator extends Generator {
@@ -23,12 +24,12 @@ export class HTTPGenerator extends Generator {
     } = args
     if (!http?.type)
       return
-    const url = http.prefix + http.route.replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
+    const url = joinUrl(http.prefix, http.route).replace(/\/\:([^\/]*)/g, (_, js) => `/{{${js}}}`)
     if (!this.classMap[name])
       this.classMap[name] = {}
     this.classMap[name][func] = `
     ${func}(...args){
-const ret={tag:"${tag as string}",func:"${func}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}",args}
+const ret={tag:"${tag as string}",func:"${func}",body:{},headers:{},query:{},params:{},method:"${http.type}",url:"${url}"}
 
 ${params.reduce((p, c, i) => `${p}ret.${c.type}${c.key ? `['${c.key}']` : ''}=args[${i}]\n${c.type === 'params' ? `ret.url=ret.url.replace('{{${c.key}}}',args[${i}])` : ''}\n`, '')}
 return ret
@@ -36,11 +37,11 @@ return ret
     `
   }
 
-  generateCode(meta: MetaData[]): string {
-    for (const i of meta) {
-      if (i.controller === 'http')
-        this.addMethod(i as ControllerMetaData)
-    }
+  generateCode(meta: Meta[]): string {
+    meta.forEach(({ data }) => {
+      if (data.controller === 'http')
+        this.addMethod(data as ControllerMetaData)
+    })
     return this.getContent()
   }
 }

@@ -1,4 +1,4 @@
-import type { ControllerMetaData, MetaData } from '../meta'
+import type { ControllerMetaData, Meta } from '../meta'
 import { Generator } from './utils'
 
 export class RPCGenerator extends Generator {
@@ -34,11 +34,15 @@ export class RPCGenerator extends Generator {
     `
   }
 
-  generateCode(meta: MetaData[]): string {
-    for (const i of meta) {
-      if (i.controller === 'rpc')
-        this.addMethod(i as ControllerMetaData)
-    }
+  generateCode(meta: Meta[]): string {
+    // for (const i of meta) {
+    //   if (i.controller === 'rpc')
+    //     this.addMethod(i as ControllerMetaData)
+    // }
+    meta.forEach(({ data }) => {
+      if (data.controller === 'rpc')
+        this.addMethod(data as ControllerMetaData)
+    })
     return this.getContent()
   }
 }

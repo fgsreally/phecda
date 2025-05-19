@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpContext, Interceptor, Param, Pipe, Plugin, Post, Query, addPipe } from '../../src'
+import { Addon, Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpCtx, Param, Pipe, Post, Query, addPipe } from '../../src'
 class Info {
   name: string
 }
@@ -15,7 +15,7 @@ addPipe('default', ({ arg, reflect }) => {
 @Controller('')
 export class Test {
   @Ctx
-  ctx: HttpContext
+  ctx: HttpCtx
 
   @Get('/get')
   get() {
@@ -43,16 +43,15 @@ export class Test {
     return `${id}-${info.name}`
   }
 
-  @Get('/plugin')
-  @Plugin('p1')
-  plugin() {
+  @Get('/addon')
+  @Addon('a1')
+  addon() {
     return { msg: 'test' }
   }
 
   @Guard('g2')
-  @Interceptor('i2')
-  @Post('/aop/:test')
-  aop(@Param('test') test: string) {
+  @Post('/guard/:test')
+  guard(@Param('test') test: string) {
     return `${test}`
   }
 

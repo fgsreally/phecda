@@ -1,5 +1,173 @@
 # phecda-server
 
+## 7.0.0-alpha.18
+
+### Patch Changes
+
+- Updated dependencies [4d5cc84]
+  - phecda-core@4.1.0-alpha.2
+
+## 7.0.0-alpha.17
+
+### Patch Changes
+
+- 402b2db: Avoid infinite relaunch when the program starts and encounters an error.
+  remove virtualFile in config.
+  support custom loader(resolve/load) by `process.env.PS_LOADER_PATH`
+  removes detection of whether context is read asynchronously(in dev mode) for now
+
+## 7.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies [dd27622]
+  - phecda-core@4.1.0-alpha.1
+
+## 7.0.0-alpha.15
+
+### Patch Changes
+
+- 51b6757: fix resolve hook in loader
+  1. `pathToFileURL` won't handle query correctly,
+  2. No longer skips typescript resolving (node_modules) for now
+- 4b81529: refactor `CustomResponse`
+
+  `client` no longer depends on `server` in any way
+
+  ensure frontend project only need to install `phecda-client` package(without `phecda-server`)
+
+## 7.0.0-alpha.14
+
+### Patch Changes
+
+- 1855700: files imported by register are still considered as source files,it will fix resolve hook in loader
+
+## 7.0.0-alpha.13
+
+### Major Changes
+
+- 98a92ba: 1. fix `getFileMid` in loader (support file name like `a.controller.dev.ts`) 2. support work with `electron`(as a kind of rpc),but queue won't work in electron 3. `createClient` should always be sync 4. add `eventemitter3`/`nanoid` to `phecda-client` 5. rpc adaptor can interrupt default logic
+
+### Minor Changes
+
+- 6f6a48a: 1. support `ws` (deprecate [phecda-ws](https://github.com/fgsreally/phecda-ws)) 2. fix resolve hook in loader(for hmr)
+
+### Patch Changes
+
+- 70c915a: cli support other way to create child process;fix loader resolve hook
+- b1a6652: improve cli init command(more intelligent)
+
+## 7.0.0-alpha.12
+
+### Major Changes
+
+- e928c0a: 1. move rpc client from `phecda-server` to `phecda-client` 2. fix batch request 3. refactor http and rpc client with `createClient` and `adaptor` 4. add `send` and `abort` to http request, add `send` to rpc request 5. support `alova` as http adaptor
+
+## 7.0.0-alpha.11
+
+### Patch Changes
+
+- c7bfc1f: loader support `importAttributes` (both `assert` and `with`) by swc
+  if `importAttributes.ps` is `not-hmr`, the file will not emit hmr
+- ec340b6: cli support env `PS_CONFIG_FILE`
+  `unconfig` is not essential, so remove it.
+
+## 7.0.0-alpha.10
+
+### Patch Changes
+
+- ddc89e1: refactor register/loader/bin
+  logger can set app name by env `PS_APP_NAME`
+  can set dtsPath by env `PS_DTS_PATH`, fix `resolvePath` in `generateTypeDeclarations`
+
+## 7.0.0-alpha.9
+
+### Patch Changes
+
+- 5a5c047: refactor hmr system to avoid case that module has different tag during writing code;
+  replace `del/add` with `replace` in `ServerPhecda`
+  fix parallel route bug;
+
+## 7.0.0-alpha.8
+
+### Patch Changes
+
+- baec0e9: add bin "phecda-server" and support prod option in run command
+- 5862243: can auto resolve route url without slash
+- 711b33e: can do set/get action safely on ctx
+
+## 7.0.0-alpha.7
+
+### Patch Changes
+
+- f5114a3: not only log string
+
+## 7.0.0-alpha.6
+
+### Patch Changes
+
+- bb33731: refactor logger(it more like nestjs ConsoleLogger）
+
+## 7.0.0-alpha.5
+
+### Minor Changes
+
+- 6af713f: add createProxyModule to support Circular-Dependency(BUT it still can't work in nodejs)
+
+### Patch Changes
+
+- 4e5d443: danger change in custom loader to handle circular-dependence
+
+## 7.0.0-alpha.4
+
+### Minor Changes
+
+- cd4d9b7: loader can read tsconfig.json and resolve path alias,just like tsconfig-path does
+
+### Patch Changes
+
+- 6deb2da: loader won't resolve virtual file as entry(only work for `unplugin-phecda-server`)
+- Updated dependencies [c1b7d65]
+  - phecda-core@4.1.0-alpha.0
+
+## 7.0.0-alpha.3
+
+### Patch Changes
+
+- 38ef154: rename x.edge.ts (lead to confusion that it can use in cloudflare) to x.solo.ts
+
+## 7.0.0-alpha.2
+
+### Patch Changes
+
+- 1cc25fb: add category to context
+- 0764435: root in cli will change cwd()
+
+## 7.0.0-alpha.1
+
+### Patch Changes
+
+- a04adfe: runtime won't support x.interceptor.ts and x.plugin.ts(replace by addon)
+  fix `PGuard/PAddon` types
+  add more debug info
+  set `PS_STRICT` true will exit the program(for ci)
+
+## 7.0.0-alpha.0
+
+### Major Changes
+
+- 042e349: 1. remove `interceptor`, refactor `guard`, current `guard` can replace old guard and interceptor.
+
+  2. rename `plugin` to `addon`(because of vscode types), make it behave consistently across different frameworks( work on `router`,only for http)
+
+  3. priority decide the `guard/addon` order
+
+  4. Each function with an HTTP decorator corresponds to a `router`, and the implementation varies across different frameworks.
+
+### Patch Changes
+
+- f7e70ff: fix getRequest/getResponse(it will get req.raw now) in fastify
+
 ## 6.1.0
 
 ### Minor Changes
@@ -21,7 +189,7 @@
 
 ### Patch Changes
 
-- ea247f6: add getRequest and getResponse to HttpContext to support express compatible middleware
+- ea247f6: add getRequest and getResponse to HttpContextData to support express compatible middleware
 
 ## 6.0.1
 
@@ -72,7 +240,7 @@
 
 ### Minor Changes
 
-- f477841: add methods(`redirect/getCookie/setCookie/delCookie/setResHeaders/setResStatus`) to `HttpContext`
+- f477841: add methods(`redirect/getCookie/setCookie/delCookie/setResHeaders/setResStatus`) to `HttpContextData`
 
   add `HttpBase/RpcBase`
 
@@ -266,7 +434,7 @@
 - 380bcb0: add data to http ctx
 - 074a815: model=class and module=instance
 - 6b5b307: refactor types system
-- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- 43983af: rename addon to Addon;add query/body/params/headers/index to ctx;remove parallel from ctx
 - 2665dd1: rename PModule with PExtension
 - 3847605: add warn to all aop function
 - 2ddaef9: support hyper-express; add example
@@ -500,7 +668,7 @@
 
 ### Patch Changes
 
-- 43983af: rename addon to Plugin;add query/body/params/headers/index to ctx;remove parallel from ctx
+- 43983af: rename addon to Addon;add query/body/params/headers/index to ctx;remove parallel from ctx
 - Updated dependencies [37bdc86]
   - phecda-core@3.0.0-alpha.8
 
@@ -711,7 +879,7 @@
 ### Minor Changes
 
 - da1a0bb: remove series request and refactor parallel request
-- ba96778: refactor Middle to Plugin
+- ba96778: refactor Middle to Addon
 - 0b3c856: refactor Factory to support hmr
 - 90b0534: interceptor can provide cache function
 - 33bc4b3: add cli command (in stdin); perf log

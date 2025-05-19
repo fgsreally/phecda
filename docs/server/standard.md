@@ -5,14 +5,13 @@
 
 ## 文件名规范 
 ### 模块文件
-一个文件一个模块（类），务必遵守，否则可能导致`ps`运行时出问题
-> 内置的规范
-具体[详见](./base.md#实例化模块并生成代码)
+一个文件一个[模块](./base.md#基本结构)
+
 1. `*.controller.ts` <--> `XXController`
 2. `*.service.ts` <--> `XXService`
 3. `*.rpc.ts` <--> `XXRpc`
-4. `*.guard/interceptor/pipe/filter/extension/plugin.ts` <--> `XXPipe/XXGuard/XXFilter/XXPlugin/XXInterceptor/XXExtension`
+4. `*.guard/pipe/filter/extension/addon.ts` <--> `XXPipe/XXGuard/XXFilter/XXAddon/XXExtension`
 5. `*.module.ts` <--> `XXModule`
-6. `*.edge.ts` <--> `XXEdge`
+6. `*.solo.ts` <--> `XXSolo`
 
 

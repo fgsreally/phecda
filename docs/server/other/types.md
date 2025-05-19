@@ -47,7 +47,7 @@ import { toClass } from 'phecda-client'
 
 request.A.test(toClass<Student>({ name: 'student name' }))
 ```
-> 关于`class`或许有更好的办法，只要`phecda-client`中做出一个`DeepOmitFunction`或者`DeepJson`之类的泛型，就能搞定！但嵌套的类型会给可读性和性能造成一些麻烦，暂未实装（表示不会这个体操）
+> 关于`class`或许有更好的办法，只要`phecda-client`中做出一个`DeepOmitFunction`或者`DeepJson`之类的泛型，就能搞定！但嵌套的类型会给可读性和性能造成一些麻烦，暂未实装（个人不会这个体操）
 
 关于`objectId`
 > 这种情况复杂得多，前后端操作的数据结构不一致，这需要后端配合！
