@@ -1,5 +1,34 @@
 # phecda-client
 
+## 3.0.0
+
+### Major Changes
+
+- 3d96e49: add createClient and remove other api
+  support custom fetch
+- e928c0a: 1. move rpc client from `phecda-server` to `phecda-client` 2. fix batch request 3. refactor http and rpc client with `createClient` and `adaptor` 4. add `send` and `abort` to http request, add `send` to rpc request 5. support `alova` as http adaptor
+- 98a92ba: 1. fix `getFileMid` in loader (support file name like `a.controller.dev.ts`) 2. support work with `electron`(as a kind of rpc),but queue won't work in electron 3. `createClient` should always be sync 4. add `eventemitter3`/`nanoid` to `phecda-client` 5. rpc adaptor can interrupt default logic
+
+### Minor Changes
+
+- 05ddbe1: add OneFile and ManyFiles to server,support form-data in client
+- 6f6a48a: 1. support `ws` (deprecate [phecda-ws](https://github.com/fgsreally/phecda-ws)) 2. fix resolve hook in loader(for hmr)
+
+### Patch Changes
+
+- e761625: unplugin won't work/throw error when there is not ps.json(config file)
+
+  server will restart when add/change config file(only in vite)
+
+- 4b81529: refactor `CustomResponse`
+
+  `client` no longer depends on `server` in any way
+
+  ensure frontend project only need to install `phecda-client` package(without `phecda-server`)
+
+- b351985: remove BaseError from server
+  change pkg export for bundler
+
 ## 3.0.0-alpha.4
 
 ### Patch Changes

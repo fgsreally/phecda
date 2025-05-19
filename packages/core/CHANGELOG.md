@@ -1,5 +1,18 @@
 # phecda-core
 
+## 4.1.0
+
+### Minor Changes
+
+- 4d5cc84: add omit
+- d8fdd4e: move rule decorator(only inject meta to class) from megrez-schema to phecda-core
+  add `partial`
+- c1b7d65: add objectToClass/functionToClass
+
+### Patch Changes
+
+- dd27622: If an error occurs during `invoke`, output the error message
+
 ## 4.1.0-alpha.2
 
 ### Minor Changes
