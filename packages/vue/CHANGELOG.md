@@ -1,5 +1,16 @@
 # phecda-vue
 
+## 5.2.0
+
+### Minor Changes
+
+- 03b1bf3: add `KeepAlive` decorator support unmount model in `useV/useR`
+  useEvent should off event in `unMounted`
+
+### Patch Changes
+
+- phecda-web@3.0.2
+
 ## 5.2.0-alpha.2
 
 ### Patch Changes

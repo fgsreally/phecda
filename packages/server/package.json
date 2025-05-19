@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "7.0.0-alpha.18",
+  "version": "7.0.0",
   "description": "server framework that provide IOC/type-reuse/http&rpc-adaptor",
   "author": "fgsreally",
   "license": "MIT",
@@ -15,7 +15,8 @@
   "exports": {
     ".": {
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs"    },
+      "import": "./dist/index.mjs"
+    },
     "./helper": {
       "require": "./dist/helper.js",
       "import": "./dist/helper.mjs"
