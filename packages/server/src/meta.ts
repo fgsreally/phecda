@@ -15,7 +15,6 @@ export interface ControllerMetaData extends ServiceMetaData {
     prefix: string
     route: string
     headers?: Record<string, string>
-
   }
   rpc?: {
     queue?: string

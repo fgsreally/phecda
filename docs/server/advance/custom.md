@@ -1,8 +1,12 @@
 # 自定义功能
 
-> 可以自定义各种部分，这里只是给一个例子
+> 可以自定义各种部分，这里只是给一个例子。
+> 具体代码可见[phecda-server-ws](https://github.com/fgsreally/phecda-ws)。
 >
-> 具体代码可见[phecda-server-ws](https://github.com/fgsreally/phecda-ws)
+
+:::warning 和[websocket](../rpc/ws&electron.md) 的区别
+内置的`websocket`支持本质是将其视为一种`rpc`,并不支持完整的`websocket`功能，如服务端调用客户端
+:::
 
 假设需要自定义`websocket`功能，那么需要自行处理以下部分：
 
@@ -11,7 +15,7 @@
 3. **代码生成器**
 4. **请求适配器**
 
-并不一定要全部, 如果需要使用自定义的服务端框架or 微服务，只要写适配器，别的不需要
+并不一定要全部, 如果需要使用自定义的`http/rpc`框架，只要写适配器，别的不需要
 
 
 ## 控制器
@@ -48,7 +52,7 @@ const data = await Factory([TestWs], {
 ```
 ### 配置文件
 
-需要更改[配置文件](./command.md#phecda-init)的`resolve`，使重定向
+需要更改[配置文件](../runtime/command.md#phecda-init)的`resolve`，使重定向
 
 ```json
 {

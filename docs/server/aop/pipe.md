@@ -1,6 +1,6 @@
 # 管道
 
-运行在拦截器之后，主要用于验证参数
+运行在守卫之后，主要用于验证参数
 
 每个参数都会单独进入一个管道，且**只能使用一个管道**
 
@@ -13,9 +13,11 @@ class Validate extends PPipe<ExpressCtx> {
     super('Validate') // 可以通过super，可以通过Tag,也可以直接通过类名，三者其一就行
   }
 
-  use(ctx: ExpressCtx) {
-    // ...
-  }
+use(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: Ctx): any
+{      
+  // ...  
+ // return 转换后的数据，传给controller 
+ }
 }
 // in main.ts
 @Controller('/test')

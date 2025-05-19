@@ -11,10 +11,7 @@ class User {
   // 仔细看下面这一行！
   login(@Query('name') name: string, @Query('password') password: string) {
     // ..
-    if (password === 'password')
-      return true
-
-    return false
+return true
   }
 }
 ```
@@ -37,7 +34,7 @@ class User {
 
 既然服务端是知道的，那么开发者是否可以不用知道？
 
-可不可以让接口的调用，变成函数的调用，也就是，我只关心入参和返回的值，至于这个参数是挂载到`body`还是`query`，是走什么路由，是`GET`还是`POST`,不用去管（屏蔽掉`HTTP`这个层面的东西，完全回归到函数这个层级上），
+可不可以让接口的调用，变成函数的调用，也就是，我只关心入参和返回的值，至于这个参数是挂载到`body`还是`query`，是走什么路由，是`GET`还是`POST`,不用去管
 
 
 ## 结论
@@ -53,3 +50,5 @@ const isLogin = await login('username', 'password') // 这样就可以直接复�
 服务端得到一些元数据，包含路由，请求方式等信息，然后创建可被前端利用的代码。
 
 前端通过控制器的类去提供类型，再利用这些基础代码再去创建基本请求
+
+这是`phecda-server`最开始的出发点，也是核心思路
