@@ -1,4 +1,4 @@
-import { Empty, Unmount } from './decorators'
+import { Empty, Init, Unmount } from './decorators'
 import { getTag } from './helper'
 import { Events } from './types'
 
@@ -14,6 +14,11 @@ export abstract class Base {
 
   get tag(): PropertyKey {
     return getTag(this)
+  }
+
+  @Init
+  init(){
+    
   }
 
   then(cb: () => void, reject?: (e: any) => void) {
