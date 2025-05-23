@@ -42,7 +42,8 @@ export function getPhecdaFromTarget(target: any) {
 export function setMeta(proto: Phecda, property: PropertyKey | undefined, index: number | undefined, meta: Record<string, any>) {
   if (!property) {
     property = SHARE_KEY
-    proto = proto.prototype
+    if (proto.prototype)
+      proto = proto.prototype
   }
   init(proto)
   if (!proto[PHECDA_KEY].__META__.has(property))
