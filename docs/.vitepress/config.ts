@@ -182,6 +182,10 @@ export default defineConfig({
               link: '/server/advance/outside-module',
             },
             {
+              text: '单元测试'  ,
+              link: '/server/advance/test',
+            },
+            {
               text: '热更新',
               link: '/server/advance/hmr',
             },
