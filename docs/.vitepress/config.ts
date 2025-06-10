@@ -182,7 +182,7 @@ export default defineConfig({
               link: '/server/advance/outside-module',
             },
             {
-              text: '单元测试'  ,
+              text: '单元测试',
               link: '/server/advance/test',
             },
             {

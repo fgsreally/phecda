@@ -141,27 +141,26 @@ export function omit<Class extends Construct, Key extends keyof InstanceType<Cla
   return newClass
 }
 
-
 export function pick<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Pick<InstanceType<Class>, Key>> {
   const newClass = class {
     constructor(...args: any) {
-      const instance = new classFn(...args);
+      // eslint-disable-next-line new-cap
+      const instance = new classFn(...args)
       properties.forEach((prop) => {
         Object.defineProperty(this, prop, {
           get() {
             const data = instance[prop]
-            if (typeof data === 'function') {
+            if (typeof data === 'function')
               return data.bind(this)
-            }
+
             return data
           },
           set(val) {
-            instance[prop] = val;
-          }
+            instance[prop] = val
+          },
 
         })
       })
-
     }
   } as any
 
@@ -173,7 +172,6 @@ export function pick<Class extends Construct, Key extends keyof InstanceType<Cla
         setMeta(newClass, k, index, getMergedMeta(classFn, k, index))
       })
     }
-
   })
 
   return newClass

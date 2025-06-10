@@ -17,8 +17,8 @@ export abstract class Base {
   }
 
   @Init
-  init(){
-    
+  init() {
+
   }
 
   then(cb: () => void, reject?: (e: any) => void) {

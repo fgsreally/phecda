@@ -48,14 +48,11 @@ describe('helper', () => {
       @Test(1)
       name = 'A'
 
-
       @Test(2)
       setName(@Test(3) name: string) {
         this.name = name
         return name
       }
-
-
     }
 
     //
@@ -78,7 +75,6 @@ describe('helper', () => {
     instanceC.setName('test')
 
     expect(instanceC.name).toBe('test')
-
   })
 
   it('Partial', () => {
