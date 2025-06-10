@@ -1,4 +1,4 @@
-import { CLEAR_KEY, get, getMeta, getMetaKey } from './core'
+import { CLEAR_KEY, get, getMeta, getMetaKey, getMetaParams, setMeta } from './core'
 import type { AbConstruct, Construct } from './types'
 import { Clear, Optional } from './decorators'
 
@@ -136,6 +136,44 @@ export function omit<Class extends Construct, Key extends keyof InstanceType<Cla
   getMetaKey(classFn).forEach((k) => {
     if (properties.includes(k as any))
       addDecoToClass(newClass, k, Clear)
+  })
+
+  return newClass
+}
+
+
+export function pick<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Pick<InstanceType<Class>, Key>> {
+  const newClass = class {
+    constructor(...args: any) {
+      const instance = new classFn(...args);
+      properties.forEach((prop) => {
+        Object.defineProperty(this, prop, {
+          get() {
+            const data = instance[prop]
+            if (typeof data === 'function') {
+              return data.bind(this)
+            }
+            return data
+          },
+          set(val) {
+            instance[prop] = val;
+          }
+
+        })
+      })
+
+    }
+  } as any
+
+  getMetaKey(classFn).forEach((k) => {
+    if (properties.includes(k as any)) {
+      setMeta(newClass, k, undefined, getMergedMeta(classFn, k))
+
+      getMetaParams(classFn, k).forEach((index) => {
+        setMeta(newClass, k, index, getMergedMeta(classFn, k, index))
+      })
+    }
+
   })
 
   return newClass
