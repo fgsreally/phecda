@@ -1,5 +1,15 @@
 # phecda-core
 
+## 4.2.0
+
+### Minor Changes
+
+- f6025c7: add init to Base
+
+### Patch Changes
+
+- 2ffe1d4: fix setMeta for more flexible cases
+
 ## 4.1.0
 
 ### Minor Changes

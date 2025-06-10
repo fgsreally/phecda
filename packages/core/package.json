@@ -1,6 +1,6 @@
 {
   "name": "phecda-core",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "provide base function and abstract limit to other phecda module ",
   "author": "fgsreally",
   "license": "MIT",
