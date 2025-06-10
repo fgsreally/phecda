@@ -1,5 +1,12 @@
 # phecda-core
 
+## 4.3.0
+
+### Minor Changes
+
+- bee529f: setMeta(class A) directly;
+  add `pick`
+
 ## 4.2.0
 
 ### Minor Changes
