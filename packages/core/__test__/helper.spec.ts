@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Empty, Expose, Required, Tag, addDecoToClass, getMergedMeta, getMetaKey, getTag, isPhecda, omit, partial, setMeta } from '../src'
+import { Empty, Expose, Required, Tag, addDecoToClass, getMergedMeta, getMetaKey, getTag, isPhecda, omit, partial, pick, setMeta } from '../src'
 
 describe('helper', () => {
   it('isPhecda', async () => {
@@ -36,7 +36,7 @@ describe('helper', () => {
     expect(getTag(Test2)).toBe('test2')
   })
 
-  it('Pick', () => {
+  it('omit/pick', () => {
     function Test(value: any): any {
       return (target: any, key?: PropertyKey, index?: number) => {
         setMeta(target, key, index, { data: value })
@@ -64,6 +64,17 @@ describe('helper', () => {
     expect(getMergedMeta(B, 'setName', 0).data === getMergedMeta(A, 'setName', 0).data).toBeTruthy()
     expect(getMergedMeta(B, 'name').data).toBeUndefined()
     expect((new B() as any).name).toBeUndefined()
+
+    const C = pick(A, 'setName')
+    expect(getMergedMeta(C, 'name').data).toBeUndefined()
+    expect(getMergedMeta(C, 'setName').data === getMergedMeta(A, 'setName').data).toBeTruthy()
+    expect(getMergedMeta(C, 'setName', 0).data === getMergedMeta(A, 'setName', 0).data).toBeTruthy()
+
+    const instanceC: any = new C()
+    expect(instanceC.name).toBeUndefined()
+    instanceC.setName('test')
+
+    expect(instanceC.name).toBe('test')
   })
 
   it('Partial', () => {

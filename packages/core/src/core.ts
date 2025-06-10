@@ -40,6 +40,9 @@ export function getPhecdaFromTarget(target: any) {
 }
 
 export function setMeta(proto: Phecda, property: PropertyKey | undefined, index: number | undefined, meta: Record<string, any>) {
+  if (typeof proto === 'function' && (proto as any).prototype)
+    proto = (proto as any).prototype
+
   if (!property) {
     property = SHARE_KEY
     if (proto.prototype)
@@ -120,7 +123,6 @@ export function getMeta(target: any, property: PropertyKey = SHARE_KEY, index?: 
           const paramMeta = meta.params.get(index) as any[]
 
           if (paramMeta) {
-            // ret.unshift(...paramMeta)
             const index = paramMeta.findIndex((item: any) => item[CLEAR_KEY])
 
             ret.unshift(...paramMeta.slice(index + 1))
