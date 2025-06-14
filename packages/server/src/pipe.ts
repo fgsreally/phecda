@@ -5,24 +5,30 @@ import type { PipeType } from './context'
 import { ValidateException } from './exception'
 
 export const defaultPipe: PipeType = async ({ arg, reflect, rawMeta }) => {
-  // if (['query', 'params'].includes(type) && reflect !== String) {
-  //   if ([Object, Array].includes(reflect)) {
-  //     return JSON.parse(arg)
-  //   }
-  if ([Number, Boolean, String].includes(reflect)) {
-    return reflect(arg)
-  }
-  if (rawMeta.required && arg === undefined) {
-    throw new ValidateException(`param is required`)
-  }
 
-  if (rawMeta.rule) {
-    const res = await rawMeta.rule(arg)
-    if (res) {
-      throw new ValidateException(res)
+  //transform for query and param(not undefined)
+  if (arg !== undefined && [Number, Boolean, String].includes(reflect))
+    arg = reflect(arg)
+
+  //validate
+  if (rawMeta.required && arg === undefined)
+    throw new ValidateException('param is required')
+
+  if (rawMeta.rules) {
+    for (const rule of rawMeta.rules) {
+      let res = rule(arg)
+
+      if (res instanceof Promise) {
+        res = await res
+      }
+      if (typeof res === 'string')
+        throw new ValidateException(res)
+
+      if (res === false) {
+        throw new ValidateException(`validation failed`)
+      }
     }
   }
 
-  // }
   return arg
 }

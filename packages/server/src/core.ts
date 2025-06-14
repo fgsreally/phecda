@@ -301,7 +301,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
           pipe: item.pipe || meta.pipe || baseMeta.pipe,
           define: item.define || {},
           index,
-          rawMeta:item,
+          rawMeta: item,
         }
       })
       metaData.filter = meta.filter || baseMeta.filter

@@ -17,7 +17,7 @@ export interface AOP {
   filter: FilterType
 }
 
-export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any>, rawMeta: any }
+export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any>; rawMeta: any }
 export type GuardType<Ctx extends BaseCtx = any> = (ctx: Ctx, next: () => Promise<any>) => any
 export type PipeType<Ctx extends BaseCtx = any> = (arg: PipeArg, ctx: Ctx) => Promise<any>
 export type FilterType<Ctx extends BaseCtx = any, E extends Exception = any> = (err: E | Error, ctx?: Ctx) => Error | any

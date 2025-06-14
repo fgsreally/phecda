@@ -1,5 +1,6 @@
 import { log } from '../utils' with { ps: 'not-hmr'}
 import { TestService } from './test.service'
+
 export class User {
   name: string
 
@@ -54,6 +55,18 @@ export class TestController extends HttpBase {
 
   customResponse() {
     return new CustomResponse()
+  }
+
+
+  @Get('validate')
+  @Doc('这是一个测试validate装饰器的接口')
+  @Rule(() => true)
+  validate(
+    @Query('id')
+    @Required @Rule((value) => value > 10)
+    id: number
+  ) {
+    return id
   }
 
   // @Post('upload/:id')
