@@ -2,4 +2,5 @@
 "phecda-core": minor
 ---
 
-add Doc decorator
+add `Doc` decorator
+`Required/Optional/Rule` support decorate param
