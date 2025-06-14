@@ -10,7 +10,7 @@ import { TestController } from './modules/test.controller'
 
 async function start() {
   const data = await Factory([TestController], {
-    generators: [new HTTPGenerator(),new DocGenerator()],
+    generators: [new HTTPGenerator(), new DocGenerator()],
   })
   const router = express.Router()
   const app = express()

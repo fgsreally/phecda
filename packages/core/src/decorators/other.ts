@@ -3,7 +3,6 @@ import { setMeta } from '../core'
 
 export function Rule(...rules: ((value: any) => void | string | boolean | Promise<void | string | boolean>)[]) {
   return (target: any, property: PropertyKey, index?: any) => {
-    
     setMeta(target, property, index, { rules })
   }
 }

@@ -57,13 +57,13 @@ export class TestController extends HttpBase {
     return new CustomResponse()
   }
 
-
   @Get('validate')
   @Doc('这是一个测试validate装饰器的接口')
   @Rule(() => true)
   validate(
     @Query('id')
-    @Required @Rule((value) => value > 10)
+    @Required @Rule(value => value > 10)
+    @Doc('这是一个测试的id参数')
     id: number
   ) {
     return id
