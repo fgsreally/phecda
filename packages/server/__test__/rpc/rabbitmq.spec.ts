@@ -63,7 +63,7 @@ describe('rabbitmq rpc', () => {
 
       @Queue('test queue')
 
-      run(@Arg arg: string) {
+      run(@Arg arg: number) {
         expect(this.ctx).toBeDefined()
         fn()
         return arg

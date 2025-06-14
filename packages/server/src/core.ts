@@ -291,16 +291,19 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       }
 
       const params = getMetaParams(instance, i).map(item => getMergedMeta(instance, i, item))
-      params.forEach((item, index) => {
-        if (!item.pipe)
-          item.pipe = meta.pipe || baseMeta.pipe
-        if (!item.define)
-          item.define = {}
-        item.index = index
-      })
+
+      metaData.rawMeta = meta
 
       metaData.ctxs = ctxs
-      metaData.params = params
+      metaData.params = params.map((item, index) => {
+        return {
+          ...item,
+          pipe: item.pipe || meta.pipe || baseMeta.pipe,
+          define: item.define || {},
+          index,
+          rawMeta: item,
+        }
+      })
       metaData.filter = meta.filter || baseMeta.filter
       metaData.define = { ...baseMeta.define, ...meta.define }
 

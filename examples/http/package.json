@@ -10,13 +10,13 @@
     }
   },
   "scripts": {
-    "express": "phecda-serversrc/express.ts",
-    "koa": "phecda-serversrc/koa.ts",
-    "h3": "phecda-serversrc/h3.ts",
-    "fastify": "phecda-serversrc/fastify.ts",
-    "hyper-express": "phecda-serversrc/hyper-express.ts",
-    "hono": "phecda-serversrc/hono.ts",
-    "elysia": "phecda-serversrc/elysia.ts",
+    "express": "phecda-server src/express.ts",
+    "koa": "phecda-server src/koa.ts",
+    "h3": "phecda-server src/h3.ts",
+    "fastify": "phecda-server src/fastify.ts",
+    "hyper-express": "phecda-server src/hyper-express.ts",
+    "hono": "phecda-server src/hono.ts",
+    "elysia": "phecda-server src/elysia.ts",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

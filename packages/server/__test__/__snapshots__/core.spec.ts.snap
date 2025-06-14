@@ -24,6 +24,10 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -31,9 +35,19 @@ exports[`Factory  > Factory will create instance and collect metadata 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/test",
+        "type": "get",
+      },
+    },
     "tag": "A",
   },
 ]
@@ -61,6 +75,10 @@ exports[`Factory  > In extended case 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -68,9 +86,19 @@ exports[`Factory  > In extended case 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/testB",
+        "type": "get",
+      },
+    },
     "tag": "B",
   },
   {
@@ -93,6 +121,10 @@ exports[`Factory  > In extended case 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -100,9 +132,19 @@ exports[`Factory  > In extended case 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/testA",
+        "type": "get",
+      },
+    },
     "tag": "B",
   },
 ]
@@ -133,9 +175,22 @@ exports[`Factory  > decorator in extends case 1`] = `
         "index": 0,
         "key": "",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "guards": [
+        "test",
+      ],
+      "http": {
+        "route": "",
+        "type": "post",
+      },
+    },
     "tag": "A",
   },
   {
@@ -170,9 +225,39 @@ exports[`Factory  > decorator in extends case 1`] = `
         "index": 0,
         "key": "",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "define": {
+        "method": "b",
+      },
+      "guards": [
+        "test",
+        "test3",
+        "test2",
+      ],
+      "http": {
+        "headers": {
+          "b": "b",
+          "key": "b",
+        },
+        "route": "",
+        "type": "post",
+      },
+      "params": [
+        {
+          "define": {
+            "b": "b",
+          },
+          "index": 0,
+        },
+      ],
+    },
     "tag": "B",
   },
   {
@@ -208,9 +293,47 @@ exports[`Factory  > decorator in extends case 1`] = `
         "index": 0,
         "key": "",
         "pipe": "C",
+        "rawMeta": {
+          "key": "",
+          "pipe": "C",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "define": {
+        "method": "c",
+      },
+      "guards": [
+        "test3",
+        "test2",
+        "test",
+      ],
+      "http": {
+        "headers": {
+          "b": "b",
+          "c": "c",
+          "key": "c",
+        },
+        "route": "/test",
+        "type": "post",
+      },
+      "params": [
+        {
+          "define": {
+            "b": "b",
+          },
+          "index": 0,
+        },
+        {
+          "define": {
+            "c": "c",
+          },
+          "index": 0,
+        },
+      ],
+    },
     "tag": "C",
   },
 ]
@@ -238,6 +361,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -245,9 +372,19 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/testB",
+        "type": "get",
+      },
+    },
     "tag": "B",
   },
   {
@@ -270,6 +407,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -277,9 +418,19 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/testA",
+        "type": "get",
+      },
+    },
     "tag": "B",
   },
   {
@@ -302,6 +453,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -309,9 +464,19 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/testC",
+        "type": "get",
+      },
+    },
     "tag": "C",
   },
   {
@@ -334,6 +499,10 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 0,
         "key": "id",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "id",
+          "type": "query",
+        },
         "type": "query",
       },
       {
@@ -341,9 +510,19 @@ exports[`Factory  > multple class extends the same class 1`] = `
         "index": 1,
         "key": "name",
         "pipe": undefined,
+        "rawMeta": {
+          "key": "name",
+          "type": "body",
+        },
         "type": "body",
       },
     ],
+    "rawMeta": {
+      "http": {
+        "route": "/testA",
+        "type": "get",
+      },
+    },
     "tag": "C",
   },
 ]

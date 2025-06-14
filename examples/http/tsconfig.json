@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES6",
     "useDefineForClassFields": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -16,7 +16,6 @@
     "isolatedModules": false,
     "esModuleInterop": true,
     "noEmit": true,
-
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -25,5 +24,5 @@
   "include": [
     "src",
     "ps.d.ts"
-, "phecda.d.ts", "phecda.d.ts"  ]
+  ]
 }

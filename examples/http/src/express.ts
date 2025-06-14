@@ -1,5 +1,4 @@
 import { bind } from 'phecda-server/express'
-import { Factory, HTTPGenerator, log } from 'phecda-server'
 import express from 'express'
 import cookie from 'cookie-parser'
 // import multer from 'multer'
@@ -11,7 +10,7 @@ import { TestController } from './modules/test.controller'
 
 async function start() {
   const data = await Factory([TestController], {
-    generators: [new HTTPGenerator()],
+    generators: [new HTTPGenerator(), new DocGenerator()],
   })
   const router = express.Router()
   const app = express()

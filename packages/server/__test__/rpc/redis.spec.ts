@@ -63,7 +63,7 @@ describe('redis rpc', () => {
       ctx: any
 
       @Queue('test queue')
-      run(@Arg arg: string) {
+      run(@Arg arg: number) {
         expect(this.ctx).toBeDefined()
         fn()
         return arg

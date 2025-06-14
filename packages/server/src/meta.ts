@@ -5,6 +5,7 @@ export interface ServiceMetaData {
   name: string
   tag: string
   define?: any
+  rawMeta: any
   [key: string]: any
 }
 
@@ -21,7 +22,7 @@ export interface ControllerMetaData extends ServiceMetaData {
     isEvent?: boolean
   }
   ctxs?: string[]
-  params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any> }[]
+  params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any>; rawMeta: any }[]
   guards: string[]
   pipe?: string
   filter?: string
