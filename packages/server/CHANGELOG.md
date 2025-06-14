@@ -1,5 +1,16 @@
 # phecda-server
 
+## 7.1.0
+
+### Minor Changes
+
+- 0bd19a4: 1. add `rawMeta` to metadata 2. change default pipe(support `Rule/Required`) 3. add `DocGenerator`
+
+### Patch Changes
+
+- Updated dependencies [3f674bc]
+  - phecda-core@4.4.0
+
 ## 7.0.2
 
 ### Patch Changes

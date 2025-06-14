@@ -1,5 +1,12 @@
 # phecda-core
 
+## 4.4.0
+
+### Minor Changes
+
+- 3f674bc: add `Doc` decorator
+  `Required/Optional/Rule` support decorate param
+
 ## 4.3.0
 
 ### Minor Changes
