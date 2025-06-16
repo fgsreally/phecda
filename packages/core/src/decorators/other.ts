@@ -20,3 +20,20 @@ export function Doc(doc: string) {
     setMeta(target, property, index, { doc })
   }
 }
+
+
+
+// export function Enum(data: object) {
+//   return (target: any, property: PropertyKey, index?: any) => {
+//     setMeta(target, property, index, {
+//       rules: [
+//         (value: any) => {
+//           if (!Object.values(data).includes(value)) {
+//             return `Value must be one of ${Object.values(data).join(', ')}`
+//           }
+//         }
+//       ]
+//     })
+//   }
+// }
+

@@ -2,26 +2,15 @@ import type { Construct } from 'phecda-core'
 import { getTag, invokeInit } from 'phecda-core'
 import 'reflect-metadata'
 
-export const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
+ const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {
   for (const Module of Modules)
-    await buildNestModule(Module)
+    await buildNestedModule(Module)
 }
 
-if (__DEV__) {
-  // @ts-expect-error work for hmr
-  window.__PHECDA_MODULE_UPDATE__ = (target) => {
-    target = Object.values(target)[0]
-    const tag = getTag(target)
-    const module = moduleMap.get(tag)
-    module.destroy?.()
-    moduleMap.delete(tag)
-    buildNestModule(target)
-  }
-}
 
-async function buildNestModule(Module: Construct) {
+async function buildNestedModule(Module: Construct) {
   const paramtypes = getParamtypes(Module) as Construct[]
 
   let instance: InstanceType<Construct>
@@ -38,7 +27,7 @@ async function buildNestModule(Module: Construct) {
   if (paramtypes) {
     const paramtypesInstances = [] as any[]
     for (const i in paramtypes)
-      paramtypesInstances[i] = await buildNestModule(paramtypes[i])
+      paramtypesInstances[i] = await buildNestedModule(paramtypes[i])
 
     instance = new Module(...paramtypesInstances)
   }
@@ -65,4 +54,21 @@ async function buildNestModule(Module: Construct) {
 
 function getParamtypes(Module: any, key?: string | symbol) {
   return Reflect.getMetadata('design:paramtypes', Module, key!)
+}
+
+export function useM<Model extends Construct>(model: Model): InstanceType<Model> {
+  return moduleMap.get(getTag(model))
+}
+
+
+if (__DEV__) {
+  // @ts-expect-error work for hmr
+  window.__PHECDA_MODULE_UPDATE__ = (target) => {
+    target = Object.values(target)[0]
+    const tag = getTag(target)
+    const module = moduleMap.get(tag)
+    module.destroy?.()
+    moduleMap.delete(tag)
+    buildNestedModule(target)
+  }
 }
