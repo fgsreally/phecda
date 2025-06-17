@@ -2,13 +2,12 @@ import type { Construct } from 'phecda-core'
 import { getTag, invokeInit } from 'phecda-core'
 import 'reflect-metadata'
 
- const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
+const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
 
 export async function Factory(Modules: (new (...args: any) => any)[]) {
   for (const Module of Modules)
     await buildNestedModule(Module)
 }
-
 
 async function buildNestedModule(Module: Construct) {
   const paramtypes = getParamtypes(Module) as Construct[]
@@ -59,7 +58,6 @@ function getParamtypes(Module: any, key?: string | symbol) {
 export function useM<Model extends Construct>(model: Model): InstanceType<Model> {
   return moduleMap.get(getTag(model))
 }
-
 
 if (__DEV__) {
   // @ts-expect-error work for hmr

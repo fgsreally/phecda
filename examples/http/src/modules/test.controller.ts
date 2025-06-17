@@ -64,7 +64,7 @@ export class TestController extends HttpBase {
     @Query('id')
     @Required @Rule(value => value > 10)
     @Doc('这是一个测试的id参数')
-    id: number
+    id: number,
   ) {
     return id
   }

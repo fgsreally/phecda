@@ -21,8 +21,6 @@ export function Doc(doc: string) {
   }
 }
 
-
-
 // export function Enum(data: object) {
 //   return (target: any, property: PropertyKey, index?: any) => {
 //     setMeta(target, property, index, {
@@ -36,4 +34,3 @@ export function Doc(doc: string) {
 //     })
 //   }
 // }
-
