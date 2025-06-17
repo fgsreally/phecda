@@ -1,5 +1,16 @@
 # phecda-module
 
+## 2.1.0
+
+### Minor Changes
+
+- 54449a9: add useM
+
+### Patch Changes
+
+- Updated dependencies [6e44723]
+  - phecda-core@4.5.0
+
 ## 2.0.5
 
 ### Patch Changes
