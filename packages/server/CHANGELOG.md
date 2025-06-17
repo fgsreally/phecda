@@ -1,5 +1,12 @@
 # phecda-server
 
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies [6e44723]
+  - phecda-core@4.5.0
+
 ## 7.1.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "phecda-module",
-  "version": "2.0.5",
+  "version": "2.1.0",
   "description": "provide DI and HMR for modules by reflect-metadata and vite",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
