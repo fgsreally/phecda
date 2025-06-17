@@ -177,13 +177,26 @@ export function pick<Class extends Construct, Key extends keyof InstanceType<Cla
   return newClass
 }
 
-export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Partial<Pick<InstanceType<Class>, Key>> & Omit<InstanceType<Class>, Key>> {
+export function partial<Class extends Construct>(
+  classFn: Class
+): Construct<Partial<InstanceType<Class>>>
+
+export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(
+  classFn: Class,
+  ...properties: Key[]
+): Construct<Partial<Pick<InstanceType<Class>, Key>> & Omit<InstanceType<Class>, Key>>
+
+// 实现
+export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(
+  classFn: Class,
+  ...properties: Key[]
+): Construct<any> {
   const newClass = class extends classFn {
 
   } as any
 
   getMetaKey(classFn).forEach((k) => {
-    if (properties.includes(k as any))
+    if (properties.length === 0 || properties.includes(k as any))
       addDecoToClass(newClass, k, Optional)
   })
 
