@@ -20,15 +20,16 @@ export default ['Addon', 'Arg', 'Assign', 'BadGatewayException', 'BadRequestExce
   'Watcher', 'WorkerException',
   'addAddon', 'addDecoToClass',
   'addFilter', 'addGuard', 'addPipe', 'emitter',
-  'getMergedMeta',
-  'getMeta', 'getMetaKey', 'getMetaParams', 'getOwnMeta', 'getOwnMetaKey', 'getOwnMetaParams',
+  'getMergedMeta','getMeta', 'getMetaKey', 'getMetaParams', 'getOwnMeta', 'getOwnMetaKey', 'getOwnMetaParams',
   'getTag',
   'isPhecda', 'log', 'phecdaNamespace', 'runMiddleware',
   'setInject',
   'setLogger',
   'setMeta',
   'useS', 'wait', 'OneFile', 'ManyFiles',
-  'Rule','Required','Optional','Doc','DocGenerator'
+  'Rule','Required','Optional','Doc','DocGenerator',
+  'pick','omit','partial',
+  'functionToClass','objectToClass'
 
 
 ]
