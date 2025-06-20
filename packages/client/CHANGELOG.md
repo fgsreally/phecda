@@ -1,5 +1,11 @@
 # phecda-client
 
+## 3.0.1
+
+### Patch Changes
+
+- c8c46b6: fix types
+
 ## 3.0.0
 
 ### Major Changes
