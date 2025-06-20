@@ -50,7 +50,7 @@ export class TestController extends HttpBase {
   async framework() {
     log('framework')
     this.service.test()
-    return this.context.type
+    return this.context.type as string
   }
 
   customResponse() {

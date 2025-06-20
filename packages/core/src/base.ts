@@ -17,11 +17,11 @@ export abstract class Base {
   }
 
   @Init
-  init() {
+  protected init() {
 
   }
 
-  then(cb: () => void, reject?: (e: any) => void) {
+  protected then(cb: () => void, reject?: (e: any) => void) {
     return this.__PROMISE_SYMBOL__.then(cb, reject)
   }
 
