@@ -1,5 +1,11 @@
 # phecda-core
 
+## 4.5.1
+
+### Patch Changes
+
+- c8c46b6: add protected to Base method for phecda-client
+
 ## 4.5.0
 
 ### Minor Changes

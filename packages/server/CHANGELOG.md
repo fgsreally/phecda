@@ -1,5 +1,13 @@
 # phecda-server
 
+## 7.1.3
+
+### Patch Changes
+
+- c8c46b6: add protected to Base method for phecda-client
+- Updated dependencies [c8c46b6]
+  - phecda-core@4.5.1
+
 ## 7.1.2
 
 ### Patch Changes
