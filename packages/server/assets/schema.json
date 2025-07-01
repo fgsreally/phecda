@@ -51,6 +51,11 @@
           "description": "Disable unimport"
         }
       ]
+    },
+    "swc": {
+      "type": "object",
+      "description": "options passed to @swc-node/core"
+      
     }
   },
 

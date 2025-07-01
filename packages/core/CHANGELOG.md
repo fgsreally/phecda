@@ -1,5 +1,17 @@
 # phecda-core
 
+## 4.5.1
+
+### Patch Changes
+
+- c8c46b6: add protected to Base method for phecda-client
+
+## 4.5.0
+
+### Minor Changes
+
+- 6e44723: add types overload to `partial`,support partial all properties
+
 ## 4.4.0
 
 ### Minor Changes
