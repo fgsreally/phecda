@@ -343,9 +343,5 @@ function deepFreeze<T extends Record<string, any>>(object: T): T {
   return object
 }
 function getParamTypes(Model: any, key?: string | symbol) {
-  const paramTypes = Reflect.getMetadata('design:paramtypes', Model, key!)
-  if (typeof paramTypes === 'function')// work with loader to handle Circular-Dependency
-    return paramTypes()
-
-  else return paramTypes
+  return Reflect.getMetadata('design:paramtypes', Model, key!)
 }

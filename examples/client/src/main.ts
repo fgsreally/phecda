@@ -29,7 +29,6 @@ async function runAxiosDemo() {
 
     const client = createClient({ $test: TestController }, axiosAdaptor(instance))
 
-
     appendResult('axios-results', '1️⃣ 调用 framework 接口:',
       await client.$test.framework())
 
