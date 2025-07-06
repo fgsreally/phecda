@@ -6,10 +6,10 @@ import { ValidateException } from './exception'
 
 export const defaultPipe: PipeType = async ({ arg, reflect, rawMeta, index }) => {
 
-    // validate
-    if (rawMeta.required!==false && arg === undefined)
-      throw new ValidateException(`param ${index} is required`)
-  
+  // validate
+  if (rawMeta.required !== false && arg === undefined)
+    throw new ValidateException(`param ${index} is required`)
+
   // transform for query and param(not undefined)
   if (arg !== undefined && [Number, Boolean, String].includes(reflect))
     arg = reflect(arg)
