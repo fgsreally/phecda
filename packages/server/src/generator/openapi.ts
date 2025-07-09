@@ -5,6 +5,7 @@ import type { ControllerMetaData, Meta } from '../meta'
 import { Generator } from './utils'
 
 export class OpenAPIGenerator extends Generator {
+  ext = '.json'
   name = 'OpenAPI'
   paths: Record<string, any> = {}
   getContent() {
@@ -26,11 +27,18 @@ export class OpenAPIGenerator extends Generator {
     if (!http?.type)
       return
 
+
+    const config = getMergedMeta(useS().getModel(tag), func).openapi
+
+
+    if (!config) return
+
     const path = joinUrl(http.prefix, http.route)
     if (!this.paths[path])
       this.paths[path] = {}
 
-    const config = getMergedMeta(useS().getModel(tag), func).openapi
+
+
     this.paths[path][http.type as string] = {
       summary: config.summary,
       description: config.description,

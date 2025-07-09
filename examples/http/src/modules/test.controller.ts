@@ -1,3 +1,4 @@
+import { ApiDoc } from 'phecda-server'
 import { log } from '../utils' with { ps: 'not-hmr'}
 import { TestService } from './test.service'
 

@@ -3,6 +3,7 @@ import express from 'express'
 import cookie from 'cookie-parser'
 // import multer from 'multer'
 import { TestController } from './modules/test.controller'
+import { OpenAPIGenerator } from 'phecda-server'
 
 // const storage = multer.memoryStorage()
 // const uploadSingle = multer({ storage }).single('file')
@@ -10,7 +11,7 @@ import { TestController } from './modules/test.controller'
 
 async function start() {
   const data = await Factory([TestController], {
-    generators: [new HTTPGenerator(), new DocGenerator()],
+    generators: [new HTTPGenerator(), new DocGenerator(), new OpenAPIGenerator()],
   })
   const router = express.Router()
   const app = express()

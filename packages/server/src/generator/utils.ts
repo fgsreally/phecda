@@ -9,10 +9,12 @@ export abstract class Generator {
       this._path = path
   }
 
+  ext='.js'
+
   abstract name: string
 
   get path() {
-    return this._path || `.ps/${this.name.toLowerCase()}.js`
+    return this._path || `.ps/${this.name.toLowerCase()}${this.ext}`
   }
 
   abstract generateCode(meta: Meta[]): string
