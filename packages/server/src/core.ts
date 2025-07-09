@@ -164,7 +164,7 @@ export class ServerPhecda {
     else {
       module = this.parseModule(new Model())
     }
-    this.meta.push(...getMetaFromInstance(module, tag, Model.name).map(this.parseMeta).filter(item => !!item))
+    this.meta.push(...getMetaFromInstance(module, tag, Model).map(this.parseMeta).filter(item => !!item))
 
     debug(`init module "${String(tag)}"`)
 
@@ -267,7 +267,8 @@ export function useS(nsOrModel?: Construct | string, namespace?: string) {
     return serverPhecda
 }
 
-function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
+function getMetaFromInstance(instance: Phecda, tag: PropertyKey, model: Construct) {
+  const name = model.name
   const propertyKeys = getMetaKey(instance).filter(item => typeof item === 'string') as string[]
   const baseMeta = getMergedMeta(instance, undefined) as MetaData
 
@@ -323,7 +324,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       // metaData.guards = [...new Set([...baseMeta.guards, ...meta.guards])]
       // metaData.interceptors = [...new Set([...baseMeta.interceptors, ...meta.interceptors])]
     }
-    return new Meta(deepFreeze(metaData as MetaData), getParamTypes(instance, i as string) || [])
+    return new Meta(deepFreeze(metaData as MetaData), getParamTypes(instance, i as string) || [], instance, model)
   })
 }
 

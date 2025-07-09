@@ -5,7 +5,6 @@ import type { PipeType } from './context'
 import { ValidateException } from './exception'
 
 export const defaultPipe: PipeType = async ({ arg, reflect, rawMeta, index }) => {
-
   // validate
   if (rawMeta.required !== false && arg === undefined)
     throw new ValidateException(`param ${index} is required`)

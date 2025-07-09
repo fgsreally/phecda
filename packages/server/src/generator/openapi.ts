@@ -1,5 +1,4 @@
-import { getMergedMeta } from 'phecda-core'
-import { useS } from '../core'
+import { Construct, getMergedMeta } from 'phecda-core'
 import { joinUrl } from '../helper'
 import type { ControllerMetaData, Meta } from '../meta'
 import { Generator } from './utils'
@@ -20,24 +19,21 @@ export class OpenAPIGenerator extends Generator {
     })
   }
 
-  addMethod(args: ControllerMetaData) {
+  addMethod(args: ControllerMetaData, model: Construct) {
     const {
       http, tag, func,
     } = args
     if (!http?.type)
       return
 
+    const config = getMergedMeta(model, func).openapi
 
-    const config = getMergedMeta(useS().getModel(tag), func).openapi
-
-
-    if (!config) return
+    if (!config)
+      return
 
     const path = joinUrl(http.prefix, http.route)
     if (!this.paths[path])
       this.paths[path] = {}
-
-
 
     this.paths[path][http.type as string] = {
       summary: config.summary,
@@ -51,9 +47,9 @@ export class OpenAPIGenerator extends Generator {
   }
 
   generateCode(meta: Meta[]): string {
-    meta.forEach(({ data }) => {
+    meta.forEach(({ data, model }) => {
       if (data.controller === 'http')
-        this.addMethod(data as ControllerMetaData)
+        this.addMethod(data as ControllerMetaData, model)
     })
     return this.getContent()
   }

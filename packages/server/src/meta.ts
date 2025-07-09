@@ -1,3 +1,4 @@
+import { Construct } from 'phecda-core'
 import type { BaseRequestType } from './types'
 
 export interface ServiceMetaData {
@@ -33,7 +34,7 @@ export interface ControllerMetaData extends ServiceMetaData {
 export type MetaData = ControllerMetaData | ServiceMetaData
 
 export class Meta {
-  constructor(public data: MetaData, public paramsType: any[]) {
+  constructor(public data: MetaData, public paramsType: any[], public module: any, public model: Construct) {
 
   }
 }

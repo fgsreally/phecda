@@ -9,7 +9,7 @@ export abstract class Generator {
       this._path = path
   }
 
-  ext='.js'
+  ext = '.js'
 
   abstract name: string
 
