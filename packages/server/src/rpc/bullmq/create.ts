@@ -26,9 +26,9 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
   const queueMap: Record<string, Queue> = {}
   const existQueue = new Set<string>()
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, rpc, func, tag } = meta.data
+    const { controller, rpc, method, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
-      debug(`register method "${func}" in module "${tag}"`)
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -40,8 +40,8 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
   async function subscribeQueues() {
     existQueue.clear()
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
 
         const {
           data: {
@@ -65,11 +65,11 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
 
   async function handleRequest(job: Job) {
     const { data } = job
-    const { tag, func, args, id, queue: clientQueue, _ps } = data
+    const { tag, method, args, id, queue: clientQueue, _ps } = data
     if (_ps !== 1)
       return
-    debug(`invoke method "${func}" in module "${tag}"`)
-    const meta = metaMap.get(tag)![func]
+    debug(`invoke method "${method}" in module "${tag}"`)
+    const meta = metaMap.get(tag)![method]
 
     const {
       data: {
@@ -91,7 +91,7 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
       moduleMap,
       meta,
       tag,
-      func,
+      method,
       data,
       args,
       id,
@@ -102,10 +102,10 @@ export async function create({ moduleMap, meta }: Awaited<ReturnType<typeof Fact
     await context.run(aop, (returnData) => {
       if (!isEvent)
 
-        queueMap[clientQueue].add(`${tag}-${func}`, { data: returnData, id })
+        queueMap[clientQueue].add(`${tag}-${method}`, { data: returnData, id })
     }, (err) => {
       if (!isEvent) {
-        queueMap[clientQueue].add(`${tag}-${func}`, {
+        queueMap[clientQueue].add(`${tag}-${method}`, {
           data: err,
           error: true,
           id,

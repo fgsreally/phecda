@@ -23,7 +23,7 @@ export function adaptor(bullmqOptions?: {
         if (!(queue in queueMap))
           queueMap[queue] = new BullQueue(queue, bullmqOptions?.queueOpts)
 
-        queueMap[queue].add(`${data.tag}-${data.func}`, data)
+        queueMap[queue].add(`${data.tag}-${data.method}`, data)
       },
     }
   }

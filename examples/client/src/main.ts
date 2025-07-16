@@ -29,17 +29,41 @@ async function runAxiosDemo() {
 
     const client = createClient({ $test: TestController }, axiosAdaptor(instance))
 
-    appendResult('axios-results', '1️⃣ 调用 framework 接口:',
+    appendResult('axios-results', '调用/query?query1=1&query2=2 获取query',
+      await client.$test.query('1', 2))
+
+    appendResult('axios-results', '调用/query?query1=1 获取query',
+      await client.$test.query('1'))
+
+    try {
+      // @ts-expect-error miss query
+      await client.$test.query()
+    }
+    catch (e: any) {
+      appendResult('axios-results', '调用/query  返回错误：', e.response.data.message)
+    }
+
+    appendResult('axios-results', '通过/param/1,调用/param/:param 获取param',
+      await client.$test.param('1'))
+
+    appendResult('axios-results', '调用/framework 获取使用框架:',
       await client.$test.framework())
 
-    appendResult('axios-results', '2️⃣ 调用 login 接口:',
-      await client.$test.login({ name: 'p1', password: '123456' }))
+    try {
+      await client.$test.login({ name: 'phecda' } as any)
+    }
+    catch (e: any) {
+      appendResult('axios-results', '调用 /login （缺少参数）返回错误：', e.response.data.message)
+    }
+    try {
+      await client.$test.login({ name: 'phecda', password: 123456 } as any)
+    }
+    catch (e: any) {
+      appendResult('axios-results', '调用 /login （参数错误）返回错误：', e.response.data.message)
+    }
 
-    // appendResult('axios-results', '3️⃣ 调用 upload 接口:',
-    //   await client.$test.uploadFile('1', new File(['test'], 'test.txt', { type: 'text/plain' })))
-
-    // appendResult('axios-results', '4️⃣ 调用 uploadFiles 接口:',
-    //   await client.$test.uploadFiles('1', [new File(['test1'], 'test1.txt', { type: 'text/plain' }), new File(['test2'], 'test2.txt', { type: 'text/plain' })]))
+    appendResult('axios-results', '调用 login 接口成功:',
+      await client.$test.login({ name: 'phecda', password: '123456' }))
 
     const parallelClient = createClient(
       { $test: TestController },
@@ -55,7 +79,7 @@ async function runAxiosDemo() {
       parallelClient.$test.login({ name: 'p3', password: '123456' }),
     ])
 
-    appendResult('axios-results', '4️⃣ 多个并行批量请求:', {
+    appendResult('axios-results', '多个批量请求（并行）:', {
       framework: batchFramework,
       login: batchLogin,
     })
@@ -71,14 +95,17 @@ async function runAlovaDemo() {
     const alovaInstance = createAlova({
       requestAdapter: adapterFetch(),
       baseURL: '/base',
-      responded: (response) => {
-        if (response.headers.get('Content-Type')?.includes('application/json'))
+      responded: async (response) => {
+        if (response.headers.get('Content-Type')?.includes('application/json')) {
+          const res = await response.json()
 
-          return response.json()
+          if (response.status < 200 || response.status >= 300)
+            throw new Error(res.message)
 
-        else
+          return res
+        }
 
-          return response.text()
+        else { return response.text() }
       },
     })
 
@@ -86,18 +113,41 @@ async function runAlovaDemo() {
       { $test: TestController },
       alovaAdaptor(alovaInstance),
     )
+    appendResult('alova-results', '调用/query?query1=1&query2=2 获取query',
+      await client.$test.query('1', 2))
 
-    appendResult('alova-results', '1️⃣ 调用 framework 接口:',
+    appendResult('alova-results', '调用/query?query1=1 获取query',
+      await client.$test.query('1'))
+
+    try {
+      // @ts-expect-error miss query
+      await client.$test.query()
+    }
+    catch (e: any) {
+      appendResult('alova-results', '调用/query  返回错误：', e.message)
+    }
+
+    appendResult('alova-results', '通过/param/1,调用/param/:param 获取param',
+      await client.$test.param('1'))
+
+    appendResult('alova-results', '调用/framework 获取使用框架:',
       await client.$test.framework())
 
-    appendResult('alova-results', '2️⃣ 调用 login 接口:',
-      await client.$test.login({ name: 'p1', password: '123456' }))
+    try {
+      await client.$test.login({ name: 'phecda' } as any)
+    }
+    catch (e: any) {
+      appendResult('alova-results', '调用 /login （缺少参数）返回错误：', e.message)
+    }
+    try {
+      await client.$test.login({ name: 'phecda', password: 123456 } as any)
+    }
+    catch (e: any) {
+      appendResult('alova-results', '调用 /login （参数错误）返回错误：', e.message)
+    }
 
-    // appendResult('alova-results', '3️⃣ 调用 upload 接口:',
-    //   await client.$test.uploadFile('2', new File(['test'], 'a_test.txt', { type: 'text/plain' })))
-
-    // appendResult('alova-results', '4️⃣ 调用 uploadFiles 接口:',
-    //   await client.$test.uploadFiles('2', [new File(['test1'], 'a_test1.txt', { type: 'text/plain' }), new File(['test2'], 'a_test2.txt', { type: 'text/plain' })]))
+    appendResult('alova-results', '调用 login 接口成功:',
+      await client.$test.login({ name: 'phecda', password: '123456' }))
 
     const parallelClient = createClient(
       { $test: TestController },
@@ -105,7 +155,7 @@ async function runAlovaDemo() {
       { batch: true },
     )
 
-    appendResult('alova-results', '3️⃣ 单个批量请求:',
+    appendResult('alova-results', '单个批量请求:',
       await parallelClient.$test.login({ name: 'p1', password: '123456' }))
 
     const [batchFramework, batchLogin] = await Promise.all([
@@ -113,7 +163,7 @@ async function runAlovaDemo() {
       parallelClient.$test.login({ name: 'p3', password: '123456' }),
     ])
 
-    appendResult('alova-results', '4️⃣ 多个并行批量请求:', {
+    appendResult('alova-results', '多个批量请求（并行）:', {
       framework: batchFramework,
       login: batchLogin,
     })

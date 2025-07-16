@@ -17,7 +17,7 @@ export interface AOP {
   filter: FilterType
 }
 
-export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any>; rawMeta: any }
+export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any>; meta: any }
 export type GuardType<Ctx extends BaseCtx = any> = (ctx: Ctx, next: () => Promise<any>) => any
 export type PipeType<Ctx extends BaseCtx = any> = (arg: PipeArg, ctx: Ctx) => Promise<any>
 export type FilterType<Ctx extends BaseCtx = any, E extends Exception = any> = (err: E | Error, ctx?: Ctx) => Error | any
@@ -78,7 +78,7 @@ export class Context<Ctx extends BaseCtx> {
     const {
       data: {
         guards, filter,
-        params, tag, func,
+        params, tag, method,
       },
     } = meta
 
@@ -91,7 +91,7 @@ export class Context<Ctx extends BaseCtx> {
 
     if (process.env.DEBUG) {
       const { guards, pipe, filter } = resolved
-      debug(`func "${tag}-${func}" aop: \n${pc.magenta(`Guard ${guards.join('->')}[${guards.filter(g => g in this.guardRecord).join('->')}]`)}\n${pc.blue(`Pipe ${pipe.join('-')}[${pipe.map(p => p in this.pipeRecord ? p : 'default').join('-')}]`)}\n${pc.red(`Filter ${filter}[${filter || 'default'}]`)}`)
+      debug(`method "${tag}-${method}" aop: \n${pc.magenta(`Guard ${guards.join('->')}[${guards.filter(g => g in this.guardRecord).join('->')}]`)}\n${pc.blue(`Pipe ${pipe.join('-')}[${pipe.map(p => p in this.pipeRecord ? p : 'default').join('-')}]`)}\n${pc.red(`Filter ${filter}[${filter || 'default'}]`)}`)
     }
     return {
       guards: this.getGuards(resolved.guards),
@@ -114,7 +114,7 @@ export class Context<Ctx extends BaseCtx> {
         ctxs,
         tag,
         params,
-        func,
+        method,
       },
     } = meta
 
@@ -140,7 +140,7 @@ export class Context<Ctx extends BaseCtx> {
             //     this.canGetCtx = false
             //   })
             // }
-            res = await instance[func](...args)
+            res = await instance[method](...args)
             // this.canGetCtx = true
           }
           else {
@@ -148,7 +148,7 @@ export class Context<Ctx extends BaseCtx> {
             async function next() {
               return nextPromise = nextHandler(index + 1)().then((ret) => {
                 if (ret !== undefined) {
-                  debug(`The ${index + 1}th guard on "${tag}-${func}" rewrite the response value.`)
+                  debug(`The ${index + 1}th guard on "${tag}-${method}" rewrite the response value.`)
                   res = ret
                 }
 

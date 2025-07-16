@@ -23,9 +23,9 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
   const { moduleMap, meta } = data
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, http, func, tag } = meta.data
-    if (controller === 'http' && http?.type) {
-      debug(`register method "${func}" in module "${tag}"`)
+    const { controller, http, method, tag } = meta.data
+    if (controller === 'http' && http?.method) {
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -62,16 +62,16 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
             return new Promise(async (resolve) => {
               if (!item)
                 return resolve(null)
-              const { tag, func } = item
+              const { tag, method } = item
 
-              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              debug(`(parallel)invoke method "${method}" in module "${tag}"`)
 
               if (!metaMap.has(tag))
                 return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-              const meta = metaMap.get(tag)![func]
+              const meta = metaMap.get(tag)![method]
               if (!meta)
-                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${method}" in "${tag}" doesn't exist`)))
 
               const aop = Context.getAop(meta, {
                 globalGuards,
@@ -121,8 +121,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
     }
 
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
 
         const {
           data: {
@@ -135,7 +135,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
 
         const subApp = new App({ prefix: '' })
 
-        if (!http?.type)
+        if (!http?.method)
           continue
 
         let aop: AOP
@@ -147,8 +147,8 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
           })
         }
         Context.applyAddons(addons, subApp, 'elysia');
-        (subApp as any)[http.type](joinUrl(http.prefix, http.route), async (c: ElysiaContext) => {
-          debug(`invoke method "${func}" in module "${tag}"`)
+        (subApp as any)[http.method](joinUrl(http.prefix, http.route), async (c: ElysiaContext) => {
+          debug(`invoke method "${method}" in module "${tag}"`)
           const contextData = {
             type: 'elysia' as const,
             category: 'http',
@@ -156,7 +156,7 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
             meta,
             moduleMap,
             tag,
-            func,
+            method,
             query: c.query,
             body: c.body as any,
             params: c.params,

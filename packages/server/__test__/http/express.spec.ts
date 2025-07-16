@@ -36,7 +36,7 @@ describe('express ', () => {
     expect(fn).toHaveBeenCalledTimes(2)
     await request(app).post('/__PHECDA_SERVER__').send([{
       tag: 'Test',
-      func: 'addon',
+      method: 'addon',
       args: [],
     }])
     expect(fn).toHaveBeenCalledTimes(4)

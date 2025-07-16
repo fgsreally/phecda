@@ -1,9 +1,11 @@
-import { log } from '../utils' with { ps: 'not-hmr'}
+// import { log } from '../utils' with { ps: 'not-hmr'}//禁用热更新
 import { TestService } from './test.service'
 
 export class User {
+  @Required
   name: string
 
+  @Required
   password: string
 }
 
@@ -11,58 +13,54 @@ export class User {
 @Guard('D')
 @Define('a', {})
 export class TestController extends HttpBase {
-  age = 1
-
   constructor(private service: TestService) {
     super()
   }
 
   @Init
   init() {
-    setTimeout(async () => {
-      const { log } = await import('../utils', {
-        // with: {
-        //   ps: 'not-hmr',
-        // },
-      })
-      log('start!')
-    }, 1000)
-    // throw new Error('test')
     // initlize
+
+  }
+
+  @Get()
+  async query(@Query('query1') query1: string, @Query('query2') @Optional query2?: number) {
+    return { query1, query2 }
+  }
+
+  @Get('/param/:param')
+  async param(@Param('param') param: string) {
+    return { param }
   }
 
   @Post('/login')
   login(@Body() user: User) {
     this.service.login(user)
-    return user.name + Math.random()
+    return 'login success!'
   }
 
-  @Get('/test')
-  async emitTest(@Query('data') data = 1) {
-    emitter.emit('test', data)
-
+  @Post('emitTest')
+  emitTest() {
+    emitter.emit('test', 1)
     return true
   }
 
   @Get('framework')
-  @Guard('E')
-  @Guard('C')
   async framework() {
-    log('framework')
-    this.service.test()
     return this.context.type as string
   }
 
+  // will be ignored
   customResponse() {
     return new CustomResponse()
   }
 
-  @Get('validate')
+  @Get('validate/:id')
   @Doc('这是一个测试validate装饰器的接口')
   @Rule(() => true)
   validate(
-    @Query('id')
-    @Required @Rule(value => value > 10)
+    @Param('id')
+    @Required @Rule(({ value }) => value > 10)
     @Doc('这是一个测试的id参数')
     id: number,
   ) {

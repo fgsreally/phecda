@@ -1,9 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`phecda-zod > parse 1`] = `
-{
-  "email": "phecda@a.com",
-  "isAdmin": true,
-  "username": "phecda",
-}
-`;

@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
 import { getInject, getMergedMeta, getMetaKey, getMetaParams, getTag, invokeInit, invokeUnmount, setInject } from 'phecda-core'
@@ -279,7 +278,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, model: Construc
       ...meta,
       name,
       tag,
-      func:
+      method:
         i,
     } as MetaData
     if (baseMeta.controller) {
@@ -293,7 +292,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, model: Construc
 
       const params = getMetaParams(instance, i).map(item => getMergedMeta(instance, i, item))
 
-      metaData.rawMeta = meta
+      metaData.meta = meta
 
       metaData.ctxs = ctxs
       metaData.params = params.map((item, index) => {
@@ -302,7 +301,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, model: Construc
           pipe: item.pipe || meta.pipe || baseMeta.pipe,
           define: item.define || {},
           index,
-          rawMeta: item,
+          meta: item,
         }
       })
       metaData.filter = meta.filter || baseMeta.filter

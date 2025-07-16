@@ -5,7 +5,7 @@ export function adaptor(instance: Alova<any>): HttpAdaptor {
   return () => {
     let m: Method
     return {
-      send: async ({ url, method, body, query, headers, file, files }: RequestArg) => {
+      send: async ({ http: { method, url }, body, query, headers, file, files }: RequestArg) => {
         const { Method } = await import('alova')
 
         if (file) {

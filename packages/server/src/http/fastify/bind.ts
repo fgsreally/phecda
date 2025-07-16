@@ -25,9 +25,9 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
   } = data
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, http, func, tag } = meta.data
-    if (controller === 'http' && http?.type) {
-      debug(`register method "${func}" in module "${tag}"`)
+    const { controller, http, method, tag } = meta.data
+    if (controller === 'http' && http?.method) {
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -61,16 +61,16 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
               return new Promise(async (resolve) => {
                 if (!item)
                   return resolve(null)
-                const { tag, func } = item
-                debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+                const { tag, method } = item
+                debug(`(parallel)invoke method "${method}" in module "${tag}"`)
 
                 if (!metaMap.has(tag))
                   return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-                const meta = metaMap.get(tag)![func]
+                const meta = metaMap.get(tag)![method]
 
                 if (!meta)
-                  return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+                  return resolve(await Context.filterRecord.default(new BadRequestException(`"${method}" in "${tag}" doesn't exist`)))
 
                 const aop = Context.getAop(meta, {
                   globalFilter,
@@ -120,8 +120,8 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
     }
 
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
         const {
           data: {
 
@@ -132,7 +132,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
           },
         } = meta
 
-        if (!http?.type)
+        if (!http?.method)
           continue
 
         fastify.register(async (fastify, _opts, done) => {
@@ -148,8 +148,8 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
             })
           }
 
-          fastify[http.type](joinUrl(http.prefix, http.route), define?.fastify || {}, async (req, res) => {
-            debug(`invoke method "${func}" in module "${tag}"`)
+          fastify[http.method](joinUrl(http.prefix, http.route), define?.fastify || {}, async (req, res) => {
+            debug(`invoke method "${method}" in module "${tag}"`)
 
             const contextData = {
               type: 'fastify' as const,
@@ -159,7 +159,7 @@ export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof F
               response: res,
               moduleMap,
               tag,
-              func,
+              method,
               query: req.query as any,
               body: req.body as any,
               params: req.params as any,

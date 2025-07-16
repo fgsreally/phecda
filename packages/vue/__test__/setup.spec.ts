@@ -76,11 +76,13 @@ describe('in vue component', () => {
       template: '<div>{{user.name}}</div><button @click="reset(User)"></button>',
 
     })
+
     const wrapper = mount(Comp, {
       global: {
         plugins: [createPhecda()],
       },
     })
+
 
     // reset
     expect(wrapper.find('div').text()).toBe('phecda-vue')

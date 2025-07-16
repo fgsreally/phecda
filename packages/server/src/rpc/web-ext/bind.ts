@@ -13,9 +13,9 @@ export interface WebExtCtx extends RpcCtx {
 export function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
   const { globalGuards, globalFilter, globalPipe, globalAddons = [] } = opts
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, rpc, func, tag } = meta.data
+    const { controller, rpc, method, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
-      debug(`register method "${func}" in module "${tag}"`)
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -28,12 +28,12 @@ export function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, o
   chrome.runtime.onMessage.addListener(callback)
 
   async function callback(data: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) {
-    const { func, id, tag, _ps, args } = data || {}
-    debug(`invoke method "${func}" in module "${tag}"`)
+    const { method, id, tag, _ps, args } = data || {}
+    debug(`invoke method "${method}" in module "${tag}"`)
 
     if (_ps !== 1)
       return
-    const meta = metaMap.get(tag)![func]
+    const meta = metaMap.get(tag)![method]
 
     const {
       data: { rpc: { isEvent } = {} },
@@ -50,7 +50,7 @@ export function bind({ moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, o
       moduleMap,
       meta,
       tag,
-      func,
+      method,
       args,
       id,
       isEvent,

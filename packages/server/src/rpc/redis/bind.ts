@@ -19,9 +19,9 @@ export interface RedisCtx extends RpcCtx {
 export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, opts: RpcServerOptions = {}) {
   const { globalGuards, globalFilter, globalPipe, globalAddons = [], defaultQueue } = opts
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, rpc, func, tag } = meta.data
+    const { controller, rpc, method, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
-      debug(`register method "${func}" in module "${tag}"`)
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -38,8 +38,8 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
     existQueue.clear()
 
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
         const {
           data: {
             rpc,
@@ -63,12 +63,12 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
 
     if (msg) {
       const data = JSON.parse(msg)
-      const { func, id, tag, queue: clientQueue, _ps, args } = data
-      debug(`invoke method "${func}" in module "${tag}"`)
+      const { method, id, tag, queue: clientQueue, _ps, args } = data
+      debug(`invoke method "${method}" in module "${tag}"`)
 
       if (_ps !== 1)
         return
-      const meta = metaMap.get(tag)![func]
+      const meta = metaMap.get(tag)![method]
 
       const {
         data: { rpc: { isEvent } = {} },
@@ -88,7 +88,7 @@ export function bind({ sub, pub }: { sub: Redis; pub: Redis }, { moduleMap, meta
         msg,
         channel,
         tag,
-        func,
+        method,
         args,
         id,
         isEvent,

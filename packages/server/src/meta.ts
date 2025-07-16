@@ -1,19 +1,19 @@
-import { Construct } from 'phecda-core'
-import type { BaseRequestType } from './types'
+import type { Construct } from 'phecda-core'
+import type { BaseRequestMethod } from './types'
 
 export interface ServiceMetaData {
-  func: string
+  method: string
   name: string
   tag: string
   define?: any
-  rawMeta: any
+  meta: any
   [key: string]: any
 }
 
 export interface ControllerMetaData extends ServiceMetaData {
   controller: string
   http?: {
-    type: BaseRequestType
+    method: BaseRequestMethod
     prefix: string
     route: string
     headers?: Record<string, string>
@@ -23,7 +23,7 @@ export interface ControllerMetaData extends ServiceMetaData {
     isEvent?: boolean
   }
   ctxs?: string[]
-  params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any>; rawMeta: any }[]
+  params: { type: string; index: number; key: string; pipe?: string; define: Record<string, any>; meta: any }[]
   guards: string[]
   pipe?: string
   filter?: string

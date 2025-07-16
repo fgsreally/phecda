@@ -21,12 +21,12 @@ export class OpenAPIGenerator extends Generator {
 
   addMethod(args: ControllerMetaData, model: Construct) {
     const {
-      http, tag, func,
+      http, tag, method,
     } = args
-    if (!http?.type)
+    if (!http?.method)
       return
 
-    const config = getMergedMeta(model, func).openapi
+    const config = getMergedMeta(model, method).openapi
 
     if (!config)
       return
@@ -35,7 +35,7 @@ export class OpenAPIGenerator extends Generator {
     if (!this.paths[path])
       this.paths[path] = {}
 
-    this.paths[path][http.type as string] = {
+    this.paths[path][http.method as string] = {
       summary: config.summary,
       description: config.description,
       tags: config.tags || [tag],

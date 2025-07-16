@@ -1,6 +1,5 @@
 import type { Construct } from 'phecda-core'
 import { getTag, invokeInit } from 'phecda-core'
-import 'reflect-metadata'
 
 const moduleMap = new Map<PropertyKey, InstanceType<Construct>>()
 

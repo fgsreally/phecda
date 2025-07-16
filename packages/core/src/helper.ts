@@ -203,32 +203,6 @@ export function partial<Class extends Construct, Key extends keyof InstanceType<
   return newClass
 }
 
-// @todo
-// export function pick<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {
-//   const newClass = class {
-//     constructor(...args: any) {
-//       // eslint-disable-next-line new-cap
-//       const instance = new classFn(...args)
-
-//       properties.forEach((k: any) => {
-//         (this as any)[k] = instance[k]
-//       })
-//     }
-//   } as any
-
-//   getMetaKey(classFn).forEach((k) => {
-//     if (properties.includes(k as any) || k === SHARE_KEY) {
-
-//       setMeta(newClass, k, undefined, {
-//         [CLEAR_KEY]: true,
-//       })
-
-//     }
-//   })
-
-//   return newClass
-// }
-
 // just type trick
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function override<Class extends Construct, Key extends keyof InstanceType<Class>>(classFn: Class, ...properties: Key[]): Construct<Omit<InstanceType<Class>, Key>> {

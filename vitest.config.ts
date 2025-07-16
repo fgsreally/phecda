@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitest/config'
-import { swcUnplugin } from 'unplugin-swc-esm'
+import swc from 'unplugin-swc'
 
 export default defineConfig({
-  plugins: [swcUnplugin.vite()],
+  plugins: [swc.vite()],
   resolve: {
     alias: {
       amqplib: 'mock-amqplib',

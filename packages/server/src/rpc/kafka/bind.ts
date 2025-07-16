@@ -22,9 +22,9 @@ export async function bind({ consumer, producer }: { consumer: Consumer; produce
 
   const existQueue = new Set<string>()
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, rpc, func, tag } = meta.data
+    const { controller, rpc, method, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
-      debug(`register method "${func}" in module "${tag}"`)
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -39,8 +39,8 @@ export async function bind({ consumer, producer }: { consumer: Consumer; produce
   async function subscribeQueues() {
     existQueue.clear()
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
 
         const {
           data: {
@@ -66,12 +66,12 @@ export async function bind({ consumer, producer }: { consumer: Consumer; produce
 
       const data = JSON.parse(message.value!.toString())
 
-      const { tag, func, id, queue: clientQueue, _ps, args } = data
+      const { tag, method, id, queue: clientQueue, _ps, args } = data
 
       if (_ps !== 1)
         return
-      debug(`invoke method "${func}" in module "${tag}"`)
-      const meta = metaMap.get(tag)![func]
+      debug(`invoke method "${method}" in module "${tag}"`)
+      const meta = metaMap.get(tag)![method]
 
       const {
         data: {
@@ -92,7 +92,7 @@ export async function bind({ consumer, producer }: { consumer: Consumer; produce
         args,
         id,
         tag,
-        func,
+        method,
         partition,
         topic,
         heartbeat,

@@ -1,10 +1,10 @@
 import { setMeta } from 'phecda-core'
 
-export function Route(route: string, type: string): MethodDecorator {
+export function Route(route: string, method: string): MethodDecorator {
   return (target: any, property: PropertyKey) => {
     setMeta(target, property, undefined, {
       http: {
-        route, type,
+        route, method,
       },
     })
   }
