@@ -44,9 +44,9 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
 
     return new Proxy({}, {
       get(_target, p) {
-        const { data } = (meta as ControllerMeta[]).find(({ data }) => data.name === Module.name && data.func === p && data.tag === tag)!
+        const { data } = (meta as ControllerMeta[]).find(({ data }) => data.name === Module.name && data.method === p && data.tag === tag)!
         return (...args: any) => {
-          const ret = { body: {}, headers: {}, query: {}, func: data.http!.type, url: data.http!.prefix + data.http!.route } as any
+          const ret = { body: {}, headers: {}, query: {}, method: data.http!.method, url: data.http!.prefix + data.http!.route } as any
 
           data.params.forEach((item) => {
             if (item.type === 'params') {
@@ -65,7 +65,7 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
               ret[item.type] = args[item.index]
           })
           // @ts-expect-error @todo miss type
-          let agent = (isAgent ? Agent : request(app))[ret.func](ret.url)
+          let agent = (isAgent ? Agent : request(app))[ret.method](ret.url)
           if (Object.keys(ret.query).length > 0)
             agent = agent.query(ret.query)
 

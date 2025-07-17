@@ -22,7 +22,6 @@
   "dependencies": {
     "mitt": "^3.0.0",
     "phecda-core": "workspace:*",
-    "reflect-metadata": "^0.1.13",
     "ts-mixer": "^6.0.4"
   },
   "devDependencies": {

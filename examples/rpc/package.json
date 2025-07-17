@@ -16,6 +16,7 @@
     "client:nats": " phecda src/rpc/pub/nats.client.ts"
   },
   "dependencies": {
+    "amqplib": "^0.10.8",
     "bullmq": "^5.7.1",
     "ioredis": "^5.3.2",
     "kafkajs": "^2.2.4",
@@ -25,6 +26,7 @@
     "rabbitmq": "^0.0.2"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
     "typescript": "^5.8.3",
     "unimport": "^3.7.1"
   }

@@ -3,13 +3,15 @@ import { Generator } from './utils'
 
 export class DocGenerator extends Generator {
   name = 'DOC'
-  classMap: Record<string, { [key: string]: {
-    doc: string
-    params: {
+  classMap: Record<string, {
+    [key: string]: {
       doc: string
-      index: number
-    }[]
-  } }> = {}
+      params: {
+        doc: string
+        index: number
+      }[]
+    }
+  }> = {}
 
   constructor(path?: string) {
     super(path || '.ps/doc.json')
@@ -21,18 +23,18 @@ export class DocGenerator extends Generator {
 
   addMethod(data: ControllerMetaData) {
     const {
-      name, func,
+      name, method, meta,
     } = data
-    if (!data.rawMeta.doc)
+    if (!meta.doc)
       return
 
     if (!this.classMap[name])
       this.classMap[name] = {}
-    this.classMap[name][func] = {
-      doc: data.rawMeta.doc,
-      params: data.params.filter(item => item.rawMeta.doc).map((item) => {
+    this.classMap[name][method] = {
+      doc: meta.doc,
+      params: data.params.filter(item => item.meta.doc).map((item) => {
         return {
-          doc: item.rawMeta.doc,
+          doc: item.meta.doc,
           index: item.index,
         }
       }),

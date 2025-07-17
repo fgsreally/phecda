@@ -5,7 +5,7 @@ import { Arg, Ctx, Exception, Factory, Filter, Guard, Pipe, Queue, Rpc, addFilte
 import { bind } from '../../src/rpc/rabbitmq'
 
 describe('rabbitmq rpc', () => {
-  let conn: amqp.Connection
+  let conn: amqp.ChannelModel
   let pub: amqp.Channel
   let sub: amqp.Channel
 
@@ -30,7 +30,7 @@ describe('rabbitmq rpc', () => {
     pub.sendToQueue(queue ?? 'TestRpc', Buffer.from(JSON.stringify({
       args: [data],
       tag: 'TestRpc',
-      func: 'run',
+      method: 'run',
       _ps: 1,
       queue: clientQueue,
       id: `${index}`,

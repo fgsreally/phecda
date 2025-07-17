@@ -14,7 +14,7 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
     const res3 = await request(app).post('/__PHECDA_SERVER__').send([
       {
         tag: 'Test',
-        func: 'post',
+        method: 'post',
         params: {
           test: 'phecda',
         },
@@ -26,7 +26,7 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
         },
       }, {
         tag: 'Test',
-        func: 'get',
+        method: 'get',
 
       },
 
@@ -89,12 +89,12 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
       [
         {
           tag: 'Test',
-          func: 'guard',
+          method: 'guard',
           args: ['test1'],
         },
         {
           tag: 'Test',
-          func: 'guard',
+          method: 'guard',
           args: ['test2'],
         },
       ],
@@ -118,13 +118,13 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
       [
         {
           tag: 'Test',
-          func: 'all',
+          method: 'all',
           args: ['test', { name: 'test' }, '1'],
         },
         {
 
           tag: 'Test',
-          func: 'all',
+          method: 'all',
           args: ['test', { name: 'test' }, '2'],
         },
       ],

@@ -31,7 +31,7 @@ describe('redis rpc', () => {
     pub.publish(queue ?? 'TestRpc', JSON.stringify({
       args: [data],
       tag: 'TestRpc',
-      func: 'run',
+      method: 'run',
       _ps: 1,
       queue: clientQueue,
       id: `${index}`,

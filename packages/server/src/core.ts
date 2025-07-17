@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import EventEmitter from 'node:events'
 import type { Construct, Phecda, WatcherParam } from 'phecda-core'
 import { getInject, getMergedMeta, getMetaKey, getMetaParams, getTag, invokeInit, invokeUnmount, setInject } from 'phecda-core'
@@ -164,7 +163,7 @@ export class ServerPhecda {
     else {
       module = this.parseModule(new Model())
     }
-    this.meta.push(...getMetaFromInstance(module, tag, Model.name).map(this.parseMeta).filter(item => !!item))
+    this.meta.push(...getMetaFromInstance(module, tag, Model).map(this.parseMeta).filter(item => !!item))
 
     debug(`init module "${String(tag)}"`)
 
@@ -267,7 +266,8 @@ export function useS(nsOrModel?: Construct | string, namespace?: string) {
     return serverPhecda
 }
 
-function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
+function getMetaFromInstance(instance: Phecda, tag: PropertyKey, model: Construct) {
+  const name = model.name
   const propertyKeys = getMetaKey(instance).filter(item => typeof item === 'string') as string[]
   const baseMeta = getMergedMeta(instance, undefined) as MetaData
 
@@ -278,7 +278,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       ...meta,
       name,
       tag,
-      func:
+      method:
         i,
     } as MetaData
     if (baseMeta.controller) {
@@ -292,7 +292,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
 
       const params = getMetaParams(instance, i).map(item => getMergedMeta(instance, i, item))
 
-      metaData.rawMeta = meta
+      metaData.meta = meta
 
       metaData.ctxs = ctxs
       metaData.params = params.map((item, index) => {
@@ -301,7 +301,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
           pipe: item.pipe || meta.pipe || baseMeta.pipe,
           define: item.define || {},
           index,
-          rawMeta: item,
+          meta: item,
         }
       })
       metaData.filter = meta.filter || baseMeta.filter
@@ -323,7 +323,7 @@ function getMetaFromInstance(instance: Phecda, tag: PropertyKey, name: string) {
       // metaData.guards = [...new Set([...baseMeta.guards, ...meta.guards])]
       // metaData.interceptors = [...new Set([...baseMeta.interceptors, ...meta.interceptors])]
     }
-    return new Meta(deepFreeze(metaData as MetaData), getParamTypes(instance, i as string) || [])
+    return new Meta(deepFreeze(metaData as MetaData), getParamTypes(instance, i as string) || [], instance, model)
   })
 }
 

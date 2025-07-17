@@ -21,7 +21,7 @@ describe('rpc client', async () => {
 
   class TestRpc {
     getText(info: string) {
-      return { tag: 'TestRpc', func: 'getText', isEvent: false, queue: 'test', args: [info] }
+      return { tag: 'TestRpc', method: 'getText', isEvent: false, queue: 'test', args: [info] }
     }
   }
 

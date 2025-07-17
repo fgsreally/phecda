@@ -1,7 +1,6 @@
 /* eslint-disable new-cap */
 import { get, getTag, invokeInit, invokeUnmount, wait } from 'phecda-core'
 import type { Construct } from 'phecda-core'
-import 'reflect-metadata'
 import mitt, { Handler, WildcardHandler } from 'mitt'
 import { defaultWebInject } from './inject'
 import { DeepPartial } from './types'

@@ -70,7 +70,7 @@ export function createClient<Controllers extends Record<string, any>>(controller
                   id,
                   queue: clientQueue,
                   tag,
-                  func: p,
+                  method: p,
                 },
                 resolve,
                 reject,

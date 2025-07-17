@@ -17,15 +17,15 @@ export function createControllerMetaMap(meta: Meta[], filter: (meta: Meta) => bo
   function handleMeta() {
     metaMap.clear()
     for (const item of meta) {
-      const { tag, func } = item.data
+      const { tag, method } = item.data
       if (!filter(item))
         continue
 
       if (metaMap.has(tag))
-        metaMap.get(tag)![func] = item as ControllerMeta
+        metaMap.get(tag)![method] = item as ControllerMeta
 
       else
-        metaMap.set(tag, { [func]: item as ControllerMeta })
+        metaMap.set(tag, { [method]: item as ControllerMeta })
     }
   }
 
@@ -70,7 +70,7 @@ export function detectAopDep(meta: Meta[], { guards, addons }: {
       if (typeof data.tag !== 'string')
         warningSet.add(`Tag of controller "${data.name}" should be a string`)
 
-      // @todo func of meta on controller should be string
+      // @todo method of meta on controller should be string
 
       if (data.controller !== controller) {
         if (data[controller])

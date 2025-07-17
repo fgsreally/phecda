@@ -5,8 +5,6 @@ import { log } from '../utils'
 export class TestService {
   login(user: any) {
     console.log(`user ${user.name} login ...`)
-    console.log(user)
-    log('test')
   }
 
   @Watcher('test')

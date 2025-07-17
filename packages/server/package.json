@@ -155,14 +155,13 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@swc-node/core": "^1.10.6",
+    "@swc-node/core": "^1.13.3",
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
     "debug": "^4.3.4",
     "fs-extra": "^11.2.0",
     "phecda-core": "workspace:*",
     "picocolors": "^1.0.0",
-    "reflect-metadata": "^0.1.13",
     "ts-mixer": "^6.0.4"
   },
   "devDependencies": {

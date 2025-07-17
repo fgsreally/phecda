@@ -15,7 +15,7 @@
     "removeComments": false,
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": false,
+    "emitDecoratorMetadata": true,
     "jsx": "preserve",
     "lib": [
       "esnext",

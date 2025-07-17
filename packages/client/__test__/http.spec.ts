@@ -35,7 +35,7 @@ describe('http client', () => {
 
   class TestController {
     getText(text: string) {
-      return { tag: 'TestController', func: 'get', body: {}, headers: {}, query: { text }, params: {}, method: 'get', url: '/test/get', args: [] }
+      return { tag: 'TestController', method: 'get', body: {}, headers: {}, query: { text }, params: {}, method: 'get', url: '/test/get', args: [] }
     }
   }
 

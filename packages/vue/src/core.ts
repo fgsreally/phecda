@@ -261,31 +261,31 @@ export function createPhecda(models?: Construct[]) {
   const phecda = new VuePhecda('vue', (instance: any) => {
     return bindMethod(get(instance, 'shallow') ? shallowReactive(instance) : reactive(instance), USE_DEVTOOLS
       ? (instance: any, key: PropertyKey) => {
-          const cb = instance[key].bind(instance)
-          if (findPrototypeWithMethod(instance, key).constructor.name === 'Object')
-            return cb
+        const cb = instance[key].bind(instance)
+        if (findPrototypeWithMethod(instance, key).constructor.name === 'Object')
+          return cb
 
-          const tag = getTag(instance)
-          return (...args: any) => {
-            const name = `${tag as string}.${key as string}`
-            phecda.emit(`Invoke ${name}`, { args, tag, key })
-            const ret = cb(...args)
+        const tag = getTag(instance)
+        return (...args: any) => {
+          const name = `${tag as string}.${key as string}`
+          phecda.emit(`Invoke ${name}`, { args, tag, key })
+          const ret = cb(...args)
 
-            if (ret instanceof Promise)
-              ret.then(() => phecda.emit(`End ${name}(Async)`, { args, tag, key }))
+          if (ret instanceof Promise)
+            ret.then(() => phecda.emit(`End ${name}(Async)`, { args, tag, key }))
 
-            else
-              phecda.emit(`End ${name}`, { args, tag, key })
+          else
+            phecda.emit(`End ${name}`, { args, tag, key })
 
-            return ret
-          }
+          return ret
         }
+      }
       : undefined)
   })
 
   models?.forEach(model => phecda.init(model))
 
-  return phecda
+  return phecda as VuePhecda
 }
 
 // work for devtools only

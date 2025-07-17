@@ -18,9 +18,9 @@ export function bind(wss: WS.Server, data: Awaited<ReturnType<typeof Factory>>, 
   const { moduleMap, meta } = data
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, rpc, func, tag } = meta.data
+    const { controller, rpc, method, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
-      debug(`register method "${func}" in module "${tag}"`)
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -34,12 +34,12 @@ export function bind(wss: WS.Server, data: Awaited<ReturnType<typeof Factory>>, 
     ws.on('message', async (raw) => {
       try {
         const data = JSON.parse(raw.toString())
-        const { func, id, tag, _ps, args, queue } = data
+        const { method, id, tag, _ps, args, queue } = data
 
         if (_ps !== 1)
           return
 
-        const meta = metaMap.get(tag)![func]
+        const meta = metaMap.get(tag)![method]
 
         const {
           data: { rpc: { isEvent } = {} },
@@ -57,7 +57,7 @@ export function bind(wss: WS.Server, data: Awaited<ReturnType<typeof Factory>>, 
           meta,
           moduleMap,
           tag,
-          func,
+          method,
           args,
           id,
           queue,

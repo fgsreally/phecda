@@ -3,8 +3,10 @@ import { isError } from '../helper'
 import { HttpRequest } from '../utils'
 
 export type RequestArg = {
-  method: string
-  url: string
+  http: {
+    method: string
+    url: string
+  }
   query: Record<string, string>
   body?: any
   headers: Record<string, string>
@@ -66,8 +68,6 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
         return (...args: any) => {
           const requestArg = generator(...args)
 
-          for (const i in requestArg.params)
-            requestArg.url = requestArg.url.replace(`{{${i}}}`, requestArg.params[i])
           if (!batch) {
             const { send, abort } = adaptor()
             return HttpRequest(() => send(requestArg), abort)
@@ -86,9 +86,11 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
                   const body = batchStack
                   batchStack = null
                   return send({
+                    http: {
+                      method: 'post',
+                      url: parallelRoute || '/__PHECDA_SERVER__',
+                    },
                     body,
-                    url: parallelRoute || '/__PHECDA_SERVER__',
-                    method: 'post',
                     query: {},
                     params: {},
                     headers: {},
@@ -118,20 +120,6 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
 
               throw new Error('abort')
             })
-
-            // return new Promise((resolve, reject) => {
-            //   batchPromise.then((data: any[]) => {
-            //     batchStack = null
-            //     const ret = data[index]
-
-            //     if (isError(ret))
-            //       reject(ret)
-
-            //     else
-            //       resolve(ret)
-            //   })
-            // })//x1_x2_resolve_x3
-            //
           }
         }
       },

@@ -2,6 +2,7 @@ import { bind } from 'phecda-server/express'
 import express from 'express'
 import cookie from 'cookie-parser'
 // import multer from 'multer'
+import { GraphGenerator, OpenAPIGenerator } from 'phecda-server'
 import { TestController } from './modules/test.controller'
 
 // const storage = multer.memoryStorage()
@@ -10,7 +11,7 @@ import { TestController } from './modules/test.controller'
 
 async function start() {
   const data = await Factory([TestController], {
-    generators: [new HTTPGenerator(), new DocGenerator()],
+    generators: [new HTTPGenerator(), new DocGenerator(), new OpenAPIGenerator(), new GraphGenerator()],
   })
   const router = express.Router()
   const app = express()

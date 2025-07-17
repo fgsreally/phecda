@@ -14,7 +14,7 @@ export interface BaseCtx {
   moduleMap: Record<string, any>
   type: string
   tag: string
-  func: string
+  method: string
   category: string
   [key: string]: any
 
@@ -36,7 +36,7 @@ export interface BaseError {
 }
 //   export type RetOrErr<R> = { [K in keyof R]: Awaited<R[K]> | Error }
 
-export type BaseRequestType = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
+export type BaseRequestMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options'
 
 export class CustomResponse<Value> {
   _ps_response: Value

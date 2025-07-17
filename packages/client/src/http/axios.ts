@@ -5,7 +5,7 @@ export function adaptor(instance?: AxiosInstance): HttpAdaptor {
     let controller: AbortController
 
     return {
-      send: async ({ url, method, body, query, headers, file, files }: RequestArg) => {
+      send: async ({ http: { method, url }, body, query, headers, file, files }: RequestArg) => {
         const { default: axios } = await import('axios')
 
         if (file) {

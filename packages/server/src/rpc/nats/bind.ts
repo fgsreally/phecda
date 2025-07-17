@@ -22,9 +22,9 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   const existQueue = new Set<string>()
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, rpc, func, tag } = meta.data
+    const { controller, rpc, method, tag } = meta.data
     if (controller === 'rpc' && rpc?.queue !== undefined) {
-      debug(`register method "${func}" in module "${tag}"`)
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -39,8 +39,8 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   async function subscribeQueues() {
     existQueue.clear()
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
 
         const {
           data: {
@@ -62,12 +62,12 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
   }
   async function handleRequest(_: NatsError | null, msg: Msg) {
     const data = JSON.parse(sc.decode(msg.data))
-    const { tag, func, id, _ps, args } = data
+    const { tag, method, id, _ps, args } = data
 
     if (_ps !== 1)
       return
-    debug(`invoke method "${func}" in module "${tag}"`)
-    const meta = metaMap.get(tag)![func]
+    debug(`invoke method "${method}" in module "${tag}"`)
+    const meta = metaMap.get(tag)![method]
 
     const {
       data: { rpc: { isEvent } = {} },
@@ -86,7 +86,7 @@ export async function bind(nc: NatsConnection, { moduleMap, meta }: Awaited<Retu
       moduleMap,
       meta,
       tag,
-      func,
+      method,
       args,
       id,
       msg,

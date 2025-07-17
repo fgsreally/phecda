@@ -5,7 +5,6 @@ import type { Construct, Phecda } from './types'
 // SHARE_KEY就是共有数据存储的键值，所有key为可选的函数，key默认即SHARE_KEY
 export const SHARE_KEY = Symbol('phecda[share]')
 export const CLEAR_KEY = Symbol('phecda[clear]')
-
 export const PHECDA_KEY = Symbol('phecda')
 // type safe
 // 由于绝大部分的后续使用都是通过实例化（不支持抽象类），故不加AbConstruct

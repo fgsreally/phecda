@@ -28,9 +28,9 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
   const originStack = router.stack.slice(0, router.stack.length)
 
   const metaMap = createControllerMetaMap(meta, (meta) => {
-    const { controller, http, func, tag } = meta.data
-    if (controller === 'http' && http?.type) {
-      debug(`register method "${func}" in module "${tag}"`)
+    const { controller, http, method, tag } = meta.data
+    if (controller === 'http' && http?.method) {
+      debug(`register method "${method}" in module "${tag}"`)
       return true
     }
   })
@@ -64,15 +64,15 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             return new Promise(async (resolve) => {
               if (!item)
                 return resolve(null)
-              const { tag, func } = item
-              debug(`(parallel)invoke method "${func}" in module "${tag}"`)
+              const { tag, method } = item
+              debug(`(parallel)invoke method "${method}" in module "${tag}"`)
 
               if (!metaMap.has(tag))
                 return resolve(await Context.filterRecord.default(new BadRequestException(`module "${tag}" doesn't exist`)))
 
-              const meta = metaMap.get(tag)![func]
+              const meta = metaMap.get(tag)![method]
               if (!meta)
-                return resolve(await Context.filterRecord.default(new BadRequestException(`"${func}" in "${tag}" doesn't exist`)))
+                return resolve(await Context.filterRecord.default(new BadRequestException(`"${method}" in "${tag}" doesn't exist`)))
 
               const aop = Context.getAop(meta, {
                 globalGuards, globalFilter, globalPipe,
@@ -113,8 +113,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
     }
 
     for (const [tag, record] of metaMap) {
-      for (const func in record) {
-        const meta = metaMap.get(tag)![func]
+      for (const method in record) {
+        const meta = metaMap.get(tag)![method]
 
         const {
           data: {
@@ -123,7 +123,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
           },
         } = meta
 
-        if (!http?.type)
+        if (!http?.method)
           continue
 
         let aop: AOP
@@ -137,8 +137,8 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
         const subRouter = new Router()
         Context.applyAddons(addons, subRouter, 'koa')
 
-        router[http.type](joinUrl(http.prefix, http.route), async (ctx, next) => {
-          debug(`invoke method "${func}" in module "${tag}"`)
+        router[http.method](joinUrl(http.prefix, http.route), async (ctx, next) => {
+          debug(`invoke method "${method}" in module "${tag}"`)
 
           const contextData = {
             type: 'koa' as const,
@@ -147,7 +147,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
             meta,
             moduleMap,
             tag,
-            func,
+            method,
             query: ctx.query,
             params: ctx.params,
             category: 'http',

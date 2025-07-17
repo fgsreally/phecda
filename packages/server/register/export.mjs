@@ -27,7 +27,11 @@ export default ['Addon', 'Arg', 'Assign', 'BadGatewayException', 'BadRequestExce
   'setLogger',
   'setMeta',
   'useS', 'wait', 'OneFile', 'ManyFiles',
-  'Rule','Required','Optional','Doc','DocGenerator',
+  'Rule','Required','Optional',
+  'validate',
+  'Min','Max','Enum','OneOf','Nested',
+  
+  'Doc','DocGenerator',
   'pick','omit','partial',
   'functionToClass','objectToClass'
 
