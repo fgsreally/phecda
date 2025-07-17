@@ -1,5 +1,11 @@
 # phecda-core
 
+## 5.0.0
+
+### Major Changes
+
+- dfb547d: add `validate` and add more validate decorator
+
 ## 4.5.1
 
 ### Patch Changes

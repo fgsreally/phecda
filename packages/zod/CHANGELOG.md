@@ -1,5 +1,16 @@
 # phecda-zod
 
+## 3.0.0
+
+### Major Changes
+
+- dfb547d: refactor to support `validate`,which is in latest phecda-core
+
+### Patch Changes
+
+- Updated dependencies [dfb547d]
+  - phecda-core@5.0.0
+
 ## 2.0.7
 
 ### Patch Changes

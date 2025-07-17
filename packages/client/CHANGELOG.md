@@ -1,5 +1,12 @@
 # phecda-client
 
+## 4.0.0
+
+### Major Changes
+
+- dfb547d: Attribute names are more semantic(a break but no big change)
+  improve default pipe in phecda-server
+
 ## 3.0.1
 
 ### Patch Changes
