@@ -1,5 +1,23 @@
 # phecda-server
 
+## 8.0.0
+
+### Major Changes
+
+- dfb547d: Attribute names are more semantic(a break but no big change)
+  improve default pipe in phecda-server
+
+### Minor Changes
+
+- 0edb40a: refactor Meta and add GraphGenerator
+
+### Patch Changes
+
+- abe2625: update defaultPipe(all parameters are required by default)
+- fea096a: fix OpenAPIGenerator
+- Updated dependencies [dfb547d]
+  - phecda-core@5.0.0
+
 ## 7.1.4
 
 ### Patch Changes

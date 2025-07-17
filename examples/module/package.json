@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "phecda-module": "workspace:^2.1.1"
+    "phecda-module": "workspace:^2.1.2"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
