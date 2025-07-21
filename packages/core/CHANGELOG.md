@@ -1,5 +1,13 @@
 # phecda-core
 
+## 5.0.1
+
+### Patch Changes
+
+- 991e477: improve `validate`
+
+  more rule decorators support working as param decorators
+
 ## 5.0.0
 
 ### Major Changes

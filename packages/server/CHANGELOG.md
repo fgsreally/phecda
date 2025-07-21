@@ -1,5 +1,13 @@
 # phecda-server
 
+## 8.0.1
+
+### Patch Changes
+
+- 991e477: fix default pipe, support more param decorators
+- Updated dependencies [991e477]
+  - phecda-core@5.0.1
+
 ## 8.0.0
 
 ### Major Changes
