@@ -53,7 +53,7 @@ describe('validate', () => {
             data: any
     }
 
-    await testValidate(Entity, undefined, 2)
+    await testValidate(Entity, undefined, 1)
     await testValidate(Entity, {
       data: '1',
     }, 1)

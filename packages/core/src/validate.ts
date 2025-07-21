@@ -1,6 +1,6 @@
 import { SHARE_KEY, getMetaKey, isPhecda } from './core'
 import { RuleArgs } from './decorators'
-import { getMergedMeta, getTag } from './helper'
+import { getMergedMeta } from './helper'
 import { Construct } from './types'
 
 export const _createErrorMessage = (type: string, { property, meta }: RuleArgs) => {
@@ -12,7 +12,7 @@ export const _createErrorMessage = (type: string, { property, meta }: RuleArgs) 
     case 'boolean':
       return `must be a boolean for "${property}"`
     case 'oneOf':
-      return `must be one of models(${meta.oneof.map((m: any) => getTag(m)).join(', ')}) for "${property}"`
+      return `must pass one of these validations for "${property}"`
     case 'min':
       return `must be greater than ${meta.min} for "${property}"`
     case 'max':
@@ -46,6 +46,11 @@ export async function validate(model: Construct,
   createErrMsg = _createErrorMessage) {
   async function parse(model: Construct, data: any) {
     const errors: any[] = []
+
+    if (!isObject(data)) {
+      errors.push('data must be an object')
+      return errors
+    }
 
     for (const key of getMetaKey(model)) {
       const meta = getMergedMeta(model, key)
@@ -126,19 +131,34 @@ export async function validate(model: Construct,
         if (oneOf) {
           let isCorrect = false
           for (const modelOrRule of oneOf) {
-            if (isPhecda(modelOrRule)) {
-              const errs = await validate(modelOrRule, value)
-              if (!errs.length) {
-                isCorrect = true
+            switch (modelOrRule) {
+              case String:
+                if (typeof value === 'string')
+                  isCorrect = true
                 break
-              }
-            }
-            else if (typeof modelOrRule === 'function') {
-              const errs = await modelOrRule(args)
-              if (!errs.length) {
-                isCorrect = true
+              case Number:
+                if (typeof value === 'number')
+                  isCorrect = true
                 break
-              }
+              case Boolean:
+                if (typeof value === 'boolean')
+                  isCorrect = true
+                break
+              default:
+                if (isPhecda(modelOrRule)) {
+                  const errs = await validate(modelOrRule, value)
+                  if (!errs.length) {
+                    isCorrect = true
+                    break
+                  }
+                }
+                else if (typeof modelOrRule === 'function') {
+                  const ret = await modelOrRule(args)
+                  if (ret) {
+                    isCorrect = true
+                    break
+                  }
+                }
             }
           }
 

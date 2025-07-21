@@ -1,16 +1,9 @@
 import { expect } from 'vitest'
-import { Addon, Body, Controller, Ctx, Exception, Filter, Get, Guard, HttpCtx, Param, Pipe, Post, Query, addPipe } from '../../src'
+import { Addon, Body, Controller, Ctx, Enum, Exception, Filter, Get, Guard, HttpCtx, OneOf, Optional, Param, Pipe, Post, Query, Required } from '../../src'
 class Info {
+  @Required
   name: string
 }
-
-addPipe('default', ({ arg, reflect }) => {
-  if (reflect === Info) {
-    if (arg.name !== 'phecda')
-      throw new Error('name should be phecda')
-  }
-  return arg
-})
 
 @Controller('')
 export class Test {
@@ -60,5 +53,21 @@ export class Test {
     expect(this.ctx).toBeDefined()
 
     return [test, reqBody, id]
+  }
+
+  @Post('defaultPipe')
+  defaultPipe(
+    @Body('a') @Optional _a: string,
+    @Body('b') @Optional _b: number,
+    @Body('c') @Optional _c: boolean,
+
+    @Body('d') @Optional @Enum({
+      value: 'value',
+    }) _d: string,
+
+    @Body('e') @Optional @OneOf(String, Number) _e: string | number,
+    @Body('f') @Optional _f: Info,
+  ) {
+    return true
   }
 }
