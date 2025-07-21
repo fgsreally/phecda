@@ -83,7 +83,6 @@ describe('in vue component', () => {
       },
     })
 
-
     // reset
     expect(wrapper.find('div').text()).toBe('phecda-vue')
     await wrapper.find('button').trigger('click')

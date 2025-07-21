@@ -40,7 +40,6 @@ export async function genUnImportRet(opts) {
                 .concat(opts.presets || []),
         })
     } catch (e) {
-        console.error(e)
         return false
     }
 }

@@ -90,12 +90,16 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
         {
           tag: 'Test',
           method: 'guard',
-          args: ['test1'],
+          params: {
+            test: 'test1',
+          },
         },
         {
           tag: 'Test',
           method: 'guard',
-          args: ['test2'],
+          params: {
+            test: 'test2',
+          },
         },
       ],
 
@@ -119,16 +123,98 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
         {
           tag: 'Test',
           method: 'all',
-          args: ['test', { name: 'test' }, '1'],
+          query: {
+            id: '1',
+          },
+          body: {
+            name: 'test',
+          },
+          params: {
+            test: 'test',
+          },
         },
         {
 
           tag: 'Test',
           method: 'all',
-          args: ['test', { name: 'test' }, '2'],
+          query: {
+            id: '2',
+          },
+          body: {
+            name: 'test',
+          },
+          params: {
+            test: 'test2',
+          },
         },
       ],
 
     ).expect(200)
+  })
+
+  it('defaultPipe', async () => {
+    const app = await createServer({
+    })
+    const { body } = await request(app).post('/__PHECDA_SERVER__').send(
+      [
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            a: 1,
+          },
+        },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            b: '1',
+          },
+        },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            c: 1,
+          },
+        },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            d: '1',
+          },
+        },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            e: true,
+          },
+        },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            f: '1',
+          },
+        },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          body: {
+            f: {},
+          },
+        },
+      ],
+
+    )
+    expect(body[0].message).toEqual('param 1 is not a string')
+    expect(body[1].message).toEqual('param 2 is not a number')
+    expect(body[2].message).toEqual('param 3 is not a boolean')
+    expect(body[3].message).toEqual('param 4 is not a valid enum value')
+    expect(body[4].message).toEqual('param 5 can\'t pass one of these validations')
+    expect(body[5].message).toEqual('data must be an object')
+    expect(body[6].message).toEqual('it is required for "name"')
   })
 }

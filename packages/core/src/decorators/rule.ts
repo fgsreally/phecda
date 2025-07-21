@@ -6,8 +6,8 @@ export interface RuleArgs {
   property: string
   value: any
   /**
-     * paramIndex work for params' @Rule
-     */
+  * paramIndex work for params' @Rule
+  */
   index?: number
   meta: any
 }
@@ -39,19 +39,19 @@ export function Max(max: number) {
 }
 
 export function Nested(model: Construct) {
-  return (target: any, property: string) => {
-    setMeta(target, property, undefined, { nested: model })
+  return (target: any, property: string, index?: any) => {
+    setMeta(target, property, index, { nested: model })
   }
 }
 
-export function OneOf(...models: Construct[]) {
-  return (target: any, property: string) => {
-    setMeta(target, property, undefined, { oneOf: models })
+export function OneOf(...validations: (Construct | ((args: RuleArgs) => boolean | Promise<boolean>))[]) {
+  return (target: any, property: string, index?: any) => {
+    setMeta(target, property, index, { oneOf: validations })
   }
 }
 
 export function Enum(map: Record<string, any>) {
-  return (target: any, property: string) => {
-    setMeta(target, property, undefined, { enum: map })
+  return (target: any, property: string, index?: any) => {
+    setMeta(target, property, index, { enum: map })
   }
 }

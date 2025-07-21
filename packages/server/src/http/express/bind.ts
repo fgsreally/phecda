@@ -87,6 +87,7 @@ export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, 
                 globalGuards,
                 globalPipe,
               })
+
               const contextData = {
                 type: 'express' as const,
                 category: 'http',
