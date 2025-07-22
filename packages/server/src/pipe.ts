@@ -1,6 +1,4 @@
-// import { isPhecda, } from 'phecda-core'
-// import { ValidateException } from './exception/validate'
-
+/* eslint-disable new-cap */
 import { isPhecda, validate } from 'phecda-core'
 import type { PipeType } from './context'
 import { ValidateException } from './exception'
@@ -107,6 +105,8 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
     const errs = await validate(reflect, arg)
     if (errs.length)
       throw new ValidateException(errs[0])
+
+    arg = Object.assign(new reflect(), arg)
   }
 
   return arg
