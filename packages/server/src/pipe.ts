@@ -1,6 +1,4 @@
-// import { isPhecda, } from 'phecda-core'
-// import { ValidateException } from './exception/validate'
-
+/* eslint-disable new-cap */
 import { isPhecda, validate } from 'phecda-core'
 import type { PipeType } from './context'
 import { ValidateException } from './exception'
