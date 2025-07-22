@@ -107,6 +107,8 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
     const errs = await validate(reflect, arg)
     if (errs.length)
       throw new ValidateException(errs[0])
+
+    arg = Object.assign(new reflect(), arg)
   }
 
   return arg
