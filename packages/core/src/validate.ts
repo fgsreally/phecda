@@ -5,6 +5,8 @@ import { Construct } from './types'
 
 export const _createErrorMessage = (type: string, { property, meta }: RuleArgs) => {
   switch (type) {
+    case 'const':
+      return `must be ${meta.const} for "${property}"`
     case 'string':
       return `must be a string for "${property}"`
     case 'number':
@@ -43,7 +45,9 @@ function isObject(value: any) {
 export async function validate(model: Construct,
   data: any,
   collectErrors = false,
-  createErrMsg = _createErrorMessage) {
+  createErrMsg = _createErrorMessage,
+  equalFn = (a: any, b: any) => a === b,
+) {
   async function parse(model: Construct, data: any) {
     const errors: any[] = []
 
@@ -61,6 +65,11 @@ export async function validate(model: Construct,
       const value = property === '' ? data : data?.[key]
       const allRules = [async (args: any) => {
         const { value } = args
+        if ('const' in meta) {
+          if (!equalFn(value, meta.const))
+            return createErrMsg('const', args)
+        }
+
         if (required === false && value === undefined)
           return true
         if (required !== false && value === undefined)
@@ -130,8 +139,8 @@ export async function validate(model: Construct,
 
         if (oneOf) {
           let isCorrect = false
-          for (const modelOrRule of oneOf) {
-            switch (modelOrRule) {
+          for (const item of oneOf) {
+            switch (item) {
               case String:
                 if (typeof value === 'string')
                   isCorrect = true
@@ -145,16 +154,22 @@ export async function validate(model: Construct,
                   isCorrect = true
                 break
               default:
-                if (isPhecda(modelOrRule)) {
-                  const errs = await validate(modelOrRule, value)
+                if (isPhecda(item)) {
+                  const errs = await validate(item, value)
                   if (!errs.length) {
                     isCorrect = true
                     break
                   }
                 }
-                else if (typeof modelOrRule === 'function') {
-                  const ret = await modelOrRule(args)
+                else if (typeof item === 'function') {
+                  const ret = await item(args)
                   if (ret) {
+                    isCorrect = true
+                    break
+                  }
+                }
+                else {
+                  if (equalFn(value, item)) {
                     isCorrect = true
                     break
                   }

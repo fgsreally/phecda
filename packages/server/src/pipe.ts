@@ -1,9 +1,13 @@
-/* eslint-disable new-cap */
 import { isPhecda, validate } from 'phecda-core'
 import type { PipeType } from './context'
 import { ValidateException } from './exception'
 
 export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type }, { method }) => {
+  if (meta.const) {
+    if (arg !== meta.const)
+      throw new ValidateException(`param ${index + 1} must be ${meta.const}`)
+  }
+
   if (arg === undefined) {
     if (meta.required === false) // Optional
       return arg
@@ -12,7 +16,6 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
   }
 
   // transform for query and param(not undefined)
-
   if (['params', 'query'].includes(type)) {
     if (reflect === Number) {
       arg = reflect(arg)
@@ -50,8 +53,8 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
 
   if (meta.oneOf) {
     let isCorrect = false
-    for (const modelOrRule of meta.oneOf) {
-      switch (modelOrRule) {
+    for (const item of meta.oneOf) {
+      switch (item) {
         case String:
           if (typeof arg === 'string')
             isCorrect = true
@@ -65,16 +68,22 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
             isCorrect = true
           break
         default:
-          if (isPhecda(modelOrRule)) {
-            const errs = await validate(modelOrRule, arg)
+          if (isPhecda(item)) {
+            const errs = await validate(item, arg)
             if (!errs.length) {
               isCorrect = true
               break
             }
           }
-          else if (typeof modelOrRule === 'function') {
-            const ret = await modelOrRule(arg)
+          else if (typeof item === 'function') {
+            const ret = await item(arg)
             if (ret) {
+              isCorrect = true
+              break
+            }
+          }
+          else {
+            if (arg === item) {
               isCorrect = true
               break
             }
@@ -105,8 +114,6 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
     const errs = await validate(reflect, arg)
     if (errs.length)
       throw new ValidateException(errs[0])
-
-    arg = Object.assign(new reflect(), arg)
   }
 
   return arg
