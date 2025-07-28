@@ -1,5 +1,11 @@
 # phecda-vue
 
+## 5.2.8
+
+### Patch Changes
+
+- phecda-web@3.0.10
+
 ## 5.2.7
 
 ### Patch Changes
