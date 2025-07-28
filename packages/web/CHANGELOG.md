@@ -1,5 +1,12 @@
 # phecda-web
 
+## 3.0.10
+
+### Patch Changes
+
+- Updated dependencies [55c20f0]
+  - phecda-core@5.1.0
+
 ## 3.0.9
 
 ### Patch Changes

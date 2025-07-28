@@ -1,5 +1,15 @@
 # phecda-server
 
+## 8.0.2
+
+### Patch Changes
+
+- ad87052: fix defaultPipe to handle cases where the metadata is a model.
+- 55c20f0: add `Const` and `OneOf` support equal Function
+  improve server default pipe
+- Updated dependencies [55c20f0]
+  - phecda-core@5.1.0
+
 ## 8.0.1
 
 ### Patch Changes

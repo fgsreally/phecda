@@ -1,5 +1,12 @@
 # phecda-core
 
+## 5.1.0
+
+### Minor Changes
+
+- 55c20f0: add `Const` and `OneOf` support equal Function
+  improve server default pipe
+
 ## 5.0.1
 
 ### Patch Changes
