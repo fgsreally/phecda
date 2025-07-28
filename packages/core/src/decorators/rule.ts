@@ -55,3 +55,9 @@ export function Enum(map: Record<string, any>) {
     setMeta(target, property, index, { enum: map })
   }
 }
+
+export function Const(value: string | number | boolean | null | undefined) {
+  return (target: any, property: string, index?: any) => {
+    setMeta(target, property, index, { const: value })
+  }
+}
