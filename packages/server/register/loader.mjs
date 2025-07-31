@@ -35,7 +35,7 @@ const dtsPath = process.env.PS_DTS_PATH || 'ps.d.ts'
 const watchFiles = new Set()
 const filesRecord = new Map()
 const moduleGraph = {}
-    // ts
+// ts
 let tsconfig = {
     module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
@@ -81,7 +81,7 @@ export async function initialize(data) {
 
     if (loaderPath) {
         const loader = await
-        import (loaderPath.startsWith('.') ? resolvePath(workdir, loaderPath) : loaderPath)
+            import(loaderPath.startsWith('.') ? resolvePath(workdir, loaderPath) : loaderPath)
 
         if (typeof loader.load === 'function')
             customLoad = loader.load
@@ -147,80 +147,80 @@ function getFileMid(file) {
     return ret[1]
 }
 
-export const resolve = async(specifier, context, nextResolve) => {
-        if (customResolve) {
-            const url = await customResolve(specifier, context)
-            if (url) {
-                return {
-                    format: 'ts',
-                    url,
-                    shortCircuit: true,
-                }
-            }
-        }
-
-        // entrypoint
-        if (!context.parentURL)
-            return nextResolve(specifier)
-
-        // @todo skip resolve to improve performance
-        // if (context.parentURL.includes('/node_modules/') && specifier.includes('/node_modules/'))
-        //   return nextResolve(specifier)
-
-        const { resolvedModule } = ts.resolveModuleName(
-            specifier,
-            fileURLToPath(context.parentURL),
-            tsconfig,
-            host,
-            moduleResolutionCache,
-        )
-
-        // import among files in local project
-        if (
-            resolvedModule &&
-            !resolvedModule.resolvedFileName.includes('/node_modules/') &&
-            EXTENSIONS.includes(resolvedModule.extension)
-        ) {
-            const url = addUrlToGraph(
-                pathToFileURL(resolvedModule.resolvedFileName).href,
-                context.parentURL.split('?')[0],
-            )
-
-            const importerMid = getFileMid(context.parentURL)
-            const sourceMid = getFileMid(resolvedModule.resolvedFileName)
-            if (config.resolve && importerMid && sourceMid) {
-                const resolver = config.resolve.find(
-                    item => item.source === sourceMid && item.importer === importerMid,
-                )
-                if (resolver) {
-                    return {
-                        format: 'ts',
-                        url: pathToFileURL(resolvePath(workdir, resolver.path)).href,
-                        shortCircuit: true,
-                    }
-                }
-            }
-
+export const resolve = async (specifier, context, nextResolve) => {
+    if (customResolve) {
+        const url = await customResolve(specifier, context)
+        if (url) {
             return {
                 format: 'ts',
                 url,
                 shortCircuit: true,
             }
         }
+    }
 
-        const resolveRet = await nextResolve(specifier)
+    // entrypoint
+    if (!context.parentURL)
+        return nextResolve(specifier)
 
-        // ts resolve fail in some cases
-        if (resolveRet.url && isAbsolute(resolveRet.url)) {
-            const [path, query] = resolveRet.url.split('?')
-            resolveRet.url = pathToFileURL(path).href + (query ? `?${query}` : '')
+    // @todo skip resolve to improve performance
+    // if (context.parentURL.includes('/node_modules/') && specifier.includes('/node_modules/'))
+    //   return nextResolve(specifier)
+
+    const { resolvedModule } = ts.resolveModuleName(
+        specifier,
+        fileURLToPath(context.parentURL),
+        tsconfig,
+        host,
+        moduleResolutionCache,
+    )
+
+    // import among files in local project
+    if (
+        resolvedModule &&
+        !resolvedModule.resolvedFileName.includes('/node_modules/') &&
+        EXTENSIONS.includes(resolvedModule.extension)
+    ) {
+        const url = addUrlToGraph(
+            pathToFileURL(resolvedModule.resolvedFileName).href,
+            context.parentURL.split('?')[0],
+        )
+
+        const importerMid = getFileMid(context.parentURL)
+        const sourceMid = getFileMid(resolvedModule.resolvedFileName)
+        if (config.resolve && importerMid && sourceMid) {
+            const resolver = config.resolve.find(
+                item => item.source === sourceMid && item.importer === importerMid,
+            )
+            if (resolver) {
+                return {
+                    format: 'ts',
+                    url: pathToFileURL(resolvePath(workdir, resolver.path)).href,
+                    shortCircuit: true,
+                }
+            }
         }
 
-        return resolveRet
+        return {
+            format: 'ts',
+            url,
+            shortCircuit: true,
+        }
     }
-    // @todo the first params may be url or path, need to distinguish
 
-export const load = async(url, context, nextLoad) => {
+    const resolveRet = await nextResolve(specifier)
+
+    // ts resolve fail in some cases
+    if (resolveRet.url && isAbsolute(resolveRet.url)) {
+        const [path, query] = resolveRet.url.split('?')
+        resolveRet.url = pathToFileURL(path).href + (query ? `?${query}` : '')
+    }
+
+    return resolveRet
+}
+// @todo the first params may be url or path, need to distinguish
+
+export const load = async (url, context, nextLoad) => {
     let mode
     if (context.importAttributes.ps) {
         mode = context.importAttributes.ps
@@ -281,13 +281,13 @@ export const load = async(url, context, nextLoad) => {
         }
     }
 
- 
+
     // resolveModuleName failed
     // I don't know why it failed
-    if ( url.endsWith('.ts'))
+    if (url.endsWith('.ts'))
         context.format = 'ts'
 
-     // module-typescript???
+    // module-typescript???
 
     if (context.format === 'ts') {
         const { source } = await nextLoad(url, context)
@@ -298,7 +298,7 @@ export const load = async(url, context, nextLoad) => {
      
         if (unimportRet) {
             const { injectImports } = unimportRet
-
+      
             return {
                 format: 'module',
                 source: (
@@ -327,7 +327,7 @@ function findTopScope(url, time, modules = new Set()) {
     } else {
         if (!moduleGraph[url])
             throw new Error('root file update')
-        for (const i of[...moduleGraph[url]]) findTopScope(i, time, modules)
+        for (const i of [...moduleGraph[url]]) findTopScope(i, time, modules)
     }
 
     return modules
