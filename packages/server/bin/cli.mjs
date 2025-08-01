@@ -196,7 +196,7 @@ cli
     process.stdin.on('data', async (data) => {
       const args = [...nodeArgs]
       const input = data.toString().trim().toLocaleLowerCase()
-      if (input==='r') {
+      if (input === 'r') {
         if (child) {
           await child.kill()
           if (closePromise)
@@ -215,13 +215,16 @@ cli
       if (input === 'c')
         console.clear()
 
-      if (input === 'i') {
+      if (input === 'i' || input.startsWith('i ')) {
+        const [, arg] = input.split(' ')
+
         if (child) {
           child.send({
-            type: 'inspector'
+            type: 'inspect',
+            arg
           })
         } else {
-          args.push('--inspect')
+          args.push(`--inspect${arg ? `=${arg}` : ''}`)
           startChild(file, args)
         }
       }

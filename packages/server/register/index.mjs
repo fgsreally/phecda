@@ -51,13 +51,26 @@ process.on('unhandledRejection', (err) => {
 
 
 process.on('message', (data) => {
-  if (data.type === 'inspector') {
+  if (data.type === 'inspect') {
     if (inspector.url()) {
       inspector.close();
-      log('close inspector','info');
+      log('close inspector', 'info');
     } else {
-      inspector.open();
-      log(`open "devtools://devtools/bundled/js_app.html?experiments=true&v8only=true&ws=${inspector.url().replace("ws://", '')}" in browser`,'info');
+      const { arg } = data
+
+      if (arg) {
+        if (arg.includes(':')) {
+          const [host, port] = arg.split(':')
+          inspector.open(Number(port), host)
+        } else {
+          inspector.open(Number(arg))
+        }
+      }else {
+        inspector.open();
+      }
+      //  address already in use
+      if (inspector.url())
+        log(`open "devtools://devtools/bundled/js_app.html?experiments=true&v8only=true&ws=${inspector.url().replace("ws://", '')}" in browser`, 'info');
     }
   }
 })
