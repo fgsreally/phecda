@@ -29,7 +29,6 @@ export function init(proto: Phecda) {
   }
 }
 
-
 export function getPhecdaFromTarget(target: any) {
   if (typeof target === 'function')
     return target.prototype// class/model

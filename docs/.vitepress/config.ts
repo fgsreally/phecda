@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 const ogDescription = '贯穿前后端的依赖注入方案'
 
-const base = process.env.NODE_ENV === 'production' ? '/phecda/' : ''
+const base = process.env.CI ? '/phecda/' : ''
 
 export default defineConfig({
   title: 'phecda',
@@ -11,7 +11,6 @@ export default defineConfig({
     ['link', { rel: 'icon', href: '' }],
 
   ],
-
   lastUpdated: true,
   themeConfig: {
     logo: '/phecda.png',
@@ -41,8 +40,12 @@ export default defineConfig({
         },
 
         {
-          text: '核心api',
-          link: '/core/core',
+          text: '工具',
+          link: '/core/utils',
+        },
+        {
+          text: '验证',
+          link: '/core/validate',
         },
         {
           text: '装饰器',
