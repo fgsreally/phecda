@@ -1,6 +1,9 @@
 import { basename } from 'path'
 import { transform } from '@swc-node/core'
 import psExports from './export.mjs'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+
 const injectInlineSourceMap = ({ code, map }) => {
     if (map) {
         const base64Map = Buffer.from(map, 'utf8').toString('base64')
@@ -10,33 +13,34 @@ const injectInlineSourceMap = ({ code, map }) => {
     return code
 }
 
-export async function compile(sourcecode, filename, config = {}) {
-    if (filename.endsWith('.d.ts'))
+export async function compile(sourcecode, url, config = {}) {
+    if (url.endsWith('.d.ts'))
         return ''
 
+    const filename = path.basename(url.startsWith('file:') ? fileURLToPath(url) : url)
+
     const { code, map } = await transform(sourcecode, filename, {
-        sourcemap: true,
         module: 'es6',
         emitDecoratorMetadata: true,
         experimentalDecorators: true,
         esModuleInterop: false,
+        sourcemap:false,
         ...config
     })
-
     return injectInlineSourceMap({ code, map })
 }
 
 export async function genUnImportRet(opts) {
     try {
         const { createUnimport } = await
-        import ('unimport')
+            import('unimport')
         return createUnimport({
             ...opts,
 
             presets: [{
-                    from: 'phecda-server',
-                    imports: psExports,
-                }, ]
+                from: 'phecda-server',
+                imports: psExports,
+            },]
                 .concat(opts.presets || []),
         })
     } catch (e) {
