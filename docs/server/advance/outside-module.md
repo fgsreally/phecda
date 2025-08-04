@@ -1,4 +1,4 @@
-# 模块外
+# 模块外使用
 之前的例子，都是模块调用模块，那还有一种情况，就是模块外需要调用模块
 
 
@@ -14,3 +14,5 @@ app.use('',()=>{
 import { useS } from 'phecda-server'
 const User=await useS(UserModule,'my-namespace') 
 ```
+
+不仅用于模块外，还可用于解决循环依赖的问题

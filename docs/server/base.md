@@ -7,7 +7,7 @@
 > 抱歉，我无意设计的如此复杂，但前文所说的几个特性不太能用简单的办法解决，
 > 这一小段可以跳过，毕竟我自己也记不太住
 
-1. **模块**，也就是类，前文的`UserController/UserService`都是
+1. **模块**，前文的`UserController/UserService`都是
 
 :::tip
 `ps`中模块（类）分为以下几种，
@@ -18,7 +18,7 @@
    在`rabbitmq`中对应着`rpc`（类名为`XXRpc`），负责暴露队列
 
 2. **服务模块**，主要是给控制器提供服务，对应着`service`（类名为`XXService`）
-3. **基础模块**，主要是提供一些基础能力给其他模块使用，对应着`module`（类名为`XXModule`）
+3. **基础模块**，主要是提供一些基础能力给其他模块使用，不暴露在外，对应着`module`（类名为`XXModule`）
 4. **`AOP`模块**， 提供`aop`功能（类名为`XXPipe/XXGuard/XXFilter/XXAddon/XXExtension`）
 5. **独立模块**，不被其他模块调用的模块，主要用于定时器、事件总线（类名为`XXSolo`）
 
