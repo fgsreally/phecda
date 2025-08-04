@@ -44,12 +44,16 @@
 
 
 ### 交互命令
-输入`e`并回车会退出程序，输入`r`回车会完全重启
+输入`e`回车会退出程序
 
+输入`r`回车会完全重启
 
+输入`i`回车会切换调试模式(`i host:port/i port`可以指定端口)
+
+> 默认不使用`sourcemap`,因为`loader`处理后的内联`sourcemap`存在一些问题，会看不到作用域（至少在浏览器调试中，原因未知）
 
 ### nodejs 参数
 传递给`nodejs`的参数需:
 ```shell
-npx phecda file.ts -- --inspect
+npx phecda file.ts --nodeArgs="--inspect-brk"
 ```

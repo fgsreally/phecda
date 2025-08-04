@@ -13,7 +13,6 @@ export class TestService {
   }
 
   test() {
-    console.log(3)
     log('test')
   }
 }

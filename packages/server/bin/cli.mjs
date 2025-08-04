@@ -191,8 +191,10 @@ cli
     console.log(`${pc.green('->')} press ${pc.green('e')} to exit`)
     console.log(`${pc.green('->')} press ${pc.green('r')} to relaunch`)
     console.log(`${pc.green('->')} press ${pc.green('c')} to clear terminal`)
+    console.log(`${pc.green('->')} press ${pc.green('i')} to debug`)
 
     process.stdin.on('data', async (data) => {
+      const args = [...nodeArgs]
       const input = data.toString().trim().toLocaleLowerCase()
       if (input === 'r') {
         if (child) {
@@ -200,12 +202,11 @@ cli
           if (closePromise)
             await closePromise
           log('relaunch...')
-          startChild(file, nodeArgs)
+          startChild(file, args)
         }
         else {
           log('relaunch...')
-
-          startChild(file, nodeArgs)
+          startChild(file, args)
         }
       }
       if (input === 'e')
@@ -213,6 +214,20 @@ cli
 
       if (input === 'c')
         console.clear()
+
+      if (input === 'i' || input.startsWith('i ')) {
+        const [, arg] = input.split(' ')
+
+        if (child) {
+          child.send({
+            type: 'inspect',
+            arg
+          })
+        } else {
+          args.push(`--inspect${arg ? `=${arg}` : ''}`)
+          startChild(file, args)
+        }
+      }
     })
   })
 
