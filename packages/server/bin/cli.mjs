@@ -125,7 +125,7 @@ cli
             noImplicitReturns: true,
             skipLibCheck: true,
           },
-          include: ['.', hasUnimport ? (process.env.PS_DTS_PATH || 'ps.d.ts') : undefined],
+          include: ['.', hasUnimport ? (process.env.PS_DTS_PATH || 'ps.d.ts') : false].filter(Boolean),
         },
 
       )
