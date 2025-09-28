@@ -18,18 +18,18 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.34.1",
-    "@changesets/cli": "^2.26.0",
-    "@swc/core": "^1.12.14",
-    "@types/node": "^18.11.12",
+    "@antfu/eslint-config": "^0.34.2",
+    "@changesets/cli": "^2.29.7",
+    "@swc/core": "^1.13.5",
+    "@types/node": "^18.19.127",
     "cross-env": "^7.0.3",
-    "eslint": "^8.55.0",
-    "jsdom": "^21.1.1",
-    "tsup": "^8.1.0",
-    "turbo": "^1.8.2",
-    "typescript": "^5.8.3",
-    "unplugin-swc": "^1.5.5",
-    "vitepress": "^1.6.3",
+    "eslint": "^8.57.1",
+    "jsdom": "^21.1.2",
+    "tsup": "^8.5.0",
+    "turbo": "^1.13.4",
+    "typescript": "^5.9.2",
+    "unplugin-swc": "^1.5.7",
+    "vitepress": "^1.6.4",
     "vitest": "^1.6.1"
   }
 }

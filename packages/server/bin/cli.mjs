@@ -95,7 +95,6 @@ cli
       hasUnimport = false
     }
 
-    // If unimport is available, check if phecda-core is installed
     if (hasUnimport) {
       try {
         await import('phecda-core')

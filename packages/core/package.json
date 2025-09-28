@@ -33,7 +33,7 @@
     "build": "tsup"
   },
   "devDependencies": {
-    "tsup": "^8.1.0"
+    "tsup": "^8.5.0"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.14"

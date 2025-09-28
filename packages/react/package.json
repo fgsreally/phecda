@@ -21,11 +21,11 @@
   },
   "dependencies": {
     "phecda-web": "workspace:*",
-    "react": "^18.2.0",
-    "valtio": "^1.13.0"
+    "react": "^18.3.1",
+    "valtio": "^1.13.2"
   },
   "devDependencies": {
-    "@types/react": "^18.2.48",
-    "tsup": "^8.1.0"
+    "@types/react": "^18.3.24",
+    "tsup": "^8.5.0"
   }
 }

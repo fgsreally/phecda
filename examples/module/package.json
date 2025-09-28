@@ -8,11 +8,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "phecda-module": "workspace:^2.1.4"
+    "phecda-module": "workspace:^"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "unplugin-swc": "^1.3.2",
-    "vite": "^6.3.5"
+    "typescript": "^5.9.2",
+    "unplugin-swc": "^1.5.7",
+    "vite": "^6.3.6"
   }
 }
