@@ -1,5 +1,11 @@
 # phecda-core
 
+## 5.1.1
+
+### Patch Changes
+
+- ae849ae: add exports to package.json
+
 ## 5.1.0
 
 ### Minor Changes
