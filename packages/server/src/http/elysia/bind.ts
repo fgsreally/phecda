@@ -205,6 +205,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
   }
 }
 
-export function Elysia(opts: LocalHook<InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro, any>) {
+export function Elysia(opts: LocalHook<InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro>) {
   return Define('elysia', opts)
 }
