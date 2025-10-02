@@ -1,5 +1,18 @@
 # phecda-server
 
+## 8.2.0
+
+### Minor Changes
+
+- be56de6: refactor unimport config
+
+### Patch Changes
+
+- 5a58e78: export defaultFilter
+- cff3789: fix tsconfig.json init
+- Updated dependencies [ae849ae]
+  - phecda-core@5.1.1
+
 ## 8.1.0
 
 ### Minor Changes

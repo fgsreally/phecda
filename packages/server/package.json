@@ -1,6 +1,6 @@
 {
   "name": "phecda-server",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "description": "server framework that provide IOC/type-reuse/http&rpc-adaptor",
   "author": "fgsreally",
   "license": "MIT",

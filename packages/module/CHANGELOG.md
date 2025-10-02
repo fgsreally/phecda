@@ -1,5 +1,12 @@
 # phecda-module
 
+## 2.1.5
+
+### Patch Changes
+
+- Updated dependencies [ae849ae]
+  - phecda-core@5.1.1
+
 ## 2.1.4
 
 ### Patch Changes
