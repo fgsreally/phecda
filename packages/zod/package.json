@@ -16,10 +16,10 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "tsup": "^8.1.0"
+    "tsup": "^8.5.0"
   },
   "dependencies": {
-    "phecda-core": "workspace:5.1.0",
-    "zod": "^3.23.5"
+    "phecda-core": "workspace:*",
+    "zod": "^3.25.76"
   }
 }

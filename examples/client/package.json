@@ -11,11 +11,11 @@
   "license": "ISC",
   "packageManager": "pnpm@10.10.0",
   "devDependencies": {
-    "vite": "^6.3.5"
+    "vite": "^6.3.6"
   },
   "dependencies": {
-    "alova": "^3.2.8",
-    "axios": "^1.7.9",
+    "alova": "^3.3.4",
+    "axios": "^1.12.2",
     "example-http": "workspace:*",
     "phecda-client": "workspace:*"
   }

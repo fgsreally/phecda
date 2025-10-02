@@ -9,7 +9,7 @@ export * from './common'
 export * from './modules'
 export * from './generator'
 export * from './utils'
-
+export * from './filter'
 export * from 'phecda-core'
 
 export * from './http/types'

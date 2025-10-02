@@ -1,6 +1,5 @@
 import { basename } from 'path'
 import { transform } from '@swc-node/core'
-import psExports from './export.mjs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -34,15 +33,7 @@ export async function genUnImportRet(opts) {
     try {
         const { createUnimport } = await
             import('unimport')
-        return createUnimport({
-            ...opts,
-
-            presets: [{
-                from: 'phecda-server',
-                imports: psExports,
-            },]
-                .concat(opts.presets || []),
-        })
+        return createUnimport(opts)
     } catch (e) {
         return false
     }

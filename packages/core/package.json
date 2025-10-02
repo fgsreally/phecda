@@ -9,9 +9,22 @@
     "phecda",
     "core"
   ],
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "dist/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
@@ -20,7 +33,7 @@
     "build": "tsup"
   },
   "devDependencies": {
-    "tsup": "^8.1.0"
+    "tsup": "^8.5.0"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.14"

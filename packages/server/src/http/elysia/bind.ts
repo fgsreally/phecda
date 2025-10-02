@@ -1,7 +1,7 @@
 import Debug from 'debug'
-import type { Context as ElysiaContext, InputSchema, LocalHook, RouteSchema, SingletonBase } from 'elysia'
+import type { Context as ElysiaContext } from 'elysia'
 import { Elysia as App } from 'elysia'
-import type { BaseMacro } from 'elysia/dist/types'
+import type { AnyLocalHook } from 'elysia/dist/types'
 import type { HttpCtx, HttpOptions } from '../types'
 
 import type { Factory } from '../../core'
@@ -205,6 +205,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
   }
 }
 
-export function Elysia(opts: LocalHook<InputSchema, RouteSchema, SingletonBase, Record<string, Error>, BaseMacro, any>) {
+export function Elysia(opts: AnyLocalHook) {
   return Define('elysia', opts)
 }
