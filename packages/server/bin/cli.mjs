@@ -95,6 +95,14 @@ cli
       hasUnimport = false
     }
 
+    if (hasUnimport) {
+      try {
+        await import('phecda-core')
+      } catch (e) {
+        log('please install \'phecda-core\' when using unimport', 'warn')
+      }
+    }
+
     const tsconfigPath = options.tsconfig
     const psconfigPath = process.env.PS_CONFIG_FILE || options.config
 
@@ -150,7 +158,14 @@ cli
         ],
         unimport: hasUnimport && {
           dirs: [
-            '.',
+          ],
+          presets: [
+            {
+              package: 'phecda-core'
+            },
+            {
+              package: 'phecda-server'
+            }
           ],
           dirsScanOptions: {
             filePatterns: [

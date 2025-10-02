@@ -39,6 +39,6 @@
     "phecda-core": "workspace:*"
   },
   "devDependencies": {
-    "tsup": "^8.1.0"
+    "tsup": "^8.5.0"
   }
 }

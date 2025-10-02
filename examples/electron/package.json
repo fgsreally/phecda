@@ -12,12 +12,12 @@
     "electron": "cross-env NODE_ENV=development npx electron ./index.js"
   },
   "dependencies": {
-    "electron": "^33.2.1",
+    "electron": "^33.4.11",
     "phecda-client": "workspace:^",
     "phecda-server": "workspace:^"
   },
   "devDependencies": {
-    "unimport": "^3.7.1",
-    "vite": "^6.3.5"
+    "unimport": "^3.14.6",
+    "vite": "^6.3.6"
   }
 }
