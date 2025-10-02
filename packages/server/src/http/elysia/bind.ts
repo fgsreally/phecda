@@ -1,7 +1,9 @@
 import Debug from 'debug'
-import type { Context as ElysiaContext, LocalHook } from 'elysia'
+import type { Context as ElysiaContext } from 'elysia'
 import { Elysia as App } from 'elysia'
+import type { AnyLocalHook } from 'elysia/dist/types'
 import type { HttpCtx, HttpOptions } from '../types'
+
 import type { Factory } from '../../core'
 import { BadRequestException } from '../../exception'
 import { AOP, Context } from '../../context'
@@ -203,6 +205,6 @@ export function bind(app: App<any>, data: Awaited<ReturnType<typeof Factory>>, o
   }
 }
 
-export function Elysia(opts: LocalHook<any, any, any, any, any, any>) {
+export function Elysia(opts: AnyLocalHook) {
   return Define('elysia', opts)
 }
