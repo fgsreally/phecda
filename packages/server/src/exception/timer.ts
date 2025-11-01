@@ -1,6 +1,6 @@
 import { Exception } from './base'
 export class TimerException extends Exception {
-  constructor(message: string) {
-    super(message, 0, 'Timer Error')
+  constructor(message: string, metadata?: any) {
+    super(message, metadata, 0, 'Timer Error')
   }
 }

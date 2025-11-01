@@ -36,7 +36,6 @@ export function invoke(instance: any, key: string, ...params: any) {
       res.filter(item => item.status === 'rejected').forEach((item) => {
         console.error(item.reason)
       })
-
       return res
     })
 }
