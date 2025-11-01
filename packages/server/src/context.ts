@@ -2,7 +2,7 @@ import Debug from 'debug'
 import pc from 'picocolors'
 import { defaultPipe } from './pipe'
 import { defaultFilter } from './filter'
-import type { BaseCtx, DefaultOptions } from './types'
+import type { BaseCtx, BaseError, DefaultOptions } from './types'
 import { IS_DEV } from './common'
 import { type Exception } from './exception'
 import { resolveDep } from './helper'
@@ -20,7 +20,7 @@ export interface AOP {
 export interface PipeArg { arg: any; pipe?: string; key: string; type: string; index: number; reflect: any; define: Record<string, any>; meta: any }
 export type GuardType<Ctx extends BaseCtx = any> = (ctx: Ctx, next: () => Promise<any>) => any
 export type PipeType<Ctx extends BaseCtx = any> = (arg: PipeArg, ctx: Ctx) => Promise<any>
-export type FilterType<Ctx extends BaseCtx = any, E extends Exception = any> = (err: E | Error, ctx?: Ctx) => Error | any
+export type FilterType<Ctx extends BaseCtx = any, E extends Exception = any> = (err: E | Error, ctx?: Ctx) => BaseError
 
 export class Context<Ctx extends BaseCtx> {
   method: string

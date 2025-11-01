@@ -4,3 +4,4 @@
 
 fix PExtension type
 fix Exception type
+fix FilterType

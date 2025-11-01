@@ -18,5 +18,5 @@ export const defaultFilter: FilterType = (e) => {
       console.error(e.stack)
   }
 
-  return e.data
+  return (e as Exception).data
 }
