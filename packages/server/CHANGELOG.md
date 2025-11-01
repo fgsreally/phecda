@@ -1,5 +1,11 @@
 # phecda-server
 
+## 8.3.0
+
+### Minor Changes
+
+- 1df7157: add metadata on exception(breaking change),mainly for i18n
+
 ## 8.2.0
 
 ### Minor Changes
