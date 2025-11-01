@@ -5,6 +5,7 @@ import type { FilterType } from './context'
 
 export const defaultFilter: FilterType = (e) => {
   if (!(e instanceof Exception)) {
+    //@todo
     log(e.message, 'error')
     if (LOG_LEVEL <= 0)
       console.error(e.stack)
