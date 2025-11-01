@@ -23,12 +23,12 @@ export class Test {
   @Get('/filter')
   @Filter('test')
   filter() {
-    throw new Exception('filter error', 500)
+    throw new Exception('filter error', {}, 500)
   }
 
   @Get('/error')
   error(@Query('msg') msg: string) {
-    throw new Exception(msg, 500)
+    throw new Exception(msg, {}, 500)
   }
 
   @Post('/pipe')
