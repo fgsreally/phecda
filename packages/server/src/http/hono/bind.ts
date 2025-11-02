@@ -47,7 +47,7 @@ export function bind(router: Hono, data: Awaited<ReturnType<typeof Factory>>, op
 
         async function errorHandler(e: any) {
           const error = await Context.filterRecord.default(e)
-          c.status(error.status)
+          c.status(error.status as any)
           return c.json(error)
         }
 
