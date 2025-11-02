@@ -5,8 +5,7 @@ import type { Exception } from '../exception'
 import { ServerBase } from './base'
 
 export interface PExtension<Ctx extends BaseCtx = any, E extends Exception = Exception> {
-
-  guard(ctx: Ctx): Promise<boolean> | boolean
+  guard(ctx: Ctx, next: () => Promise<any>): any
 
   pipe(param: { arg: any; option?: any; key: string; type: string; index: number; reflect: any }, ctx: Ctx): any
 

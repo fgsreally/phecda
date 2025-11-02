@@ -6,6 +6,6 @@ export class Exception extends Error {
   }
 
   get data() {
-    return { message: this.message, description: this.description, status: this.status, [ERROR_SYMBOL]: true,  }
+    return { message: this.message, description: this.description, status: this.status, [ERROR_SYMBOL]: true as const,  }
   }
 }
