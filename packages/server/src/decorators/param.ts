@@ -38,16 +38,10 @@ export function Arg(target: any, k: string, index: number) {
   })(target, k, index)
 }
 
-export function OneFile(key = '') {
+
+export function UploadFile(key = '') {
   return BaseParam({
     type: 'file',
-    key,
-  })
-}
-
-export function ManyFiles(key = '') {
-  return BaseParam({
-    type: 'files',
     key,
   })
 }
