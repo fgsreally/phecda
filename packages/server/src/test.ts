@@ -1,5 +1,5 @@
 import type { Server } from 'node:http'
-import type { SuperAgentTest, Test } from 'supertest'
+import type { Test } from 'supertest'
 import { type Construct, getTag } from 'phecda-core'
 import { Factory } from './core'
 
@@ -33,7 +33,7 @@ export type SuperTestRequest<T> = {
 
 export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<ReturnType<typeof Factory>>, isAgent = true) {
   const { default: request, agent } = await import('supertest')
-  const Agent = agent(app) as SuperAgentTest & { module: typeof module }
+  const Agent = agent(app)
 
   function module<T extends Construct>(Module: T): SuperTestRequest<PickFunc<InstanceType<T>>> {
     const tag = getTag(Module)
@@ -81,7 +81,6 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
     }) as any
   }
 
-  Agent.module = module
 
-  return Agent
+  return { module, agent }
 }
