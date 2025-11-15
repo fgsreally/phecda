@@ -1,5 +1,5 @@
 import type { Server } from 'node:http'
-import type { SuperAgentTest, Test } from 'supertest'
+import type { Test } from 'supertest'
 import { type Construct, getTag } from 'phecda-core'
 import { Factory } from './core'
 
