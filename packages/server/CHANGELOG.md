@@ -1,5 +1,12 @@
 # phecda-server
 
+## 8.4.0
+
+### Minor Changes
+
+- ae2d53b: merge OneFile and ManyFiles to UploadFile, which is breaking but not important
+- ae2d53b: refactor TestHttp to fix types question for unknown reason(it's breaking but not imporatant)
+
 ## 8.3.1
 
 ### Patch Changes
