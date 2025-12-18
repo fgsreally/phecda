@@ -161,9 +161,6 @@ cli
           ],
           presets: [
             {
-              package: 'phecda-core'
-            },
-            {
               package: 'phecda-server'
             }
           ],
