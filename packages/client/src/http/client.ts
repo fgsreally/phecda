@@ -49,7 +49,6 @@ function nextTick() {
 
 export function createClient<Controllers extends Record<string, Construct>>(controllers: Controllers, adaptor: HttpAdaptor = fetchAdaptor,
   options: {
-    batch?: boolean
     parallelRoute?: string
   } = {}): HttpClientMap<Controllers> {
   const client: any = {
@@ -57,7 +56,7 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
   }
   let batchStack: any[] | null
   let batchPromise: any
-  const { batch, parallelRoute } = options
+  const { parallelRoute } = options
 
   for (const key in controllers) {
     const proxy = new Proxy(new controllers[key](), {
@@ -68,7 +67,7 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
         return (...args: any) => {
           const requestArg = generator(...args)
 
-          if (!batch) {
+          if (!parallelRoute) {
             const { send, abort } = adaptor()
             return HttpRequest(() => send(requestArg), abort)
           }
@@ -88,7 +87,7 @@ export function createClient<Controllers extends Record<string, Construct>>(cont
                   return send({
                     http: {
                       method: 'post',
-                      url: parallelRoute || '/__PHECDA_SERVER__',
+                      url: parallelRoute,
                     },
                     body,
                     query: {},

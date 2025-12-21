@@ -5,7 +5,9 @@ import { ERROR_SYMBOL, ForbiddenException, addFilter, addGuard, addPipe } from '
 
 export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOptions) => Promise<App>, _framework: string) {
   it('basic request', async () => {
-    const app = await createServer()
+    const app = await createServer({
+      parallelRoute: '/__PHECDA_SERVER__',
+    })
     const res1 = await request(app).get('/get')
     expect(res1.body.msg).toBe('test')
     const res2 = await request(app).post('/post/phecda?id=1').send({ name: 'server' })

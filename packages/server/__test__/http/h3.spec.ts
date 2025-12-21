@@ -11,7 +11,10 @@ async function createServer(opts?: HttpOptions) {
   const data = await Factory([Test])
   const app = createH3()
   const router = createRouter()
-  bind(router, data, opts)
+  bind(router, data, {
+    ...opts,
+    parallelRoute: '/__PHECDA_SERVER__',
+  })
   app.use(router)
   return toNodeListener(app)
 }

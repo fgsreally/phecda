@@ -68,7 +68,7 @@ async function runAxiosDemo() {
     const parallelClient = createClient(
       { $test: TestController },
       axiosAdaptor(instance),
-      { batch: true },
+      { parallelRoute: '/__PHECDA_SERVER__' },
     )
 
     appendResult('axios-results', '3️⃣ 单个批量请求:',
@@ -152,7 +152,7 @@ async function runAlovaDemo() {
     const parallelClient = createClient(
       { $test: TestController },
       alovaAdaptor(alovaInstance),
-      { batch: true },
+      { parallelRoute: '/__PHECDA_SERVER__' },
     )
 
     appendResult('alova-results', '单个批量请求:',

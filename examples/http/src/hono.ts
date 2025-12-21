@@ -13,7 +13,9 @@ const data = await Factory([TestController], {
 const app = new Hono()
 const router = new Hono()
 app.use(cors())
-bind(router, data)
+bind(router, data,{
+  parallelRoute: '/__PHECDA_SERVER__',
+})
 app.route('/base', router)
 
 serve({

@@ -38,7 +38,6 @@ export function Arg(target: any, k: string, index: number) {
   })(target, k, index)
 }
 
-
 export function UploadFile(key = '') {
   return BaseParam({
     type: 'file',

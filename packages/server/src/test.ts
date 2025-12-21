@@ -81,6 +81,5 @@ export async function TestHttp(app: Server | any, { moduleMap, meta }: Awaited<R
     }) as any
   }
 
-
   return { module, agent }
 }
