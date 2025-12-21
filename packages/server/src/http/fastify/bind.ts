@@ -19,7 +19,7 @@ export interface FastifyCtx extends HttpCtx {
 export type Addon = FastifyPluginCallback
 
 export function bind(fastify: FastifyInstance, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions & { fastifyOpts?: FastifyRegisterOptions<FastifyPluginOptions> } = {}) {
-  const { globalGuards, parallelRoute = '/__PHECDA_SERVER__', globalAddons = [], parallelAddons = [], globalFilter, globalPipe, fastifyOpts, dynamic = false } = opts
+  const { globalGuards, parallelRoute, globalAddons = [], parallelAddons = [], globalFilter, globalPipe, fastifyOpts, dynamic = false } = opts
   const {
     moduleMap, meta,
   } = data

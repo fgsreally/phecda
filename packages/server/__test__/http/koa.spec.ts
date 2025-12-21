@@ -15,7 +15,10 @@ async function createServer(opts?: HttpOptions) {
   const app = new Koa()
   app.use(koaBody())
   const router = new Router()
-  bind(router, data, opts)
+  bind(router, data, {
+    ...opts,
+    parallelRoute: '/__PHECDA_SERVER__',
+  })
   app.use(router.routes()).use(router.allowedMethods())
 
   return app.listen()

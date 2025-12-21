@@ -45,7 +45,7 @@ describe('http client', () => {
 
   const batchClient = createClient({
     test: TestController,
-  }, mockAdapter, { batch: true })
+  }, mockAdapter, { parallelRoute: '/__PHECDA_SERVER__' })
 
   it('auto send request(await)', async () => {
     expect(await client.test.getText('success')).toBe('success')

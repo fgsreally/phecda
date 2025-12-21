@@ -11,7 +11,10 @@ import { httpFrameworkTestSuite } from './utils'
 async function createServer(opts?: HttpOptions) {
   const data = await Factory([Test])
   const app = fastify()
-  bind(app, data, opts)
+  bind(app, data, {
+    ...opts,
+    parallelRoute: '/__PHECDA_SERVER__',
+  })
   await app.ready()
   return app.server
 }

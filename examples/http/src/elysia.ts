@@ -10,7 +10,9 @@ const data = await Factory([TestController], {
 const app = new Elysia()
 
 app.group('/base', (app) => {
-  bind(app, data)
+  bind(app, data,{
+    parallelRoute: '/__PHECDA_SERVER__',
+  })
   return app
 })
 app.listen(3008, () => {

@@ -23,7 +23,7 @@ export interface ExpressCtx extends HttpCtx {
 export type Addon = RequestHandler
 
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, parallelRoute = '/__PHECDA_SERVER__', globalAddons = [], parallelAddons = [], globalFilter, globalPipe, dynamic = false } = opts
+  const { globalGuards, parallelRoute, globalAddons = [], parallelAddons = [], globalFilter, globalPipe, dynamic = false } = opts
   const { moduleMap, meta } = data
 
   const originStack = router.stack.slice(0, router.stack.length)

@@ -15,7 +15,9 @@ const router = new Router({
 
 app.use(koaBody())
 
-bind(router, data)
+bind(router, data,{
+  parallelRoute: '/__PHECDA_SERVER__',
+})
 app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(3008, () => {

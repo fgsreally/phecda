@@ -14,10 +14,10 @@
 
 
 ## 服务方
-默认的并行路由是`/__PHECDA_SERVER__`，可以手动设置
+默认不启用并行路由，可以手动设置
 ```ts
 bind(app, data, {
-  parallelRoute
+  parallelRoute:`/__PHECDA_SERVER__`
 })
 ```
 如果设置`false`，就禁用
@@ -29,7 +29,6 @@ const chain = createClient(
   { user: UserController },
   adaptor,
   {
-    batch:true,
     parallelRoute: '/__PHECDA_SERVER__'
   }
 )

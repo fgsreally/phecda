@@ -16,6 +16,11 @@
     "dirs": [
       "."
     ],
+    "presets": [
+      {
+        "package": "phecda-server"
+      }
+    ],
     "dirsScanOptions": {
       "filePatterns": [
         "./src/server/*.{service,controller,module,rpc,solo,guard,extension,pipe,filter,addon}.ts"

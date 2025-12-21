@@ -60,6 +60,7 @@ async function start() {
   app.use(express.json())
   bind(router, data, {
     globalGuards: ['a'],
+    parallelRoute: '/__PHECDA_SERVER__',
   })
   app.use('/base', router)
 

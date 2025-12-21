@@ -21,7 +21,7 @@ export interface H3Ctx extends HttpCtx {
 export type Addon = _RequestMiddleware
 
 export function bind(router: Router, data: Awaited<ReturnType<typeof Factory>>, opts: HttpOptions = {}) {
-  const { globalGuards, parallelRoute = '/__PHECDA_SERVER__', globalAddons = [], parallelAddons = [], globalFilter, globalPipe, dynamic = false } = opts
+  const { globalGuards, parallelRoute, globalAddons = [], parallelAddons = [], globalFilter, globalPipe, dynamic = false } = opts
 
   const { moduleMap, meta } = data
 

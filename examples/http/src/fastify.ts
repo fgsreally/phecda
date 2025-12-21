@@ -20,6 +20,7 @@ bind(fastify, data, {
   fastifyOpts: {
     prefix: '/base',
   },
+  parallelRoute: '/__PHECDA_SERVER__',
 })
 
 // addFilter('test', (e, tag, ctx) => {

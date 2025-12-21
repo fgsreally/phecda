@@ -11,7 +11,10 @@ async function createServer(opts?: HttpOptions) {
   const app = express()
   app.use(express.json())
   const router = express.Router()
-  bind(router, data, opts)
+  bind(router, data, {
+    ...opts,
+    parallelRoute: '/__PHECDA_SERVER__',
+  })
   app.use(router)
   return app
 }
