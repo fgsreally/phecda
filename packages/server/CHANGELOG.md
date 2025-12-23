@@ -1,5 +1,15 @@
 # phecda-server
 
+## 8.5.0
+
+### Minor Changes
+
+- 8b02c36: ban parallel route by default
+
+### Patch Changes
+
+- 5e56e9d: add EXIT and fix RELOAD (it doesn't matter)
+
 ## 8.4.1
 
 ### Patch Changes
