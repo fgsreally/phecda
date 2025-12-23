@@ -1,5 +1,11 @@
 # phecda-client
 
+## 4.1.0
+
+### Minor Changes
+
+- 8b02c36: ban parallel route by default
+
 ## 4.0.0
 
 ### Major Changes
