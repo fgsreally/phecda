@@ -241,7 +241,7 @@ export function partial<Class extends Construct, Key extends keyof InstanceType<
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function override<Class extends Construct, Key extends keyof InstanceType<Class>>(
   classFn: Class,
-  ...properties: Key[]
+  ..._properties: Key[]
 ): Construct<Omit<InstanceType<Class>, Key>> {
   return classFn as any;
 }
