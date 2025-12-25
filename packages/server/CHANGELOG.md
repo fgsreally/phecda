@@ -1,5 +1,12 @@
 # phecda-server
 
+## 8.5.1
+
+### Patch Changes
+
+- Updated dependencies [0f0b589]
+  - phecda-core@5.2.0
+
 ## 8.5.0
 
 ### Minor Changes

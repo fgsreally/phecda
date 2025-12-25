@@ -1,5 +1,11 @@
 # phecda-core
 
+## 5.2.0
+
+### Minor Changes
+
+- 0f0b589: Modify Init, Unmount, and Invoke to support decorators that permit only a single invocation on the same attribute.
+
 ## 5.1.1
 
 ### Patch Changes
