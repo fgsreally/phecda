@@ -1,93 +1,132 @@
-import { describe, expect, it } from 'vitest'
-import { Empty, Expose, Required, Tag, addDecoToClass, getMergedMeta, getMetaKey, getTag, isPhecda, omit, partial, pick, setMeta } from '../src'
+import { describe, expect, it, vi } from "vitest";
+import {
+  Empty,
+  Expose,
+  Init,
+  Required,
+  Tag,
+  addDecoToClass,
+  getMergedMeta,
+  getMetaKey,
+  getTag,
+  invokeInit,
+  isPhecda,
+  omit,
+  partial,
+  pick,
+  setMeta,
+} from "../src";
 
-describe('helper', () => {
-  it('isPhecda', async () => {
-    @Tag('test')
-    class Test {
-    }
+describe("helper", () => {
+  it("isPhecda", async () => {
+    @Tag("test")
+    class Test {}
 
-    expect(isPhecda(Test)).toBe(true)
+    expect(isPhecda(Test)).toBe(true);
 
     @Empty
-    class Test2 {
-    }
+    class Test2 {}
 
-    expect(isPhecda(Test2)).toBe(true)
+    expect(isPhecda(Test2)).toBe(true);
 
-    class Test3 {
-    }
+    class Test3 {}
 
-    expect(isPhecda(Test3)).toBe(false)
-  })
-  it('add decorator', () => {
+    expect(isPhecda(Test3)).toBe(false);
+  });
+  it("add decorator", () => {
     class Test {
-      name: string
+      name: string;
     }
 
-    @Tag('test2')
-    class Test2 extends Test {
-    }
+    @Tag("test2")
+    class Test2 extends Test {}
 
-    addDecoToClass(Test, 'name', Expose)
-    expect(getMetaKey(Test)).toMatchSnapshot()
-    addDecoToClass(Test, undefined, Tag('test'))
-    expect(getTag(Test)).toBe('test')
-    expect(getTag(Test2)).toBe('test2')
-  })
+    addDecoToClass(Test, "name", Expose);
+    expect(getMetaKey(Test)).toMatchSnapshot();
+    addDecoToClass(Test, undefined, Tag("test"));
+    expect(getTag(Test)).toBe("test");
+    expect(getTag(Test2)).toBe("test2");
+  });
 
-  it('omit/pick', () => {
+  it("omit/pick", () => {
     function Test(value: any): any {
       return (target: any, key?: PropertyKey, index?: number) => {
-        setMeta(target, key, index, { data: value })
-      }
+        setMeta(target, key, index, { data: value });
+      };
     }
 
     @Test(0)
     class A {
       @Test(1)
-      name = 'A'
+      name = "A";
 
       @Test(2)
       setName(@Test(3) name: string) {
-        this.name = name
-        return name
+        this.name = name;
+        return name;
       }
     }
 
     //
 
-    const B = omit(A, 'name')
+    const B = omit(A, "name");
 
-    expect(getMergedMeta(A, 'name').data).toBe(1)
-    expect(getMergedMeta(B, 'setName').data === getMergedMeta(A, 'setName').data).toBeTruthy()
-    expect(getMergedMeta(B, 'setName', 0).data === getMergedMeta(A, 'setName', 0).data).toBeTruthy()
-    expect(getMergedMeta(B, 'name').data).toBeUndefined()
-    expect((new B() as any).name).toBeUndefined()
+    expect(getMergedMeta(A, "name").data).toBe(1);
+    expect(getMergedMeta(B, "setName").data === getMergedMeta(A, "setName").data).toBeTruthy();
+    expect(
+      getMergedMeta(B, "setName", 0).data === getMergedMeta(A, "setName", 0).data,
+    ).toBeTruthy();
+    expect(getMergedMeta(B, "name").data).toBeUndefined();
+    expect((new B() as any).name).toBeUndefined();
 
-    const C = pick(A, 'setName')
-    expect(getMergedMeta(C, 'name').data).toBeUndefined()
-    expect(getMergedMeta(C, 'setName').data === getMergedMeta(A, 'setName').data).toBeTruthy()
-    expect(getMergedMeta(C, 'setName', 0).data === getMergedMeta(A, 'setName', 0).data).toBeTruthy()
+    const C = pick(A, "setName");
+    expect(getMergedMeta(C, "name").data).toBeUndefined();
+    expect(getMergedMeta(C, "setName").data === getMergedMeta(A, "setName").data).toBeTruthy();
+    expect(
+      getMergedMeta(C, "setName", 0).data === getMergedMeta(A, "setName", 0).data,
+    ).toBeTruthy();
 
-    const instanceC: any = new C()
-    expect(instanceC.name).toBeUndefined()
-    instanceC.setName('test')
+    const instanceC: any = new C();
+    expect(instanceC.name).toBeUndefined();
+    instanceC.setName("test");
 
-    expect(instanceC.name).toBe('test')
-  })
+    expect(instanceC.name).toBe("test");
+  });
 
-  it('Partial', () => {
+  it("Partial", () => {
     class A {
       @Required
-      name = 'A'
+      name = "A";
     }
 
     //
 
-    const B = partial(A, 'name')
+    const B = partial(A, "name");
 
-    expect(getMergedMeta(A, 'name').required).toBeTruthy()
-    expect(getMergedMeta(B, 'name').required).toBeFalsy()
-  })
-})
+    expect(getMergedMeta(A, "name").required).toBeTruthy();
+    expect(getMergedMeta(B, "name").required).toBeFalsy();
+  });
+
+  it("invoke", async () => {
+    const fn = vi.fn((str: string) => str);
+
+    class Parent {
+      @Init
+      init() {
+        fn("parent");
+      }
+    }
+
+    class Child extends Parent {
+      @Init
+      init() {
+        super.init();
+        fn("child");
+      }
+    }
+
+    const child = new Child();
+    await invokeInit(child);
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+});
