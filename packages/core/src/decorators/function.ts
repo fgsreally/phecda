@@ -38,7 +38,6 @@ export function Global(model: any) {
   setMeta(model, undefined, undefined, {
     init: async (instance: any) => {
       const tag = getTag(instance)
-
       if (!(globalThis as any).__PHECDA__)
         (globalThis as any).__PHECDA__ = {};
       (globalThis as any).__PHECDA__[tag] = instance.constructor
