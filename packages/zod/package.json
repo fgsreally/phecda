@@ -1,6 +1,6 @@
 {
   "name": "phecda-zod",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "use zod instead of decorator/reflect-metadata",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
