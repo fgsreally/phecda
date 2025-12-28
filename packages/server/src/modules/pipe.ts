@@ -5,10 +5,10 @@ import { ServerBase } from './base'
 export abstract class PPipe<Ctx extends BaseCtx = any> extends ServerBase {
   readonly key: PropertyKey
 
-  constructor(tag?: string) {
-    super()
-
-    this.key = tag || getTag(this)
+  async init() {
+    await super.init();
+    //@ts-expect-error initialize
+    this.key = getTag(this);
     addPipe(this.key, this.use.bind(this))
     this.onUnmount(() => {
       delete Context.pipeRecord[this.key]
