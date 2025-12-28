@@ -34,24 +34,27 @@ export function isAsyncFunc(fn: Function) {
 
 export function invoke(instance: any, key: string, ...params: any) {
   const metaKeys = getMetaKey(instance);
-  const names: string[] = [];
   return Promise.allSettled(
     metaKeys
       .map((k) => {
-        return getMeta(instance, k);
-      })
-      .flat()
-      .filter((item: any) => {
-        if (typeof item[key] === "function") {
+        const names: string[] = [];
+        const meta = getMeta(instance, k);
+        return meta.filter((item) => {
           if (item.__NAME__) {
             if (names.includes(item.__NAME__)) {
               return false;
             }
             names.push(item.__NAME__);
-            return true
+            return true;
           } else {
             return true;
           }
+        });
+      })
+      .flat()
+      .filter((item: any) => {
+        if (typeof item[key] === "function") {
+          return true;
         } else {
           return false;
         }

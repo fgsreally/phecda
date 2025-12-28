@@ -1,4 +1,4 @@
-import { getTag } from "phecda-core";
+import { getTag, Init } from "phecda-core";
 import type { BaseCtx, BaseError } from "../types";
 import { Context, addAddon, addFilter, addGuard, addPipe } from "../context";
 import type { Exception } from "../exception";
@@ -23,8 +23,9 @@ export class PExtension extends ServerBase {
   guardPriority: number;
   addonPriority: number;
 
-  protected async init() {
-    await super.init();
+  @Init
+  // @ts-expect-error for internal
+  private _init() {
     //@ts-expect-error initialize
     this.key = getTag(this)
 

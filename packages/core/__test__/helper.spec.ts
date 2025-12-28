@@ -115,6 +115,11 @@ describe("helper", () => {
       init() {
         fn("parent");
       }
+
+      @Init
+      init2() {
+        fn("parent2");
+      }
     }
 
     class Child extends Parent {
@@ -123,10 +128,15 @@ describe("helper", () => {
         super.init();
         fn("child");
       }
+
+      @Init
+      init3() {
+        fn("child3");
+      }
     }
 
     const child = new Child();
     await invokeInit(child);
-    expect(fn).toHaveBeenCalledTimes(2);
+    expect(fn).toHaveBeenCalledTimes(4);
   });
 });
