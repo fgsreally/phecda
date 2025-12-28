@@ -1,5 +1,11 @@
 # phecda-core
 
+## 5.2.1
+
+### Patch Changes
+
+- 75d6eec: The modification to invoke in the last version has an issue. Although it takes effect, it does not behave as I expected.Now I have adjusted it to deduplicate only for the same property.
+
 ## 5.2.0
 
 ### Minor Changes
