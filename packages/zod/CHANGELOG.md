@@ -1,5 +1,12 @@
 # phecda-zod
 
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies [0f0b589]
+  - phecda-core@5.2.0
+
 ## 3.0.3
 
 ### Patch Changes
