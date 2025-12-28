@@ -1,5 +1,13 @@
 # phecda-server
 
+## 8.5.2
+
+### Patch Changes
+
+- 75d6eec: internal aop module can work with other internal module when using Mixin
+- Updated dependencies [75d6eec]
+  - phecda-core@5.2.1
+
 ## 8.5.1
 
 ### Patch Changes
