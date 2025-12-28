@@ -1,12 +1,13 @@
-import { getTag } from 'phecda-core'
+import { getTag, Init } from 'phecda-core'
 import { Context, addPipe } from '../context'
 import type { BaseCtx } from '../types'
 import { ServerBase } from './base'
 export abstract class PPipe<Ctx extends BaseCtx = any> extends ServerBase {
   readonly key: PropertyKey
 
-  async init() {
-    await super.init();
+  @Init
+  // @ts-expect-error for internal
+  private _init() {
     //@ts-expect-error initialize
     this.key = getTag(this);
     addPipe(this.key, this.use.bind(this))

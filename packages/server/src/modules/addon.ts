@@ -1,4 +1,4 @@
-import { getTag } from "phecda-core";
+import { getTag, Init } from "phecda-core";
 import { Context, addAddon } from "../context";
 import { ServerBase } from "./base";
 
@@ -7,8 +7,9 @@ export abstract class PAddon extends ServerBase {
 
   priority = 0;
 
-  async init() {
-    await super.init();
+  @Init
+  // @ts-expect-error for internal
+  private _init() {
     //@ts-expect-error initialize
     this.key = getTag(this);
     addAddon(this.key, this.use.bind(this), this.priority);

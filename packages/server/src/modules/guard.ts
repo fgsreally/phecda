@@ -1,4 +1,4 @@
-import { getTag } from 'phecda-core'
+import { getTag,Init } from 'phecda-core'
 import { Context, addGuard } from '../context'
 import type { BaseCtx } from '../types'
 import { ServerBase } from './base'
@@ -8,8 +8,9 @@ export abstract class PGuard<Ctx extends BaseCtx = any> extends ServerBase {
 
   priority = 0
 
-  async init() {
-    await super.init();
+  @Init
+  // @ts-expect-error for internal
+  private _init() {
     //@ts-expect-error initialize
     this.key = getTag(this);
     addGuard(this.key, this.use.bind(this), this.priority)
