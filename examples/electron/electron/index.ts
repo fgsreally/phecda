@@ -20,14 +20,10 @@ async function start() {
 
   app.whenReady().then(() => {
     const win = new BrowserWindow({
-      title: '董员外',
+      title: 'phecda',
       width: 1000,
       height: 800,
       webPreferences: {
-        webSecurity: false,
-        nodeIntegration: true,
-        contextIsolation: true,
-        webviewTag: true,
         preload: join(__dirname, '../preload.mjs'),
       },
     })
