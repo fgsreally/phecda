@@ -28,7 +28,7 @@ async function start() {
         nodeIntegration: true,
         contextIsolation: true,
         webviewTag: true,
-        preload: join(__dirname, '../preload.cjs'),
+        preload: join(__dirname, '../preload.mjs'),
       },
     })
     win.loadURL('http://localhost:5173')
