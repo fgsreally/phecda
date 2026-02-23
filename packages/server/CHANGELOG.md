@@ -1,5 +1,11 @@
 # phecda-server
 
+## 8.5.3
+
+### Patch Changes
+
+- a8e6b9b: improve relaunch in cli
+
 ## 8.5.2
 
 ### Patch Changes
