@@ -137,6 +137,15 @@
       ],
       "kafka": [
         "dist/rpc/kafka/index.d.ts"
+      ],
+      "electron": [
+        "dist/rpc/electron/index.d.ts"
+      ],
+      "ws": [
+        "dist/rpc/ws/index.d.ts"
+      ],
+      "web-ext": [
+        "dist/rpc/web-ext/index.d.ts"
       ]
     }
   },
