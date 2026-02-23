@@ -1,5 +1,11 @@
 # phecda-server
 
+## 8.5.4
+
+### Patch Changes
+
+- 9203358: expose web-ext !! don't forget it
+
 ## 8.5.3
 
 ### Patch Changes
