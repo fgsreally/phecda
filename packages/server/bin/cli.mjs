@@ -25,6 +25,11 @@ let child
 let closePromise
 const nodeVersion = parseFloat(process.version.slice(1))
 
+
+const PORT_RELEASE_DELAY = process.env.PS_PORT_RELEASE_DELAY
+  ? Number(process.env.PS_PORT_RELEASE_DELAY)
+  : 50
+
 if (nodeVersion < 18.19) {
   log(
     `Nodejs version less than 18.19(current is ${nodeVersion}) can't support hmr`,
@@ -33,7 +38,7 @@ if (nodeVersion < 18.19) {
 }
 
 function startChild(file, args) {
-  child = globalThis.PS_CREATE_CHILD?.() || fork(file, {
+  child = fork(file, {
     env: { ...process.env },
     stdio: 'inherit',
     execArgv: [
@@ -46,15 +51,17 @@ function startChild(file, args) {
 
   closePromise = new Promise((resolve) => {
     child.once('exit', (code) => {
-      if (code === 4171)
-        startChild(file, args)
+      setTimeout(() => {
 
-      if (code === 4172)
-        return process.exit()
+        child = undefined
+        resolve()
 
-      child = undefined
+        if (code === 4171)
+          startChild(file, args)
 
-      resolve()
+        if (code === 4172)
+          return process.exit()
+      }, PORT_RELEASE_DELAY)
     })
   })
 }
@@ -213,13 +220,9 @@ cli
           await child.kill()
           if (closePromise)
             await closePromise
-          log('relaunch...')
-          startChild(file, args)
         }
-        else {
-          log('relaunch...')
-          startChild(file, args)
-        }
+        log('relaunch...')
+        startChild(file, args)
       }
       if (input === 'e')
         exit()
