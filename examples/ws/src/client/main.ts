@@ -1,6 +1,6 @@
-import { WsAdaptor, createClient } from 'phecda-client/rpc'
+import { createClient } from 'phecda-client/rpc'
+import { adaptor } from 'phecda-client/ws'
 import { TestRpc } from '../ws/test.rpc'
-
 // 辅助函数：将结果显示到界面
 function appendResult(containerId: string, title: string, result: any, isError = false) {
   const container = document.getElementById(containerId)
@@ -21,7 +21,7 @@ async function runDemo() {
   const ws = new WebSocket('ws://localhost:3001')
   const client = createClient(
     { $test: TestRpc },
-    WsAdaptor(ws),
+    adaptor(ws),
 
   )
 
