@@ -114,6 +114,8 @@ declare global {
   const defaultPipe: typeof import('phecda-server')['defaultPipe']
   const defaultServerInject: typeof import('phecda-server')['defaultServerInject']
   const emitter: typeof import('phecda-server')['emitter']
+  const extractDataByRules: typeof import('phecda-server')['extractDataByRules']
+  const extractRules: typeof import('phecda-server')['extractRules']
   const functionToClass: typeof import('phecda-server')['functionToClass']
   const get: typeof import('phecda-server')['get']
   const getInject: typeof import('phecda-server')['getInject']
@@ -147,5 +149,6 @@ declare global {
   const setMeta: typeof import('phecda-server')['setMeta']
   const useS: typeof import('phecda-server')['useS']
   const validate: typeof import('phecda-server')['validate']
+  const validateWithRules: typeof import('phecda-server')['validateWithRules']
   const wait: typeof import('phecda-server')['wait']
 }
