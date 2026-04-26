@@ -1,8 +1,83 @@
-import { isPhecda, validate } from 'phecda-core'
+import { extractDataByRules, extractRules, isPhecda, validateWithRules } from 'phecda-core'
+import type { Construct, ExtractedRule } from 'phecda-core'
 import type { PipeType } from './context'
 import { ValidateException } from './exception'
 
-export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type }, { method }) => {
+const modelRulesCache = new WeakMap<Construct, ExtractedRule[]>()
+
+function isPlainObject(value: any) {
+  return Object.prototype.toString.call(value) === '[object Object]'
+}
+
+function convertForRequestInput(value: any, type: any, index: number) {
+  if (value === undefined)
+    return value
+
+  if (type === Number && typeof value === 'string') {
+    const num = Number(value)
+    if (Number.isNaN(num))
+      throw new ValidateException(`param ${index + 1} is not a number`)
+    return num
+  }
+
+  if (type === Boolean && typeof value === 'string') {
+    if (value === 'true')
+      return true
+    if (value === 'false')
+      return false
+    throw new ValidateException(`param ${index + 1} is not a boolean`)
+  }
+
+  return value
+}
+
+function shouldConvertInput(type: string, key: string) {
+  return ['params', 'query', 'headers'].includes(type) && key === ''
+}
+
+function convertExtractedDataByRules(data: any, rules: ExtractedRule[], index: number) {
+  if (!data || typeof data !== 'object')
+    return data
+
+  for (const rule of rules) {
+    if (!rule.property)
+      continue
+    if (rule.property.includes('.') || rule.property.includes('[]'))
+      continue
+
+    data[rule.property] = convertForRequestInput(data[rule.property], rule.designType, index)
+  }
+
+  return data
+}
+
+function getModelRules(model: Construct) {
+  const cached = modelRulesCache.get(model)
+  if (cached)
+    return cached
+
+  const rules = extractRules(model)
+  modelRulesCache.set(model, rules)
+  return rules
+}
+
+async function validatePhecdaByRules(model: Construct, input: any, shouldConvert: boolean, index: number) {
+  if (!isPlainObject(input))
+    throw new ValidateException('data must be an object')
+
+  const rules = getModelRules(model)
+  let data = extractDataByRules(input, rules)
+  if (shouldConvert)
+    data = convertExtractedDataByRules(data, rules, index)
+
+  const errs = await validateWithRules(data, rules)
+  if (errs.length)
+    throw new ValidateException(errs[0])
+
+  return data
+}
+
+export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type, key }, { method }) => {
   if (meta.const) {
     if (arg !== meta.const)
       throw new ValidateException(`param ${index + 1} must be ${meta.const}`)
@@ -15,35 +90,25 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
       throw new ValidateException(`param ${index + 1} is required`)
   }
 
-  // transform for query and param(not undefined)
-  if (['params', 'query'].includes(type)) {
-    if (reflect === Number) {
-      arg = reflect(arg)
+  const isModel = isPhecda(reflect)
+  const shouldConvert = shouldConvertInput(type, key || '')
+  if (!isModel) {
+    if (shouldConvert) {
+      arg = convertForRequestInput(arg, reflect, index)
+    }
+    else {
+      if (reflect === Number && typeof arg !== 'number')
 
-      if (isNaN(arg))
         throw new ValidateException(`param ${index + 1} is not a number`)
-    }
-    else if (reflect === Boolean) {
-      if (arg === 'false')
-        arg = false
-      else if (arg === 'true')
-        arg = true
-      else
+
+      if (reflect === Boolean && typeof arg !== 'boolean')
+
         throw new ValidateException(`param ${index + 1} is not a boolean`)
+
+      if (reflect === String && typeof arg !== 'string')
+
+        throw new ValidateException(`param ${index + 1} is not a string`)
     }
-  }
-  else {
-    if (reflect === Number && typeof arg !== 'number')
-
-      throw new ValidateException(`param ${index + 1} is not a number`)
-
-    if (reflect === Boolean && typeof arg !== 'boolean')
-
-      throw new ValidateException(`param ${index + 1} is not a boolean`)
-
-    if (reflect === String && typeof arg !== 'string')
-
-      throw new ValidateException(`param ${index + 1} is not a string`)
   }
 
   if (meta.enum) {
@@ -69,11 +134,13 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
           break
         default:
           if (isPhecda(item)) {
-            const errs = await validate(item, arg)
-            if (!errs.length) {
+            try {
+              await validatePhecdaByRules(item, arg, shouldConvert, index)
               isCorrect = true
-              break
             }
+            catch {}
+            if (isCorrect)
+              break
           }
           else if (typeof item === 'function') {
             const ret = await item(arg)
@@ -110,11 +177,8 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type },
     }
   }
 
-  if (isPhecda(reflect)) {
-    const errs = await validate(reflect, arg)
-    if (errs.length)
-      throw new ValidateException(errs[0])
-  }
+  if (isModel)
+    arg = await validatePhecdaByRules(reflect, arg, shouldConvert, index)
 
   return arg
 }

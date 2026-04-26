@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Construct, Enum, Max, Min, Nested, Optional, Required, Rule, validate } from '../src'
+import { Construct, Enum, Max, Min, Nested, Optional, Required, Rule, extractDataByRules, extractRules, validate } from '../src'
 
 const testValidate = async (model: Construct, data: any, errLength: number) => {
   const err = await validate(model, data, true)
@@ -206,5 +206,56 @@ describe('validate', () => {
     }
     await testValidate(Entity, {
     }, 2)
+  })
+
+  it('extractDataByRules', () => {
+    class Item {
+      @Required
+      id: number
+    }
+
+    class Info {
+      @Required
+      name: string
+
+      @Nested(Item)
+      @Optional
+      items?: Item[]
+    }
+
+    class QueryEntity {
+      @Nested(Info)
+      @Optional
+      info?: Info
+    }
+
+    const rules = extractRules(QueryEntity)
+    const source = {
+      info: {
+        name: 'alice',
+        items: [
+          { id: '1', extra: 'x' },
+          { id: '2', extra: 'y' },
+        ],
+        ignored: 'drop-me',
+      },
+      topIgnored: true,
+    }
+    const data = extractDataByRules(source, rules)
+
+    expect(data).toEqual({
+      info: {
+        name: 'alice',
+        items: [
+          { id: '1' },
+          { id: '2' },
+        ],
+      },
+    })
+
+    const wrongContainer = extractDataByRules({ info: 'oops' }, rules)
+    expect(wrongContainer).toEqual({
+      info: 'oops',
+    })
   })
 })

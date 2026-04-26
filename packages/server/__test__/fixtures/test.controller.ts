@@ -5,6 +5,14 @@ class Info {
   name: string
 }
 
+class QueryInfo {
+  @Optional
+  page?: number
+
+  @Optional
+  active?: boolean
+}
+
 @Controller('')
 export class Test {
   @Ctx
@@ -67,7 +75,8 @@ export class Test {
 
     @Body('e') @Optional @OneOf(String, Number) _e: string | number,
     @Body('f') @Optional _f: Info,
+    @Query() @Optional _q?: QueryInfo,
   ) {
-    return true
+    return _q || true
   }
 }
