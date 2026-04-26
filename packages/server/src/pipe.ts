@@ -31,8 +31,8 @@ function convertForRequestInput(value: any, type: any, index: number) {
   return value
 }
 
-function shouldConvertInput(type: string, key: string) {
-  return ['params', 'query', 'headers'].includes(type) && key === ''
+function isStrTypeParam(type: string) {
+  return ['params', 'query', 'headers'].includes(type)
 }
 
 function convertExtractedDataByRules(data: any, rules: ExtractedRule[], index: number) {
@@ -43,7 +43,7 @@ function convertExtractedDataByRules(data: any, rules: ExtractedRule[], index: n
     if (!rule.property)
       continue
     if (rule.property.includes('.') || rule.property.includes('[]'))
-      continue
+      throw new ValidateException('default pipe only supports simple shallow phecda class for query/params/headers; please use custom pipe for nested data')
 
     data[rule.property] = convertForRequestInput(data[rule.property], rule.designType, index)
   }
@@ -91,24 +91,27 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type, k
   }
 
   const isModel = isPhecda(reflect)
-  const shouldConvert = shouldConvertInput(type, key || '')
-  if (!isModel) {
-    if (shouldConvert) {
-      arg = convertForRequestInput(arg, reflect, index)
-    }
-    else {
-      if (reflect === Number && typeof arg !== 'number')
+  const isStrType = isStrTypeParam(type)
+  const canUseShallowModelConvert = isStrType && !key
 
-        throw new ValidateException(`param ${index + 1} is not a number`)
+  if (isModel && isStrType && key) {
+    throw new ValidateException('phecda class cannot be used with specified field in query/params/headers in default pipe')
+  }
 
-      if (reflect === Boolean && typeof arg !== 'boolean')
+  if (!isModel && isStrType) {
+    arg = convertForRequestInput(arg, reflect, index)
+  }
+  else if (!isModel) {
+    if (reflect === Number && typeof arg !== 'number')
 
-        throw new ValidateException(`param ${index + 1} is not a boolean`)
+      throw new ValidateException(`param ${index + 1} is not a number`)
 
-      if (reflect === String && typeof arg !== 'string')
+    if (reflect === Boolean && typeof arg !== 'boolean')
 
-        throw new ValidateException(`param ${index + 1} is not a string`)
-    }
+      throw new ValidateException(`param ${index + 1} is not a boolean`)
+
+    if (reflect === String && typeof arg !== 'string')
+      throw new ValidateException(`param ${index + 1} is not a string`)
   }
 
   if (meta.enum) {
@@ -135,10 +138,10 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type, k
         default:
           if (isPhecda(item)) {
             try {
-              await validatePhecdaByRules(item, arg, shouldConvert, index)
+              await validatePhecdaByRules(item, arg, canUseShallowModelConvert, index)
               isCorrect = true
             }
-            catch {}
+            catch { }
             if (isCorrect)
               break
           }
@@ -178,7 +181,7 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type, k
   }
 
   if (isModel)
-    arg = await validatePhecdaByRules(reflect, arg, shouldConvert, index)
+    arg = await validatePhecdaByRules(reflect, arg, canUseShallowModelConvert, index)
 
   return arg
 }
