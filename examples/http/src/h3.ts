@@ -9,7 +9,7 @@ const data = await Factory([TestController], {
 })
 const app = createApp()
 const router = createRouter()
-bind(router, data,{
+bind(router, data, {
   parallelRoute: '/__PHECDA_SERVER__',
 })
 app.use('/base', useBase('', router.handler))

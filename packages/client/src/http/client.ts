@@ -2,6 +2,8 @@ import type { Construct, HttpClientMap } from '../types'
 import { isError } from '../helper'
 import { HttpRequest } from '../utils'
 
+export type { Construct, HttpClientMap }
+
 export type RequestArg = {
   http: {
     method: string

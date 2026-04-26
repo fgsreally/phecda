@@ -2,7 +2,7 @@ import { CLEAR_KEY, init, setMeta } from '../core'
 
 export function Init(proto: any, property: PropertyKey) {
   setMeta(proto, property, undefined, {
-    __NAME__:'Init',
+    __NAME__: 'Init',
     async init(instance: any) {
       return instance[property]()
     },
@@ -11,7 +11,7 @@ export function Init(proto: any, property: PropertyKey) {
 
 export function Unmount(proto: any, property: PropertyKey) {
   setMeta(proto, property, undefined, {
-    __NAME__:'Unmount',
+    __NAME__: 'Unmount',
     async unmount(instance: any) {
       return instance[property]()
     },

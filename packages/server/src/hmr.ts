@@ -1,4 +1,4 @@
-//only work for dev
+// only work for dev
 import { Construct } from 'phecda-core'
 import { IS_DEV, PS_EXIT_CODE } from './common'
 import { log } from './utils'
@@ -11,12 +11,11 @@ export function HMR(cb: (oldModels: Construct[], newModels: Construct[]) => any)
 }
 
 export async function RELOAD(oldModels: Construct[], newModels: Construct[]) {
-  if(IS_DEV){
+  if (IS_DEV) {
     log('reload module...')
     for (const cb of globalThis.__PS_HMR__) await cb(oldModels, newModels)
     log('reload done')
   }
-
 }
 
 export function RELAUNCH() {
@@ -27,8 +26,8 @@ export function RELAUNCH() {
   }
 }
 
-export function EXIT(){
-  if(IS_DEV){
+export function EXIT() {
+  if (IS_DEV) {
     log('exit...')
     process.exit(PS_EXIT_CODE.EXIT)
   }
