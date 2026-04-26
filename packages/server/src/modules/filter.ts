@@ -1,4 +1,4 @@
-import { getTag, Init } from 'phecda-core'
+import { Init, getTag } from 'phecda-core'
 import { Context, addFilter } from '../context'
 import type { Exception } from '../exception'
 import type { BaseCtx, BaseError } from '../types'
@@ -10,13 +10,13 @@ export abstract class PFilter<Ctx extends BaseCtx = any, E extends Exception = E
   @Init
   // @ts-expect-error for internal
   private _init() {
-    //@ts-expect-error initialize
-    this.key = getTag(this);
+    // @ts-expect-error initialize
+    this.key = getTag(this)
     addFilter(this.key, this.use.bind(this))
     this.onUnmount(() => {
       delete Context.filterRecord[this.key]
     })
   }
-  
+
   abstract use(error: Error | E, ctx?: Ctx): BaseError
 }

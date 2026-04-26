@@ -1,14 +1,14 @@
-import { CLEAR_KEY, get, getMeta, getMetaKey, getMetaParams, setMeta } from "./core";
-import type { AbConstruct, Construct } from "./types";
-import { Clear, Optional } from "./decorators";
+import { CLEAR_KEY, get, getMeta, getMetaKey, getMetaParams, setMeta } from './core'
+import type { AbConstruct, Construct } from './types'
+import { Clear, Optional } from './decorators'
 
 export function getTag<M extends Construct | AbConstruct>(
   moduleOrInstance: M | InstanceType<M>,
 ): PropertyKey {
-  if (typeof moduleOrInstance === "object")
-    moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor;
+  if (typeof moduleOrInstance === 'object')
+    moduleOrInstance = (moduleOrInstance as InstanceType<M>).constructor
 
-  return get(moduleOrInstance.prototype, "tag") || (moduleOrInstance as M).name;
+  return get(moduleOrInstance.prototype, 'tag') || (moduleOrInstance as M).name
 }
 
 /**
@@ -19,63 +19,63 @@ export function addDecoToClass<M extends Construct | AbConstruct>(
   key: keyof InstanceType<M> | PropertyKey | undefined,
   handler: PropertyDecorator | ClassDecorator,
 ) {
-  handler(key ? c.prototype : c, key as any);
+  handler(key ? c.prototype : c, key as any)
 }
 
 export function Pipeline(...decos: ((...args: any) => void)[]) {
   return (...args: any) => {
-    for (const d of decos) d(...args);
-  };
+    for (const d of decos) d(...args)
+  }
 }
 
 export function isAsyncFunc(fn: Function) {
-  return (fn as any)[Symbol.toStringTag] === "AsyncFunction";
+  return (fn as any)[Symbol.toStringTag] === 'AsyncFunction'
 }
 
 export function invoke(instance: any, key: string, ...params: any) {
-  const metaKeys = getMetaKey(instance);
+  const metaKeys = getMetaKey(instance)
   return Promise.allSettled(
     metaKeys
       .map((k) => {
-        const names: string[] = [];
-        const meta = getMeta(instance, k);
+        const names: string[] = []
+        const meta = getMeta(instance, k)
         return meta.filter((item) => {
           if (item.__NAME__) {
-            if (names.includes(item.__NAME__)) {
-              return false;
-            }
-            names.push(item.__NAME__);
-            return true;
-          } else {
-            return true;
+            if (names.includes(item.__NAME__))
+              return false
+
+            names.push(item.__NAME__)
+            return true
           }
-        });
+          else {
+            return true
+          }
+        })
       })
       .flat()
       .filter((item: any) => {
-        if (typeof item[key] === "function") {
-          return true;
-        } else {
-          return false;
-        }
+        if (typeof item[key] === 'function')
+          return true
+        else
+          return false
       })
       .map((item: any) => item[key](instance, ...params)),
   ).then((res) => {
     res
-      .filter((item) => item.status === "rejected")
+      .filter(item => item.status === 'rejected')
       .forEach((item) => {
-        console.error(item.reason);
-      });
-    return res;
-  });
+        console.error(item.reason)
+      })
+    return res
+  })
 }
 
 export function invokeInit(instance: any) {
-  return (instance.__PROMISE_SYMBOL__ = invoke(instance, "init"));
+  return (instance.__PROMISE_SYMBOL__ = invoke(instance, 'init'))
 }
 
 export function invokeUnmount(instance: any) {
-  return (instance.__PROMISE_SYMBOL__ = invoke(instance, "unmount"));
+  return (instance.__PROMISE_SYMBOL__ = invoke(instance, 'unmount'))
 }
 
 export function If(
@@ -85,11 +85,11 @@ export function If(
   if (value) {
     return (...args: any[]) => {
       // @ts-expect-error  parameters pass to decorators
-      decorators.forEach((d) => d(...args));
-    };
+      decorators.forEach(d => d(...args))
+    }
   }
 
-  return () => {};
+  return () => {}
 }
 
 export function getMergedMeta(
@@ -98,65 +98,70 @@ export function getMergedMeta(
   index?: number,
   merger: (prev: any, cur: any) => any = defaultMerger,
 ) {
-  const meta = getMeta(target, property, index);
+  const meta = getMeta(target, property, index)
   return meta.reduce((p, c) => {
-    return merger(p, c);
-  }, {});
+    return merger(p, c)
+  }, {})
 }
 
 function defaultMerger(prev: any, cur: any) {
-  const newMeta: any = {};
+  const newMeta: any = {}
   for (const key in prev) {
-    if (key === (CLEAR_KEY as any)) continue;
+    if (key === (CLEAR_KEY as any))
+      continue
 
-    newMeta[key] = prev[key];
+    newMeta[key] = prev[key]
   }
 
   for (const key in cur) {
-    if (key === (CLEAR_KEY as any)) continue;
+    if (key === (CLEAR_KEY as any))
+      continue
 
     if (newMeta[key] && cur[key]) {
       if (Array.isArray(newMeta[key]) && Array.isArray(cur[key])) {
-        const set = new Set(newMeta[key]);
+        const set = new Set(newMeta[key])
         cur[key].forEach((item: any) => {
-          set.delete(item);
-          set.add(item);
-        });
+          set.delete(item)
+          set.add(item)
+        })
 
-        newMeta[key] = [...set];
-      } else if (typeof newMeta[key] === "object" && typeof cur[key] === "object") {
-        newMeta[key] = defaultMerger(newMeta[key], cur[key]);
-      } else {
-        newMeta[key] = cur[key];
+        newMeta[key] = [...set]
       }
-    } else {
-      newMeta[key] = cur[key];
+      else if (typeof newMeta[key] === 'object' && typeof cur[key] === 'object') {
+        newMeta[key] = defaultMerger(newMeta[key], cur[key])
+      }
+      else {
+        newMeta[key] = cur[key]
+      }
+    }
+    else {
+      newMeta[key] = cur[key]
     }
   }
-  return newMeta;
+  return newMeta
 }
 
 export function wait(...instances: InstanceType<Construct>[]) {
-  return Promise.all(instances.map((i) => i.__PROMISE_SYMBOL__));
+  return Promise.all(instances.map(i => i.__PROMISE_SYMBOL__))
 }
 
 export function objectToClass<Obj extends Record<string, any>>(obj: Obj): new () => Obj {
   return class {
     constructor() {
-      Object.assign(this, obj);
+      Object.assign(this, obj)
     }
-  } as any;
+  } as any
 }
 
 export function functionToClass<Func extends (...args: any) => object>(
   fn: Func,
 ): new (...args: Parameters<Func>) => ReturnType<Func> {
   return class {
-    prototype: object;
+    prototype: object
     constructor(...args: any) {
-      Object.setPrototypeOf(this, fn(...args));
+      Object.setPrototypeOf(this, fn(...args))
     }
-  } as any;
+  } as any
 }
 
 export function omit<Class extends Construct, Key extends keyof InstanceType<Class>>(
@@ -165,18 +170,19 @@ export function omit<Class extends Construct, Key extends keyof InstanceType<Cla
 ): Construct<Omit<InstanceType<Class>, Key>> {
   const newClass = class extends classFn {
     constructor(...args: any) {
-      super(...args);
+      super(...args)
       properties.forEach((k: any) => {
-        delete this[k];
-      });
+        delete this[k]
+      })
     }
-  } as any;
+  } as any
 
   getMetaKey(classFn).forEach((k) => {
-    if (properties.includes(k as any)) addDecoToClass(newClass, k, Clear);
-  });
+    if (properties.includes(k as any))
+      addDecoToClass(newClass, k, Clear)
+  })
 
-  return newClass;
+  return newClass
 }
 
 export function pick<Class extends Construct, Key extends keyof InstanceType<Class>>(
@@ -186,65 +192,66 @@ export function pick<Class extends Construct, Key extends keyof InstanceType<Cla
   const newClass = class {
     constructor(...args: any) {
       // eslint-disable-next-line new-cap
-      const instance = new classFn(...args);
+      const instance = new classFn(...args)
       properties.forEach((prop) => {
         Object.defineProperty(this, prop, {
           get() {
-            const data = instance[prop];
-            if (typeof data === "function") return data.bind(this);
+            const data = instance[prop]
+            if (typeof data === 'function')
+              return data.bind(this)
 
-            return data;
+            return data
           },
           set(val) {
-            instance[prop] = val;
+            instance[prop] = val
           },
-        });
-      });
+        })
+      })
     }
-  } as any;
+  } as any
 
   getMetaKey(classFn).forEach((k) => {
     if (properties.includes(k as any)) {
-      setMeta(newClass, k, undefined, getMergedMeta(classFn, k));
+      setMeta(newClass, k, undefined, getMergedMeta(classFn, k))
 
       getMetaParams(classFn, k).forEach((index) => {
-        setMeta(newClass, k, index, getMergedMeta(classFn, k, index));
-      });
+        setMeta(newClass, k, index, getMergedMeta(classFn, k, index))
+      })
     }
-  });
+  })
 
-  return newClass;
+  return newClass
 }
 
 export function partial<Class extends Construct>(
   classFn: Class,
-): Construct<Partial<InstanceType<Class>>>;
+): Construct<Partial<InstanceType<Class>>>
 
 export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(
   classFn: Class,
   ...properties: Key[]
-): Construct<Partial<Pick<InstanceType<Class>, Key>> & Omit<InstanceType<Class>, Key>>;
+): Construct<Partial<Pick<InstanceType<Class>, Key>> & Omit<InstanceType<Class>, Key>>
 
 // 实现
 export function partial<Class extends Construct, Key extends keyof InstanceType<Class>>(
   classFn: Class,
   ...properties: Key[]
 ): Construct<any> {
-  const newClass = class extends classFn {} as any;
+  const newClass = class extends classFn {} as any
 
   getMetaKey(classFn).forEach((k) => {
     if (properties.length === 0 || properties.includes(k as any))
-      addDecoToClass(newClass, k, Optional);
-  });
+      addDecoToClass(newClass, k, Optional)
+  })
 
-  return newClass;
+  return newClass
 }
 
 // just type trick
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export function override<Class extends Construct, Key extends keyof InstanceType<Class>>(
   classFn: Class,
   ..._properties: Key[]
 ): Construct<Omit<InstanceType<Class>, Key>> {
-  return classFn as any;
+  return classFn as any
 }

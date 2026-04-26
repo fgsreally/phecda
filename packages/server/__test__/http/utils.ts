@@ -208,9 +208,19 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
             f: {},
           },
         },
+        {
+          tag: 'Test',
+          method: 'defaultPipe',
+          query: {
+            page: '2',
+            active: 'true',
+            extra: 'drop',
+          },
+        },
       ],
 
     )
+
     expect(body[0].message).toEqual('param 1 is not a string')
     expect(body[1].message).toEqual('param 2 is not a number')
     expect(body[2].message).toEqual('param 3 is not a boolean')
@@ -218,5 +228,6 @@ export function httpFrameworkTestSuite<App = any>(createServer: (opts?: HttpOpti
     expect(body[4].message).toEqual('param 5 can\'t pass one of these validations')
     expect(body[5].message).toEqual('data must be an object')
     expect(body[6].message).toEqual('it is required for "name"')
+    expect(body[7]).toEqual({ page: 2, active: true })
   })
 }

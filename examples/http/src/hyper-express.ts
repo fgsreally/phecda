@@ -12,7 +12,7 @@ const router = new Router()
 
 webserver.use('/base', router)
 
-bind(router, data,{
+bind(router, data, {
   parallelRoute: '/__PHECDA_SERVER__',
 })
 

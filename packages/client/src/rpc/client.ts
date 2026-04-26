@@ -3,6 +3,9 @@ import EventEmitter from 'eventemitter3'
 import { nanoid } from 'nanoid'
 import { RpcRequest } from '../utils'
 import type { RpcClientMap } from '../types'
+
+export type { RpcClientMap }
+
 export interface RpcClientOptions {
   // add to clientQueue
   genClientQueue?: (key?: string) => string

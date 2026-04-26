@@ -1,4 +1,4 @@
-import { getTag, Init } from 'phecda-core'
+import { Init, getTag } from 'phecda-core'
 import { Context, addPipe } from '../context'
 import type { BaseCtx } from '../types'
 import { ServerBase } from './base'
@@ -8,8 +8,8 @@ export abstract class PPipe<Ctx extends BaseCtx = any> extends ServerBase {
   @Init
   // @ts-expect-error for internal
   private _init() {
-    //@ts-expect-error initialize
-    this.key = getTag(this);
+    // @ts-expect-error initialize
+    this.key = getTag(this)
     addPipe(this.key, this.use.bind(this))
     this.onUnmount(() => {
       delete Context.pipeRecord[this.key]
