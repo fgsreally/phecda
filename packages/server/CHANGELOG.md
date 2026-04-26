@@ -1,5 +1,16 @@
 # phecda-server
 
+## 8.6.0
+
+### Minor Changes
+
+- 621a553: default pipe can handle simple phecda class（without nested） when using query/param/headers (convert string to number/boolean)
+
+### Patch Changes
+
+- Updated dependencies [621a553]
+  - phecda-core@5.3.0
+
 ## 8.5.4
 
 ### Patch Changes

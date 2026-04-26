@@ -1,5 +1,11 @@
 # phecda-core
 
+## 5.3.0
+
+### Minor Changes
+
+- 621a553: add more function in validate
+
 ## 5.2.1
 
 ### Patch Changes
