@@ -43,7 +43,7 @@ function convertExtractedDataByRules(data: any, rules: ExtractedRule[], index: n
     if (!rule.property)
       continue
     if (rule.property.includes('.') || rule.property.includes('[]'))
-      throw new ValidateException('default pipe only supports simple shallow phecda class for request input; please use custom pipe for nested query/params/headers data')
+      throw new ValidateException('default pipe only supports simple shallow phecda class for query/params/headers; please use custom pipe for nested data')
 
     data[rule.property] = convertForRequestInput(data[rule.property], rule.designType, index)
   }
@@ -94,8 +94,8 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type, k
   const isStrType = isStrTypeParam(type)
   const canUseShallowModelConvert = isStrType && !key
 
-  if (isModel && key) {
-    throw new ValidateException('default pipe only supports simple shallow phecda class for request input; key must be empty for query/params/headers model binding, otherwise use custom pipe')
+  if (isModel && isStrType && key) {
+    throw new ValidateException('phecda class cannot be used with specified field in query/params/headers in default pipe')
   }
 
   if (!isModel && isStrType) {
