@@ -39,7 +39,7 @@ if (nodeVersion < 18.19) {
 
 function startChild(file, args) {
   child = fork(file, {
-    env: { ...process.env },
+    env: { ...process.env, PS_RUNTIME: 'true' },
     stdio: 'inherit',
     execArgv: [
       ...args,
@@ -188,19 +188,11 @@ cli
   .command('<file> [root]', 'run file')
   .alias('run')
   // .allowUnknownOptions()
-  .option('-p,--prod', 'prod mode', {
-    default: false,
-  })
   .action((file, root, options) => {
     const nodeArgs = options.nodeArgs.split(' ').filter(Boolean)
 
     if (root)
       process.chdir(root)
-
-    if (options.prod)
-      process.env.NODE_ENV = 'production'
-    else
-      process.env.NODE_ENV = 'development'
 
     process.env.PS_CONFIG_FILE = process.env.PS_CONFIG_FILE || options.config
 

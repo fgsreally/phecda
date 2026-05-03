@@ -20,7 +20,6 @@ export class TestController extends HttpBase {
   @Init
   init() {
     // initlize
-
   }
 
   @Get()

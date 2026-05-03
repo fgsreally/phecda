@@ -5,6 +5,8 @@ import { RELAUNCH, RELOAD } from '../dist/helper.mjs'
 import inspector from 'inspector'
 const { port1, port2 } = new MessageChannel()
 
+
+
 register('./loader.mjs', {
   parentURL: import.meta.url,
   data: { port: port2 },

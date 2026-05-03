@@ -94,9 +94,8 @@ export const defaultPipe: PipeType = async ({ arg, reflect, meta, index, type, k
   const isStrType = isStrTypeParam(type)
   const canUseShallowModelConvert = isStrType && !key
 
-  if (isModel && isStrType && key) {
+  if (isModel && isStrType && key)
     throw new ValidateException('phecda class cannot be used with specified field in query/params/headers in default pipe')
-  }
 
   if (!isModel && isStrType) {
     arg = convertForRequestInput(arg, reflect, index)
