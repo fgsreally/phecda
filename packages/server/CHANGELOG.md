@@ -1,5 +1,12 @@
 # phecda-server
 
+## 8.7.0
+
+### Minor Changes
+
+- 0221c19: `phecda-server` will no longer rely on `process.env.NODE_ENV`
+  add more environment variables
+
 ## 8.6.0
 
 ### Minor Changes
