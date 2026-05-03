@@ -3,7 +3,6 @@ import pc from 'picocolors'
 import { defaultPipe } from './pipe'
 import { defaultFilter } from './filter'
 import type { BaseCtx, BaseError, DefaultOptions } from './types'
-import { IS_DEV } from './common'
 import { type Exception } from './exception'
 import { resolveDep } from './helper'
 import { ControllerMeta } from './meta'
@@ -47,20 +46,13 @@ export class Context<Ctx extends BaseCtx> {
 
   ctx: Ctx
 
-  // protected canGetCtx = true
-
   constructor(public data: Ctx) {
-    if (IS_DEV)
-      // @ts-expect-error work for debug
-      data._context = this
-
-    // const that = this
+    // if (IS_DEV)
+    //   // @ts-expect-error work for debug
+    //   data._context = this
 
     this.ctx = new Proxy(data, {
       get(target, p) {
-        // if (IS_DEV && !that.canGetCtx)// only detect in dev
-        //   throw new FrameworkException('ctx must be obtained within the same request cycle in controller')
-
         if (!(p in target))
           log(`attribute "${p as string}" does not exist on ctx, which might be due to a missing AOP role (such as a guard).`, 'warn', data.tag)
 
@@ -119,7 +111,6 @@ export class Context<Ctx extends BaseCtx> {
     } = meta
 
     try {
-      // let current = 0
       let res: any
       const nextHandler = (index: number) => {
         return async () => {
@@ -135,13 +126,7 @@ export class Context<Ctx extends BaseCtx> {
               ),
             )
 
-            // if (IS_DEV) {
-            //   Promise.resolve().then(() => {
-            //     this.canGetCtx = false
-            //   })
-            // }
             res = await instance[method](...args)
-            // this.canGetCtx = true
           }
           else {
             let nextPromise: Promise<any> | undefined
@@ -212,8 +197,6 @@ export class Context<Ctx extends BaseCtx> {
     }
 
     ret.sort((a, b) => b.priority - a.priority).forEach(item => item.value(router, framework))
-
-    // await Context.addonRecord[a](router, framework)
   }
 }
 

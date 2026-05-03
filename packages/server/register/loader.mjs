@@ -18,7 +18,7 @@ const require = createRequire(
 const debug = Debug('phecda-server/loader')
 
 const isLowVersion = parseFloat(process.version.slice(1)) < 18.19
-const IS_DEV = process.env.NODE_ENV === 'development'
+const IS_WATCH_MODE = !process.env.PS_BAN_WATCH
 let port
 let config
 const workdir = process.cwd()
@@ -89,7 +89,7 @@ export async function initialize(data) {
         if (typeof loader.resolve === 'function')
             customResolve = loader.resolve
     }
-    if (IS_DEV) {
+    if (IS_WATCH_MODE) {
         chokidar.watch(configPath, { persistent: true }).on('change', () => {
             port.postMessage(
                 JSON.stringify({
@@ -236,7 +236,7 @@ export const load = async (url, context, nextLoad) => {
     ) {
         watchFiles.add(url)
 
-        if (IS_DEV && mode !== 'not-hmr') {
+        if (IS_WATCH_MODE && mode !== 'not-hmr') {
             if (isModuleFileUrl(url)) {
                 port.postMessage(
                     JSON.stringify({
